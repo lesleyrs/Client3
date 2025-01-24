@@ -10388,6 +10388,7 @@ void client_free(Client *c) {
     free(c);
 }
 
+// commented out fields as we use calloc
 Client *client_new(void) {
     Client *c = calloc(1, sizeof(Client));
 
