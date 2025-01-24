@@ -1,0 +1,57 @@
+# 1 for low detail: disables audio, ground decor, some animations, less textures, and only builds scene for current height lvl
+# lowmem = 1
+
+# changes members items text to "Members Object", can cause you to be on p2p world with f2p client
+# free = 1
+
+# hides dns on desktop or ip in browser on welcome screen
+# hide_dns = 1
+
+# hides a debug sprite along water in some places (lumbridge for example)
+# hide_debug_sprite = 1
+
+# TODO check: on original webclient did music just stop playing at all on logout?
+# midi_on_logout = 1
+
+# allows running client commands with ::, originally this was only allowed on desktop (not applets) or on local servers
+# allow_commands = 1
+
+# allows typing debugprocs (server commands) with ::~, expands allowed keys to be able to type ~ (others won't see it)
+# allow_debugprocs = 1
+
+# set chat font era: 0 - early beta, 1 - late beta, 2 - launch
+# chat_era = 0
+
+# default username/password on load
+# username = 
+# password = 
+
+# remember username/password on logout
+# remember_username = 1
+# remember_password = 1
+
+# prefix the exponent with a 0 if the number isn't even
+# rsa_exponent = 
+# rsa_modulus = 
+
+# default world options (http_port is unused for now)
+# nodeid = 1
+# portoff = 0
+# server = localhost
+# http_port = 80
+
+# 2004scape worldlist: https://2004scape.org/api/v1/worldlist
+server = "w1.225.2004scape.org"
+
+# nodeid = 2
+# portoff = 3
+# server = "w2.225.2004scape.org"
+
+# nodeid = 3
+# server = "w3.225.2004scape.org"
+# http_port = 8443
+
+# nodeid = 4
+# portoff = 3
+# server = "w4.225.2004scape.org"
+# http_port = 8443

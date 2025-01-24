@@ -1,0 +1,44 @@
+# windows
+/*.exe
+/*.obj
+/*.exp
+/*.ilk
+/*.def
+/*.lib
+/*.pdb
+
+/*/x64
+/x64
+/*.vs
+/*.sln
+/*.vcxproj
+/*.vcxproj.*
+
+# linux
+/client
+/midi
+/playground
+
+/a.out
+/gmon.out
+/callgrind.out.*
+/perf.data
+/perf.data.old
+
+# sdl1 mingw32
+/stderr.txt
+/stdout.txt
+
+# emscripten
+/*.wasm.map
+/*.js
+/*.wasm
+/*.data
+/index.html
+
+# extra
+/SDL2.dll
+/SDL3.dll
+/config.ini
+/openssl
+/**/*.rdi
