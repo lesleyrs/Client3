@@ -53,8 +53,6 @@ fetching worldlist for webclient live server access is temporarily not working, 
 
 server cache changes would require manual cache update in client for now, it isn't supposed to change but as of right now there's an issue with client map crcs being changed when server maps get updated (also the cache has some interface changes rn for quest tab and another one) enable crc again after fixes
 
-minimap brightness/colors vary a lot everytime a new map loads, java client doesn't seem to do this?
-
 figure out rsaenc bug (around 1/10 chance of failing login)
 
 the most complete platform layer is SDL2, but keyboard input is just an unfinished hack but usable except ctrl doesn't work for running yet.
