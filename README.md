@@ -87,7 +87,7 @@ check if ttf font is centered correctly (maybe few pixels more to the left?)
 ## non issues (expected or unfixable)
 Firefox performance issues might be related to setTimeout not working correctly as using the firefox profiler increases fps. Asyncify is not the problem here I've had it happen in wasm without emscripten, https://github.com/lesleyrs/web-gbc?tab=readme-ov-file#limitations
 
-dnslookup on web just shows your public ip instead of dns, this is expected and the same applies to Client2
+dnslookup on web just shows your public ip instead of dns, this is expected and the same applies to Client2. If the login welcome screen lags you can set `hide_dns = 1` in config.ini to skip it.
 
 WSL gui has crackling audio sometimes, or not crackling but delayed. Also WSL still allows resizing which freezes window.
 
