@@ -10891,6 +10891,7 @@ void drawInfoOverlay(Client *c) {
         sprintf(buf, "FPS: %d", c->shell->fps);
         drawStringRight(c->font_plain11, x, y, buf, YELLOW, true);
         y += 13;
+        y += 13; // leave room for "Close Window" in top right
         sprintf(buf, "Cache size: %dK", bump_allocator_used() >> 10);
         drawStringRight(c->font_plain11, x, y, buf, YELLOW, true);
         y += 13;

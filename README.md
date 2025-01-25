@@ -6,7 +6,7 @@ Compatible with [2004Scape](https://github.com/2004Scape/Server), the most accur
 Features:
 - should run on any 32 bit system with 64 MB of RAM (preferably higher due to some small memory leaks for now)
 - webassembly build to avoid javascript code being optimized out by the browser.
-- optional config.ini file to change client behaviour, see [config.ini.example](config.ini.example) for options. (empty sets defaults)
+- optional config.ini file to change client behaviour, see [config.ini.example](config.ini.example) for options. To avoid passing command line arguments each time you can create an empty config.ini.
 
 ## disclaimer
 You can choose to let Emscripten embed your config.ini file into the .data file, DO NOT share/host it with your username or password in it! TODO fetch it at runtime to avoid accidental leaks?
@@ -25,7 +25,7 @@ To build simply run `build.bat` in cmd to get the client.exe, it depends on the 
 
 `build.bat -h` shows options, EG `-v 1|2|3` sets SDL version and `-c tcc|gcc|emcc` for system tcc, gcc, emcc
 
-Both tcc and old mingw-gcc can target windows 9x with SDL 1. This (unofficial) release doesn't require msys install: https://github.com/fsb4000/gcc-for-Windows98/releases. mingw-gcc 11 optimizations only seems to be slightly faster than tcc though.
+Both tcc and old mingw-gcc can target windows 9x with SDL 1. This (unofficial) release doesn't require msys install: https://github.com/fsb4000/gcc-for-Windows98/releases. mingw-gcc 11 optimizations seem to only be slightly faster than tcc though.
 
 type `::perf` command ingame to see fps and lrucache size
 
