@@ -7426,7 +7426,8 @@ void client_login(Client *c, const char *username, const char *password, bool re
             for (int x = 0; x < 104; x++) {
                 for (int z = 0; z < 104; z++) {
                     if (c->level_obj_stacks[c->currentLevel][x][z]) {
-                        linklist_free(c->level_obj_stacks[c->currentLevel][x][z]);
+                        // TODO this is wrong?
+                        // linklist_free(c->level_obj_stacks[c->currentLevel][x][z]);
                         c->level_obj_stacks[level][x][z] = NULL;
                     }
                 }
