@@ -45,6 +45,8 @@ type `::perf` command ingame to see fps and lrucache size
 
 ## known issues
 ```
+going up or down ladders causes the scene to not load correctly
+
 fetching worldlist for webclient live server access is temporarily not working, waiting for server update
 
 server cache changes would require manual cache update in client for now, it isn't supposed to change but as of right now there's an issue with client map crcs being changed when server maps get updated (also the cache has some interface changes rn for quest tab and another one) enable crc again after fixes
