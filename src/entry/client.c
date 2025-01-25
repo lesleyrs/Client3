@@ -10457,7 +10457,7 @@ Client *client_new(void) {
     // c->orbit_camera_yaw = 0;
     c->orbit_camera_pitch = 128;
 
-    // c->minimap_level = 0;
+    c->minimap_level = -1;
     // c->flag_scene_tile_x = 0;
     // c->flag_scene_tile_z = 0;
 

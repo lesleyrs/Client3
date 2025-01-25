@@ -492,8 +492,8 @@ void world_load_locations(World *world, World3D *scene, LinkList *locs, Collisio
             }
 
             locPos += deltaPos - 1;
-            int z = locPos & 0x3F;
-            int x = locPos >> 6 & 0x3F;
+            int z = locPos & 0x3f;
+            int x = locPos >> 6 & 0x3f;
             int level = locPos >> 12;
 
             int info = g1(buf);
