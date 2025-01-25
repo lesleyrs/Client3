@@ -183,7 +183,7 @@ struct Client {
     int orbit_camera_yaw;
     int orbit_camera_pitch; // 128
 
-    int minimap_level;
+    int minimap_level; // -1
     int flag_scene_tile_x;
     int flag_scene_tile_z;
 
