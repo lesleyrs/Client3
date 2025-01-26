@@ -117,6 +117,7 @@ void platform_new(GameShell *shell, int width, int height) {
         SDL_PauseAudioDevice(device, 0);
         // }
 
+#ifndef __EMSCRIPTEN__
         SDL_AudioSpec wavSpec;
         wavSpec.freq = 22050;
         wavSpec.format = AUDIO_U8;
@@ -126,11 +127,9 @@ void platform_new(GameShell *shell, int width, int height) {
 
         if (SDL_OpenAudio(&wavSpec, NULL) < 0) {
             rs2_error("SDL_OpenAudio(): %s\n", SDL_GetError());
-// TODO use 1 device for both wav+mid but diff specs?: don't exit as emscripten fails to open 2 devices
-#ifndef __EMSCRIPTEN__
             exit(1);
-#endif
         }
+#endif
     }
 
     shell->window = SDL_CreateWindow("Jagex", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
@@ -257,6 +256,7 @@ void platform_set_wave_volume(int wavevol) {
 void platform_play_wave(int8_t *src, int length) {
     playWave(src, length);
 }
+
 #else
 static int g_wavevol = 128;
 
