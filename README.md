@@ -118,7 +118,12 @@ Makefile: gcc, clang, tcc, mingw-gcc, emcc
 
 If tcc isn't working you should build latest [tcc](https://github.com/TinyCC/tinycc) from source
 
-## original Java client
+## Emscripten webclient
+For smaller emcc wasm output you should remove -DWITH_RSA_OPENSSL (or set WITH_OPENSSL=0 in Makefile). This will use tiny-bignum instead which should be fast enough as long as you use a small RSA exponent, but will a bit slow for the default Jagex keys. Additionally you can replace `-O3` with `-Oz`.
+
+Possibly a better option is to use JS BigIntegers and use the Client2 code.
+
+## Java client
 The 2004 jar is stored for comparisons, run with EG: `java -cp cache/runescape.jar client 10 0 highmem members` but:
 - there is no audio, it saves audio files for the browser to play which is no longer applicable
 - right clicking breaks past java 8
