@@ -27,7 +27,6 @@ static tsf *g_TinySoundFont;
 // Holds global MIDI playback state
 static double g_Msec;              // current playback time
 static tml_message *g_MidiMessage; // next message to be played
-static int g_wavevol = 128;
 
 // TODO separate sdl1? or separate midi
 static void midi_callback(void *data, uint8_t *stream, int len) {
@@ -227,6 +226,19 @@ void platform_stop_midi(void) {
     tsf_channel_set_bank_preset(g_TinySoundFont, 9, 128, 0);
 }
 
+#ifdef __EMSCRIPTEN__
+#include "emscripten.h"
+
+EM_JS(void, platform_set_wave_volume, (int wavevol), {
+    setWaveVolume(wavevol);
+})
+
+EM_JS(void, platform_play_wave, (int8_t *src, int length), {
+    playWave(HEAP8.subarray(src, src + length));
+})
+#else
+static int g_wavevol = 128;
+
 void platform_set_wave_volume(int wavevol) {
     g_wavevol = wavevol;
 }
@@ -264,6 +276,7 @@ void platform_play_wave(int8_t *src, int length) {
     }
     SDL_FreeWAV(wavBuffer);
 }
+#endif /* not EMSCRIPTEN */
 
 Surface *platform_create_surface(int width, int height, int alpha) {
     return SDL_CreateRGBSurface(0, width, height, 32, 0xff0000, 0x00ff00, 0x0000ff, alpha);

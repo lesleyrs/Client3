@@ -51,8 +51,6 @@ fetching worldlist for webclient live server access is temporarily not working, 
 
 auto-generated js by emscripten is blocking default browser shortcuts why exactly, also pressing fkeys types uppercase letters even if it doesn't steal input
 
-only 1 audio device works on web (either wav or midi) https://github.com/libsdl-org/SDL/issues/5485 the provided fix works but spams errors in console, the same applies to SDL1 on desktop? So we'd have to convert the wav spec to midi and mix the buffers manually, SDL3 might simplify this when emscripten supports it
-
 server cache changes would require manual cache update in client for now, it isn't supposed to change but as of right now there's an issue with client map crcs being changed when server maps get updated (also the cache has some interface changes rn for quest tab and another one) enable crc again after fixes
 
 figure out rsaenc bug (around 1/10 chance of failing login)
