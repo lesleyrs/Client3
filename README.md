@@ -9,8 +9,6 @@ Features:
 - optional config.ini file to change client behaviour, see [config.ini.example](config.ini.example) for options. To avoid passing command line arguments each time you can create an empty config.ini.
 
 ## disclaimer
-You can choose to let Emscripten embed your config.ini file into the .data file, DO NOT share/host it with your username or password in it! TODO fetch it at runtime to avoid accidental leaks?
-
 During limited playtesting the client seems to be stable, but it could crash at any time! Run sanitizer or tcc debug backtrace build to share errors
 
 See [known issues](#known-issues) before reporting an issue.

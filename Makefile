@@ -109,10 +109,6 @@ endif
 
 ifeq ($(basename $(notdir $(CC))),emcc)
 CFLAGS += --shell-file shell.html --preload-file cache/client --preload-file SCC1_Florestan.sf2 --preload-file Roboto
-# NOTE: be careful with this, don't host with your login details set!
-ifneq ($(wildcard config.ini),)
-CFLAGS += --preload-file config.ini
-endif
 # -sINITIAL_HEAP is recommended over -sINITIAL_MEMORY, also check if ALLOW_MEMORY_GROWTH doesn't kick in too soon
 CFLAGS += -sALLOW_MEMORY_GROWTH
 # CFLAGS += -sJSPI

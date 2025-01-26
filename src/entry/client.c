@@ -10167,6 +10167,10 @@ int main(int argc, char **argv) {
     strncpy(_Client.server, argv[5], sizeof(_Client.server) - 1);
     // unused for now
     // _Client.http_port = argv[6];
+
+    #include "emscripten.h"
+    // we don't embed config.ini to avoid leaking account details
+    emscripten_wget("config.ini", "config.ini");
     goto init;
 #else
 
