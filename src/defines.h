@@ -6,6 +6,10 @@
 #define PATH_MAX 260
 #endif
 
+#ifndef RSA_KEY_LENGTH
+#define RSA_KEY_LENGTH 128
+#endif
+
 // arbitrary to fix -Wall possible overflow warnings
 // NOTE maybe change the ones using half_str to use strncpy but yolo
 // NOTE could also double both buf sizes to be 100% sure, would waste memory though

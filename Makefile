@@ -13,6 +13,7 @@ DEBUG ?= 1
 SANITIZE ?= 0
 # MODERN_POSIX required by musl libc as it doesn't have the older networking functions
 MODERN_POSIX ?= 1
+RSA_LENGTH ?= 128
 
 ifeq ($(basename $(notdir $(CC))),emcc)
 # getnameinfo does nothing with emscripten so use old api
@@ -50,6 +51,7 @@ CFLAGS += -DSDL=$(SDL)
 endif
 CFLAGS += -fwrapv -std=c99 -Wall -Wpedantic -Wvla -Wshadow -Wmissing-prototypes -Wstrict-prototypes -Wmissing-declarations -Wredundant-decls
 CFLAGS += -Wextra
+CFLAGS += -DRSA_KEY_LENGTH=$(RSA_LENGTH)
 
 ifeq ($(findstring gcc,$(CC)),gcc)
 # removed (mingw)-gcc warning as clangd doesn't autocomplete them due to being less strict

@@ -363,7 +363,7 @@ void rsaenc(Packet *packet, const char *mod, const char *exp) {
         exit(1);
     }
 
-    int8_t enc[64] = {0}; // TODO: this needs to be increased for openssl to work with decimal numbers for some reason
+    int8_t enc[RSA_KEY_LENGTH / 2] = {0};
     int enc_len = rsa_crypt(&rsa, temp, length, enc, sizeof(enc));
     if (enc_len < 0) {
         rs2_error("failed to rsa_crypt\n");
@@ -399,7 +399,7 @@ void rsadec(Packet *packet, const char *mod, const char *exp) {
         exit(1);
     }
 
-    int8_t dec[64] = {0}; // TODO: this needs to be increased for openssl to work with decimal numbers for some reason
+    int8_t dec[RSA_KEY_LENGTH / 2] = {0};
     int dec_len = rsa_crypt(&rsa, enc, length, dec, sizeof(enc));
     if (dec_len < 0) {
         rs2_error("failed to rsa_crypt\n");

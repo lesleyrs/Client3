@@ -29,7 +29,7 @@ typedef struct {
     bool lowmem;
     int loop_cycle;
     bool started;
-    char rsa_modulus[128 + 1];
+    char rsa_modulus[RSA_KEY_LENGTH + 1];
     char rsa_exponent[128 + 1];
     int levelExperience[99];
     int oplogic1;

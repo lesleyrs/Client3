@@ -31,7 +31,7 @@ There may well be room for performance-optimizations and improvements.
 #endif
 
 /* Size of big-numbers in bytes */
-#define BN_ARRAY_SIZE (128 / WORD_SIZE)
+#define BN_ARRAY_SIZE (RSA_KEY_LENGTH / WORD_SIZE)
 
 /* Here comes the compile-time specialization for how large the underlying array
  * size should be. */

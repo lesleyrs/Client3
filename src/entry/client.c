@@ -89,9 +89,12 @@ ClientData _Client = {
     .clientversion = 225,
     .members = true,
     .nodeid = 10,
-    // original rsa keys in hex+dec, dec requires bigger result array? and doesn't work with rsa-tiny
+    // NOTE: If the modulus isn't 128 chars, you need to define -DRSA_KEY_SIZE=length
+    // NOTE: The exponent must be padded to an even number, prefix a 0 if needed.
+    // original rsa keys in hex
     .rsa_exponent = "81f390b2cf8ca7039ee507975951d5a0b15a87bf8b3f99c966834118c50fd94d",
     .rsa_modulus = "88c38748a58228f7261cdc340b5691d7d0975dee0ecdb717609e6bf971eb3fe723ef9d130e4686813739768ad9472eb46d8bfcc042c1a5fcb05e931f632eea5d",
+    // original rsa keys in dec, dec requires bigger result array? and doesn't work with rsa-tiny
     // .rsa_exponent = "58778699976184461502525193738213253649000149147835990136706041084440742975821",
     // .rsa_modulus = "7162900525229798032761816791230527296329313291232324290237849263501208207972894053929065636522363163621000728841182238772712427862772219676577293600221789",
     .server = "localhost",
