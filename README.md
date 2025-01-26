@@ -45,9 +45,7 @@ type `::perf` command ingame to see fps and lrucache size
 
 ## known issues
 ```
-water appears to be lowmem always
-
-going up or down ladders causes the scene to not load correctly
+(outside of web only): water appears to be lowmem always, going up or down ladders causes the scene to not load correctly
 
 fetching worldlist for webclient live server access is temporarily not working, waiting for server update
 
