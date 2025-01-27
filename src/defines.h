@@ -6,8 +6,8 @@
 #define PATH_MAX 260
 #endif
 
-#ifndef RSA_KEY_LENGTH
-#define RSA_KEY_LENGTH 128
+#ifndef RSA_BUF_LEN
+#define RSA_BUF_LEN 128
 #endif
 
 // arbitrary to fix -Wall possible overflow warnings

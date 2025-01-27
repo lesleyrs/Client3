@@ -91,6 +91,8 @@ On windows we aren't loading system gm.dls but use a similar sf2 soundfont inste
 
 emrun causes extra batch job message on windows sigint, can swap it for `py -m http.server` or so to avoid it
 
+Recompile is needed to change between different RSA key lengths, RSA_BUF_LEN needs to be set at compile time because it's needed for stack allocated arrays and BN_ARRAY_SIZE define.
+
 instead of a clean target, try: `git clean -fXdn`, remove n to delete files for real
 
 ## game history info
