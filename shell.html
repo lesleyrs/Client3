@@ -25,6 +25,33 @@
   <body>
     <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
     <script type='text/javascript'>
+      window.AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (window.AudioContext) {
+          window.audioContext = new window.AudioContext();
+      }
+      let waveGain;
+
+      function setWaveVolume(vol) {
+          if (!waveGain) {
+              waveGain = window.audioContext.createGain();
+              waveGain.connect(window.audioContext.destination);
+          }
+
+          waveGain.gain.value = vol / 128;
+      }
+
+      async function playWave(data) {
+          try {
+              const audioBuffer = await window.audioContext.decodeAudioData(Uint8Array.from(data).buffer);
+              let bufferSource = window.audioContext.createBufferSource();
+              bufferSource.buffer = audioBuffer;
+              bufferSource.connect(waveGain);
+              bufferSource.start();
+          } catch (err) {
+              console.log(err);
+          }
+      }
+
       function bytesToBigInt(bytes) {
           let result = 0n;
           for (let index = 0; index < bytes.length; index++) {
@@ -57,33 +84,6 @@
               exponent >>= 1n;
           }
           return result;
-      }
-
-      window.AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (window.AudioContext) {
-          window.audioContext = new window.AudioContext();
-      }
-      let waveGain;
-
-      function setWaveVolume(vol) {
-          if (!waveGain) {
-              waveGain = window.audioContext.createGain();
-              waveGain.connect(window.audioContext.destination);
-          }
-
-          waveGain.gain.value = vol / 128;
-      }
-
-      async function playWave(data) {
-          try {
-              const audioBuffer = await window.audioContext.decodeAudioData(Uint8Array.from(data).buffer);
-              let bufferSource = window.audioContext.createBufferSource();
-              bufferSource.buffer = audioBuffer;
-              bufferSource.connect(waveGain);
-              bufferSource.start();
-          } catch (err) {
-              console.log(err);
-          }
       }
 
       function getParameter(name) {

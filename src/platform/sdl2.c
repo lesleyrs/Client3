@@ -228,33 +228,20 @@ void platform_stop_midi(void) {
 #ifdef __EMSCRIPTEN__
 #include "emscripten.h"
 
-EM_JS(void, setWaveVolume, (int wavevol), {
-    if (!waveGain) {
-        waveGain = window.audioContext.createGain();
-        waveGain.connect(window.audioContext.destination);
-    }
-
-    waveGain.gain.value = wavevol / 128;
+EM_JS(void, set_wave_volume_js, (int wavevol), {
+    setWaveVolume(wavevol);
 })
 
-EM_ASYNC_JS(void, playWave, (int8_t * src, int length), {
-    try {
-        const audioBuffer = await window.audioContext.decodeAudioData(Uint8Array.from(HEAP8.subarray(src, src + length)).buffer);
-        let bufferSource = window.audioContext.createBufferSource();
-        bufferSource.buffer = audioBuffer;
-        bufferSource.connect(waveGain);
-        bufferSource.start();
-    } catch (err) {
-        console.log(err);
-    }
+EM_JS(void, play_wave_js, (int8_t * src, int length), {
+    playWave(HEAP8.subarray(src, src + length));
 })
 
 void platform_set_wave_volume(int wavevol) {
-    setWaveVolume(wavevol);
+    set_wave_volume_js(wavevol);
 }
 
 void platform_play_wave(int8_t *src, int length) {
-    playWave(src, length);
+    play_wave_js(src, length);
 }
 
 #else
