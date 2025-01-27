@@ -5,7 +5,7 @@
 #ifdef WITH_RSA_BIGINT
 #include "emscripten.h"
 
-EM_JS(int, rsa_crypt_js, (const char* exp, const char* mod, int8_t *temp, int length, int8_t *enc), {
+EM_JS(int, rsa_crypt_js, (const char* exp, const char* mod, void *temp, int length, void *enc), {
     const bigRaw = bytesToBigInt(HEAPU8.subarray(temp, temp + length));
     const bigEnc = bigIntModPow(bigRaw, BigInt(UTF8ToString(exp)), BigInt(UTF8ToString(mod)));
     const rawEnc = bigIntToBytes(bigEnc);
