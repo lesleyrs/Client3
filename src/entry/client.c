@@ -4264,9 +4264,9 @@ void client_update_game(Client *c) {
     if (c->ingame) {
         for (int wave = 0; wave < c->wave_count; wave++) {
             if (c->wave_delay[wave] <= 0) {
+                // NOTE we don't need this old code to save wav for browser to play it
                 // bool failed = false;
                 // try {
-                // NOTE we don't need this old code to save wav for browser to play it
                 // if (c->wave_ids[wave] != c->last_wave_id || c->wave_loops[wave] != c->last_wave_loops) {
                 Packet *buf = wave_generate(c->wave_ids[wave], c->wave_loops[wave]);
 
