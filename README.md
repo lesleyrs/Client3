@@ -51,7 +51,7 @@ auto-generated js by emscripten is blocking default browser shortcuts why exactl
 
 server cache changes would require manual cache update in client for now, it isn't supposed to change but as of right now there's an issue with client map crcs being changed when server maps get updated (also the cache has some interface changes rn for quest tab and another one) enable crc again after fixes
 
-figure out rsaenc bug (around 1/10 chance of failing login)
+figure out rsaenc bug (around 1/10 chance of failing login) not applicable to the webclient if using WITH_RSA_BIGINT
 
 the most complete platform layer is SDL2, but keyboard input is just an unfinished hack but usable except ctrl doesn't work for running yet.
 
@@ -111,11 +111,6 @@ You might want the updated [PowerShell](https://github.com/PowerShell/PowerShell
 Makefile: gcc, clang, tcc, mingw-gcc, emcc
 
 If tcc isn't working you should build latest [tcc](https://github.com/TinyCC/tinycc) from source
-
-## Emscripten webclient
-For smaller emcc wasm output you should remove -DWITH_RSA_OPENSSL (or set WITH_OPENSSL=0 in Makefile). This will use tiny-bignum instead which should be fast enough as long as you use a small RSA exponent, but will a bit slow for the default Jagex keys. Additionally you can replace `-O3` with `-Oz`.
-
-Possibly a better option is to use JS BigIntegers and use the Client2 code.
 
 ## Java client
 The 2004 jar is stored for comparisons, run with EG: `java -cp cache/runescape.jar client 10 0 highmem members` but:

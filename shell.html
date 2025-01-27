@@ -25,6 +25,40 @@
   <body>
     <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
     <script type='text/javascript'>
+      function bytesToBigInt(bytes) {
+          let result = 0n;
+          for (let index = 0; index < bytes.length; index++) {
+              result = (result << 8n) | BigInt(bytes[index]);
+          }
+          return result;
+      }
+
+      function bigIntToBytes(bigInt) {
+          const bytes = [];
+          while (bigInt > 0n) {
+              bytes.unshift(Number(bigInt & 0xffn));
+              bigInt >>= 8n;
+          }
+
+          if (bytes[0] & 0x80) {
+              bytes.unshift(0);
+          }
+
+          return new Uint8Array(bytes);
+      }
+
+      function bigIntModPow(base, exponent, modulus) {
+          let result = 1n;
+          while (exponent > 0n) {
+              if (exponent % 2n === 1n) {
+                  result = (result * base) % modulus;
+              }
+              base = (base * base) % modulus;
+              exponent >>= 1n;
+          }
+          return result;
+      }
+
       window.AudioContext = window.AudioContext || window.webkitAudioContext;
       if (window.AudioContext) {
           window.audioContext = new window.AudioContext();

@@ -380,9 +380,11 @@ void rsaenc(Packet *packet, const char *mod, const char *exp) {
      * integer, we can make result_length 65 and begin with up to two 0 bytes */
     // TODO check if needed
     if (sizeof(enc) != enc_len) {
+        for (size_t i = 0; i < sizeof(enc) - enc_len; i++) {
+            p1(packet, 0);
+        }
         rs2_error("this isn't the main issue though: bufsize %zu enc len %i\n", sizeof(enc), enc_len);
     }
-    pdata(packet, enc, 0, sizeof(enc) - enc_len);
 
     pdata(packet, enc, enc_len, 0);
 }

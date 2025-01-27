@@ -3,7 +3,7 @@
 #include <string.h>
 #include "rsa.h"
 
-#ifdef WITH_RSA_OPENSSL
+#if !defined(WITH_RSA_BIGINT) && defined(WITH_RSA_OPENSSL)
 /* from RSC Sundae. Public domain. */
 
 int

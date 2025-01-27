@@ -16,6 +16,7 @@ MODERN_POSIX ?= 1
 RSA_LENGTH ?= 128
 
 ifeq ($(basename $(notdir $(CC))),emcc)
+WITH_JS_BIGINT ?= 1
 # getnameinfo does nothing with emscripten so use old api
 MODERN_POSIX = 0
 # NOTE waiting for sdl3 emscripten
@@ -73,6 +74,10 @@ endif
 endif
 
 # Faster RSA encryption
+ifeq ($(WITH_JS_BIGINT), 1)
+CFLAGS += -DWITH_RSA_BIGINT
+endif
+
 ifeq ($(WITH_OPENSSL), 1)
 CFLAGS += -DWITH_RSA_OPENSSL
 ifeq ($(basename $(notdir $(CC))),emcc)
@@ -140,7 +145,12 @@ DEBUG = 0
 endif
 
 ifeq ($(DEBUG),0)
+ifeq ($(basename $(notdir $(CC))),emcc)
+# TODO use -Oz or -O3?
+CFLAGS += -DNDEBUG -s -Oz -ffast-math
+else
 CFLAGS += -DNDEBUG -s -O3 -ffast-math
+endif
 ifeq ($(findstring gcc,$(CC)),gcc)
 CFLAGS += -flto=$(shell nproc)
 else

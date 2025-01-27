@@ -5,20 +5,25 @@
 
 #include <stdio.h>
 
-#ifdef WITH_RSA_OPENSSL
+#ifdef WITH_RSA_BIGINT
+struct rsa {
+    const char *exponent;
+    const char *modulus;
+};
+#elif defined(WITH_RSA_OPENSSL)
 #include <openssl/bn.h>
 
 struct rsa {
-	BN_CTX *ctx;
-	BIGNUM *exponent;
-	BIGNUM *modulus;
+    BN_CTX *ctx;
+    BIGNUM *exponent;
+    BIGNUM *modulus;
 };
 #else
 #include "bn.h"
 
 struct rsa {
-	struct bn exponent;
-	struct bn modulus;
+    struct bn exponent;
+    struct bn modulus;
 };
 #endif
 

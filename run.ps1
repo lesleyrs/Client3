@@ -47,9 +47,11 @@ cl -D_CRT_SECURE_NO_WARNINGS -W3 -Zi -Feclient $src -I"$inc" -Dclient -DSDL=2 -D
 # can also use -fsanitize=null -fsanitize-minimal-runtime
 
 $src = (Get-ChildItem -Path "src" -Filter "*.c" -Recurse | ForEach-Object { $_.FullName })
+# TODO make a release build
+# emcc -fwrapv -gsource-map --shell-file shell.html --preload-file cache/client --preload-file SCC1_Florestan.sf2 --preload-file Roboto @src -DWITH_RSA_BIGINT -Dclient -DSDL=2 --use-port=sdl2 -sALLOW_MEMORY_GROWTH -sINITIAL_MEMORY=320MB -sSTACK_SIZE=1048576 -o index.html -sASYNCIFY -fsanitize=null -fsanitize-minimal-runtime -sSTRICT_JS -sDEFAULT_TO_CXX=0 && emrun --no-browser --hostname localhost .
+
 $sslinc = "bin/openssl-web/include"
 $ssllib = "bin/openssl-web"
-# TODO make a release build
 # emcc -fwrapv -gsource-map --shell-file shell.html --preload-file cache/client --preload-file SCC1_Florestan.sf2 --preload-file Roboto @src -I"$sslinc" -L"$ssllib" -lcrypto -DWITH_RSA_OPENSSL -Dclient -DSDL=2 --use-port=sdl2 -sALLOW_MEMORY_GROWTH -sINITIAL_MEMORY=320MB -sSTACK_SIZE=1048576 -o index.html -sASYNCIFY -fsanitize=null -fsanitize-minimal-runtime -sSTRICT_JS -sDEFAULT_TO_CXX=0 && emrun --no-browser --hostname localhost .
 
 # windows 98 need to link sdlmain instead of -DSDL_main=main?

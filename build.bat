@@ -77,7 +77,7 @@ if "%CC%" == "cl" (
 	exit /B 1
 ) else if "%CC%" == "emcc" (
 	@rem -fsanitize=null -fsanitize-minimal-runtime
-	%CC% %SRC% -fwrapv -gsource-map --shell-file shell.html --preload-file cache\client --preload-file SCC1_Florestan.sf2 --preload-file Roboto -s -O3 -ffast-math -flto -std=c99 -DWITH_RSA_OPENSSL -D%ENTRY% -I%SSLWEBINC% -L%SSLWEBLIB% -lcrypto -DSDL=2 --use-port=sdl2 -sALLOW_MEMORY_GROWTH -sINITIAL_MEMORY=100MB -sSTACK_SIZE=1048576 -o index.html -sASYNCIFY -sSTRICT_JS -sDEFAULT_TO_CXX=0 && emrun --no-browser --hostname localhost .
+	%CC% %SRC% -fwrapv -gsource-map --shell-file shell.html --preload-file cache\client --preload-file SCC1_Florestan.sf2 --preload-file Roboto -s -Oz -ffast-math -flto -std=c99 -DWITH_RSA_BIGINT -D%ENTRY% -I%SSLWEBINC% -L%SSLWEBLIB% -lcrypto -DSDL=2 --use-port=sdl2 -sALLOW_MEMORY_GROWTH -sINITIAL_MEMORY=100MB -sSTACK_SIZE=1048576 -o index.html -sASYNCIFY -sSTRICT_JS -sDEFAULT_TO_CXX=0 && emrun --no-browser --hostname localhost .
 ) else if "%CC%" == "gcc" (
 	::%CC% %SRC% -s -O3 -ffast-math -std=c99 -DSDL_main=main -DWITH_RSA_OPENSSL -D%ENTRY% %SDL% -I%SSLINC% -lws2_32 %OPT% -o %ENTRY%.exe SDL%VER%.dll libeay32.dll
 	@rem added static linking for openssl, so linux mingw builds don't need the dll in same dir as well
