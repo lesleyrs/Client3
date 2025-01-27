@@ -9318,7 +9318,7 @@ void client_draw_chatback(Client *c) {
                 if (type == 6 && c->split_private_chat == 0 && c->private_chat_setting < 2) {
                     if (offset > 0 && offset < 110) {
                         char buf[USERNAME_LENGTH + 6];
-                        sprintf(buf, "To %s :", c->message_sender[i]);
+                        sprintf(buf, "To %s:", c->message_sender[i]);
                         drawString(font, 4, offset, buf, BLACK);
                         sprintf(buf, "To %s", c->message_sender[i]);
                         drawString(font, stringWidth(font, buf) + 12, offset, c->message_text[i], DARKRED);
