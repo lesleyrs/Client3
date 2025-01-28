@@ -118,7 +118,8 @@ CFLAGS += --shell-file shell.html --preload-file cache/client --preload-file SCC
 # -sINITIAL_HEAP is recommended over -sINITIAL_MEMORY, also check if ALLOW_MEMORY_GROWTH doesn't kick in too soon
 CFLAGS += -sALLOW_MEMORY_GROWTH
 # CFLAGS += -sJSPI
-CFLAGS += -sASYNCIFY -sASYNCIFY_STACK_SIZE=16384 -sSTACK_SIZE=1048576
+CFLAGS += -sASYNCIFY
+CFLAGS += -sSTACK_SIZE=1048576
 CFLAGS += -sINITIAL_HEAP=100MB -sDEFAULT_TO_CXX=0 -sWEBSOCKET_URL=ws://
 LDFLAGS += --use-port=sdl2
 else ifeq ($(findstring -w64-mingw32-gcc,$(CC)),-w64-mingw32-gcc)
@@ -162,7 +163,6 @@ ifeq ($(basename $(notdir $(CC))),emcc)
 CFLAGS += -gsource-map
 # LDFLAGS += -sSOCKET_DEBUG -sRUNTIME_DEBUG=0
 SAN += -fsanitize=null -fsanitize-minimal-runtime
-# SAN += -fsanitize=address
 # SAN += -fsanitize=undefined
 else
 SAN += -fsanitize=address,undefined
@@ -173,7 +173,11 @@ ifeq ($(CC),tcc)
 endif
 endif
 else ifeq ($(DEBUG),2)
-# NOTE for performance in debug builds
+ifeq ($(basename $(notdir $(CC))),emcc)
+CFLAGS += -gsource-map
+endif
+SAN += -fsanitize=address,undefined
+# avoids the "too many locals" emcc error in client_read for -fsanitize=address
 CFLAGS += -fno-omit-frame-pointer -g -O2 -fno-inline -ffast-math
 endif
 

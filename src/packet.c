@@ -379,7 +379,7 @@ void rsaenc(Packet *packet, const char *mod, const char *exp) {
      * ignored unless they're being used to indicate the MSB for sign. since
      * the byte array lengths range from 63-65 and we always want a positive
      * integer, we can make result_length 65 and begin with up to two 0 bytes */
-    // TODO check if needed
+    // TODO: what's wrong here? this applies to all crypto libs
     if (sizeof(enc) != enc_len) {
         for (size_t i = 0; i < sizeof(enc) - enc_len; i++) {
             p1(packet, 0);

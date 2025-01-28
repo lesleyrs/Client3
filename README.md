@@ -51,7 +51,7 @@ auto-generated js by emscripten is blocking default browser shortcuts why exactl
 
 server cache changes would require manual cache update in client for now, it isn't supposed to change but as of right now there's an issue with client map crcs being changed when server maps get updated (also the cache has some interface changes rn for quest tab and another one) enable crc again after fixes
 
-figure out rsaenc bug (around 1/10 chance of failing login) not applicable to the webclient if using WITH_RSA_BIGINT
+figure out rsaenc bug(s), i'm thinking there are multiple issues (chance of failing login), RSA_BIGINT can still fail due to wrong enc length, but the others fail due to other reasons too...
 
 the most complete platform layer is SDL2, but keyboard input is just an unfinished hack but usable except ctrl doesn't work for running yet.
 
