@@ -77,11 +77,11 @@ check if ttf font is centered correctly (maybe few pixels more to the left?)
 ```
 
 ## non issues (expected or unfixable)
-Firefox performance issues might be related to setTimeout not working correctly as using the firefox profiler increases fps. Asyncify is not the problem here I've had it happen in wasm without emscripten, https://github.com/lesleyrs/web-gbc?tab=readme-ov-file#limitations
+Firefox "lag" is due to setTimeout being broken with wasm as using the firefox profiler increases fps. Asyncify is not the problem here I've had it happen in wasm without emscripten, https://github.com/lesleyrs/web-gbc?tab=readme-ov-file#limitations
 
-dnslookup on web just shows your public ip instead of dns, this is expected and the same applies to Client2. If the login welcome screen lags you can set `hide_dns = 1` in config.ini to skip it.
+The "fix" is to use `emscripten_set_main_loop_arg` with 0 fps which calls requestAnimationFrame instead. The function to be called should be the contents of the while loop in gameshell_run (delete the while loop itself) which will get you full FPS. If it still lags close devtools and refresh page. Downsides are that if the tab goes inactive it will speed up when returning, it doesn't seem fixable the same way as in Client2 since they still use setTimeout. Also Firefox won't have the benefit of the websocket never timing out anymore.
 
-WSL gui has crackling audio sometimes, or not crackling but delayed. Also WSL still allows resizing which freezes window.
+dnslookup on web just shows your public ip instead of dns, this is expected and the same applies to Client2. If dnslookup fails to resolve and welcome screen lags you can set `hide_dns = 1` in config.ini to skip it.
 
 SDL3 has high dpi support so window size might be smaller than SDL1/2 https://github.com/libsdl-org/SDL/blob/main/docs/README-highdpi.md
 
