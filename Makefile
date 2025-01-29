@@ -115,12 +115,11 @@ endif
 
 ifeq ($(basename $(notdir $(CC))),emcc)
 CFLAGS += --shell-file shell.html --preload-file cache/client --preload-file SCC1_Florestan.sf2 --preload-file Roboto
-# -sINITIAL_HEAP is recommended over -sINITIAL_MEMORY, also check if ALLOW_MEMORY_GROWTH doesn't kick in too soon
-CFLAGS += -sALLOW_MEMORY_GROWTH
 # CFLAGS += -sJSPI
 CFLAGS += -sASYNCIFY
-CFLAGS += -sSTACK_SIZE=1048576
-CFLAGS += -sINITIAL_HEAP=100MB -sDEFAULT_TO_CXX=0 -sWEBSOCKET_URL=ws://
+CFLAGS += -sSTACK_SIZE=1048576 -sINITIAL_HEAP=50MB
+CFLAGS += -sALLOW_MEMORY_GROWTH -sASSERTIONS=2
+CFLAGS += -sDEFAULT_TO_CXX=0 -sWEBSOCKET_URL=ws://
 LDFLAGS += --use-port=sdl2
 else ifeq ($(findstring -w64-mingw32-gcc,$(CC)),-w64-mingw32-gcc)
 CFLAGS += $(shell bin/SDL2-2.30.9/$(word 1, $(subst -, ,$(CC)))-w64-mingw32/bin/sdl2-config --cflags)
