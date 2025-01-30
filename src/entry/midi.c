@@ -1,6 +1,7 @@
 #ifdef midi
 #include <stdbool.h>
 #include <stdio.h>
+#include <errno.h>
 
 #include "SDL.h"
 // #include "../packet.h"
@@ -16,15 +17,18 @@
 tml_message *TinyMidiLoader = NULL;
 
 void set_midi(const char *name, int crc, int length, bool fade) {
-    char filename[50];
-    // snprintf(filename, sizeof(filename), "cache/client/jingles/%s.mid", name);
+    char filename[250];
     snprintf(filename, sizeof(filename), "cache/client/songs/%s.mid", name);
-    printf("%s\n", filename);
     FILE *file = fopen(filename, "rb");
     if (!file) {
-        perror("Error loading midi file");
-        return;
+        snprintf(filename, sizeof(filename), "cache/client/jingles/%s.mid", name);
+        file = fopen(filename, "rb");
+        if (!file) {
+            printf("Error loading midi file: %s\n", filename, strerror(errno));
+            return;
+        }
     }
+    printf("%s\n", filename);
 
     int8_t *data = malloc(length);
     const int len = fread(data, 1, length, file);
@@ -32,7 +36,7 @@ void set_midi(const char *name, int crc, int length, bool fade) {
     const int uncompressed_length = (data[0] & 0xff) << 24 | (data[1] & 0xff) << 16 | (data[2] & 0xff) << 8 | (data[3] & 0xff);
     // Packet *packet = packet_new(data, 4);
     // const int uncompressed_length = g4(packet);
-    printf("len %d archive len %d orig %d\n", uncompressed_length, len, length);
+    printf("uncompressed %d compressed %d arg %d\n", uncompressed_length, len, length);
     int8_t *uncompressed = malloc(uncompressed_length);
     bzip_decompress(uncompressed, data, uncompressed_length, 4);
     TinyMidiLoader = tml_load_memory(uncompressed, uncompressed_length);
