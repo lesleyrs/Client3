@@ -17,6 +17,7 @@ tml_message *TinyMidiLoader = NULL;
 
 void set_midi(const char *name, int crc, int length, bool fade) {
     char filename[50];
+    // snprintf(filename, sizeof(filename), "cache/client/jingles/%s.mid", name);
     snprintf(filename, sizeof(filename), "cache/client/songs/%s.mid", name);
     printf("%s\n", filename);
     FILE *file = fopen(filename, "rb");
