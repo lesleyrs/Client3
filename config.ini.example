@@ -42,7 +42,7 @@
 # http_port = 80
 
 # 2004scape worldlist: https://2004scape.org/api/v1/worldlist
-server = "w1.225.2004scape.org"
+# server = "w1.225.2004scape.org"
 
 # nodeid = 2
 # portoff = 3
