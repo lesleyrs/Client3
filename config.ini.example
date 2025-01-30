@@ -35,24 +35,25 @@
 # rsa_exponent = 
 # rsa_modulus = 
 
-# default world options (http_port is unused for now)
+# default world options (http_port is only used for websockets, set to 8888 outside of windows/mac)
 # nodeid = 1
 # portoff = 0
-# server = localhost
+# socketip = localhost
 # http_port = 80
 
-# 2004scape worldlist: https://2004scape.org/api/v1/worldlist
-# server = "w1.225.2004scape.org"
+# socketip = "w1-2004.lostcity.rs"
 
 # nodeid = 2
 # portoff = 3
-# server = "w2.225.2004scape.org"
+# socketip = "w2-2004.lostcity.rs"
 
 # nodeid = 3
-# server = "w3.225.2004scape.org"
+# socketip = "w3-2004.lostcity.rs"
 # http_port = 8443
 
 # nodeid = 4
 # portoff = 3
-# server = "w4.225.2004scape.org"
+# socketip = "w4-2004.lostcity.rs"
 # http_port = 8443
+
+# TODO other worlds

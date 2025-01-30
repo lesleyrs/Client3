@@ -137,7 +137,6 @@ check windows 95 doesn't require -lwsock32, otherwise add to batch file and remo
 make win98 compatible batch file (no delayed expansion?)
 currently bignum lib isn't working with tcc on windows and gives invalid memory access so we use openssl https://lists.nongnu.org/archive/html/tinycc-devel/2024-12/msg00020.html
 There might be some signed integer overflow/underflow UB with compilers that don't have a -fwrapv equivalent (cl/tcc). But there's no known issue, not a problem for loop_cycle
-for setting ws/wss at runtime if needed: https://github.com/emscripten-core/emscripten/issues/22969 instead of compile time?
 SDL3 is not officially released yet, need updated binaries when it is.
 http requests for checksums/cache (not done as they aren't supposed to change and some systems don't support saving files)
 change a bunch of functions and function prototypes to static

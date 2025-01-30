@@ -46,9 +46,6 @@ ClientStream *clientstream_new(GameShell *shell, int port) {
     struct sockaddr_in server_addr = {0};
     server_addr.sin_family = AF_INET;
 
-#ifdef __EMSCRIPTEN__
-    port += 1;
-#endif
     server_addr.sin_port = htons(port);
 
 #ifdef MODERN_POSIX
@@ -59,7 +56,7 @@ ClientStream *clientstream_new(GameShell *shell, int port) {
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
 
-    int status = getaddrinfo(_Client.server, NULL, &hints, &result);
+    int status = getaddrinfo(_Client.socketip, NULL, &hints, &result);
 
     if (status != 0) {
 #if defined(_WIN32) && defined(__i386__)
@@ -85,7 +82,7 @@ ClientStream *clientstream_new(GameShell *shell, int port) {
     freeaddrinfo(result);
 #else
     // TODO rm #if defined(WIN9X) || defined(WII)
-    struct hostent *host_addr = gethostbyname(_Client.server);
+    struct hostent *host_addr = gethostbyname(_Client.socketip);
 
     if (host_addr) {
         memcpy(&server_addr.sin_addr, host_addr->h_addr_list[0],

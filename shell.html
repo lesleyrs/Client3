@@ -98,61 +98,7 @@
       }
 
       var Module = {
-        preRun: [
-          function() {
-            function setLocalHost() {
-              <!-- local config: always set members true instead of using getParameter to avoid having free client on members world -->
-              arguments_.push('10', '0', getParameter('detail') === 'low' ? '1' : '0', '0', 'localhost', '80');
-              console.log('Loaded world config:', arguments_);
-            }
-
-            if (parseInt(getParameter('world')) === 0) { // need parseInt to avoid slashes at end breaking '0' check
-              setLocalHost();
-              return;
-            }
-
-            <!-- NOTE: we can't do async for fetch in preRun? -->
-            const xhr = new XMLHttpRequest();
-            const url = `${window.location.protocol}//2004scape.org/api/v1/worldlist`;
-
-            xhr.open('GET', url, false);
-            try {
-              xhr.send();
-            } catch (err) {
-              console.log("Error fetching world list, setting up localhost");
-              setParameter('detail', 'high');
-              setParameter('world', '0');
-            }
-
-            if (parseInt(getParameter('world')) === 0) { // need parseInt to avoid slashes at end breaking '0' check
-              setLocalHost();
-              return;
-            }
-
-            xhr.onload = function() {
-              if (xhr.status >= 200 && xhr.status < 300) {
-                const worldlist = JSON.parse(xhr.responseText);
-                if (getParameter('detail').length === 0) {
-                    setParameter('detail', 'high');
-                }
-                if (getParameter('world').length === 0) {
-                    setParameter('world', '1');
-                }
-                <!-- original code for applets was InetAddress.getLocalHost()); we want to be able to connect to any server though -->
-                const world = worldlist.find((x) => x.id === parseInt(getParameter('world')));
-                if (world) {
-                  const address = world.address.replace('https://', '').replace('http://', '').split(':');
-                  arguments_.push(String(10 + world.id - 1), String(world.portOffset), getParameter('detail') === 'low' ? '1' : '0', world?.members !== true ? '1' : '0', address[0], address[1] ?? '80');
-                  console.log('Loaded world config:', arguments_)
-                } else {
-                  throw new Error('Could not find a world to connect to!');
-                }
-              } else {
-                throw new Error('Error loading world list:', xhr.status);
-              }
-            };
-          }
-        ],
+        arguments: [],
         canvas: (() => {
           var canvas = document.getElementById('canvas');
 

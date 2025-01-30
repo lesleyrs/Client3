@@ -60,6 +60,7 @@ typedef struct {
     bool allow_commands;
     bool allow_debugprocs;
     bool midi_on_logout;
+    int http_port;
     int chat_era; // 0 - early beta, 1 - late beta, 2 - launch
 } Custom;
 
@@ -84,21 +85,21 @@ extern WaveData _Wave;
 extern WorldData _World;
 extern SceneData _World3D;
 
-Custom _Custom = {.chat_era = 2};
+Custom _Custom = {.chat_era = 2, .http_port = 80};
 ClientData _Client = {
     .clientversion = 225,
     .members = true,
     .nodeid = 10,
+    .socketip = "localhost",
     #ifdef WITH_RSA_BIGINT
     // original rsa keys in dec, only used with js bigints: openssl with dec requires bigger result array and it doesn't work with rsa-tiny
     .rsa_exponent = "58778699976184461502525193738213253649000149147835990136706041084440742975821",
     .rsa_modulus = "7162900525229798032761816791230527296329313291232324290237849263501208207972894053929065636522363163621000728841182238772712427862772219676577293600221789",
     #else
     // original rsa keys in hex, if > 512 bits you need to set -DRSA_BUF_LEN=(bits / 4) for output buffer size
-    .rsa_exponent = "81f390b2cf8ca7039ee507975951d5a0b15a87bf8b3f99c966834118c50fd94d", // the exponent must be padded to an even number, prefix a 0 if needed.
+    .rsa_exponent = "81f390b2cf8ca7039ee507975951d5a0b15a87bf8b3f99c966834118c50fd94d", // pad exponent to an even number (prefix a 0 if needed)
     .rsa_modulus = "88c38748a58228f7261cdc340b5691d7d0975dee0ecdb717609e6bf971eb3fe723ef9d130e4686813739768ad9472eb46d8bfcc042c1a5fcb05e931f632eea5d",
     #endif
-    .server = "localhost",
 };
 
 const int CHAT_COLORS[6] = {YELLOW, RED, GREEN, CYAN, MAGENTA, WHITE};
@@ -7311,7 +7312,11 @@ void client_login(Client *c, const char *username, const char *password, bool re
         client_draw_title_screen(c);
     }
 
+    #ifdef __EMSCRIPTEN__
+    c->stream = clientstream_new(c->shell, _Custom.http_port);
+    #else
     c->stream = clientstream_new(c->shell, _Client.portoff + 43594);
+    #endif
     if (!c->stream) {
         goto login_fail;
     }
@@ -10146,12 +10151,38 @@ void client_unload(Client *c) {
     client_free(c);
 }
 
+#ifdef __EMSCRIPTEN__
+#include "emscripten.h"
+
+EM_JS(void, get_host_js, (char* socketip, size_t len, int* http_port), {
+    const url = new URL(window.location.href);
+    stringToUTF8(url.hostname, socketip, len);
+    if (url.port && url.hostname != 'localhost' && url.hostname != '127.0.0.1') {
+        HEAP32[http_port >> 2] = parseInt(url.port);
+    }
+    const secured = url.protocol == 'https';
+    if (secured) {
+        // TODO: can't set it here as it might get overwritten by clientstream?
+        // https://github.com/emscripten-core/emscripten/issues/22969
+    }
+})
+#endif
+
 int main(int argc, char **argv) {
     // NOTE: to print argv on emscripten you need to print index to flush instead of just \n?
     rs2_log("RS2 user client - release #%d\n", _Client.clientversion);
 
 #ifdef __EMSCRIPTEN__
-    (void)argc;
+    // we don't preload config.ini to avoid leaking account details
+    emscripten_wget("config.ini", "config.ini");
+
+    if (argc != 5) {
+        if (load_ini_args()) {
+            goto init;
+        }
+    }
+
+    get_host_js(_Client.socketip, MAX_STR - 1, &_Custom.http_port);
     _Client.nodeid = atoi(argv[1]);
     _Client.portoff = atoi(argv[2]);
 
@@ -10164,15 +10195,6 @@ int main(int argc, char **argv) {
 
     const char *_free = argv[4];
     _Client.members = !_free || strcmp(_free, "1") != 0;
-    // NOTE custom
-    strncpy(_Client.server, argv[5], sizeof(_Client.server) - 1);
-    // unused for now
-    // _Client.http_port = argv[6];
-
-    #include "emscripten.h"
-    // we don't embed config.ini to avoid leaking account details
-    emscripten_wget("config.ini", "config.ini");
-    goto init;
 #else
 
     if (load_ini_args()) {
@@ -10219,6 +10241,8 @@ init:
 
     Client *c = client_new();
     load_ini_config(c);
+    // TODO rm
+    rs2_log("socketip: %s http_port: %d\n", _Client.socketip, _Custom.http_port);
     gameshell_init_application(c, 789, 532);
     return 0;
 }
@@ -10573,7 +10597,7 @@ Jagfile *load_archive(Client *c, const char *name, int crc, const char *display_
     int8_t *header = malloc(6);
     char filename[PATH_MAX];
     snprintf(filename, sizeof(filename), "cache/client/%s", name);
-    rs2_log("Loading %s\n", filename);
+    // rs2_log("Loading %s\n", filename);
     // TODO: add load messages?
     (void)c;
     // platform_update_surface(c->shell);
@@ -10745,8 +10769,7 @@ bool load_ini_args(void) {
     }
 
     rs2_log("World config:\n");
-    INI_STR_LOG((&_Client), server);
-    // INI_STR_LOG((&_Client), http_port); // TODO http reqs
+    INI_STR_LOG((&_Client), socketip);
     INI_STR_LOG((&_Client), rsa_exponent);
     INI_STR_LOG((&_Client), rsa_modulus);
 
@@ -10755,6 +10778,7 @@ bool load_ini_args(void) {
     INI_INT_LOG(&(&_Client), portoff, );
     INI_INT_LOG(&(&_Client), lowmem, );
     INI_INT_LOG(&(&_Client), members, _Client.members = !_Client.members);
+    INI_INT_LOG(&(&_Custom), http_port,);
 
     rs2_log("\n");
     ini_free(config);

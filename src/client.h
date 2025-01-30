@@ -20,7 +20,7 @@ typedef struct {
     int clientversion;
     int uid;
     const char *dns;
-    char server[MAX_STR]; // arbitrary size
+    char socketip[MAX_STR]; // arbitrary size
 
     // client statics
     int nodeid;

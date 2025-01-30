@@ -119,7 +119,8 @@ CFLAGS += --shell-file shell.html --preload-file cache/client --preload-file SCC
 CFLAGS += -sASYNCIFY
 CFLAGS += -sSTACK_SIZE=1048576 -sINITIAL_HEAP=50MB
 CFLAGS += -sALLOW_MEMORY_GROWTH -sASSERTIONS=2
-CFLAGS += -sDEFAULT_TO_CXX=0 -sWEBSOCKET_URL=ws://
+CFLAGS += -sDEFAULT_TO_CXX=0
+CFLAGS += -sWEBSOCKET_URL=ws://
 LDFLAGS += --use-port=sdl2
 else ifeq ($(findstring -w64-mingw32-gcc,$(CC)),-w64-mingw32-gcc)
 CFLAGS += $(shell bin/SDL2-2.30.9/$(word 1, $(subst -, ,$(CC)))-w64-mingw32/bin/sdl2-config --cflags)
