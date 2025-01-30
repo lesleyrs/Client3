@@ -296,7 +296,7 @@ Jagfile *load_archive_simple(const char *name, int crc, const char *display_name
     int8_t *header = malloc(6);
     char filename[PATH_MAX];
     snprintf(filename, sizeof(filename), "cache/client/%s", name);
-    // rs2_log("Loading %s\n", filename);
+    rs2_log("Loading %s\n", filename);
 
     FILE *file = fopen(filename, "rb");
     if (!file) {

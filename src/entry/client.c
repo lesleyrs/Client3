@@ -91,15 +91,15 @@ ClientData _Client = {
     .members = true,
     .nodeid = 10,
     .socketip = "localhost",
-    #ifdef WITH_RSA_BIGINT
+#ifdef WITH_RSA_BIGINT
     // original rsa keys in dec, only used with js bigints: openssl with dec requires bigger result array and it doesn't work with rsa-tiny
     .rsa_exponent = "58778699976184461502525193738213253649000149147835990136706041084440742975821",
     .rsa_modulus = "7162900525229798032761816791230527296329313291232324290237849263501208207972894053929065636522363163621000728841182238772712427862772219676577293600221789",
-    #else
+#else
     // original rsa keys in hex, if > 512 bits you need to set -DRSA_BUF_LEN=(bits / 4) for output buffer size
     .rsa_exponent = "81f390b2cf8ca7039ee507975951d5a0b15a87bf8b3f99c966834118c50fd94d", // pad exponent to an even number (prefix a 0 if needed)
     .rsa_modulus = "88c38748a58228f7261cdc340b5691d7d0975dee0ecdb717609e6bf971eb3fe723ef9d130e4686813739768ad9472eb46d8bfcc042c1a5fcb05e931f632eea5d",
-    #endif
+#endif
 };
 
 const int CHAT_COLORS[6] = {YELLOW, RED, GREEN, CYAN, MAGENTA, WHITE};
@@ -7312,11 +7312,11 @@ void client_login(Client *c, const char *username, const char *password, bool re
         client_draw_title_screen(c);
     }
 
-    #ifdef __EMSCRIPTEN__
+#ifdef __EMSCRIPTEN__
     c->stream = clientstream_new(c->shell, _Custom.http_port);
-    #else
+#else
     c->stream = clientstream_new(c->shell, _Client.portoff + 43594);
-    #endif
+#endif
     if (!c->stream) {
         goto login_fail;
     }
@@ -10154,7 +10154,7 @@ void client_unload(Client *c) {
 #ifdef __EMSCRIPTEN__
 #include "emscripten.h"
 
-EM_JS(void, get_host_js, (char* socketip, size_t len, int* http_port), {
+EM_JS(void, get_host_js, (char *socketip, size_t len, int *http_port), {
     const url = new URL(window.location.href);
     stringToUTF8(url.hostname, socketip, len);
     if (url.port && url.hostname != 'localhost' && url.hostname != '127.0.0.1') {
@@ -10770,7 +10770,7 @@ bool load_ini_args(void) {
 
     rs2_log("World config:\n");
     INI_STR_LOG((&_Client), socketip);
-    INI_INT_LOG(&(&_Custom), http_port,);
+    INI_INT_LOG(&(&_Custom), http_port, );
     // world nodeid 1 = 10 (default)
     INI_INT_LOG(&(&_Client), nodeid, _Client.nodeid = 10 + _Client.nodeid - 1);
     INI_INT_LOG(&(&_Client), portoff, );
