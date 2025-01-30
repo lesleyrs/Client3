@@ -384,18 +384,32 @@ static int tml_parsemessage(tml_message** f, struct tml_parser* p)
 TMLDEF tml_message* tml_load(struct tml_stream* stream)
 {
 	int num_tracks, division, trackbufsize = 0;
-	unsigned char midi_header[14], *trackbuf = TML_NULL;
+	unsigned char header[16], *trackbuf = TML_NULL;
 	struct tml_message* messages = TML_NULL;
 	struct tml_track *tracks, *t, *tracksEnd;
 	struct tml_parser p = { TML_NULL, TML_NULL, 0, 0, 0 };
 
 	// Parse MIDI header
-	if (stream->read(stream->data, midi_header, 14) != 14) { TML_ERROR("Unexpected end of file"); return messages; }
-	if (midi_header[0] != 'M' || midi_header[1] != 'T' || midi_header[2] != 'h' || midi_header[3] != 'd' ||
-	    midi_header[7] != 6   || midi_header[9] >  2) { TML_ERROR("Doesn't look like a MIDI file: invalid MThd header"); return messages; }
-	if (midi_header[12] & 0x80) { TML_ERROR("File uses unsupported SMPTE timing"); return messages; }
-	num_tracks = (int)(midi_header[10] << 8) | midi_header[11];
-	division = (int)(midi_header[12] << 8) | midi_header[13]; //division is ticks per beat (quarter-note)
+    if (stream->read(stream->data, header, 4) != 4) { TML_ERROR("Unexpected end of file"); return messages; }
+
+    if (header[0] == 'R' && header[1] == 'I' && header[2] == 'F' && header[3] == 'F') {
+        // skip RIFF data (todo: respect the real format spec!)
+        if (stream->read(stream->data, header, 16) != 16) { TML_ERROR("Unexpected end of file"); return messages; }
+        // read next header
+        if (stream->read(stream->data, header, 4) != 4) { TML_ERROR("Unexpected end of file"); return messages; }
+    }
+
+    // Parse MIDI header
+    if (header[0] != 'M' || header[1] != 'T' || header[2] != 'h' || header[3] != 'd') {
+        TML_ERROR("Doesn't look like a MIDI file: invalid MThd header"); return messages;
+    }
+
+    if (stream->read(stream->data, header, 10) != 10) { TML_ERROR("Unexpected end of file"); return messages; }
+	if (header[3] != 6 || header[5] > 2) { TML_ERROR("Doesn't look like a MIDI file: invalid MThd header (metadata)"); return messages; }
+
+	if (header[8] & 0x80) { TML_ERROR("File uses unsupported SMPTE timing"); return messages; }
+	num_tracks = (int)(header[6] << 8) | header[7];
+	division = (int)(header[8] << 8) | header[9]; //division is ticks per beat (quarter-note)
 	if (num_tracks <= 0 && division <= 0) { TML_ERROR("Doesn't look like a MIDI file: invalid track or division values"); return messages; }
 
 	// Allocate temporary tracks array for parsing
