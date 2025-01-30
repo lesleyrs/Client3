@@ -10770,15 +10770,12 @@ bool load_ini_args(void) {
 
     rs2_log("World config:\n");
     INI_STR_LOG((&_Client), socketip);
-    INI_STR_LOG((&_Client), rsa_exponent);
-    INI_STR_LOG((&_Client), rsa_modulus);
-
+    INI_INT_LOG(&(&_Custom), http_port,);
     // world nodeid 1 = 10 (default)
     INI_INT_LOG(&(&_Client), nodeid, _Client.nodeid = 10 + _Client.nodeid - 1);
     INI_INT_LOG(&(&_Client), portoff, );
     INI_INT_LOG(&(&_Client), lowmem, );
     INI_INT_LOG(&(&_Client), members, _Client.members = !_Client.members);
-    INI_INT_LOG(&(&_Custom), http_port,);
 
     rs2_log("\n");
     ini_free(config);
@@ -10792,6 +10789,9 @@ void load_ini_config(Client *c) {
     }
 
     rs2_log("Options config:\n");
+    INI_STR_LOG((&_Client), rsa_exponent);
+    INI_STR_LOG((&_Client), rsa_modulus);
+
     INI_STR_LOG(c, username);
     INI_STR_LOG_HIDDEN(c, password);
 
