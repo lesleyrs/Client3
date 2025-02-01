@@ -45,8 +45,6 @@ type `::perf` command ingame to see fps and lrucache size
 ```
 outside of web only: water appears to be lowmem always, going up or down ladders causes the scene to not load correctly
 
-fetching worldlist for webclient live server access is temporarily not working, waiting for server update
-
 auto-generated js by emscripten is blocking default browser shortcuts why exactly, also pressing fkeys types uppercase letters even if it doesn't steal input
 
 server cache changes would require manual cache update in client for now, it isn't supposed to change but as of right now there's an issue with client map crcs being changed when server maps get updated (also the cache has some interface changes rn for quest tab and another one) enable crc again after fixes
@@ -141,6 +139,7 @@ SDL3 is not officially released yet, need updated binaries when it is.
 http requests for checksums/cache (not done as they aren't supposed to change and some systems don't support saving files)
 change a bunch of functions and function prototypes to static
 ```
+bring back worldlist loading in [shell.html](https://github.com/lesleyrs/Client3/commit/5da924b9f766005e82163d899e52a5df2f771584#diff-c878553ed816480a5e85ff602ff3c5d38788ca1d21095cd8f8ebc36a4dbc07ee) if it gets re-added for live servers
 
 ## libraries
 * [micro-bunzip](https://landley.net/code/) | https://landley.net/code/bunzip-4.1.c
