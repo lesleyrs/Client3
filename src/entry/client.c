@@ -10241,8 +10241,10 @@ init:
 
     Client *c = client_new();
     load_ini_config(c);
-    // TODO rm
+// TODO rm
+#ifdef __EMSCRIPTEN__
     rs2_log("socketip: %s http_port: %d\n", _Client.socketip, _Custom.http_port);
+#endif
     gameshell_init_application(c, 789, 532);
     return 0;
 }
