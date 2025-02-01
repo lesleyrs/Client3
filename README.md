@@ -71,6 +71,8 @@ login screen flames aren't running on their own timer but use the game loop
 
 some bits from signlink missing (uid, reporterror, findcachedir, openurl, opensocket etc, move map loading to cacheload?
 
+remove the refcounting from model/pix24/lrucache for components and do smth else (kept to avoid leak spam rn) as components get assigned models from packets which are put into lrucaches, so global component doesn't own the memory anymore
+
 there are a few more small memleaks to work out, but they shouldn't become a problem outside of very memory constrained environments.
 
 check if ttf font is centered correctly (maybe few pixels more to the left?)
