@@ -130,14 +130,14 @@ void model_free_label_references(Model *m) {
 
 void model_free_copy_faces(Model *m, bool copyVertexY, bool copyFaces) {
     if (copyVertexY) {
-        free(m->vertex_y);
+        free(m->vertices_y);
     }
 
     if (copyFaces) {
         free(m->face_color_a);
         free(m->face_color_b);
         free(m->face_color_c);
-        free(m->face_info);
+        free(m->face_infos);
         for (int v = 0; v < m->vertex_count; v++) {
             free(m->vertex_normal[v]);
         }
@@ -148,28 +148,28 @@ void model_free_copy_faces(Model *m, bool copyVertexY, bool copyFaces) {
 
 void model_free_share_colored(Model *m, bool shareColors, bool shareAlpha, bool shareVertices) {
     if (!shareVertices) {
-        free(m->vertex_x);
-        free(m->vertex_y);
-        free(m->vertex_z);
+        free(m->vertices_x);
+        free(m->vertices_y);
+        free(m->vertices_z);
     }
 
     if (!shareColors) {
-        free(m->face_color);
+        free(m->face_colors);
     }
 
     if (!shareAlpha) {
-        free(m->face_alpha);
+        free(m->face_alphas);
     }
     free(m);
 }
 
 void model_free_share_alpha(Model *m, bool shareAlpha) {
-    free(m->vertex_x);
-    free(m->vertex_y);
-    free(m->vertex_z);
+    free(m->vertices_x);
+    free(m->vertices_y);
+    free(m->vertices_z);
 
     if (!shareAlpha) {
-        free(m->face_alpha);
+        free(m->face_alphas);
     }
     free(m);
 }
@@ -178,23 +178,23 @@ void model_free(Model *model) {
     if (--model->link.link.refcount != -1) {
         return;
     }
-    free(model->vertex_x);
-    free(model->vertex_y);
-    free(model->vertex_z);
-    free(model->face_vertex_a);
-    free(model->face_vertex_b);
-    free(model->face_vertex_c);
-    free(model->textured_vertex_a);
-    free(model->textured_vertex_b);
-    free(model->textured_vertex_c);
+    free(model->vertices_x);
+    free(model->vertices_y);
+    free(model->vertices_z);
+    free(model->face_indices_a);
+    free(model->face_indices_b);
+    free(model->face_indices_c);
+    free(model->textured_p_coordinate);
+    free(model->textured_m_coordinate);
+    free(model->textured_n_coordinate);
 
-    free(model->vertex_label);
-    free(model->face_info);
-    free(model->face_priority);
-    free(model->face_alpha);
-    free(model->face_label);
+    free(model->vertex_labels);
+    free(model->face_infos);
+    free(model->face_priorities);
+    free(model->face_alphas);
+    free(model->face_labels);
 
-    free(model->face_color);
+    free(model->face_colors);
     free(model->face_color_a);
     free(model->face_color_b);
     free(model->face_color_c);
@@ -334,33 +334,33 @@ Model *model_from_id(int id, bool use_allocator) {
             model->vertex_count = meta->vertex_count;
             model->face_count = meta->face_count;
             model->textured_face_count = meta->textured_face_count;
-            model->vertex_x = rs2_calloc(use_allocator, meta->vertex_count, sizeof(int));
-            model->vertex_y = rs2_calloc(use_allocator, meta->vertex_count, sizeof(int));
-            model->vertex_z = rs2_calloc(use_allocator, meta->vertex_count, sizeof(int));
-            model->face_vertex_a = rs2_calloc(use_allocator, meta->face_count, sizeof(int));
-            model->face_vertex_b = rs2_calloc(use_allocator, meta->face_count, sizeof(int));
-            model->face_vertex_c = rs2_calloc(use_allocator, meta->face_count, sizeof(int));
-            model->textured_vertex_a = rs2_calloc(use_allocator, meta->textured_face_count, sizeof(int));
-            model->textured_vertex_b = rs2_calloc(use_allocator, meta->textured_face_count, sizeof(int));
-            model->textured_vertex_c = rs2_calloc(use_allocator, meta->textured_face_count, sizeof(int));
+            model->vertices_x = rs2_calloc(use_allocator, meta->vertex_count, sizeof(int));
+            model->vertices_y = rs2_calloc(use_allocator, meta->vertex_count, sizeof(int));
+            model->vertices_z = rs2_calloc(use_allocator, meta->vertex_count, sizeof(int));
+            model->face_indices_a = rs2_calloc(use_allocator, meta->face_count, sizeof(int));
+            model->face_indices_b = rs2_calloc(use_allocator, meta->face_count, sizeof(int));
+            model->face_indices_c = rs2_calloc(use_allocator, meta->face_count, sizeof(int));
+            model->textured_p_coordinate = rs2_calloc(use_allocator, meta->textured_face_count, sizeof(int));
+            model->textured_m_coordinate = rs2_calloc(use_allocator, meta->textured_face_count, sizeof(int));
+            model->textured_n_coordinate = rs2_calloc(use_allocator, meta->textured_face_count, sizeof(int));
             if (meta->vertex_labels_offset >= 0) {
-                model->vertex_label = rs2_calloc(use_allocator, model->vertex_count, sizeof(int));
+                model->vertex_labels = rs2_calloc(use_allocator, model->vertex_count, sizeof(int));
             }
             if (meta->face_infos_offset >= 0) {
-                model->face_info = rs2_calloc(use_allocator, model->face_count, sizeof(int));
+                model->face_infos = rs2_calloc(use_allocator, model->face_count, sizeof(int));
             }
             if (meta->face_priorities_offset >= 0) {
-                model->face_priority = rs2_calloc(use_allocator, model->face_count, sizeof(int));
+                model->face_priorities = rs2_calloc(use_allocator, model->face_count, sizeof(int));
             } else {
-                model->priority = -meta->face_priorities_offset - 1;
+                model->model_priority = -meta->face_priorities_offset - 1;
             }
             if (meta->face_alphas_offset >= 0) {
-                model->face_alpha = rs2_calloc(use_allocator, model->face_count, sizeof(int));
+                model->face_alphas = rs2_calloc(use_allocator, model->face_count, sizeof(int));
             }
             if (meta->face_labels_offset >= 0) {
-                model->face_label = rs2_calloc(use_allocator, model->face_count, sizeof(int));
+                model->face_labels = rs2_calloc(use_allocator, model->face_count, sizeof(int));
             }
-            model->face_color = rs2_calloc(use_allocator, model->face_count, sizeof(int));
+            model->face_colors = rs2_calloc(use_allocator, model->face_count, sizeof(int));
             _Model.point1->pos = meta->vertex_flags_offset;
             _Model.point2->pos = meta->vertex_x_offset;
             _Model.point3->pos = meta->vertex_y_offset;
@@ -386,14 +386,14 @@ Model *model_from_id(int id, bool use_allocator) {
                 if ((flags & 0x4) != 0) {
                     c = gsmart(_Model.point4);
                 }
-                model->vertex_x[v] = dx + a;
-                model->vertex_y[v] = dy + b;
-                model->vertex_z[v] = dz + c;
-                dx = model->vertex_x[v];
-                dy = model->vertex_y[v];
-                dz = model->vertex_z[v];
-                if (model->vertex_label) {
-                    model->vertex_label[v] = g1(_Model.point5);
+                model->vertices_x[v] = dx + a;
+                model->vertices_y[v] = dy + b;
+                model->vertices_z[v] = dz + c;
+                dx = model->vertices_x[v];
+                dy = model->vertices_y[v];
+                dz = model->vertices_z[v];
+                if (model->vertex_labels) {
+                    model->vertex_labels[v] = g1(_Model.point5);
                 }
             }
             _Model.face1->pos = meta->face_colors_offset;
@@ -402,18 +402,18 @@ Model *model_from_id(int id, bool use_allocator) {
             _Model.face4->pos = meta->face_alphas_offset;
             _Model.face5->pos = meta->face_labels_offset;
             for (int f = 0; f < model->face_count; f++) {
-                model->face_color[f] = g2(_Model.face1);
-                if (model->face_info) {
-                    model->face_info[f] = g1(_Model.face2);
+                model->face_colors[f] = g2(_Model.face1);
+                if (model->face_infos) {
+                    model->face_infos[f] = g1(_Model.face2);
                 }
-                if (model->face_priority) {
-                    model->face_priority[f] = g1(_Model.face3);
+                if (model->face_priorities) {
+                    model->face_priorities[f] = g1(_Model.face3);
                 }
-                if (model->face_alpha) {
-                    model->face_alpha[f] = g1(_Model.face4);
+                if (model->face_alphas) {
+                    model->face_alphas[f] = g1(_Model.face4);
                 }
-                if (model->face_label) {
-                    model->face_label[f] = g1(_Model.face5);
+                if (model->face_labels) {
+                    model->face_labels[f] = g1(_Model.face5);
                 }
             }
             _Model.vertex1->pos = meta->face_vertices_offset;
@@ -447,15 +447,15 @@ Model *model_from_id(int id, bool use_allocator) {
                     c = gsmart(_Model.vertex1) + last;
                     last = c;
                 }
-                model->face_vertex_a[f] = a;
-                model->face_vertex_b[f] = b;
-                model->face_vertex_c[f] = c;
+                model->face_indices_a[f] = a;
+                model->face_indices_b[f] = b;
+                model->face_indices_c[f] = c;
             }
             _Model.axis->pos = meta->face_texture_axis_offset * 6;
             for (int f = 0; f < model->textured_face_count; f++) {
-                model->textured_vertex_a[f] = g2(_Model.axis);
-                model->textured_vertex_b[f] = g2(_Model.axis);
-                model->textured_vertex_c[f] = g2(_Model.axis);
+                model->textured_p_coordinate[f] = g2(_Model.axis);
+                model->textured_m_coordinate[f] = g2(_Model.axis);
+                model->textured_n_coordinate[f] = g2(_Model.axis);
             }
         }
     }
@@ -464,9 +464,9 @@ Model *model_from_id(int id, bool use_allocator) {
 
 static int add_vertex(Model *src, int vertexId, int *vertexX, int *vertexY, int *vertexZ, int *vertexLabel, int *vertexCount) {
     int identical = -1;
-    int x = src->vertex_x[vertexId];
-    int y = src->vertex_y[vertexId];
-    int z = src->vertex_z[vertexId];
+    int x = src->vertices_x[vertexId];
+    int y = src->vertices_y[vertexId];
+    int z = src->vertices_z[vertexId];
     for (int v = 0; v < *vertexCount; v++) {
         if (x == vertexX[v] && y == vertexY[v] && z == vertexZ[v]) {
             identical = v;
@@ -477,8 +477,8 @@ static int add_vertex(Model *src, int vertexId, int *vertexX, int *vertexY, int 
         vertexX[*vertexCount] = x;
         vertexY[*vertexCount] = y;
         vertexZ[*vertexCount] = z;
-        if (src->vertex_label) {
-            vertexLabel[*vertexCount] = src->vertex_label[vertexId];
+        if (src->vertex_labels) {
+            vertexLabel[*vertexCount] = src->vertex_labels[vertexId];
         }
         identical = (*vertexCount)++;
     }
@@ -495,7 +495,7 @@ Model *model_from_models(Model **models, int count, bool use_allocator) {
     new->vertex_count = 0;
     new->face_count = 0;
     new->textured_face_count = 0;
-    new->priority = -1;
+    new->model_priority = -1;
 
     for (int i = 0; i < count; i++) {
         Model *model = models[i];
@@ -503,53 +503,53 @@ Model *model_from_models(Model **models, int count, bool use_allocator) {
             new->vertex_count += model->vertex_count;
             new->face_count += model->face_count;
             new->textured_face_count += model->textured_face_count;
-            copyInfo |= model->face_info != NULL;
+            copyInfo |= model->face_infos != NULL;
 
-            if (!model->face_priority) {
-                if (new->priority == -1) {
-                    new->priority = model->priority;
+            if (!model->face_priorities) {
+                if (new->model_priority == -1) {
+                    new->model_priority = model->model_priority;
                 }
 
-                if (new->priority != model->priority) {
+                if (new->model_priority != model->model_priority) {
                     copyPriorities = true;
                 }
             } else {
                 copyPriorities = true;
             }
 
-            copyAlpha |= model->face_alpha != NULL;
-            copyLabels |= model->face_label != NULL;
+            copyAlpha |= model->face_alphas != NULL;
+            copyLabels |= model->face_labels != NULL;
         }
     }
 
-    new->vertex_x = rs2_calloc(use_allocator, new->vertex_count, sizeof(int));
-    new->vertex_y = rs2_calloc(use_allocator, new->vertex_count, sizeof(int));
-    new->vertex_z = rs2_calloc(use_allocator, new->vertex_count, sizeof(int));
-    new->vertex_label = rs2_calloc(use_allocator, new->vertex_count, sizeof(int));
-    new->face_vertex_a = rs2_calloc(use_allocator, new->face_count, sizeof(int));
-    new->face_vertex_b = rs2_calloc(use_allocator, new->face_count, sizeof(int));
-    new->face_vertex_c = rs2_calloc(use_allocator, new->face_count, sizeof(int));
-    new->textured_vertex_a = rs2_calloc(use_allocator, new->textured_face_count, sizeof(int));
-    new->textured_vertex_b = rs2_calloc(use_allocator, new->textured_face_count, sizeof(int));
-    new->textured_vertex_c = rs2_calloc(use_allocator, new->textured_face_count, sizeof(int));
+    new->vertices_x = rs2_calloc(use_allocator, new->vertex_count, sizeof(int));
+    new->vertices_y = rs2_calloc(use_allocator, new->vertex_count, sizeof(int));
+    new->vertices_z = rs2_calloc(use_allocator, new->vertex_count, sizeof(int));
+    new->vertex_labels = rs2_calloc(use_allocator, new->vertex_count, sizeof(int));
+    new->face_indices_a = rs2_calloc(use_allocator, new->face_count, sizeof(int));
+    new->face_indices_b = rs2_calloc(use_allocator, new->face_count, sizeof(int));
+    new->face_indices_c = rs2_calloc(use_allocator, new->face_count, sizeof(int));
+    new->textured_p_coordinate = rs2_calloc(use_allocator, new->textured_face_count, sizeof(int));
+    new->textured_m_coordinate = rs2_calloc(use_allocator, new->textured_face_count, sizeof(int));
+    new->textured_n_coordinate = rs2_calloc(use_allocator, new->textured_face_count, sizeof(int));
 
     if (copyInfo) {
-        new->face_info = rs2_calloc(use_allocator, new->face_count, sizeof(int));
+        new->face_infos = rs2_calloc(use_allocator, new->face_count, sizeof(int));
     }
 
     if (copyPriorities) {
-        new->face_priority = rs2_calloc(use_allocator, new->face_count, sizeof(int));
+        new->face_priorities = rs2_calloc(use_allocator, new->face_count, sizeof(int));
     }
 
     if (copyAlpha) {
-        new->face_alpha = rs2_calloc(use_allocator, new->face_count, sizeof(int));
+        new->face_alphas = rs2_calloc(use_allocator, new->face_count, sizeof(int));
     }
 
     if (copyLabels) {
-        new->face_label = rs2_calloc(use_allocator, new->face_count, sizeof(int));
+        new->face_labels = rs2_calloc(use_allocator, new->face_count, sizeof(int));
     }
 
-    new->face_color = rs2_calloc(use_allocator, new->face_count, sizeof(int));
+    new->face_colors = rs2_calloc(use_allocator, new->face_count, sizeof(int));
     new->vertex_count = 0;
     new->face_count = 0;
     new->textured_face_count = 0;
@@ -562,44 +562,44 @@ Model *model_from_models(Model **models, int count, bool use_allocator) {
 
             for (int face = 0; face < model->face_count; face++) {
                 if (copyInfo) {
-                    if (!model->face_info) {
-                        new->face_info[new->face_count] = 0;
+                    if (!model->face_infos) {
+                        new->face_infos[new->face_count] = 0;
                     } else {
-                        new->face_info[new->face_count] = model->face_info[face];
+                        new->face_infos[new->face_count] = model->face_infos[face];
                     }
                 }
 
                 if (copyPriorities) {
-                    if (!model->face_priority) {
-                        new->face_priority[new->face_count] = model->priority;
+                    if (!model->face_priorities) {
+                        new->face_priorities[new->face_count] = model->model_priority;
                     } else {
-                        new->face_priority[new->face_count] = model->face_priority[face];
+                        new->face_priorities[new->face_count] = model->face_priorities[face];
                     }
                 }
 
                 if (copyAlpha) {
-                    if (!model->face_alpha) {
-                        new->face_alpha[new->face_count] = 0;
+                    if (!model->face_alphas) {
+                        new->face_alphas[new->face_count] = 0;
                     } else {
-                        new->face_alpha[new->face_count] = model->face_alpha[face];
+                        new->face_alphas[new->face_count] = model->face_alphas[face];
                     }
                 }
 
-                if (copyLabels && model->face_label) {
-                    new->face_label[new->face_count] = model->face_label[face];
+                if (copyLabels && model->face_labels) {
+                    new->face_labels[new->face_count] = model->face_labels[face];
                 }
 
-                new->face_color[new->face_count] = model->face_color[face];
-                new->face_vertex_a[new->face_count] = add_vertex(model, model->face_vertex_a[face], new->vertex_x, new->vertex_y, new->vertex_z, new->vertex_label, &new->vertex_count);
-                new->face_vertex_b[new->face_count] = add_vertex(model, model->face_vertex_b[face], new->vertex_x, new->vertex_y, new->vertex_z, new->vertex_label, &new->vertex_count);
-                new->face_vertex_c[new->face_count] = add_vertex(model, model->face_vertex_c[face], new->vertex_x, new->vertex_y, new->vertex_z, new->vertex_label, &new->vertex_count);
+                new->face_colors[new->face_count] = model->face_colors[face];
+                new->face_indices_a[new->face_count] = add_vertex(model, model->face_indices_a[face], new->vertices_x, new->vertices_y, new->vertices_z, new->vertex_labels, &new->vertex_count);
+                new->face_indices_b[new->face_count] = add_vertex(model, model->face_indices_b[face], new->vertices_x, new->vertices_y, new->vertices_z, new->vertex_labels, &new->vertex_count);
+                new->face_indices_c[new->face_count] = add_vertex(model, model->face_indices_c[face], new->vertices_x, new->vertices_y, new->vertices_z, new->vertex_labels, &new->vertex_count);
                 new->face_count++;
             }
 
             for (int f = 0; f < model->textured_face_count; f++) {
-                new->textured_vertex_a[new->textured_face_count] = add_vertex(model, model->textured_vertex_a[f], new->vertex_x, new->vertex_y, new->vertex_z, new->vertex_label, &new->vertex_count);
-                new->textured_vertex_b[new->textured_face_count] = add_vertex(model, model->textured_vertex_b[f], new->vertex_x, new->vertex_y, new->vertex_z, new->vertex_label, &new->vertex_count);
-                new->textured_vertex_c[new->textured_face_count] = add_vertex(model, model->textured_vertex_c[f], new->vertex_x, new->vertex_y, new->vertex_z, new->vertex_label, &new->vertex_count);
+                new->textured_p_coordinate[new->textured_face_count] = add_vertex(model, model->textured_p_coordinate[f], new->vertices_x, new->vertices_y, new->vertices_z, new->vertex_labels, &new->vertex_count);
+                new->textured_m_coordinate[new->textured_face_count] = add_vertex(model, model->textured_m_coordinate[f], new->vertices_x, new->vertices_y, new->vertices_z, new->vertex_labels, &new->vertex_count);
+                new->textured_n_coordinate[new->textured_face_count] = add_vertex(model, model->textured_n_coordinate[f], new->vertices_x, new->vertices_y, new->vertices_z, new->vertex_labels, &new->vertex_count);
                 new->textured_face_count++;
             }
         }
@@ -617,7 +617,7 @@ Model *model_from_models_bounds(Model **models, int count) {
     new->vertex_count = 0;
     new->face_count = 0;
     new->textured_face_count = 0;
-    new->priority = -1;
+    new->model_priority = -1;
 
     for (int i = 0; i < count; i++) {
         Model *model = models[i];
@@ -626,51 +626,51 @@ Model *model_from_models_bounds(Model **models, int count) {
             new->face_count += model->face_count;
             new->textured_face_count += model->textured_face_count;
 
-            copyInfo |= model->face_info != NULL;
+            copyInfo |= model->face_infos != NULL;
 
-            if (model->face_priority) {
-                if (new->priority == -1) {
-                    new->priority = model->priority;
+            if (model->face_priorities) {
+                if (new->model_priority == -1) {
+                    new->model_priority = model->model_priority;
                 }
-                if (new->priority != model->priority) {
+                if (new->model_priority != model->model_priority) {
                     copyPriority = true;
                 }
             } else {
                 copyPriority = true;
             }
 
-            copyAlpha |= model->face_alpha != NULL;
-            copyColor |= model->face_color != NULL;
+            copyAlpha |= model->face_alphas != NULL;
+            copyColor |= model->face_colors != NULL;
         }
     }
 
-    new->vertex_x = calloc(new->vertex_count, sizeof(int));
-    new->vertex_y = calloc(new->vertex_count, sizeof(int));
-    new->vertex_z = calloc(new->vertex_count, sizeof(int));
-    new->face_vertex_a = calloc(new->face_count, sizeof(int));
-    new->face_vertex_b = calloc(new->face_count, sizeof(int));
-    new->face_vertex_c = calloc(new->face_count, sizeof(int));
+    new->vertices_x = calloc(new->vertex_count, sizeof(int));
+    new->vertices_y = calloc(new->vertex_count, sizeof(int));
+    new->vertices_z = calloc(new->vertex_count, sizeof(int));
+    new->face_indices_a = calloc(new->face_count, sizeof(int));
+    new->face_indices_b = calloc(new->face_count, sizeof(int));
+    new->face_indices_c = calloc(new->face_count, sizeof(int));
     new->face_color_a = calloc(new->face_count, sizeof(int));
     new->face_color_b = calloc(new->face_count, sizeof(int));
     new->face_color_c = calloc(new->face_count, sizeof(int));
-    new->textured_vertex_a = calloc(new->textured_face_count, sizeof(int));
-    new->textured_vertex_b = calloc(new->textured_face_count, sizeof(int));
-    new->textured_vertex_c = calloc(new->textured_face_count, sizeof(int));
+    new->textured_p_coordinate = calloc(new->textured_face_count, sizeof(int));
+    new->textured_m_coordinate = calloc(new->textured_face_count, sizeof(int));
+    new->textured_n_coordinate = calloc(new->textured_face_count, sizeof(int));
 
     if (copyInfo) {
-        new->face_info = calloc(new->face_count, sizeof(int));
+        new->face_infos = calloc(new->face_count, sizeof(int));
     }
 
     if (copyPriority) {
-        new->face_priority = calloc(new->face_count, sizeof(int));
+        new->face_priorities = calloc(new->face_count, sizeof(int));
     }
 
     if (copyAlpha) {
-        new->face_alpha = calloc(new->face_count, sizeof(int));
+        new->face_alphas = calloc(new->face_count, sizeof(int));
     }
 
     if (copyColor) {
-        new->face_color = calloc(new->face_count, sizeof(int));
+        new->face_colors = calloc(new->face_count, sizeof(int));
     }
 
     new->vertex_count = 0;
@@ -684,56 +684,56 @@ Model *model_from_models_bounds(Model **models, int count) {
             int vertexCount = new->vertex_count;
 
             for (int v = 0; v < model->vertex_count; v++) {
-                new->vertex_x[new->vertex_count] = model->vertex_x[v];
-                new->vertex_y[new->vertex_count] = model->vertex_y[v];
-                new->vertex_z[new->vertex_count] = model->vertex_z[v];
+                new->vertices_x[new->vertex_count] = model->vertices_x[v];
+                new->vertices_y[new->vertex_count] = model->vertices_y[v];
+                new->vertices_z[new->vertex_count] = model->vertices_z[v];
                 new->vertex_count++;
             }
 
             for (int f = 0; f < model->face_count; f++) {
-                new->face_vertex_a[new->face_count] = model->face_vertex_a[f] + vertexCount;
-                new->face_vertex_b[new->face_count] = model->face_vertex_b[f] + vertexCount;
-                new->face_vertex_c[new->face_count] = model->face_vertex_c[f] + vertexCount;
+                new->face_indices_a[new->face_count] = model->face_indices_a[f] + vertexCount;
+                new->face_indices_b[new->face_count] = model->face_indices_b[f] + vertexCount;
+                new->face_indices_c[new->face_count] = model->face_indices_c[f] + vertexCount;
                 new->face_color_a[new->face_count] = model->face_color_a[f];
                 new->face_color_b[new->face_count] = model->face_color_b[f];
                 new->face_color_c[new->face_count] = model->face_color_c[f];
 
                 // TODO memset here
                 if (copyInfo) {
-                    if (!model->face_info) {
-                        new->face_info[new->face_count] = 0;
+                    if (!model->face_infos) {
+                        new->face_infos[new->face_count] = 0;
                     } else {
-                        new->face_info[new->face_count] = model->face_info[f];
+                        new->face_infos[new->face_count] = model->face_infos[f];
                     }
                 }
 
                 if (copyPriority) {
-                    if (!model->face_priority) {
-                        new->face_priority[new->face_count] = model->priority;
+                    if (!model->face_priorities) {
+                        new->face_priorities[new->face_count] = model->model_priority;
                     } else {
-                        new->face_priority[new->face_count] = model->face_priority[f];
+                        new->face_priorities[new->face_count] = model->face_priorities[f];
                     }
                 }
 
                 if (copyAlpha) {
-                    if (!model->face_alpha) {
-                        new->face_alpha[new->face_count] = 0;
+                    if (!model->face_alphas) {
+                        new->face_alphas[new->face_count] = 0;
                     } else {
-                        new->face_alpha[new->face_count] = model->face_alpha[f];
+                        new->face_alphas[new->face_count] = model->face_alphas[f];
                     }
                 }
 
-                if (copyColor && model->face_color) {
-                    new->face_color[new->face_count] = model->face_color[f];
+                if (copyColor && model->face_colors) {
+                    new->face_colors[new->face_count] = model->face_colors[f];
                 }
 
                 new->face_count++;
             }
 
             for (int f = 0; f < model->textured_face_count; f++) {
-                new->textured_vertex_a[new->textured_face_count] = model->textured_vertex_a[f] + vertexCount;
-                new->textured_vertex_b[new->textured_face_count] = model->textured_vertex_b[f] + vertexCount;
-                new->textured_vertex_c[new->textured_face_count] = model->textured_vertex_c[f] + vertexCount;
+                new->textured_p_coordinate[new->textured_face_count] = model->textured_p_coordinate[f] + vertexCount;
+                new->textured_m_coordinate[new->textured_face_count] = model->textured_m_coordinate[f] + vertexCount;
+                new->textured_n_coordinate[new->textured_face_count] = model->textured_n_coordinate[f] + vertexCount;
                 new->textured_face_count++;
             }
         }
@@ -750,53 +750,53 @@ Model *model_share_colored(Model *src, bool shareColors, bool shareAlpha, bool s
     new->textured_face_count = src->textured_face_count;
 
     if (shareVertices) {
-        new->vertex_x = src->vertex_x;
-        new->vertex_y = src->vertex_y;
-        new->vertex_z = src->vertex_z;
+        new->vertices_x = src->vertices_x;
+        new->vertices_y = src->vertices_y;
+        new->vertices_z = src->vertices_z;
     } else {
-        new->vertex_x = rs2_calloc(use_allocator, new->vertex_count, sizeof(int));
-        new->vertex_y = rs2_calloc(use_allocator, new->vertex_count, sizeof(int));
-        new->vertex_z = rs2_calloc(use_allocator, new->vertex_count, sizeof(int));
+        new->vertices_x = rs2_calloc(use_allocator, new->vertex_count, sizeof(int));
+        new->vertices_y = rs2_calloc(use_allocator, new->vertex_count, sizeof(int));
+        new->vertices_z = rs2_calloc(use_allocator, new->vertex_count, sizeof(int));
 
         for (int v = 0; v < new->vertex_count; v++) {
-            new->vertex_x[v] = src->vertex_x[v];
-            new->vertex_y[v] = src->vertex_y[v];
-            new->vertex_z[v] = src->vertex_z[v];
+            new->vertices_x[v] = src->vertices_x[v];
+            new->vertices_y[v] = src->vertices_y[v];
+            new->vertices_z[v] = src->vertices_z[v];
         }
     }
 
     if (shareColors) {
-        new->face_color = src->face_color;
+        new->face_colors = src->face_colors;
     } else {
-        new->face_color = rs2_calloc(use_allocator, new->face_count, sizeof(int));
-        memcpy(new->face_color, src->face_color, new->face_count * sizeof(int));
+        new->face_colors = rs2_calloc(use_allocator, new->face_count, sizeof(int));
+        memcpy(new->face_colors, src->face_colors, new->face_count * sizeof(int));
     }
 
     if (shareAlpha) {
-        new->face_alpha = src->face_alpha;
+        new->face_alphas = src->face_alphas;
     } else {
-        new->face_alpha = rs2_calloc(use_allocator, new->face_count, sizeof(int));
-        if (!src->face_alpha) {
+        new->face_alphas = rs2_calloc(use_allocator, new->face_count, sizeof(int));
+        if (!src->face_alphas) {
             // TODO memset here
             for (int f = 0; f < new->face_count; f++) {
-                new->face_alpha[f] = 0;
+                new->face_alphas[f] = 0;
             }
         } else {
-            memcpy(new->face_alpha, src->face_alpha, new->face_count * sizeof(int));
+            memcpy(new->face_alphas, src->face_alphas, new->face_count * sizeof(int));
         }
     }
 
-    new->vertex_label = src->vertex_label;
-    new->face_label = src->face_label;
-    new->face_info = src->face_info;
-    new->face_vertex_a = src->face_vertex_a;
-    new->face_vertex_b = src->face_vertex_b;
-    new->face_vertex_c = src->face_vertex_c;
-    new->face_priority = src->face_priority;
-    new->priority = src->priority;
-    new->textured_vertex_a = src->textured_vertex_a;
-    new->textured_vertex_b = src->textured_vertex_b;
-    new->textured_vertex_c = src->textured_vertex_c;
+    new->vertex_labels = src->vertex_labels;
+    new->face_labels = src->face_labels;
+    new->face_infos = src->face_infos;
+    new->face_indices_a = src->face_indices_a;
+    new->face_indices_b = src->face_indices_b;
+    new->face_indices_c = src->face_indices_c;
+    new->face_priorities = src->face_priorities;
+    new->model_priority = src->model_priority;
+    new->textured_p_coordinate = src->textured_p_coordinate;
+    new->textured_m_coordinate = src->textured_m_coordinate;
+    new->textured_n_coordinate = src->textured_n_coordinate;
     return new;
 }
 
@@ -807,10 +807,10 @@ Model *model_copy_faces(Model *src, bool copyVertexY, bool copyFaces, bool use_a
     new->textured_face_count = src->textured_face_count;
 
     if (copyVertexY) {
-        new->vertex_y = rs2_calloc(use_allocator, new->vertex_count, sizeof(int));
-        memcpy(new->vertex_y, src->vertex_y, new->vertex_count * sizeof(int));
+        new->vertices_y = rs2_calloc(use_allocator, new->vertex_count, sizeof(int));
+        memcpy(new->vertices_y, src->vertices_y, new->vertex_count * sizeof(int));
     } else {
-        new->vertex_y = src->vertex_y;
+        new->vertices_y = src->vertices_y;
     }
 
     if (copyFaces) {
@@ -823,14 +823,14 @@ Model *model_copy_faces(Model *src, bool copyVertexY, bool copyFaces, bool use_a
             new->face_color_c[f] = src->face_color_c[f];
         }
 
-        new->face_info = rs2_calloc(use_allocator, new->face_count, sizeof(int));
-        if (!src->face_info) {
+        new->face_infos = rs2_calloc(use_allocator, new->face_count, sizeof(int));
+        if (!src->face_infos) {
             // TODO memset here
             for (int f = 0; f < new->face_count; f++) {
-                new->face_info[f] = 0;
+                new->face_infos[f] = 0;
             }
         } else {
-            memcpy(new->face_info, src->face_info, new->face_count * sizeof(int));
+            memcpy(new->face_infos, src->face_infos, new->face_count * sizeof(int));
         }
 
         new->vertex_normal = rs2_malloc(use_allocator, new->vertex_count * sizeof(VertexNormal *));
@@ -844,21 +844,21 @@ Model *model_copy_faces(Model *src, bool copyVertexY, bool copyFaces, bool use_a
         new->face_color_a = src->face_color_a;
         new->face_color_b = src->face_color_b;
         new->face_color_c = src->face_color_c;
-        new->face_info = src->face_info;
+        new->face_infos = src->face_infos;
     }
 
-    new->vertex_x = src->vertex_x;
-    new->vertex_z = src->vertex_z;
-    new->face_color = src->face_color;
-    new->face_alpha = src->face_alpha;
-    new->face_priority = src->face_priority;
-    new->priority = src->priority;
-    new->face_vertex_a = src->face_vertex_a;
-    new->face_vertex_b = src->face_vertex_b;
-    new->face_vertex_c = src->face_vertex_c;
-    new->textured_vertex_a = src->textured_vertex_a;
-    new->textured_vertex_b = src->textured_vertex_b;
-    new->textured_vertex_c = src->textured_vertex_c;
+    new->vertices_x = src->vertices_x;
+    new->vertices_z = src->vertices_z;
+    new->face_colors = src->face_colors;
+    new->face_alphas = src->face_alphas;
+    new->face_priorities = src->face_priorities;
+    new->model_priority = src->model_priority;
+    new->face_indices_a = src->face_indices_a;
+    new->face_indices_b = src->face_indices_b;
+    new->face_indices_c = src->face_indices_c;
+    new->textured_p_coordinate = src->textured_p_coordinate;
+    new->textured_m_coordinate = src->textured_m_coordinate;
+    new->textured_n_coordinate = src->textured_n_coordinate;
     new->max_y = src->max_y;
     new->min_y = src->min_y;
     new->radius = src->radius;
@@ -877,45 +877,45 @@ Model *model_share_alpha(Model *src, bool shareAlpha) {
     new->face_count = src->face_count;
     new->textured_face_count = src->textured_face_count;
 
-    new->vertex_x = calloc(new->vertex_count, sizeof(int));
-    new->vertex_y = calloc(new->vertex_count, sizeof(int));
-    new->vertex_z = calloc(new->vertex_count, sizeof(int));
+    new->vertices_x = calloc(new->vertex_count, sizeof(int));
+    new->vertices_y = calloc(new->vertex_count, sizeof(int));
+    new->vertices_z = calloc(new->vertex_count, sizeof(int));
 
     for (int v = 0; v < new->vertex_count; v++) {
-        new->vertex_x[v] = src->vertex_x[v];
-        new->vertex_y[v] = src->vertex_y[v];
-        new->vertex_z[v] = src->vertex_z[v];
+        new->vertices_x[v] = src->vertices_x[v];
+        new->vertices_y[v] = src->vertices_y[v];
+        new->vertices_z[v] = src->vertices_z[v];
     }
 
     if (shareAlpha) {
-        new->face_alpha = src->face_alpha;
+        new->face_alphas = src->face_alphas;
     } else {
-        new->face_alpha = calloc(new->face_count, sizeof(int));
-        if (!src->face_alpha) {
+        new->face_alphas = calloc(new->face_count, sizeof(int));
+        if (!src->face_alphas) {
             // TODO memset here
             for (int f = 0; f < new->face_count; f++) {
-                new->face_alpha[f] = 0;
+                new->face_alphas[f] = 0;
             }
         } else {
-            memcpy(new->face_alpha, src->face_alpha, new->face_count * sizeof(int));
+            memcpy(new->face_alphas, src->face_alphas, new->face_count * sizeof(int));
         }
     }
 
-    new->face_info = src->face_info;
-    new->face_color = src->face_color;
-    new->face_priority = src->face_priority;
-    new->priority = src->priority;
+    new->face_infos = src->face_infos;
+    new->face_colors = src->face_colors;
+    new->face_priorities = src->face_priorities;
+    new->model_priority = src->model_priority;
     new->label_faces = src->label_faces;
     new->label_vertices = src->label_vertices;
-    new->face_vertex_a = src->face_vertex_a;
-    new->face_vertex_b = src->face_vertex_b;
-    new->face_vertex_c = src->face_vertex_c;
+    new->face_indices_a = src->face_indices_a;
+    new->face_indices_b = src->face_indices_b;
+    new->face_indices_c = src->face_indices_c;
     new->face_color_a = src->face_color_a;
     new->face_color_b = src->face_color_b;
     new->face_color_c = src->face_color_c;
-    new->textured_vertex_a = src->textured_vertex_a;
-    new->textured_vertex_b = src->textured_vertex_b;
-    new->textured_vertex_c = src->textured_vertex_c;
+    new->textured_p_coordinate = src->textured_p_coordinate;
+    new->textured_m_coordinate = src->textured_m_coordinate;
+    new->textured_n_coordinate = src->textured_n_coordinate;
 
     // manually update counts
     new->label_faces_count = src->label_faces_count;
@@ -939,9 +939,9 @@ void model_draw_simple(Model *m, int pitch, int yaw, int roll, int eyePitch, int
     int midZ = (eyeY * sinEyePitch + eyeZ * cosEyePitch) >> 16;
 
     for (int v = 0; v < m->vertex_count; v++) {
-        int x = m->vertex_x[v];
-        int y = m->vertex_y[v];
-        int z = m->vertex_z[v];
+        int x = m->vertices_x[v];
+        int y = m->vertices_y[v];
+        int z = m->vertices_z[v];
 
         int temp;
         if (roll != 0) {
@@ -1061,9 +1061,9 @@ void model_draw(Model *m, int yaw, int sinCameraPitch, int cosCameraPitch, int s
         yawcos = _Pix3D.cos_table[yaw];
     }
     for (int v = 0; v < m->vertex_count; v++) {
-        int x = m->vertex_x[v];
-        int y = m->vertex_y[v];
-        int z = m->vertex_z[v];
+        int x = m->vertices_x[v];
+        int y = m->vertices_y[v];
+        int z = m->vertices_z[v];
         int temp;
         if (yaw != 0) {
             temp = (z * yawsin + x * yawcos) >> 16;
@@ -1107,10 +1107,10 @@ void model_draw2(Model *m, bool projected, bool hasInput, int bitset) {
         }
     }
     for (int f = 0; f < m->face_count; f++) {
-        if (!m->face_info || m->face_info[f] != -1) {
-            int a = m->face_vertex_a[f];
-            int b = m->face_vertex_b[f];
-            int c = m->face_vertex_c[f];
+        if (!m->face_infos || m->face_infos[f] != -1) {
+            int a = m->face_indices_a[f];
+            int b = m->face_indices_b[f];
+            int c = m->face_indices_c[f];
             if (_Model.vertex_screen_x) {
                 int xa = _Model.vertex_screen_x[a];
                 int xb = _Model.vertex_screen_x[b];
@@ -1135,7 +1135,7 @@ void model_draw2(Model *m, bool projected, bool hasInput, int bitset) {
             }
         }
     }
-    if (!m->face_priority) {
+    if (!m->face_priorities) {
         // NOTE: custom check for model 714: && depth < 1500
         for (int depth = m->max_depth - 1; depth >= 0 && depth < 1500; depth--) {
             int count = _Model.tmp_depth_face_count[depth];
@@ -1161,7 +1161,7 @@ void model_draw2(Model *m, bool projected, bool hasInput, int bitset) {
                 int *faces = _Model.tmp_depth_faces[depth];
                 for (int i = 0; i < face_count; i++) {
                     int priority_depth = faces[i];
-                    int depth_average = m->face_priority[priority_depth];
+                    int depth_average = m->face_priorities[priority_depth];
                     int priority_face_count = _Model.tmp_priority_face_count[depth_average]++;
                     _Model.tmp_priority_faces[depth_average][priority_face_count] = priority_depth;
                     if (depth_average < 10) {
@@ -1275,20 +1275,20 @@ void model_draw_face(Model *m, int index) {
         model_draw_near_clipped_face(m, index);
         return;
     }
-    int a = m->face_vertex_a[index];
-    int b = m->face_vertex_b[index];
-    int c = m->face_vertex_c[index];
+    int a = m->face_indices_a[index];
+    int b = m->face_indices_b[index];
+    int c = m->face_indices_c[index];
     _Pix3D.clipX = _Model.face_clipped_x[index];
-    if (!m->face_alpha) {
+    if (!m->face_alphas) {
         _Pix3D.alpha = 0;
     } else {
-        _Pix3D.alpha = m->face_alpha[index];
+        _Pix3D.alpha = m->face_alphas[index];
     }
     int type;
-    if (!m->face_info) {
+    if (!m->face_infos) {
         type = 0;
     } else {
-        type = m->face_info[index] & 0x3;
+        type = m->face_infos[index] & 0x3;
     }
     if (type == 0) {
         gouraudTriangle(_Model.vertex_screen_x[a], _Model.vertex_screen_x[b], _Model.vertex_screen_x[c], _Model.vertex_screen_y[a], _Model.vertex_screen_y[b], _Model.vertex_screen_y[c], m->face_color_a[index], m->face_color_b[index], m->face_color_c[index]);
@@ -1300,17 +1300,17 @@ void model_draw_face(Model *m, int index) {
         int tB;
         int tC;
         if (type == 2) {
-            t = m->face_info[index] >> 2;
-            tA = m->textured_vertex_a[t];
-            tB = m->textured_vertex_b[t];
-            tC = m->textured_vertex_c[t];
-            textureTriangle(_Model.vertex_screen_x[a], _Model.vertex_screen_x[b], _Model.vertex_screen_x[c], _Model.vertex_screen_y[a], _Model.vertex_screen_y[b], _Model.vertex_screen_y[c], m->face_color_a[index], m->face_color_b[index], m->face_color_c[index], _Model.vertex_view_space_x[tA], _Model.vertex_view_space_y[tA], _Model.vertex_view_space_z[tA], _Model.vertex_view_space_x[tB], _Model.vertex_view_space_x[tC], _Model.vertex_view_space_y[tB], _Model.vertex_view_space_y[tC], _Model.vertex_view_space_z[tB], _Model.vertex_view_space_z[tC], m->face_color[index]);
+            t = m->face_infos[index] >> 2;
+            tA = m->textured_p_coordinate[t];
+            tB = m->textured_m_coordinate[t];
+            tC = m->textured_n_coordinate[t];
+            textureTriangle(_Model.vertex_screen_x[a], _Model.vertex_screen_x[b], _Model.vertex_screen_x[c], _Model.vertex_screen_y[a], _Model.vertex_screen_y[b], _Model.vertex_screen_y[c], m->face_color_a[index], m->face_color_b[index], m->face_color_c[index], _Model.vertex_view_space_x[tA], _Model.vertex_view_space_y[tA], _Model.vertex_view_space_z[tA], _Model.vertex_view_space_x[tB], _Model.vertex_view_space_x[tC], _Model.vertex_view_space_y[tB], _Model.vertex_view_space_y[tC], _Model.vertex_view_space_z[tB], _Model.vertex_view_space_z[tC], m->face_colors[index]);
         } else if (type == 3) {
-            t = m->face_info[index] >> 2;
-            tA = m->textured_vertex_a[t];
-            tB = m->textured_vertex_b[t];
-            tC = m->textured_vertex_c[t];
-            textureTriangle(_Model.vertex_screen_x[a], _Model.vertex_screen_x[b], _Model.vertex_screen_x[c], _Model.vertex_screen_y[a], _Model.vertex_screen_y[b], _Model.vertex_screen_y[c], m->face_color_a[index], m->face_color_a[index], m->face_color_a[index], _Model.vertex_view_space_x[tA], _Model.vertex_view_space_y[tA], _Model.vertex_view_space_z[tA], _Model.vertex_view_space_x[tB], _Model.vertex_view_space_x[tC], _Model.vertex_view_space_y[tB], _Model.vertex_view_space_y[tC], _Model.vertex_view_space_z[tB], _Model.vertex_view_space_z[tC], m->face_color[index]);
+            t = m->face_infos[index] >> 2;
+            tA = m->textured_p_coordinate[t];
+            tB = m->textured_m_coordinate[t];
+            tC = m->textured_n_coordinate[t];
+            textureTriangle(_Model.vertex_screen_x[a], _Model.vertex_screen_x[b], _Model.vertex_screen_x[c], _Model.vertex_screen_y[a], _Model.vertex_screen_y[b], _Model.vertex_screen_y[c], m->face_color_a[index], m->face_color_a[index], m->face_color_a[index], _Model.vertex_view_space_x[tA], _Model.vertex_view_space_y[tA], _Model.vertex_view_space_z[tA], _Model.vertex_view_space_x[tB], _Model.vertex_view_space_x[tC], _Model.vertex_view_space_y[tB], _Model.vertex_view_space_y[tC], _Model.vertex_view_space_z[tB], _Model.vertex_view_space_z[tC], m->face_colors[index]);
         }
     }
 }
@@ -1319,9 +1319,9 @@ void model_draw_near_clipped_face(Model *m, int index) {
     int centerX = _Pix3D.center_x;
     int centerY = _Pix3D.center_y;
     int n = 0;
-    int a = m->face_vertex_a[index];
-    int b = m->face_vertex_b[index];
-    int c = m->face_vertex_c[index];
+    int a = m->face_indices_a[index];
+    int b = m->face_indices_b[index];
+    int c = m->face_indices_c[index];
     int zA = _Model.vertex_screen_z[a];
     int zB = _Model.vertex_screen_z[b];
     int zC = _Model.vertex_screen_z[c];
@@ -1413,27 +1413,27 @@ void model_draw_near_clipped_face(Model *m, int index) {
         if (xA < 0 || xB < 0 || xC < 0 || xA > _Pix2D.bound_x || xB > _Pix2D.bound_x || xC > _Pix2D.bound_x) {
             _Pix3D.clipX = true;
         }
-        if (!m->face_info) {
+        if (!m->face_infos) {
             type = 0;
         } else {
-            type = m->face_info[index] & 0x3;
+            type = m->face_infos[index] & 0x3;
         }
         if (type == 0) {
             gouraudTriangle(xA, xB, xC, yA, yB, yC, _Model.clipped_color[0], _Model.clipped_color[1], _Model.clipped_color[2]);
         } else if (type == 1) {
             flatTriangle(xA, xB, xC, yA, yB, yC, _Pix3D.palette[m->face_color_a[index]]);
         } else if (type == 2) {
-            t = m->face_info[index] >> 2;
-            tA = m->textured_vertex_a[t];
-            tB = m->textured_vertex_b[t];
-            tC = m->textured_vertex_c[t];
-            textureTriangle(xA, xB, xC, yA, yB, yC, _Model.clipped_color[0], _Model.clipped_color[1], _Model.clipped_color[2], _Model.vertex_view_space_x[tA], _Model.vertex_view_space_y[tA], _Model.vertex_view_space_z[tA], _Model.vertex_view_space_x[tB], _Model.vertex_view_space_x[tC], _Model.vertex_view_space_y[tB], _Model.vertex_view_space_y[tC], _Model.vertex_view_space_z[tB], _Model.vertex_view_space_z[tC], m->face_color[index]);
+            t = m->face_infos[index] >> 2;
+            tA = m->textured_p_coordinate[t];
+            tB = m->textured_m_coordinate[t];
+            tC = m->textured_n_coordinate[t];
+            textureTriangle(xA, xB, xC, yA, yB, yC, _Model.clipped_color[0], _Model.clipped_color[1], _Model.clipped_color[2], _Model.vertex_view_space_x[tA], _Model.vertex_view_space_y[tA], _Model.vertex_view_space_z[tA], _Model.vertex_view_space_x[tB], _Model.vertex_view_space_x[tC], _Model.vertex_view_space_y[tB], _Model.vertex_view_space_y[tC], _Model.vertex_view_space_z[tB], _Model.vertex_view_space_z[tC], m->face_colors[index]);
         } else if (type == 3) {
-            t = m->face_info[index] >> 2;
-            tA = m->textured_vertex_a[t];
-            tB = m->textured_vertex_b[t];
-            tC = m->textured_vertex_c[t];
-            textureTriangle(xA, xB, xC, yA, yB, yC, m->face_color_a[index], m->face_color_a[index], m->face_color_a[index], _Model.vertex_view_space_x[tA], _Model.vertex_view_space_y[tA], _Model.vertex_view_space_z[tA], _Model.vertex_view_space_x[tB], _Model.vertex_view_space_x[tC], _Model.vertex_view_space_y[tB], _Model.vertex_view_space_y[tC], _Model.vertex_view_space_z[tB], _Model.vertex_view_space_z[tC], m->face_color[index]);
+            t = m->face_infos[index] >> 2;
+            tA = m->textured_p_coordinate[t];
+            tB = m->textured_m_coordinate[t];
+            tC = m->textured_n_coordinate[t];
+            textureTriangle(xA, xB, xC, yA, yB, yC, m->face_color_a[index], m->face_color_a[index], m->face_color_a[index], _Model.vertex_view_space_x[tA], _Model.vertex_view_space_y[tA], _Model.vertex_view_space_z[tA], _Model.vertex_view_space_x[tB], _Model.vertex_view_space_x[tC], _Model.vertex_view_space_y[tB], _Model.vertex_view_space_y[tC], _Model.vertex_view_space_z[tB], _Model.vertex_view_space_z[tC], m->face_colors[index]);
         }
     }
     if (n != 4) {
@@ -1442,10 +1442,10 @@ void model_draw_near_clipped_face(Model *m, int index) {
     if (xA < 0 || xB < 0 || xC < 0 || xA > _Pix2D.bound_x || xB > _Pix2D.bound_x || xC > _Pix2D.bound_x || _Model.clipped_x[3] < 0 || _Model.clipped_x[3] > _Pix2D.bound_x) {
         _Pix3D.clipX = true;
     }
-    if (!m->face_info) {
+    if (!m->face_infos) {
         type = 0;
     } else {
-        type = m->face_info[index] & 0x3;
+        type = m->face_infos[index] & 0x3;
     }
     if (type == 0) {
         gouraudTriangle(xA, xB, xC, yA, yB, yC, _Model.clipped_color[0], _Model.clipped_color[1], _Model.clipped_color[2]);
@@ -1459,23 +1459,23 @@ void model_draw_near_clipped_face(Model *m, int index) {
         return;
     }
     if (type == 2) {
-        t = m->face_info[index] >> 2;
-        tA = m->textured_vertex_a[t];
-        tB = m->textured_vertex_b[t];
-        tC = m->textured_vertex_c[t];
-        textureTriangle(xA, xB, xC, yA, yB, yC, _Model.clipped_color[0], _Model.clipped_color[1], _Model.clipped_color[2], _Model.vertex_view_space_x[tA], _Model.vertex_view_space_y[tA], _Model.vertex_view_space_z[tA], _Model.vertex_view_space_x[tB], _Model.vertex_view_space_x[tC], _Model.vertex_view_space_y[tB], _Model.vertex_view_space_y[tC], _Model.vertex_view_space_z[tB], _Model.vertex_view_space_z[tC], m->face_color[index]);
-        textureTriangle(xA, xC, _Model.clipped_x[3], yA, yC, _Model.clipped_y[3], _Model.clipped_color[0], _Model.clipped_color[2], _Model.clipped_color[3], _Model.vertex_view_space_x[tA], _Model.vertex_view_space_y[tA], _Model.vertex_view_space_z[tA], _Model.vertex_view_space_x[tB], _Model.vertex_view_space_x[tC], _Model.vertex_view_space_y[tB], _Model.vertex_view_space_y[tC], _Model.vertex_view_space_z[tB], _Model.vertex_view_space_z[tC], m->face_color[index]);
+        t = m->face_infos[index] >> 2;
+        tA = m->textured_p_coordinate[t];
+        tB = m->textured_m_coordinate[t];
+        tC = m->textured_n_coordinate[t];
+        textureTriangle(xA, xB, xC, yA, yB, yC, _Model.clipped_color[0], _Model.clipped_color[1], _Model.clipped_color[2], _Model.vertex_view_space_x[tA], _Model.vertex_view_space_y[tA], _Model.vertex_view_space_z[tA], _Model.vertex_view_space_x[tB], _Model.vertex_view_space_x[tC], _Model.vertex_view_space_y[tB], _Model.vertex_view_space_y[tC], _Model.vertex_view_space_z[tB], _Model.vertex_view_space_z[tC], m->face_colors[index]);
+        textureTriangle(xA, xC, _Model.clipped_x[3], yA, yC, _Model.clipped_y[3], _Model.clipped_color[0], _Model.clipped_color[2], _Model.clipped_color[3], _Model.vertex_view_space_x[tA], _Model.vertex_view_space_y[tA], _Model.vertex_view_space_z[tA], _Model.vertex_view_space_x[tB], _Model.vertex_view_space_x[tC], _Model.vertex_view_space_y[tB], _Model.vertex_view_space_y[tC], _Model.vertex_view_space_z[tB], _Model.vertex_view_space_z[tC], m->face_colors[index]);
         return;
     }
     if (type != 3) {
         return;
     }
-    t = m->face_info[index] >> 2;
-    tA = m->textured_vertex_a[t];
-    tB = m->textured_vertex_b[t];
-    tC = m->textured_vertex_c[t];
-    textureTriangle(xA, xB, xC, yA, yB, yC, m->face_color_a[index], m->face_color_a[index], m->face_color_a[index], _Model.vertex_view_space_x[tA], _Model.vertex_view_space_y[tA], _Model.vertex_view_space_z[tA], _Model.vertex_view_space_x[tB], _Model.vertex_view_space_x[tC], _Model.vertex_view_space_y[tB], _Model.vertex_view_space_y[tC], _Model.vertex_view_space_z[tB], _Model.vertex_view_space_z[tC], m->face_color[index]);
-    textureTriangle(xA, xC, _Model.clipped_x[3], yA, yC, _Model.clipped_y[3], m->face_color_a[index], m->face_color_a[index], m->face_color_a[index], _Model.vertex_view_space_x[tA], _Model.vertex_view_space_y[tA], _Model.vertex_view_space_z[tA], _Model.vertex_view_space_x[tB], _Model.vertex_view_space_x[tC], _Model.vertex_view_space_y[tB], _Model.vertex_view_space_y[tC], _Model.vertex_view_space_z[tB], _Model.vertex_view_space_z[tC], m->face_color[index]);
+    t = m->face_infos[index] >> 2;
+    tA = m->textured_p_coordinate[t];
+    tB = m->textured_m_coordinate[t];
+    tC = m->textured_n_coordinate[t];
+    textureTriangle(xA, xB, xC, yA, yB, yC, m->face_color_a[index], m->face_color_a[index], m->face_color_a[index], _Model.vertex_view_space_x[tA], _Model.vertex_view_space_y[tA], _Model.vertex_view_space_z[tA], _Model.vertex_view_space_x[tB], _Model.vertex_view_space_x[tC], _Model.vertex_view_space_y[tB], _Model.vertex_view_space_y[tC], _Model.vertex_view_space_z[tB], _Model.vertex_view_space_z[tC], m->face_colors[index]);
+    textureTriangle(xA, xC, _Model.clipped_x[3], yA, yC, _Model.clipped_y[3], m->face_color_a[index], m->face_color_a[index], m->face_color_a[index], _Model.vertex_view_space_x[tA], _Model.vertex_view_space_y[tA], _Model.vertex_view_space_z[tA], _Model.vertex_view_space_x[tB], _Model.vertex_view_space_x[tC], _Model.vertex_view_space_y[tB], _Model.vertex_view_space_y[tC], _Model.vertex_view_space_z[tB], _Model.vertex_view_space_z[tC], m->face_colors[index]);
 }
 
 bool model_point_within_triangle(int x, int y, int ya, int yb, int yc, int xa, int xb, int xc) {
@@ -1508,16 +1508,16 @@ void model_calculate_normals(Model *m, int light_ambient, int light_attenuation,
     }
 
     for (int f = 0; f < m->face_count; f++) {
-        int a = m->face_vertex_a[f];
-        int b = m->face_vertex_b[f];
-        int c = m->face_vertex_c[f];
+        int a = m->face_indices_a[f];
+        int b = m->face_indices_b[f];
+        int c = m->face_indices_c[f];
 
-        int dx_ab = m->vertex_x[b] - m->vertex_x[a];
-        int dy_ab = m->vertex_y[b] - m->vertex_y[a];
-        int dz_ab = m->vertex_z[b] - m->vertex_z[a];
-        int dx_ac = m->vertex_x[c] - m->vertex_x[a];
-        int dy_ac = m->vertex_y[c] - m->vertex_y[a];
-        int dz_ac = m->vertex_z[c] - m->vertex_z[a];
+        int dx_ab = m->vertices_x[b] - m->vertices_x[a];
+        int dy_ab = m->vertices_y[b] - m->vertices_y[a];
+        int dz_ab = m->vertices_z[b] - m->vertices_z[a];
+        int dx_ac = m->vertices_x[c] - m->vertices_x[a];
+        int dy_ac = m->vertices_y[c] - m->vertices_y[a];
+        int dz_ac = m->vertices_z[c] - m->vertices_z[a];
         int nx = dy_ab * dz_ac - dy_ac * dz_ab;
         int ny = dz_ab * dx_ac - dz_ac * dx_ab;
         int nz = dx_ab * dy_ac - dx_ac * dy_ab;
@@ -1533,7 +1533,7 @@ void model_calculate_normals(Model *m, int light_ambient, int light_attenuation,
         nx = nx * 256 / length;
         ny = ny * 256 / length;
         nz = nz * 256 / length;
-        if (!m->face_info || (m->face_info[f] & 0x1) == 0) {
+        if (!m->face_infos || (m->face_infos[f] & 0x1) == 0) {
             VertexNormal *n = m->vertex_normal[a];
             n->x += nx;
             n->y += ny;
@@ -1553,7 +1553,7 @@ void model_calculate_normals(Model *m, int light_ambient, int light_attenuation,
             n->w++;
         } else {
             int lightness = light_ambient + (lightsrc_x * nx + lightsrc_y * ny + lightsrc_z * nz) / (attenuation + attenuation / 2);
-            m->face_color_a[f] = model_mul_color_lightness(m->face_color[f], lightness, m->face_info[f]);
+            m->face_color_a[f] = model_mul_color_lightness(m->face_colors[f], lightness, m->face_infos[f]);
         }
     }
     if (apply_lighting) {
@@ -1577,9 +1577,9 @@ void model_calculate_bounds_cylinder(Model *m) {
     m->radius = 0;
     m->min_y = 0;
     for (int i = 0; i < m->vertex_count; i++) {
-        int x = m->vertex_x[i];
-        int y = m->vertex_y[i];
-        int z = m->vertex_z[i];
+        int x = m->vertices_x[i];
+        int y = m->vertices_y[i];
+        int z = m->vertices_z[i];
         if (-y > m->max_y) {
             m->max_y = -y;
         }
@@ -1597,12 +1597,12 @@ void model_calculate_bounds_cylinder(Model *m) {
 }
 
 void model_create_label_references(Model *m, bool use_allocator) {
-    if (m->vertex_label) {
+    if (m->vertex_labels) {
         m->label_vertices_index_count = rs2_calloc(use_allocator, 256, sizeof(int));
 
         int count = 0;
         for (int v = 0; v < m->vertex_count; v++) {
-            int label = m->vertex_label[v];
+            int label = m->vertex_labels[v];
             int countDebug = m->label_vertices_index_count[label]++;
             (void)countDebug;
 
@@ -1620,19 +1620,19 @@ void model_create_label_references(Model *m, bool use_allocator) {
 
         int v = 0;
         while (v < m->vertex_count) {
-            int label = m->vertex_label[v];
+            int label = m->vertex_labels[v];
             m->label_vertices[label][m->label_vertices_index_count[label]++] = v++;
         }
 
-        m->vertex_label = NULL;
+        m->vertex_labels = NULL;
     }
 
-    if (m->face_label) {
+    if (m->face_labels) {
         m->label_faces_index_count = rs2_calloc(use_allocator, 256, sizeof(int));
 
         int count = 0;
         for (int f = 0; f < m->face_count; f++) {
-            int label = m->face_label[f];
+            int label = m->face_labels[f];
             int countDebug = m->label_faces_index_count[label]++;
             (void)countDebug;
             if (label > count) {
@@ -1649,11 +1649,11 @@ void model_create_label_references(Model *m, bool use_allocator) {
 
         int face = 0;
         while (face < m->face_count) {
-            int label = m->face_label[face];
+            int label = m->face_labels[face];
             m->label_faces[label][m->label_faces_index_count[label]++] = face++;
         }
 
-        m->face_label = NULL;
+        m->face_labels = NULL;
     }
 }
 
@@ -1736,9 +1736,9 @@ void model_apply_transform2(Model *m, int x, int y, int z, int *labels, int labe
                 int *vertices = m->label_vertices[label];
                 for (int i = 0; i < m->label_vertices_index_count[label]; i++) {
                     int v = vertices[i];
-                    _Model.base_x += m->vertex_x[v];
-                    _Model.base_y += m->vertex_y[v];
-                    _Model.base_z += m->vertex_z[v];
+                    _Model.base_x += m->vertices_x[v];
+                    _Model.base_y += m->vertices_y[v];
+                    _Model.base_z += m->vertices_z[v];
                     count++;
                 }
             }
@@ -1763,9 +1763,9 @@ void model_apply_transform2(Model *m, int x, int y, int z, int *labels, int labe
             int *vertices = m->label_vertices[label];
             for (int i = 0; i < m->label_vertices_index_count[label]; i++) {
                 int v = vertices[i];
-                m->vertex_x[v] += x;
-                m->vertex_y[v] += y;
-                m->vertex_z[v] += z;
+                m->vertices_x[v] += x;
+                m->vertices_y[v] += y;
+                m->vertices_z[v] += z;
             }
         }
     } else if (type == OP_ROTATE) {
@@ -1778,9 +1778,9 @@ void model_apply_transform2(Model *m, int x, int y, int z, int *labels, int labe
             int *vertices = m->label_vertices[label];
             for (int i = 0; i < m->label_vertices_index_count[label]; i++) {
                 int v = vertices[i];
-                m->vertex_x[v] -= _Model.base_x;
-                m->vertex_y[v] -= _Model.base_y;
-                m->vertex_z[v] -= _Model.base_z;
+                m->vertices_x[v] -= _Model.base_x;
+                m->vertices_y[v] -= _Model.base_y;
+                m->vertices_z[v] -= _Model.base_z;
 
                 int pitch = (x & 0xff) * 8;
                 int yaw = (y & 0xff) * 8;
@@ -1792,30 +1792,30 @@ void model_apply_transform2(Model *m, int x, int y, int z, int *labels, int labe
                 if (roll != 0) {
                     sin = _Pix3D.sin_table[roll];
                     cos = _Pix3D.cos_table[roll];
-                    int x_ = (m->vertex_y[v] * sin + m->vertex_x[v] * cos) >> 16;
-                    m->vertex_y[v] = (m->vertex_y[v] * cos - m->vertex_x[v] * sin) >> 16;
-                    m->vertex_x[v] = x_;
+                    int x_ = (m->vertices_y[v] * sin + m->vertices_x[v] * cos) >> 16;
+                    m->vertices_y[v] = (m->vertices_y[v] * cos - m->vertices_x[v] * sin) >> 16;
+                    m->vertices_x[v] = x_;
                 }
 
                 if (pitch != 0) {
                     sin = _Pix3D.sin_table[pitch];
                     cos = _Pix3D.cos_table[pitch];
-                    int y_ = (m->vertex_y[v] * cos - m->vertex_z[v] * sin) >> 16;
-                    m->vertex_z[v] = (m->vertex_y[v] * sin + m->vertex_z[v] * cos) >> 16;
-                    m->vertex_y[v] = y_;
+                    int y_ = (m->vertices_y[v] * cos - m->vertices_z[v] * sin) >> 16;
+                    m->vertices_z[v] = (m->vertices_y[v] * sin + m->vertices_z[v] * cos) >> 16;
+                    m->vertices_y[v] = y_;
                 }
 
                 if (yaw != 0) {
                     sin = _Pix3D.sin_table[yaw];
                     cos = _Pix3D.cos_table[yaw];
-                    int x_ = (m->vertex_z[v] * sin + m->vertex_x[v] * cos) >> 16;
-                    m->vertex_z[v] = (m->vertex_z[v] * cos - m->vertex_x[v] * sin) >> 16;
-                    m->vertex_x[v] = x_;
+                    int x_ = (m->vertices_z[v] * sin + m->vertices_x[v] * cos) >> 16;
+                    m->vertices_z[v] = (m->vertices_z[v] * cos - m->vertices_x[v] * sin) >> 16;
+                    m->vertices_x[v] = x_;
                 }
 
-                m->vertex_x[v] += _Model.base_x;
-                m->vertex_y[v] += _Model.base_y;
-                m->vertex_z[v] += _Model.base_z;
+                m->vertices_x[v] += _Model.base_x;
+                m->vertices_y[v] += _Model.base_y;
+                m->vertices_z[v] += _Model.base_z;
             }
         }
     } else if (type == OP_SCALE) {
@@ -1829,20 +1829,20 @@ void model_apply_transform2(Model *m, int x, int y, int z, int *labels, int labe
             for (int i = 0; i < m->label_vertices_index_count[label]; i++) {
                 int v = vertices[i];
 
-                m->vertex_x[v] -= _Model.base_x;
-                m->vertex_y[v] -= _Model.base_y;
-                m->vertex_z[v] -= _Model.base_z;
+                m->vertices_x[v] -= _Model.base_x;
+                m->vertices_y[v] -= _Model.base_y;
+                m->vertices_z[v] -= _Model.base_z;
 
-                m->vertex_x[v] = m->vertex_x[v] * x / 128;
-                m->vertex_y[v] = m->vertex_y[v] * y / 128;
-                m->vertex_z[v] = m->vertex_z[v] * z / 128;
+                m->vertices_x[v] = m->vertices_x[v] * x / 128;
+                m->vertices_y[v] = m->vertices_y[v] * y / 128;
+                m->vertices_z[v] = m->vertices_z[v] * z / 128;
 
-                m->vertex_x[v] += _Model.base_x;
-                m->vertex_y[v] += _Model.base_y;
-                m->vertex_z[v] += _Model.base_z;
+                m->vertices_x[v] += _Model.base_x;
+                m->vertices_y[v] += _Model.base_y;
+                m->vertices_z[v] += _Model.base_z;
             }
         }
-    } else if (type == OP_ALPHA && (m->label_faces && m->face_alpha)) {
+    } else if (type == OP_ALPHA && (m->label_faces && m->face_alphas)) {
         for (int g = 0; g < labels_count; g++) {
             int label = labels[g];
             if (label >= m->label_faces_count) {
@@ -1853,13 +1853,13 @@ void model_apply_transform2(Model *m, int x, int y, int z, int *labels, int labe
             for (int i = 0; i < m->label_faces_index_count[label]; i++) {
                 int t = triangles[i];
 
-                m->face_alpha[t] += x * 8;
-                if (m->face_alpha[t] < 0) {
-                    m->face_alpha[t] = 0;
+                m->face_alphas[t] += x * 8;
+                if (m->face_alphas[t] < 0) {
+                    m->face_alphas[t] = 0;
                 }
 
-                if (m->face_alpha[t] > 255) {
-                    m->face_alpha[t] = 255;
+                if (m->face_alphas[t] > 255) {
+                    m->face_alphas[t] = 255;
                 }
             }
         }
@@ -1868,9 +1868,9 @@ void model_apply_transform2(Model *m, int x, int y, int z, int *labels, int labe
 
 void model_rotate_y90(Model *m) {
     for (int v = 0; v < m->vertex_count; v++) {
-        int tmp = m->vertex_x[v];
-        m->vertex_x[v] = m->vertex_z[v];
-        m->vertex_z[v] = -tmp;
+        int tmp = m->vertices_x[v];
+        m->vertices_x[v] = m->vertices_z[v];
+        m->vertices_z[v] = -tmp;
     }
 }
 
@@ -1878,45 +1878,45 @@ void model_rotate_x(Model *m, int angle) {
     int sin = _Pix3D.sin_table[angle];
     int cos = _Pix3D.cos_table[angle];
     for (int v = 0; v < m->vertex_count; v++) {
-        int tmp = (m->vertex_y[v] * cos - m->vertex_z[v] * sin) >> 16;
-        m->vertex_z[v] = (m->vertex_y[v] * sin + m->vertex_z[v] * cos) >> 16;
-        m->vertex_y[v] = tmp;
+        int tmp = (m->vertices_y[v] * cos - m->vertices_z[v] * sin) >> 16;
+        m->vertices_z[v] = (m->vertices_y[v] * sin + m->vertices_z[v] * cos) >> 16;
+        m->vertices_y[v] = tmp;
     }
 }
 
 void model_translate(Model *m, int y, int x, int z) {
     for (int v = 0; v < m->vertex_count; v++) {
-        m->vertex_x[v] += x;
-        m->vertex_y[v] += y;
-        m->vertex_z[v] += z;
+        m->vertices_x[v] += x;
+        m->vertices_y[v] += y;
+        m->vertices_z[v] += z;
     }
 }
 
 void model_recolor(Model *m, int src, int dst) {
     for (int f = 0; f < m->face_count; f++) {
-        if (m->face_color[f] == src) {
-            m->face_color[f] = dst;
+        if (m->face_colors[f] == src) {
+            m->face_colors[f] = dst;
         }
     }
 }
 
 void model_rotate_y180(Model *m) {
     for (int v = 0; v < m->vertex_count; v++) {
-        m->vertex_z[v] = -m->vertex_z[v];
+        m->vertices_z[v] = -m->vertices_z[v];
     }
 
     for (int f = 0; f < m->face_count; f++) {
-        int temp = m->face_vertex_a[f];
-        m->face_vertex_a[f] = m->face_vertex_c[f];
-        m->face_vertex_c[f] = temp;
+        int temp = m->face_indices_a[f];
+        m->face_indices_a[f] = m->face_indices_c[f];
+        m->face_indices_c[f] = temp;
     }
 }
 
 void model_scale(Model *m, int x, int y, int z) {
     for (int v = 0; v < m->vertex_count; v++) {
-        m->vertex_x[v] = m->vertex_x[v] * x / 128;
-        m->vertex_y[v] = m->vertex_y[v] * y / 128;
-        m->vertex_z[v] = m->vertex_z[v] * z / 128;
+        m->vertices_x[v] = m->vertices_x[v] * x / 128;
+        m->vertices_y[v] = m->vertices_y[v] * y / 128;
+        m->vertices_z[v] = m->vertices_z[v] * z / 128;
     }
 }
 
@@ -1925,7 +1925,7 @@ void model_calculate_bounds_y(Model *m) {
     m->min_y = 0;
 
     for (int v = 0; v < m->vertex_count; v++) {
-        int y = m->vertex_y[v];
+        int y = m->vertices_y[v];
         if (-y > m->max_y) {
             m->max_y = -y;
         }
@@ -1947,9 +1947,9 @@ void model_calculate_bounds_aabb(Model *m) {
     m->max_z = -99999;
     m->min_z = 99999;
     for (int v = 0; v < m->vertex_count; v++) {
-        int x = m->vertex_x[v];
-        int y = m->vertex_y[v];
-        int z = m->vertex_z[v];
+        int x = m->vertices_x[v];
+        int y = m->vertices_y[v];
+        int z = m->vertices_z[v];
         if (x < m->min_x) {
             m->min_x = x;
         }
@@ -1978,8 +1978,8 @@ void model_calculate_bounds_aabb(Model *m) {
     m->max_depth = m->min_depth + (int)sqrt((double)(m->radius * m->radius + m->min_y * m->min_y));
 }
 
-int model_mul_color_lightness(int hsl, int scalar, int face_info) {
-    if ((face_info & 0x2) == 2) {
+int model_mul_color_lightness(int hsl, int scalar, int face_infos) {
+    if ((face_infos & 0x2) == 2) {
         if (scalar < 0) {
             scalar = 0;
         } else if (scalar > 127) {
@@ -1998,11 +1998,11 @@ int model_mul_color_lightness(int hsl, int scalar, int face_info) {
 
 void model_apply_lighting(Model *m, int light_ambient, int light_attenuation, int lightsrc_x, int lightsrc_y, int lightsrc_z) {
     for (int f = 0; f < m->face_count; f++) {
-        int a = m->face_vertex_a[f];
-        int b = m->face_vertex_b[f];
-        int c = m->face_vertex_c[f];
-        if (!m->face_info) {
-            int color = m->face_color[f];
+        int a = m->face_indices_a[f];
+        int b = m->face_indices_b[f];
+        int c = m->face_indices_c[f];
+        if (!m->face_infos) {
+            int color = m->face_colors[f];
             VertexNormal *n = m->vertex_normal[a];
             int lightness = light_ambient + (lightsrc_x * n->x + lightsrc_y * n->y + lightsrc_z * n->z) / (light_attenuation * n->w);
             m->face_color_a[f] = model_mul_color_lightness(color, lightness, 0);
@@ -2012,9 +2012,9 @@ void model_apply_lighting(Model *m, int light_ambient, int light_attenuation, in
             n = m->vertex_normal[c];
             lightness = light_ambient + (lightsrc_x * n->x + lightsrc_y * n->y + lightsrc_z * n->z) / (light_attenuation * n->w);
             m->face_color_c[f] = model_mul_color_lightness(color, lightness, 0);
-        } else if ((m->face_info[f] & 0x1) == 0) {
-            int color = m->face_color[f];
-            int info = m->face_info[f];
+        } else if ((m->face_infos[f] & 0x1) == 0) {
+            int color = m->face_colors[f];
+            int info = m->face_infos[f];
             VertexNormal *n = m->vertex_normal[a];
             int lightness = light_ambient + (lightsrc_x * n->x + lightsrc_y * n->y + lightsrc_z * n->z) / (light_attenuation * n->w);
             m->face_color_a[f] = model_mul_color_lightness(color, lightness, info);
@@ -2033,14 +2033,14 @@ void model_apply_lighting(Model *m, int light_ambient, int light_attenuation, in
     // free(m->vertex_normal);
     m->vertex_normal = NULL;
     m->vertex_normal_original = NULL;
-    m->vertex_label = NULL;
-    m->face_label = NULL;
-    if (m->face_info) {
+    m->vertex_labels = NULL;
+    m->face_labels = NULL;
+    if (m->face_infos) {
         for (int f = 0; f < m->face_count; f++) {
-            if ((m->face_info[f] & 0x2) == 2) {
+            if ((m->face_infos[f] & 0x2) == 2) {
                 return;
             }
         }
     }
-    m->face_color = NULL;
+    m->face_colors = NULL;
 }

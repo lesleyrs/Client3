@@ -364,7 +364,7 @@ Model *component_get_model2(Component *com, int primaryFrame, int secondaryFrame
         return NULL;
     }
 
-    if (primaryFrame == -1 && secondaryFrame == -1 && !m->face_color) {
+    if (primaryFrame == -1 && secondaryFrame == -1 && !m->face_colors) {
         return m;
     }
 

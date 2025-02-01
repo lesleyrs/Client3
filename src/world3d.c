@@ -928,24 +928,24 @@ void world3d_merge_normals(World3D *world3d, Model *modelA, Model *modelB, int o
     world3d->tmpMergeIndex++;
 
     int merged = 0;
-    int *vertexX = modelB->vertex_x;
+    int *vertexX = modelB->vertices_x;
     int vertexCountB = modelB->vertex_count;
 
     for (int vertexA = 0; vertexA < modelA->vertex_count; vertexA++) {
         VertexNormal *normalA = modelA->vertex_normal[vertexA];
         VertexNormal *originalNormalA = modelA->vertex_normal_original[vertexA];
         if (originalNormalA->w != 0) {
-            int y = modelA->vertex_y[vertexA] - offsetY;
+            int y = modelA->vertices_y[vertexA] - offsetY;
             if (y > modelB->min_y) {
                 continue;
             }
 
-            int x = modelA->vertex_x[vertexA] - offsetX;
+            int x = modelA->vertices_x[vertexA] - offsetX;
             if (x < modelB->min_x || x > modelB->max_x) {
                 continue;
             }
 
-            int z = modelA->vertex_z[vertexA] - offsetZ;
+            int z = modelA->vertices_z[vertexA] - offsetZ;
             if (z < modelB->min_z || z > modelB->max_z) {
                 continue;
             }
@@ -953,7 +953,7 @@ void world3d_merge_normals(World3D *world3d, Model *modelA, Model *modelB, int o
             for (int vertexB = 0; vertexB < vertexCountB; vertexB++) {
                 VertexNormal *normalB = modelB->vertex_normal[vertexB];
                 VertexNormal *originalNormalB = modelB->vertex_normal_original[vertexB];
-                if (x != vertexX[vertexB] || z != modelB->vertex_z[vertexB] || y != modelB->vertex_y[vertexB] || originalNormalB->w == 0) {
+                if (x != vertexX[vertexB] || z != modelB->vertices_z[vertexB] || y != modelB->vertices_y[vertexB] || originalNormalB->w == 0) {
                     continue;
                 }
 
@@ -977,14 +977,14 @@ void world3d_merge_normals(World3D *world3d, Model *modelA, Model *modelB, int o
     }
 
     for (int i = 0; i < modelA->face_count; i++) {
-        if (world3d->mergeIndexA[modelA->face_vertex_a[i]] == world3d->tmpMergeIndex && world3d->mergeIndexA[modelA->face_vertex_b[i]] == world3d->tmpMergeIndex && world3d->mergeIndexA[modelA->face_vertex_c[i]] == world3d->tmpMergeIndex) {
-            modelA->face_info[i] = -1;
+        if (world3d->mergeIndexA[modelA->face_indices_a[i]] == world3d->tmpMergeIndex && world3d->mergeIndexA[modelA->face_indices_b[i]] == world3d->tmpMergeIndex && world3d->mergeIndexA[modelA->face_indices_c[i]] == world3d->tmpMergeIndex) {
+            modelA->face_infos[i] = -1;
         }
     }
 
     for (int i = 0; i < modelB->face_count; i++) {
-        if (world3d->mergeIndexB[modelB->face_vertex_a[i]] == world3d->tmpMergeIndex && world3d->mergeIndexB[modelB->face_vertex_b[i]] == world3d->tmpMergeIndex && world3d->mergeIndexB[modelB->face_vertex_c[i]] == world3d->tmpMergeIndex) {
-            modelB->face_info[i] = -1;
+        if (world3d->mergeIndexB[modelB->face_indices_a[i]] == world3d->tmpMergeIndex && world3d->mergeIndexB[modelB->face_indices_b[i]] == world3d->tmpMergeIndex && world3d->mergeIndexB[modelB->face_indices_c[i]] == world3d->tmpMergeIndex) {
+            modelB->face_infos[i] = -1;
         }
     }
 }

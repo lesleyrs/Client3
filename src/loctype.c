@@ -251,14 +251,14 @@ Model *loctype_get_model(LocType *loc, int shape, int rotation, int heightmapSW,
             int groundY = (heightmapSW + heightmapSE + heightmapNE + heightmapNW) / 4;
 
             for (int i = 0; i < cached->vertex_count; i++) {
-                int x = cached->vertex_x[i];
-                int z = cached->vertex_z[i];
+                int x = cached->vertices_x[i];
+                int z = cached->vertices_z[i];
 
                 int heightS = heightmapSW + (heightmapSE - heightmapSW) * (x + 64) / 128;
                 int heightN = heightmapNW + (heightmapNE - heightmapNW) * (x + 64) / 128;
                 int y = heightS + (heightN - heightS) * (z + 64) / 128;
 
-                cached->vertex_y[i] += y - groundY;
+                cached->vertices_y[i] += y - groundY;
             }
 
             model_calculate_bounds_y(cached);
@@ -336,14 +336,14 @@ Model *loctype_get_model(LocType *loc, int shape, int rotation, int heightmapSW,
         int groundY = (heightmapSW + heightmapSE + heightmapNE + heightmapNW) / 4;
 
         for (int i = 0; i < modified->vertex_count; i++) {
-            int x = modified->vertex_x[i];
-            int z = modified->vertex_z[i];
+            int x = modified->vertices_x[i];
+            int z = modified->vertices_z[i];
 
             int heightS = heightmapSW + (heightmapSE - heightmapSW) * (x + 64) / 128;
             int heightN = heightmapNW + (heightmapNE - heightmapNW) * (x + 64) / 128;
             int y = heightS + (heightN - heightS) * (z + 64) / 128;
 
-            modified->vertex_y[i] += y - groundY;
+            modified->vertices_y[i] += y - groundY;
         }
 
         model_calculate_bounds_y(modified);
