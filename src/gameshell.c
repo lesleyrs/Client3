@@ -362,7 +362,7 @@ void gameshell_draw_string(Client *c, const char *str, int x, int y, int color, 
             pixels[i] = (pixels[i] & 0xff000000) | color;
         }
 
-        // TODO: is this centering correct?
+        // TODO: is this centering correct? maybe few pixels to the left?
         if (x == -1) {
             platform_blit_surface(c->shell, (c->shell->screen_width - ttf_string_width(&font, str, scale)) / 2 + (int)xpos + x0, y + y0, width, height, surface);
         } else {
