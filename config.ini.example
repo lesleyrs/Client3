@@ -17,6 +17,7 @@
 # allow_commands = 1
 
 # allows typing debugprocs (server commands) with ::~, expands allowed keys to be able to type ~ (others won't see it)
+# this was only added to RS recently, and they used to trigger their runescript code just from items/buttons/NPCs etc
 # allow_debugprocs = 1
 
 # set chat font era: 0 - early beta, 1 - late beta, 2 - launch
