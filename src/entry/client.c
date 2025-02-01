@@ -465,13 +465,8 @@ void client_load(Client *c) {
     jagfile_free(wordenc);
     jagfile_free(sounds);
 
-    // NOTE: arbitrary amount, we can't grow it so it needs to fit the maximum (maybe use arena allocator with regions)
-#ifdef __EMSCRIPTEN__
-    // emscripten consumes more memory for some reason, left value is shifted to MiB
-    bump_allocator_init(32 << 20);
-#else
+    // NOTE: we can't grow it so it needs to fit the max usage, left value is shifted to MiB (arbitrary value)
     bump_allocator_init(16 << 20);
-#endif
 }
 
 void client_load_title_background(Client *c) {
