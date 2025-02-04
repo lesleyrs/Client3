@@ -43,8 +43,6 @@ type `::perf` command ingame to see fps and lrucache size
 
 ## known issues
 ```
-outside of web only: water appears to be lowmem always, going up or down ladders causes the scene to not load correctly
-
 auto-generated js by emscripten is blocking default browser shortcuts why exactly, also pressing fkeys types uppercase letters even if it doesn't steal input
 
 server cache changes would require manual cache update in client for now, it isn't supposed to change but as of right now there's an issue with client map crcs being changed when server maps get updated (also the cache has some interface changes rn for quest tab and another one) enable crc again after fixes
