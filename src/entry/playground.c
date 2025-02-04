@@ -252,7 +252,6 @@ void client_unload(Client *c) {
     model_free_global();
     // animbase_free();
     // animframe_free();
-
     pix3d_free_global();
     gameshell_free(c->shell);
     client_free(c);

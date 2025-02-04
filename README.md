@@ -141,6 +141,8 @@ emcc libcrypto.a from: [get-openssl-wasm.sh](get-openssl-wasm.sh)
 
 * [SDL-1.2](https://github.com/libsdl-org/SDL-1.2) | [SDL-2/SDL-3](https://github.com/libsdl-org/SDL) | https://libsdl.org/release/
 
+VC and MinGW dlls seem to be the same?
+
 Using prebuilt SDL releases but removed tests dir, removed dotfiles from mingw SDL1 and fixes in VC SDL1 for tcc.
 Latest SDL1 already contains the tcc fix but they don't make new releases for it.
 
