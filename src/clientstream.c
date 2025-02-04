@@ -259,7 +259,7 @@ int clientstream_read_byte(ClientStream *stream) {
     int8_t byte;
 
     if (clientstream_read_bytes(stream, &byte, 0, 1) > -1) {
-        return (uint8_t)byte & 0xff;
+        return byte & 0xff;
     }
 
     return -1;
