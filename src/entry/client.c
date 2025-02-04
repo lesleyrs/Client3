@@ -469,7 +469,7 @@ void client_load(Client *c) {
     jagfile_free(sounds);
 
     // NOTE: we can't grow it so it needs to fit the max usage, left value is shifted to MiB (arbitrary value)
-    bump_allocator_init(16 << 20);
+    _Client.lowmem ? bump_allocator_init(16 << 20) : bump_allocator_init(32 << 20);
 }
 
 void client_load_title_background(Client *c) {
@@ -10775,6 +10775,7 @@ static bool load_ini_args(void) {
     INI_INT_LOG(&(&_Client), nodeid, _Client.nodeid = 10 + _Client.nodeid - 1);
     INI_INT_LOG(&(&_Client), portoff, );
     INI_INT_LOG(&(&_Client), lowmem, );
+    _Client.lowmem ? client_set_lowmem() : client_set_highmem();
     INI_INT_LOG(&(&_Client), members, _Client.members = !_Client.members);
 
     rs2_log("\n");
