@@ -481,7 +481,6 @@ void addLoc(Client *c, int level, int x, int z, int id, int angle, int shape, in
 void closeInterfaces(Client *c);
 void createMinimap(Client *c, int level);
 void drawMinimapLoc(Client *c, int tileX, int tileZ, int level, int wallRgb, int doorRgb);
-void buildScene(Client *c);
 void getPlayer(Client *c, Packet *buf, int size);
 void getPlayerExtended2(Client *c, PlayerEntity *player, int index, int mask, Packet *buf);
 void getPlayerExtended(Client *c, Packet *buf, int size);
@@ -504,7 +503,6 @@ void handleViewportOptions(Client *c);
 bool handleInterfaceAction(Client *c, Component *com);
 void handleChatMouseInput(Client *c, int mouseX, int mouseY);
 void client_handle_input(Client *c);
-void clearCaches(void);
 void projectFromGround(Client *c, PathingEntity *entity, int height);
 void projectFromGround2(Client *c, int x, int height, int z);
 void project(Client *c, int x, int y, int z);

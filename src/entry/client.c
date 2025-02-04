@@ -110,12 +110,15 @@ static void client_draw_interface(Client *c, Component *com, int x, int y, int s
 static void client_set_lowmem(void);
 static void client_set_highmem(void);
 static void client_scenemap_free(Client *c);
+static void client_build_scene(Client *c);
+static void client_clear_caches(void);
+static void client_update_orbit_camera(Client *c);
 
 // custom
 static bool load_ini_args(void);
 static void load_ini_config(Client *c);
-static void updateCameraEditor(Client *c);
-static void drawInfoOverlay(Client *c);
+static void update_camera_editor(Client *c);
+static void draw_info_overlay(Client *c);
 
 void client_init_global(void) {
     int acc = 0;
@@ -2418,7 +2421,7 @@ static void updateNpcs(Client *c) {
     }
 }
 
-static void updateOrbitCamera(Client *c) {
+static void client_update_orbit_camera(Client *c) {
     int orbitX = c->local_player->pathing_entity.x + c->camera_anticheat_offset_x;
     int orbitZ = c->local_player->pathing_entity.z + c->camera_anticheat_offset_z;
     if (c->orbitCameraX - orbitX < -500 || c->orbitCameraX - orbitX > 500 || c->orbitCameraZ - orbitZ < -500 || c->orbitCameraZ - orbitZ > 500) {
@@ -4443,9 +4446,9 @@ void client_update_game(Client *c) {
 
         if (c->scene_state == 2) {
             if (_Custom.cameraEditor) {
-                updateCameraEditor(c);
+                update_camera_editor(c);
             } else {
-                updateOrbitCamera(c);
+                client_update_orbit_camera(c);
             }
         }
         if (c->scene_state == 2 && c->cutscene) {
@@ -5692,7 +5695,7 @@ bool client_read(Client *c) {
         if (c->scene_state == 1) {
             c->scene_state = 2;
             _World.levelBuilt = c->currentLevel;
-            buildScene(c);
+            client_build_scene(c);
         }
         if (_Client.lowmem && c->scene_state == 2 && _World.levelBuilt != c->currentLevel) {
             pixmap_bind(c->area_viewport);
@@ -5700,7 +5703,7 @@ bool client_read(Client *c) {
             drawStringCenter(c->font_plain12, 256, 150, "Loading - please wait.", WHITE);
             pixmap_draw(c->area_viewport, 8, 11);
             _World.levelBuilt = c->currentLevel;
-            buildScene(c);
+            client_build_scene(c);
         }
         if (c->currentLevel != c->minimap_level && c->scene_state == 2) {
             c->minimap_level = c->currentLevel;
@@ -6040,7 +6043,7 @@ void getPlayer(Client *c, Packet *buf, int size) {
     }
 }
 
-void clearCaches(void) {
+static void client_clear_caches(void) {
     lrucache_clear(_LocType.modelCacheStatic);
     lrucache_clear(_LocType.modelCacheDynamic);
     lrucache_clear(_NpcType.modelCache);
@@ -6051,7 +6054,7 @@ void clearCaches(void) {
     bump_allocator_reset();
 }
 
-void buildScene(Client *c) {
+static void client_build_scene(Client *c) {
     // try {
     c->minimap_level = -1;
     linklist_clear(c->merged_locations);
@@ -6059,7 +6062,7 @@ void buildScene(Client *c) {
     linklist_clear(c->spotanims);
     linklist_clear(c->projectiles);
     pix3d_clear_texels();
-    clearCaches();
+    client_clear_caches();
     world3d_reset(c->scene);
     for (int level = 0; level < 4; level++) {
         collisionmap_reset(c->levelCollisionMap[level]);
@@ -7166,7 +7169,7 @@ void client_logout(Client *c) {
     }
 
     inputtracking_set_disabled(&_InputTracking);
-    clearCaches();
+    client_clear_caches();
     world3d_reset(c->scene);
 
     for (int level = 0; level < 4; level++) {
@@ -8675,7 +8678,7 @@ static void draw3DEntityElements(Client *c) {
         }
     }
 
-    drawInfoOverlay(c);
+    draw_info_overlay(c);
 }
 
 void client_draw_scene(Client *c) {
@@ -10759,7 +10762,7 @@ void client_draw_progress(Client *c, const char *message, int progress) {
         rs2_log("  %s: %d\n", #member, *dst->member);      \
     }
 
-bool load_ini_args(void) {
+static bool load_ini_args(void) {
     ini_t *config = ini_load("config.ini");
     if (!config) {
         return false;
@@ -10779,7 +10782,7 @@ bool load_ini_args(void) {
     return true;
 }
 
-void load_ini_config(Client *c) {
+static void load_ini_config(Client *c) {
     ini_t *config = ini_load("config.ini");
     if (!config) {
         return;
@@ -10805,7 +10808,7 @@ void load_ini_config(Client *c) {
     ini_free(config);
 }
 
-void updateCameraEditor(Client *c) {
+static void update_camera_editor(Client *c) {
     // holding ctrl
     int modifier = c->shell->action_key[5] == 1 ? 2 : 1;
 
@@ -10911,7 +10914,7 @@ void updateCameraEditor(Client *c) {
     }
 }
 
-void drawInfoOverlay(Client *c) {
+static void draw_info_overlay(Client *c) {
     int x = 507;
     int y = 13;
 

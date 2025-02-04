@@ -10,7 +10,7 @@
 # hides a debug sprite along water in some places (lumbridge for example)
 # hide_debug_sprite = 1
 
-# TODO check: on original webclient did music just stop playing at all on logout?
+# music used to stop playing on logout
 # midi_on_logout = 1
 
 # allows running client commands with ::, originally this was only allowed on desktop (not applets) or on local servers

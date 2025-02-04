@@ -194,9 +194,9 @@ static int *pix3d_get_texels(int id) {
             if (rgb == 0) {
                 _Pix3D.textureHasTransparency[id] = true;
             }
-            texels[i + 4096] = rgb - ((unsigned int)rgb >> 3) & 0xf8f8ff;
-            texels[i + 8192] = rgb - ((unsigned int)rgb >> 2) & 0xf8f8ff;
-            texels[i + 12288] = rgb - ((unsigned int)rgb >> 2) - ((unsigned int)rgb >> 3) & 0xf8f8ff;
+            texels[i + 4096] = rgb - ((uint32_t)rgb >> 3) & 0xf8f8ff;
+            texels[i + 8192] = rgb - ((uint32_t)rgb >> 2) & 0xf8f8ff;
+            texels[i + 12288] = rgb - ((uint32_t)rgb >> 2) - ((uint32_t)rgb >> 3) & 0xf8f8ff;
         }
     } else {
         if (texture->width == 64) {
@@ -217,9 +217,9 @@ static int *pix3d_get_texels(int id) {
             if (rgb == 0) {
                 _Pix3D.textureHasTransparency[id] = true;
             }
-            texels[i + 16384] = rgb - ((unsigned int)rgb >> 3) & 0xf8f8ff;
-            texels[i + 32768] = rgb - ((unsigned int)rgb >> 2) & 0xf8f8ff;
-            texels[i + 49152] = rgb - ((unsigned int)rgb >> 2) - ((unsigned int)rgb >> 3) & 0xf8f8ff;
+            texels[i + 16384] = rgb - ((uint32_t)rgb >> 3) & 0xf8f8ff;
+            texels[i + 32768] = rgb - ((uint32_t)rgb >> 2) & 0xf8f8ff;
+            texels[i + 49152] = rgb - ((uint32_t)rgb >> 2) - ((uint32_t)rgb >> 3) & 0xf8f8ff;
         }
     }
     return texels;

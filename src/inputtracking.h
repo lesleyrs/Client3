@@ -8,9 +8,9 @@ typedef struct {
     bool enabled;
     Packet *outBuffer; //=null
     Packet *oldBuffer; //=null
-    uint64_t lastTime;
+    int64_t lastTime;
     int trackedCount;
-    uint64_t lastMoveTime;
+    int64_t lastMoveTime;
     int lastX;
     int lastY;
 } InputTracking;
