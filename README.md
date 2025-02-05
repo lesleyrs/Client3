@@ -49,19 +49,17 @@ server cache changes would require manual cache update in client for now, it isn
 
 figure out rsaenc bug(s), i'm thinking there are multiple issues (chance of failing login), RSA_BIGINT can still fail due to wrong enc length, but the others fail due to other reasons too...
 
+no midi fading, causes death sound to cut off or other issue?
+
+set_pixels is using memcpy to copy surface pixels each time, but this is inefficient and very noticable on weak hardware. But causes crash on login/exit when the surface gets freed (apply this to all SDL if fixed)
+
 the most complete platform layer is SDL2, but keyboard input is just an unfinished hack but usable except ctrl doesn't work for running yet.
 
 locs like fires have no animations as pushLocs is disabled for now, it constantly allocates memory which requires a different approach
 
-set_pixels is using memcpy to copy surface pixels each time, but this is inefficient and very noticable on weak hardware. But causes crash on login/exit when the surface gets freed (apply this to all SDL if fixed)
-
-no midi fading, causes death sound to cut off or other issue?
-
-wordfilter not ported yet, so you will see your own swear words but others don't as it gets filtered by the server still.
+wordfilter isn't ported yet, so you will see your own swear words but others don't as it gets filtered by the server still.
 
 the game uses 3 titles: "RuneScape - the massive online adventure game by Jagex Ltd" (website), "RuneScape Game" (html) and "Jagex" (jar), maybe show the first as it was most commonly seen
-
-login screen flames aren't running on their own timer but use the game loop
 
 some bits from signlink missing (uid, reporterror, findcachedir, openurl, opensocket etc, move map loading to cacheload?
 
