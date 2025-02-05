@@ -806,6 +806,17 @@ static void client_draw_flames(Client *c) {
 }
 
 void client_run_flames(Client *c) {
+    static int64_t next = 0;
+    if (!c->flame_active || next >= get_ticks()) {
+        rs2_log("%d\n", next);
+        return;
+    }
+    client_update_flames(c);
+    client_update_flames(c);
+    client_draw_flames(c);
+    next = get_ticks() + 35; // NOTE: hardcode interval of 35 to avoid inconsistent rate
+
+    /* NOTE: original
     // try {
     int64_t last = get_ticks();
     int cycle = 0;
@@ -831,13 +842,13 @@ void client_run_flames(Client *c) {
         }
 
         // try {
-        break; // NOTE TEMP
-               // delay_ticks(interval);
-               // } catch (@Pc(52) Exception ignored) {
-               // }
+        delay_ticks(interval);
+        // } catch (@Pc(52) Exception ignored) {
+        // }
     }
     // } catch (@Pc(58) Exception ignored) {
     // }
+    */
 }
 
 void client_update(Client *c) {
@@ -10419,7 +10430,6 @@ void client_free(Client *c) {
     free(c->area_chatback_offsets);
     free(c->area_sidebar_offsets);
     free(c->area_viewport_offsets);
-
 
     free(c);
 }

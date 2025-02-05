@@ -155,7 +155,7 @@ static bool allowCharacter(char c) {
 }
 
 const char* wordfilter_filter(char* input) {
-	size_t start = get_ticks();
+	int64_t start = get_ticks();
 	filterCharacters(input);
 	strtrim(input);
 	strtolower(input);
@@ -173,7 +173,7 @@ const char* wordfilter_filter(char* input) {
 	}
 	replaceUpperCases(input);
 	formatUpperCases(input);
-	size_t end = get_ticks();
+	int64_t end = get_ticks();
 	strtrim(input);
 	return platform_strdup(input);
 }

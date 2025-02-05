@@ -116,9 +116,7 @@ void gameshell_run(Client *c) {
             c->shell->fps = ratio * 1000 / (c->shell->deltime * 256);
         }
         client_draw(c);
-        // TODO move run_flames outside of this when using threads
-        // TODO do run_flames based on it's own timers even when single threaded?
-        client_run_flames(c);
+        client_run_flames(c); // TODO move client_run_flames if using threads
     }
     if (c->shell->state == -1) {
         gameshell_shutdown(c);

@@ -2,7 +2,6 @@
 ```
 check if macos works + add system ttf font in gameshell_draw_string
 check if bsds works + add system ttf font in gameshell_draw_string
-emscripten: see best initial memory or initial heap so memory growth doesn't kick in and change it in bat/ps1/makefile
 32MB ram could work: lowmem + lower bump_allocator_init cap (::perf, avoid towns or stay in the Wilderness)
 nintendo consoles using devkitpro
 postmarketos mobile right clicking, rotating camera, onscreen keyboard input

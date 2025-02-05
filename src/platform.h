@@ -62,7 +62,7 @@ void platform_poll_events(Client *c);
 void platform_update_surface(GameShell *shell);
 void platform_fill_rect(GameShell *shell, int x, int y, int w, int h, int color);
 void platform_blit_surface(GameShell *shell, int x, int y, int w, int h, Surface *surface);
-size_t get_ticks(void);
+int64_t get_ticks(void);
 void delay_ticks(int ticks);
 void rs2_log(const char *format, ...);
 void rs2_error(const char *format, ...);
