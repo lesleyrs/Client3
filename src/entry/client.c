@@ -808,7 +808,6 @@ static void client_draw_flames(Client *c) {
 void client_run_flames(Client *c) {
     static int64_t next = 0;
     if (!c->flame_active || next >= get_ticks()) {
-        rs2_log("%d\n", next);
         return;
     }
     client_update_flames(c);
