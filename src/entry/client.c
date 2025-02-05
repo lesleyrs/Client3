@@ -10405,7 +10405,7 @@ void client_free(Client *c) {
     }
     free(c->levelTileFlags);
     for (int level = 0; level < 4; level++) {
-        for (int x = 0; x < 104; x++) {
+        for (int x = 0; x < 105; x++) {
             free(c->levelHeightmap[level][x]);
         }
         free(c->levelHeightmap[level]);
