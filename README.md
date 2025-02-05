@@ -53,8 +53,6 @@ the most complete platform layer is SDL2, but keyboard input is just an unfinish
 
 locs like fires have no animations as pushLocs is disabled for now, it constantly allocates memory which requires a different approach
 
-the 1 known place the client will crash due to lack of exceptions (in Pix3D) is baxtorian falls
-
 set_pixels is using memcpy to copy surface pixels each time, but this is inefficient and very noticable on weak hardware. But causes crash on login/exit when the surface gets freed (apply this to all SDL if fixed)
 
 no midi fading, causes death sound to cut off or other issue?

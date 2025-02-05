@@ -6,6 +6,7 @@
 #include "allocator.h"
 #include "animbase.h"
 #include "animframe.h"
+#include "defines.h"
 #include "jagfile.h"
 #include "model.h"
 #include "pix2d.h"
@@ -26,9 +27,9 @@ void model_init_global(void) {
     _Model.vertex_view_space_x = calloc(4096, sizeof(int));
     _Model.vertex_view_space_y = calloc(4096, sizeof(int));
     _Model.vertex_view_space_z = calloc(4096, sizeof(int));
-    _Model.tmp_depth_face_count = calloc(1500, sizeof(int));
-    _Model.tmp_depth_faces = calloc(1500, sizeof(int *));
-    for (int i = 0; i < 1500; i++) {
+    _Model.tmp_depth_face_count = calloc(MODEL_MAX_DEPTH, sizeof(int));
+    _Model.tmp_depth_faces = calloc(MODEL_MAX_DEPTH, sizeof(int *));
+    for (int i = 0; i < MODEL_MAX_DEPTH; i++) {
         _Model.tmp_depth_faces[i] = calloc(512, sizeof(int));
     }
     _Model.tmp_priority_face_count = calloc(12, sizeof(int));
@@ -67,7 +68,7 @@ void model_free_global(void) {
     free(_Model.vertex_view_space_y);
     free(_Model.vertex_view_space_z);
     free(_Model.tmp_depth_face_count);
-    for (int i = 0; i < 1500; i++) {
+    for (int i = 0; i < MODEL_MAX_DEPTH; i++) {
         free(_Model.tmp_depth_faces[i]);
     }
     free(_Model.tmp_depth_faces);
@@ -1101,8 +1102,8 @@ void model_draw(Model *m, int yaw, int sinCameraPitch, int cosCameraPitch, int s
 
 void model_draw2(Model *m, bool projected, bool hasInput, int bitset) {
     for (int i = 0; i < m->max_depth; i++) {
-        // NOTE: custom check for model 714 && i < 1500
-        if (_Model.tmp_depth_face_count && i < 1500) {
+        // NOTE: custom check for model 714 && i < MODEL_MAX_DEPTH
+        if (_Model.tmp_depth_face_count && i < MODEL_MAX_DEPTH) {
             _Model.tmp_depth_face_count[i] = 0;
         }
     }
@@ -1118,7 +1119,9 @@ void model_draw2(Model *m, bool projected, bool hasInput, int bitset) {
                 if (projected && (xa == -5000 || xb == -5000 || xc == -5000)) {
                     _Model.face_near_clipped[f] = true;
                     int depth_average = (_Model.vertex_screen_z[a] + _Model.vertex_screen_z[b] + _Model.vertex_screen_z[c]) / 3 + m->min_depth;
-                    _Model.tmp_depth_faces[depth_average][_Model.tmp_depth_face_count[depth_average]++] = f;
+                    if (depth_average < MODEL_MAX_DEPTH) {
+                        _Model.tmp_depth_faces[depth_average][_Model.tmp_depth_face_count[depth_average]++] = f;
+                    }
                 } else {
                     if (hasInput && model_point_within_triangle(_Model.mouse_x, _Model.mouse_y, _Model.vertex_screen_y[a], _Model.vertex_screen_y[b], _Model.vertex_screen_y[c], xa, xb, xc)) {
                         _Model.picked_bitsets[_Model.picked_count++] = bitset;
@@ -1129,15 +1132,17 @@ void model_draw2(Model *m, bool projected, bool hasInput, int bitset) {
                         _Model.face_near_clipped[f] = false;
                         _Model.face_clipped_x[f] = xa >= 0 || xb >= 0 || xc >= 0 || xa <= _Pix2D.bound_x || xb <= _Pix2D.bound_x || xc <= _Pix2D.bound_x;
                         int depth_average = (_Model.vertex_screen_z[a] + _Model.vertex_screen_z[b] + _Model.vertex_screen_z[c]) / 3 + m->min_depth;
-                        _Model.tmp_depth_faces[depth_average][_Model.tmp_depth_face_count[depth_average]++] = f;
+                        if (depth_average < MODEL_MAX_DEPTH) {
+                            _Model.tmp_depth_faces[depth_average][_Model.tmp_depth_face_count[depth_average]++] = f;
+                        }
                     }
                 }
             }
         }
     }
     if (!m->face_priorities) {
-        // NOTE: custom check for model 714: && depth < 1500
-        for (int depth = m->max_depth - 1; depth >= 0 && depth < 1500; depth--) {
+        // NOTE: custom check for model 714: && depth < MODEL_MAX_DEPTH
+        for (int depth = m->max_depth - 1; depth >= 0 && depth < MODEL_MAX_DEPTH; depth--) {
             int count = _Model.tmp_depth_face_count[depth];
             if (count > 0) {
                 int *faces = _Model.tmp_depth_faces[depth];
