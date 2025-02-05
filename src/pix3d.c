@@ -52,7 +52,7 @@ void pix3d_free_global(void) {
         free(_Pix3D.texturePalettes[i]);
         free(_Pix3D.activeTexels[i]);
     }
-    // TODO correct free
+    // NOTE: line_offset doesn't own it's memory
     // free(_Pix3D.line_offset);
     free(_Pix3D.reciprical15);
     free(_Pix3D.reciprical16);

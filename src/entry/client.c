@@ -424,7 +424,6 @@ void client_load(Client *c) {
         c->minimap_mask_line_lengths[y - 9] = right - left;
     }
 
-    // NOTE free this?
     pix3d_init3d(479, 96);
     c->area_chatback_offsets = _Pix3D.line_offset;
     pix3d_init3d(190, 261);
@@ -10417,6 +10416,10 @@ void client_free(Client *c) {
     }
     free(c->chat_interface);
     free(c->textureBuffer);
+    free(c->area_chatback_offsets);
+    free(c->area_sidebar_offsets);
+    free(c->area_viewport_offsets);
+
 
     free(c);
 }
