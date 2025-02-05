@@ -1627,9 +1627,9 @@ void world3d_draw_tile(World3D *world3d, Ground *next, bool checkAdjacent, int l
                 if (model) {
                     if (!world3d_loc_visible(world3d, occludeLevel, farthest->minSceneTileX, farthest->maxSceneTileX, farthest->minSceneTileZ, farthest->maxSceneTileZ, model->max_y)) {
                         model_draw(model, farthest->yaw, _World3D.sinEyePitch, _World3D.cosEyePitch, _World3D.sinEyeYaw, _World3D.cosEyeYaw, farthest->x - _World3D.eyeX, farthest->y - _World3D.eyeY, farthest->z - _World3D.eyeZ, farthest->bitset);
-                        if (_free) {
-                            entity_draw_free(farthest->entity, model, loopCycle);
-                        }
+                    }
+                    if (_free) {
+                        entity_draw_free(farthest->entity, model, loopCycle);
                     }
                 }
 

@@ -4,7 +4,7 @@ Portable single-threaded C client for early RS2, the last update before a new ca
 Compatible with [2004Scape](https://github.com/2004Scape/Server), the most accurate runescape remake
 
 Features:
-- should run on any 32 bit system with 64 MB of RAM (preferably higher due to some small memory leaks for now)
+- should run on any 32 bit system with 64 MB of RAM on lowmem
 - webassembly build to avoid javascript code being optimized out by the browser.
 - optional config.ini file to change client behaviour, see [config.ini.example](config.ini.example) for options. To avoid passing command line arguments each time you can create an empty config.ini.
 
