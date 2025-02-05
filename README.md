@@ -49,11 +49,11 @@ server cache changes would require manual cache update in client for now, it isn
 
 figure out rsaenc bug(s), i'm thinking there are multiple issues (chance of failing login), RSA_BIGINT can still fail due to wrong enc length, but the others fail due to other reasons too...
 
+no midi fading, causes death sound to cut off or other issue? pass midi fade data to callback?
+
 emscripten wasm on firefox has js leaks on highmem, gets cleaned up by pressing GC in about:memory but why does this happen
 
-emscripten wasm can sometimes speed up if the tab was unfocused but doesn't always happen? need absolute time instead of idle_time just for web...
-
-no midi fading, causes death sound to cut off or other issue?
+emscripten wasm can speed up if the tab was unfocused but doesn't always speed up? need absolute time not idle_time for web, also test requestanimationframe again for 50 fps firefox hack ONLY if it supports absolute time (didn't seem like it)
 
 set_pixels is using memcpy to copy surface pixels each time, but this is inefficient and very noticable on weak hardware. But causes crash on login/exit when the surface gets freed (apply this to all SDL if fixed)
 
