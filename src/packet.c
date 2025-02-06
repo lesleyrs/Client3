@@ -381,7 +381,7 @@ void rsaenc(Packet *packet, const char *mod, const char *exp) {
      * integer, we can make result_length 65 and begin with up to two 0 bytes */
     // TODO: what's wrong here? this applies to all crypto libs
     if (sizeof(enc) != enc_len) {
-        if ((size_t)enc_len > sizeof(enc)) {
+        if ((size_t)enc_len < sizeof(enc)) {
             // without check this turns into infinite loop when enc_len is 65
             for (size_t i = 0; i < sizeof(enc) - enc_len; i++) {
                 rs2_error("buffer %zu enc len %d\n", sizeof(enc), enc_len);
