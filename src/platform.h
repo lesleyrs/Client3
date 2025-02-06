@@ -40,7 +40,7 @@ void strtolower(char *s);
 void strtoupper(char *s);
 bool strendswith(const char *str, const char *suffix);
 bool strstartswith(const char *str, const char *prefix);
-const char *valueof(int value);
+char *valueof(int value);
 int indexof(const char *str, const char *str2);
 char *substring(const char *src, size_t start, size_t length);
 double jrand(void);

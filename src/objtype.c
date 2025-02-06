@@ -198,6 +198,24 @@ Pix24 *objtype_get_icon(int id, int count) {
 }
 
 void objtype_reset(ObjType *obj) {
+    free(obj->recol_s);
+    free(obj->recol_d);
+    if (obj->op) {
+        for (int i = 0; i < 5; i++) {
+            free(obj->op[i]);
+        }
+        free(obj->op);
+    }
+    if (obj->iop) {
+        for (int i = 0; i < 5; i++) {
+            free(obj->iop[i]);
+        }
+        free(obj->iop);
+    }
+    if (obj->countobj) {
+        free(obj->countobj);
+        free(obj->countco);
+    }
     obj->model = 0;
     obj->name[0] = '\0';
     obj->desc[0] = '\0';
@@ -244,9 +262,13 @@ static void objtype_decode(ObjType *obj, Packet *dat) {
         if (code == 1) {
             obj->model = g2(dat);
         } else if (code == 2) {
-            strcpy(obj->name, gjstr(dat));
+            char *str = gjstr(dat);
+            strcpy(obj->name, str);
+            free(str);
         } else if (code == 3) {
-            strcpy(obj->desc, gjstr(dat));
+            char *str = gjstr(dat);
+            strcpy(obj->desc, str);
+            free(str);
         } else if (code == 4) {
             obj->zoom2d = g2(dat);
         } else if (code == 5) {

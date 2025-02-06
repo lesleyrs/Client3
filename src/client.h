@@ -412,7 +412,7 @@ struct Client {
     int wave_loops[50];
     int last_wave_id;    //-1
     int last_wave_loops; //-1
-    size_t last_wave_start_time;
+    int64_t last_wave_start_time;
     int last_wave_length;
     int nextMusicDelay;
     int midiActive; // true

@@ -68,6 +68,18 @@ LocType *loctype_get(int id) {
 }
 
 void loctype_reset(LocType *loc) {
+    free(loc->models);
+    free(loc->shapes);
+    free(loc->name);
+    free(loc->desc);
+    free(loc->recol_s);
+    free(loc->recol_d);
+    if (loc->op) {
+        for (int i = 0; i < 5; i++) {
+            free(loc->op[i]);
+        }
+        free(loc->op);
+    }
     loc->models = NULL;
     loc->shapes = NULL;
     loc->name = NULL;

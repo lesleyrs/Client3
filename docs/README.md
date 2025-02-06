@@ -21,7 +21,7 @@ the following are (partially) based on RS2-225 by accident, some funcs might tak
 inconsistent naming: used both world3d and scene for world3d, rename world3d to scene? or at least for args only
 global search TODO and NOTE
 ```
-check both highmem+lowmem, all entrypoints, run make check/scan/san and clang-format
+check both highmem/lowmem, members/free, all entrypoints, run make check/scan/san and clang-format
 
 bring back worldlist loading in [shell.html](https://github.com/lesleyrs/Client3/commit/5da924b9f766005e82163d899e52a5df2f771584#diff-c878553ed816480a5e85ff602ff3c5d38788ca1d21095cd8f8ebc36a4dbc07ee) if it gets re-added for live servers
 

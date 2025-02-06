@@ -39,7 +39,7 @@ char *substring(const char *src, size_t start, size_t length) {
 }
 
 // Java valueOf
-const char *valueof(int value) {
+char *valueof(int value) {
     char *str = malloc(12 * sizeof(char));
     sprintf(str, "%d", value);
     return str;

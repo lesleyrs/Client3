@@ -1124,12 +1124,17 @@ void handleInterfaceInput(Client *c, Component *com, int mouseX, int mouseY, int
                     c->menu_size++;
                 }
             } else if (child->buttonType == BUTTON_TARGET && c->spell_selected == 0) {
-                const char *prefix = child->actionVerb;
+                char *prefix = child->actionVerb;
+                bool _free = false;
                 if (indexof(prefix, " ") != -1) {
                     prefix = substring(prefix, 0, indexof(prefix, " "));
+                    _free = true;
                 }
 
                 sprintf(c->menu_option[c->menu_size], "%s @gre@%s", prefix, child->action);
+                if (_free) {
+                    free(prefix);
+                }
                 c->menu_action[c->menu_size] = 930;
                 c->menuParamC[c->menu_size] = child->id;
                 c->menu_size++;
@@ -3865,7 +3870,9 @@ static void handleInputKey(Client *c) {
                             // CLIENT_CHEAT
                             p1isaac(c->out, 4);
                             p1(c->out, (int)strlen(c->chat_typed) - 1);
-                            pjstr(c->out, substring(c->chat_typed, 2, strlen(c->chat_typed)));
+                            char *sub = substring(c->chat_typed, 2, strlen(c->chat_typed));
+                            pjstr(c->out, sub);
+                            free(sub);
                         } else {
                             int8_t color = 0;
                             if (strstartswith(c->chat_typed, "yellow:")) {
@@ -4949,13 +4956,14 @@ bool client_read(Client *c) {
     }
     if (c->packet_type == 54) {
         // MIDI_SONG
-        const char *name = gjstr(c->in);
+        char *name = gjstr(c->in);
         int crc = g4(c->in);
         int length = g4(c->in);
         if (strcmp(name, c->currentMidi) != 0 && c->midiActive && !_Client.lowmem) {
             platform_set_midi(name, crc, length);
         }
         strcpy(c->currentMidi, name);
+        free(name);
         c->midiCrc = crc;
         c->midiSize = length;
         c->nextMusicDelay = 0;
@@ -5621,6 +5629,7 @@ bool client_read(Client *c) {
         int com = g2(c->in);
         char *text = gjstr(c->in);
         strcpy(_Component.instances[com]->text, text);
+        free(text);
         if (_Component.instances[com]->layer == c->tab_interface_id[c->selected_tab]) {
             c->redraw_sidebar = true;
         }
@@ -8350,8 +8359,10 @@ static void draw2DEntityElements(Client *c) {
 
             if (c->projectX > -1) {
                 pix24_draw(c->image_hitmarks[entity->damageType], c->projectX - 12, c->projectY - 12);
-                drawStringCenter(c->font_plain11, c->projectX, c->projectY + 4, valueof(entity->damage), BLACK);
-                drawStringCenter(c->font_plain11, c->projectX - 1, c->projectY + 3, valueof(entity->damage), WHITE);
+                char* damage = valueof(entity->damage);
+                drawStringCenter(c->font_plain11, c->projectX, c->projectY + 4, damage, BLACK);
+                drawStringCenter(c->font_plain11, c->projectX - 1, c->projectY + 3, damage, WHITE);
+                free(damage);
             }
         }
     }
@@ -9672,7 +9683,7 @@ static const char *formatObjCount(int amount) {
     return s;
 }
 
-static const char *getIntString(int value) {
+static char *getIntString(int value) {
     return value < 999999999 ? valueof(value) : "*";
 }
 
@@ -9812,7 +9823,13 @@ static void client_draw_interface(Client *c, Component *com, int x, int y, int s
                             break;
                         }
 
-                        sprintf(text, "%s%s%s", substring(text, 0, index), getIntString(client_execute_clientscript1(c, child, 0)), substring(text, index + 2, strlen(text)));
+                        char *sub = substring(text, 0, index);
+                        char *value = getIntString(client_execute_clientscript1(c, child, 0));
+                        char *sub1 = substring(text, index + 2, strlen(text));
+                        sprintf(text, "%s%s%s", sub, value, sub1);
+                        free(sub);
+                        free(value);
+                        free(sub1);
                     } while (true);
 
                     do {
@@ -9821,7 +9838,13 @@ static void client_draw_interface(Client *c, Component *com, int x, int y, int s
                             break;
                         }
 
-                        sprintf(text, "%s%s%s", substring(text, 0, index), getIntString(client_execute_clientscript1(c, child, 1)), substring(text, index + 2, strlen(text)));
+                        char *sub = substring(text, 0, index);
+                        char *value = getIntString(client_execute_clientscript1(c, child, 1));
+                        char *sub1 = substring(text, index + 2, strlen(text));
+                        sprintf(text, "%s%s%s", sub, value, sub1);
+                        free(sub);
+                        free(value);
+                        free(sub1);
                     } while (true);
 
                     do {
@@ -9830,7 +9853,13 @@ static void client_draw_interface(Client *c, Component *com, int x, int y, int s
                             break;
                         }
 
-                        sprintf(text, "%s%s%s", substring(text, 0, index), getIntString(client_execute_clientscript1(c, child, 2)), substring(text, index + 2, strlen(text)));
+                        char *sub = substring(text, 0, index);
+                        char *value = getIntString(client_execute_clientscript1(c, child, 2));
+                        char *sub1 = substring(text, index + 2, strlen(text));
+                        sprintf(text, "%s%s%s", sub, value, sub1);
+                        free(sub);
+                        free(value);
+                        free(sub1);
                     } while (true);
 
                     do {
@@ -9839,7 +9868,13 @@ static void client_draw_interface(Client *c, Component *com, int x, int y, int s
                             break;
                         }
 
-                        sprintf(text, "%s%s%s", substring(text, 0, index), getIntString(client_execute_clientscript1(c, child, 3)), substring(text, index + 2, strlen(text)));
+                        char *sub = substring(text, 0, index);
+                        char *value = getIntString(client_execute_clientscript1(c, child, 3));
+                        char *sub1 = substring(text, index + 2, strlen(text));
+                        sprintf(text, "%s%s%s", sub, value, sub1);
+                        free(sub);
+                        free(value);
+                        free(sub1);
                     } while (true);
 
                     do {
@@ -9848,15 +9883,25 @@ static void client_draw_interface(Client *c, Component *com, int x, int y, int s
                             break;
                         }
 
-                        sprintf(text, "%s%s%s", substring(text, 0, index), getIntString(client_execute_clientscript1(c, child, 4)), substring(text, index + 2, strlen(text)));
+                        char *sub = substring(text, 0, index);
+                        char *value = getIntString(client_execute_clientscript1(c, child, 4));
+                        char *sub1 = substring(text, index + 2, strlen(text));
+                        sprintf(text, "%s%s%s", sub, value, sub1);
+                        free(sub);
+                        free(value);
+                        free(sub1);
                     } while (true);
                 }
 
                 int newline = indexof(text, "\\n");
                 char split[DOUBLE_STR];
                 if (newline != -1) {
-                    strcpy(split, substring(text, 0, newline));
-                    strcpy(text, substring(text, newline + 2, strlen(text)));
+                    char *sub = substring(text, 0, newline);
+                    strcpy(split, sub);
+                    free(sub);
+                    char *sub1 = substring(text, newline + 2, strlen(text));
+                    strcpy(text, sub1);
+                    free(sub1);
                 } else {
                     strcpy(split, text);
                     strcpy(text, "");
@@ -10257,6 +10302,9 @@ init:
 }
 
 void client_free(Client *c) {
+    if (c->stream) {
+        clientstream_free(c->stream);
+    }
     client_scenemap_free(c);
     gameshell_free(c->shell);
     pixfont_free(c->font_plain11);
