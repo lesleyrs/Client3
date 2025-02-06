@@ -36,7 +36,7 @@
 # rsa_exponent = 
 # rsa_modulus = 
 
-# default world options (http_port is only used for websockets, set to 8888 outside of windows/mac)
+# default world options (http_port is only used for websockets, set to 8888 for non-windows/mac servers)
 # nodeid = 1
 # portoff = 0
 # socketip = localhost
