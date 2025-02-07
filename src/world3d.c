@@ -304,10 +304,8 @@ void world3d_set_bridge(World3D *world3d, int stx, int stz) {
     }
 
     world3d->levelTiles[0][stx][stz]->bridge = ground;
-    if (world3d->levelTiles[3][stx][stz]) {
-        ground_free(world3d->levelTiles[3][stx][stz]);
-        world3d->levelTiles[3][stx][stz] = NULL;
-    }
+    // we don't free here as the ref is one level below now
+    world3d->levelTiles[3][stx][stz] = NULL;
 }
 
 void world3d_set_drawlevel(World3D *world3d, int level, int stx, int stz, int drawLevel) {
