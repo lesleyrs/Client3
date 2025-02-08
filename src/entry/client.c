@@ -3833,14 +3833,14 @@ static void handleInputKey(Client *c) {
                             } else if (strcmp(c->chat_typed, "::perf") == 0) {
                                 _Custom.showPerformance = !_Custom.showPerformance;
                             } else if (strcmp(c->chat_typed, "::camera") == 0) {
-                                _Custom.cameraEditor = !_Custom.cameraEditor;
-                                c->cutscene = _Custom.cameraEditor;
-                                c->cutsceneDstLocalTileX = 52;
-                                c->cutsceneDstLocalTileZ = 52;
-                                c->cutsceneSrcLocalTileX = 52;
-                                c->cutsceneSrcLocalTileZ = 52;
-                                c->cutsceneSrcHeight = 1000;
-                                c->cutsceneDstHeight = 1000;
+                                // _Custom.cameraEditor = !_Custom.cameraEditor;
+                                // c->cutscene = _Custom.cameraEditor;
+                                // c->cutsceneDstLocalTileX = 52;
+                                // c->cutsceneDstLocalTileZ = 52;
+                                // c->cutsceneSrcLocalTileX = 52;
+                                // c->cutsceneSrcLocalTileZ = 52;
+                                // c->cutsceneSrcHeight = 1000;
+                                // c->cutsceneDstHeight = 1000;
                                 // TODO
                                 // } else if (c->chat_typed.startsWith("::camsrc ")) {
                                 //     const char** args = c->chat_typed.split(" ");
