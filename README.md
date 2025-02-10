@@ -51,9 +51,7 @@ figure out rsaenc bug(s), i'm thinking there are multiple issues (chance of fail
 
 no midi fading, causes death sound to cut off or other issue? pass midi fade data to callback?
 
-emscripten wasm on firefox has js leaks on highmem, gets cleaned up by pressing GC in about:memory but why does this happen
-
-emscripten wasm can speed up if the tab was unfocused but doesn't always speed up? need absolute time not idle_time for web, also test requestanimationframe again for 50 fps firefox hack ONLY if it supports absolute time (didn't seem like it)
+emscripten wasm on firefox has memleaks related to midi, gets cleaned up by pressing GC in about:memory but why does this happen? Chromium based browsers are ok
 
 set_pixels is using memcpy to copy surface pixels each time, but this is inefficient and very noticable on weak hardware. But causes crash on login/exit when the surface gets freed (apply this to all SDL if fixed)
 
@@ -76,6 +74,8 @@ there are a few more small memleaks to work out, but they shouldn't become a pro
 Firefox "lag" is due to setTimeout being broken with wasm as using the firefox profiler increases fps. Asyncify is not the problem here I've had it happen in wasm without emscripten, https://github.com/lesleyrs/web-gbc?tab=readme-ov-file#limitations
 
 The "fix" is to use `emscripten_set_main_loop_arg` with 0 fps which calls requestAnimationFrame instead. The function to be called should be the contents of the while loop in gameshell_run (delete the while loop itself) which will get you full FPS. If it still lags close devtools and refresh page. Downsides are that if the tab goes inactive it will speed up when returning, it doesn't seem fixable the same way as in Client2 since they still use setTimeout. Also Firefox won't have the benefit of the websocket never timing out anymore.
+
+emscripten wasm has speedup bug in lowmem if the tab was unfocused due to no audio playing. Could be fixed but would make the code ugly and most people want highmem on web.
 
 dnslookup on web just shows your public ip instead of dns, this is expected and the same applies to Client2. If dnslookup fails to resolve and welcome screen lags you can set `hide_dns = 1` in config.ini to skip it.
 
