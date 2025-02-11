@@ -43,13 +43,13 @@ type `::perf` command ingame to see fps and lrucache size
 
 ## known issues
 ```
-auto-generated js by emscripten is blocking default browser shortcuts why exactly, also pressing fkeys types uppercase letters even if it doesn't steal input
-
 server cache changes would require manual cache update in client for now, it isn't supposed to change but as of right now there's an issue with client map crcs being changed when server maps get updated (also the cache has some interface changes rn for quest tab and another one) enable crc again after fixes. Maybe also use emscripten indexeddb api to store data file?
 
 figure out rsaenc bug(s), i'm thinking there are multiple issues (chance of failing login), RSA_BIGINT can still fail due to wrong enc length, but the others fail due to other reasons too... Also fix connecting on desktop to servers with higher than 512 bit rsa, need bigger result array but not for web?
 
 emscripten wasm on firefox has memleaks related to midi, gets cleaned up by pressing GC in about:memory but why does this happen? Chromium based browsers are ok
+
+auto-generated js by emscripten is blocking default browser shortcuts why exactly, also pressing fkeys types uppercase letters even if it doesn't steal input
 
 set_pixels is using memcpy to copy surface pixels each time, but this is inefficient and very noticable on weak hardware. But causes crash on login/exit when the surface gets freed (apply this to all SDL if fixed)
 
@@ -57,7 +57,7 @@ the most complete platform layer is SDL2, but keyboard input is just an unfinish
 
 no midi fading, old js code for IE: https://github.com/2004Scape/Server/blob/61bf21fb3755c14b5cf6d47c9d974dee5783beda/view/javaclient.ejs new ts code: https://github.com/2004Scape/Client2/commit/92e74f1f134ea82e48dd608dcca3422777a7a986 (client-ts has more some fade fixes)
 
-locs like fires have no animations as pushLocs is disabled for now, it constantly allocates memory which requires a different approach
+locs like fires have no animations as pushLocs is disabled for now, it constantly allocates memory due to always calling model_copy_faces in loctype which requires a different approach. The leaks get worse if the dynamic model cache can't fit all sequences (animations) of the models in an area, disable the allocator to see origins.
 
 wordfilter isn't ported yet, so you will see your own swear words but others don't as it gets filtered by the server still.
 
