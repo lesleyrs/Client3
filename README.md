@@ -49,13 +49,13 @@ server cache changes would require manual cache update in client for now, it isn
 
 figure out rsaenc bug(s), i'm thinking there are multiple issues (chance of failing login), RSA_BIGINT can still fail due to wrong enc length, but the others fail due to other reasons too... Also fix connecting on desktop to servers with higher than 512 bit rsa, need bigger result array but not for web?
 
-no midi fading, causes death sound to cut off or other issue? pass midi fade data to callback?
-
 emscripten wasm on firefox has memleaks related to midi, gets cleaned up by pressing GC in about:memory but why does this happen? Chromium based browsers are ok
 
 set_pixels is using memcpy to copy surface pixels each time, but this is inefficient and very noticable on weak hardware. But causes crash on login/exit when the surface gets freed (apply this to all SDL if fixed)
 
 the most complete platform layer is SDL2, but keyboard input is just an unfinished hack but usable except ctrl doesn't work for running yet.
+
+no midi fading, old js code for IE here https://github.com/2004Scape/Server/blob/61bf21fb3755c14b5cf6d47c9d974dee5783beda/view/javaclient.ejs
 
 locs like fires have no animations as pushLocs is disabled for now, it constantly allocates memory which requires a different approach
 

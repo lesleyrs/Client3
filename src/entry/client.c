@@ -9684,7 +9684,7 @@ static const char *formatObjCount(int amount) {
 }
 
 static char *getIntString(int value) {
-    return value < 999999999 ? valueof(value) : "*";
+    return value < 999999999 ? valueof(value) : platform_strndup("*", 1);
 }
 
 static void client_draw_interface(Client *c, Component *com, int x, int y, int scrollY) {
