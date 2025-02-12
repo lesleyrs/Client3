@@ -169,6 +169,16 @@ void platform_poll_events(Client *c) {
                 inputtracking_mouse_released(&_InputTracking, (e.button.button & SDL_BUTTON_RMASK) != 0 ? 1 : 0);
             }
             break;
+        case SDL_EVENT_WINDOW_RESIZED:
+            c->shell->surface = SDL_GetWindowSurface(c->shell->window);
+            if (!c->shell->surface) {
+                rs2_error("Window surface creation failed: %s\n", SDL_GetError());
+                SDL_DestroyWindow(c->shell->window);
+                SDL_Quit();
+                return;
+            }
+            c->redraw_background = true;
+            break;
         case SDL_EVENT_WINDOW_MOUSE_ENTER:
             if (_InputTracking.enabled) {
                 inputtracking_mouse_entered(&_InputTracking);
