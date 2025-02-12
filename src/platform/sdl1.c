@@ -46,7 +46,7 @@ void platform_set_midi(const char *name, int crc, int len) {
 void platform_stop_midi(void) {
 }
 
-Surface *platform_create_surface(int* pixels, int width, int height, int alpha) {
+Surface *platform_create_surface(int *pixels, int width, int height, int alpha) {
     return SDL_CreateRGBSurfaceFrom(pixels, width, height, 32, width * sizeof(int), 0xff0000, 0x00ff00, 0x0000ff, alpha);
 }
 
