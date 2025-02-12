@@ -53,7 +53,7 @@ void platform_set_midi_volume(float midivol);
 void platform_set_jingle(int8_t *src, int len);
 void platform_set_midi(const char *name, int crc, int len);
 void platform_stop_midi(void);
-Surface *platform_create_surface(int width, int height, int alpha);
+Surface *platform_create_surface(int *pixels, int width, int height, int alpha);
 void platform_free_surface(Surface *surface);
 int *get_pixels(Surface *surface);
 void set_pixels(PixMap *pixmap, int x, int y);

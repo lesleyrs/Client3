@@ -9,15 +9,15 @@ PixMap *pixmap_new(GameShell *shell, int width, int height) {
     pixmap->shell = shell;
     pixmap->width = width;
     pixmap->height = height;
-    pixmap->image = platform_create_surface(width, height, 0);
     pixmap->pixels = calloc(pixmap->width * pixmap->height, sizeof(int));
+    pixmap->image = platform_create_surface(pixmap->pixels, width, height, 0);
     pixmap_bind(pixmap);
     return pixmap;
 }
 
 void pixmap_free(PixMap *pixmap) {
-    free(pixmap->pixels);
     platform_free_surface(pixmap->image);
+    free(pixmap->pixels);
     free(pixmap);
 }
 

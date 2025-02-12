@@ -51,8 +51,6 @@ emscripten wasm on firefox has memleaks related to midi, gets cleaned up by pres
 
 auto-generated js by emscripten is blocking default browser shortcuts why exactly, also pressing fkeys types uppercase letters even if it doesn't steal input
 
-set_pixels is using memcpy to copy surface pixels each time, but this is inefficient and very noticable on weak hardware. But causes crash on login/exit when the surface gets freed (apply this to all SDL if fixed)
-
 the most complete platform layer is SDL2, but keyboard input is just an unfinished hack but usable except ctrl doesn't work for running yet.
 
 no midi fading, old js code for IE: https://github.com/2004Scape/Server/blob/61bf21fb3755c14b5cf6d47c9d974dee5783beda/view/javaclient.ejs new ts code: https://github.com/2004Scape/Client2/commit/92e74f1f134ea82e48dd608dcca3422777a7a986 (client-ts has more some fade fixes)

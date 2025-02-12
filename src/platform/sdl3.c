@@ -66,8 +66,8 @@ void platform_set_midi(const char *name, int crc, int len) {
 void platform_stop_midi(void) {
 }
 
-Surface *platform_create_surface(int width, int height, int alpha) {
-    return SDL_CreateSurface(width, height, SDL_GetPixelFormatForMasks(32, 0xff0000, 0x00ff00, 0x0000ff, alpha));
+Surface *platform_create_surface(int *pixels, int width, int height, int alpha) {
+    return SDL_CreateSurfaceFrom(width, height, SDL_GetPixelFormatForMasks(32, 0xff0000, 0x00ff00, 0x0000ff, alpha), pixels, width * sizeof(int));
 }
 
 void platform_free_surface(Surface *surface) {
@@ -79,10 +79,6 @@ int *get_pixels(Surface *surface) {
 }
 
 void set_pixels(PixMap *pixmap, int x, int y) {
-    // TODO: less efficient? other won't work with free
-    memcpy(pixmap->image->pixels, pixmap->pixels, pixmap->width * pixmap->height * sizeof(int));
-    // pixmap->image->pixels = pixmap->pixels;
-
     SDL_Rect dest = {x, y, pixmap->width, pixmap->height};
     SDL_BlitSurfaceScaled(pixmap->image, NULL, pixmap->shell->surface, &dest, SDL_SCALEMODE_NEAREST);
     // SDL_BlitSurfaceScaled(pixmap->image, NULL, pixmap->shell->surface, NULL, SDL_SCALEMODE_NEAREST);
@@ -107,7 +103,6 @@ void platform_blit_surface(GameShell *shell, int x, int y, int w, int h, Surface
     SDL_Rect rect = {x, y, w, h};
     SDL_BlitSurfaceScaled(surface, NULL, shell->surface, &rect, SDL_SCALEMODE_NEAREST);
     // SDL_BlitSurface(surface, NULL, shell->surface, &rect);
-    SDL_DestroySurface(surface);
 }
 
 void platform_poll_events(Client *c) {

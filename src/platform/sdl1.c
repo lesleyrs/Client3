@@ -46,8 +46,8 @@ void platform_set_midi(const char *name, int crc, int len) {
 void platform_stop_midi(void) {
 }
 
-Surface *platform_create_surface(int width, int height, int alpha) {
-    return SDL_CreateRGBSurface(0, width, height, 32, 0xff0000, 0x00ff00, 0x0000ff, alpha);
+Surface *platform_create_surface(int* pixels, int width, int height, int alpha) {
+    return SDL_CreateRGBSurfaceFrom(pixels, width, height, 32, width * sizeof(int), 0xff0000, 0x00ff00, 0x0000ff, alpha);
 }
 
 void platform_free_surface(Surface *surface) {
@@ -59,11 +59,6 @@ int *get_pixels(Surface *surface) {
 }
 
 void set_pixels(PixMap *pixmap, int x, int y) {
-    // TODO: less efficient? other won't work with free
-    memcpy(pixmap->image->pixels, pixmap->pixels, pixmap->width * pixmap->height * sizeof(int));
-    // NOTE using the below causes black screen on sdl1 wsl
-    // pixmap->image->pixels = pixmap->pixels;
-
     SDL_Rect dest = {x, y, pixmap->width, pixmap->height};
     SDL_BlitSurface(pixmap->image, NULL, pixmap->shell->surface, &dest);
     // SDL_BlitSurface(pixmap->image, NULL, pixmap->shell->surface, NULL);
@@ -86,7 +81,6 @@ void platform_fill_rect(GameShell *shell, int x, int y, int w, int h, int color)
 void platform_blit_surface(GameShell *shell, int x, int y, int w, int h, Surface *surface) {
     SDL_Rect rect = {x, y, w, h};
     SDL_BlitSurface(surface, NULL, shell->surface, &rect);
-    SDL_FreeSurface(surface);
 }
 
 #define K_LEFT 37

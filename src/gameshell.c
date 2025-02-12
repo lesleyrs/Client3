@@ -351,8 +351,8 @@ void gameshell_draw_string(Client *c, const char *str, int x, int y, int color, 
         int height = y1 - y0;
         unsigned char *bitmap = stbtt_GetCodepointBitmapSubpixel(&font, scale, scale, x_shift, 0, str[ch], &width, &height, &x0, &y0);
 
-        Surface *surface = platform_create_surface(width, height, 0xff000000);
-        int *pixels = get_pixels(surface);
+        int *pixels = malloc(width * height * sizeof(int));
+        Surface *surface = platform_create_surface(pixels, width, height, 0xff000000);
 
         for (int i = 0; i < width * height; i++) {
             unsigned char value = bitmap[i];
@@ -367,6 +367,8 @@ void gameshell_draw_string(Client *c, const char *str, int x, int y, int color, 
             platform_blit_surface(c->shell, x + (int)xpos + x0, y + y0, width, height, surface);
         }
         stbtt_FreeBitmap(bitmap, NULL);
+        platform_free_surface(surface);
+        free(pixels);
 
         xpos += advance * scale;
         if (str[ch + 1]) {
