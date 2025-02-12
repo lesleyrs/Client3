@@ -491,6 +491,7 @@ bool world3d_add_loc2(World3D *world3d, int x, int z, int y, int level, int tile
         }
     }
     Location *loc = calloc(1, sizeof(Location));
+    // Location *loc = rs2_calloc(!temporary, 1, sizeof(Location)); // TODO this leaks still, need to be able to free in allocator just like the pushLocs issue
     loc->bitset = bitset;
     loc->info = info;
     loc->level = level;

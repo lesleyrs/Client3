@@ -127,7 +127,6 @@ void platform_new(GameShell *shell, int width, int height) {
 
         if (SDL_OpenAudio(&wavSpec, NULL) < 0) {
             rs2_error("SDL_OpenAudio(): %s\n", SDL_GetError());
-            exit(1);
         }
 #endif
     }
@@ -307,6 +306,12 @@ void set_pixels(PixMap *pixmap, int x, int y) {
     SDL_UpdateWindowSurface(pixmap->shell->window);
 }
 
+void platform_blit_surface(GameShell *shell, int x, int y, int w, int h, Surface *surface) {
+    SDL_Rect rect = {x, y, w, h};
+    SDL_BlitScaled(surface, NULL, shell->surface, &rect);
+    // SDL_BlitSurface(surface, NULL, shell->surface, &rect);
+}
+
 void platform_update_surface(GameShell *shell) {
     SDL_UpdateWindowSurface(shell->window);
 }
@@ -318,12 +323,6 @@ void platform_fill_rect(GameShell *shell, int x, int y, int w, int h, int color)
 
     SDL_Rect rect = {x, y, w, h};
     SDL_FillRect(shell->surface, &rect, color);
-}
-
-void platform_blit_surface(GameShell *shell, int x, int y, int w, int h, Surface *surface) {
-    SDL_Rect rect = {x, y, w, h};
-    SDL_BlitScaled(surface, NULL, shell->surface, &rect);
-    // SDL_BlitSurface(surface, NULL, shell->surface, &rect);
 }
 
 #define K_LEFT 37
@@ -629,34 +628,37 @@ void platform_poll_events(Client *c) {
                 inputtracking_mouse_released(&_InputTracking, (e.button.button & SDL_BUTTON_RMASK) != 0 ? 1 : 0);
             }
             break;
-        case SDL_WINDOWEVENT_ENTER:
-            if (_InputTracking.enabled) {
-                inputtracking_mouse_entered(&_InputTracking);
-            }
-            break;
-        case SDL_WINDOWEVENT_LEAVE:
-            if (_InputTracking.enabled) {
-                inputtracking_mouse_exited(&_InputTracking);
-            }
-            break;
-        case SDL_WINDOWEVENT_FOCUS_GAINED:
-            c->shell->has_focus = true; // mapview applet
-            c->shell->refresh = true;
+        case SDL_WINDOWEVENT:
+            switch (e.window.event) {
+            case SDL_WINDOWEVENT_ENTER:
+                if (_InputTracking.enabled) {
+                    inputtracking_mouse_entered(&_InputTracking);
+                }
+                break;
+            case SDL_WINDOWEVENT_LEAVE:
+                if (_InputTracking.enabled) {
+                    inputtracking_mouse_exited(&_InputTracking);
+                }
+                break;
+            case SDL_WINDOWEVENT_FOCUS_GAINED:
+                c->shell->has_focus = true; // mapview applet
+                c->shell->refresh = true;
 #ifdef client
-            c->redraw_background = true;
+                c->redraw_background = true;
 #endif
 #ifdef mapview
 // TODO add mapview refresh
 #endif
-
-            if (_InputTracking.enabled) {
-                inputtracking_focus_gained(&_InputTracking);
-            }
-            break;
-        case SDL_WINDOWEVENT_FOCUS_LOST:
-            c->shell->has_focus = false; // mapview applet
-            if (_InputTracking.enabled) {
-                inputtracking_focus_lost(&_InputTracking);
+                if (_InputTracking.enabled) {
+                    inputtracking_focus_gained(&_InputTracking);
+                }
+                break;
+            case SDL_WINDOWEVENT_FOCUS_LOST:
+                c->shell->has_focus = false; // mapview applet
+                if (_InputTracking.enabled) {
+                    inputtracking_focus_lost(&_InputTracking);
+                }
+                break;
             }
             break;
         }

@@ -86,6 +86,12 @@ void set_pixels(PixMap *pixmap, int x, int y) {
     SDL_UpdateWindowSurface(pixmap->shell->window);
 }
 
+void platform_blit_surface(GameShell *shell, int x, int y, int w, int h, Surface *surface) {
+    SDL_Rect rect = {x, y, w, h};
+    SDL_BlitSurfaceScaled(surface, NULL, shell->surface, &rect, SDL_SCALEMODE_NEAREST);
+    // SDL_BlitSurface(surface, NULL, shell->surface, &rect);
+}
+
 void platform_update_surface(GameShell *shell) {
     SDL_UpdateWindowSurface(shell->window);
 }
@@ -97,12 +103,6 @@ void platform_fill_rect(GameShell *shell, int x, int y, int w, int h, int color)
 
     SDL_Rect rect = {x, y, w, h};
     SDL_FillSurfaceRect(shell->surface, &rect, color);
-}
-
-void platform_blit_surface(GameShell *shell, int x, int y, int w, int h, Surface *surface) {
-    SDL_Rect rect = {x, y, w, h};
-    SDL_BlitSurfaceScaled(surface, NULL, shell->surface, &rect, SDL_SCALEMODE_NEAREST);
-    // SDL_BlitSurface(surface, NULL, shell->surface, &rect);
 }
 
 void platform_poll_events(Client *c) {

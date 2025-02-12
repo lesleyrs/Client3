@@ -65,6 +65,11 @@ void set_pixels(PixMap *pixmap, int x, int y) {
     SDL_Flip(pixmap->shell->surface);
 }
 
+void platform_blit_surface(GameShell *shell, int x, int y, int w, int h, Surface *surface) {
+    SDL_Rect rect = {x, y, w, h};
+    SDL_BlitSurface(surface, NULL, shell->surface, &rect);
+}
+
 void platform_update_surface(GameShell *shell) {
     SDL_Flip(shell->surface);
 }
@@ -76,11 +81,6 @@ void platform_fill_rect(GameShell *shell, int x, int y, int w, int h, int color)
 
     SDL_Rect rect = {x, y, w, h};
     SDL_FillRect(shell->surface, &rect, color);
-}
-
-void platform_blit_surface(GameShell *shell, int x, int y, int w, int h, Surface *surface) {
-    SDL_Rect rect = {x, y, w, h};
-    SDL_BlitSurface(surface, NULL, shell->surface, &rect);
 }
 
 #define K_LEFT 37
@@ -261,42 +261,6 @@ void platform_poll_events(Client *c) {
             }
             break;
             // NOTE: SDL_SysWMEvent maybe for window events?
-            /*
-        case SDL_WINDOWEVENT_ENTER:
-            // TODO:
-            // if (InputTracking.enabled) {
-            // 	InputTracking.mouseEntered();
-            // }
-            break;
-        case SDL_WINDOWEVENT_LEAVE:
-            // TODO:
-            // if (InputTracking.enabled) {
-            // 	InputTracking.mouseExited();
-            // }
-            break;
-        case SDL_WINDOWEVENT_FOCUS_GAINED:
-            // TODO:
-            c->shell->has_focus = true; // mapview applet
-            c->shell->refresh = true;
-            #ifdef client
-            c->redraw_background = true;
-            #endif
-            #ifdef mapview
-            // TODO add mapview refresh
-            #endif
-
-            // if (InputTracking.enabled) {
-            // 	InputTracking.focusGained();
-            // }
-            break;
-        case SDL_WINDOWEVENT_FOCUS_LOST:
-            // TODO:
-            c->shell->has_focus = false; // mapview applet
-            // if (InputTracking.enabled) {
-            // 	InputTracking.focusLost();
-            // }
-            break;
-        */
         }
     }
 }

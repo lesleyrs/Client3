@@ -16,6 +16,7 @@ typedef struct {
 } InputTracking;
 
 // NOTE: all these are static synchronized in java
+// TODO: this leaks currently, have to call inputtracking_set_enabled after login to see, packets are put in linklist for reuse?
 void inputtracking_set_enabled(InputTracking *it);
 void inputtracking_set_disabled(InputTracking *it);
 Packet *inputtracking_flush(InputTracking *it);
