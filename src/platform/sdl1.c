@@ -260,7 +260,40 @@ void platform_poll_events(Client *c) {
                 inputtracking_mouse_released(&_InputTracking, (e.button.button & SDL_BUTTON_RMASK) != 0 ? 1 : 0);
             }
             break;
-            // NOTE: SDL_SysWMEvent maybe for window events?
+        case SDL_ACTIVEEVENT:
+            if (e.active.state & SDL_APPMOUSEFOCUS) {
+                if (e.active.gain) {
+                    if (_InputTracking.enabled) {
+                        inputtracking_mouse_entered(&_InputTracking);
+                    }
+                } else {
+                    if (_InputTracking.enabled) {
+                        inputtracking_mouse_exited(&_InputTracking);
+                    }
+                }
+            }
+            if (e.active.state & SDL_APPINPUTFOCUS) {
+                if (e.active.gain) {
+                    c->shell->has_focus = true; // mapview applet
+                    c->shell->refresh = true;
+#ifdef client
+                    c->redraw_background = true;
+#endif
+#ifdef mapview
+// TODO add mapview refresh
+#endif
+                    if (_InputTracking.enabled) {
+                        inputtracking_focus_gained(&_InputTracking);
+                    }
+                } else {
+                    c->shell->has_focus = false; // mapview applet
+                    if (_InputTracking.enabled) {
+                        inputtracking_focus_lost(&_InputTracking);
+                    }
+                }
+            }
+            // if (e.active.state & SDL_APPACTIVE) { // NOTE: doesn't always work
+            break;
         }
     }
 }

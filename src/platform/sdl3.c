@@ -198,7 +198,6 @@ void platform_poll_events(Client *c) {
 #ifdef mapview
 // TODO add mapview refresh
 #endif
-
             if (_InputTracking.enabled) {
                 inputtracking_focus_gained(&_InputTracking);
             }
