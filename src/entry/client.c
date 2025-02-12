@@ -10981,14 +10981,15 @@ static void draw_info_overlay(Client *c) {
 
     char buf[MAX_STR];
     if (_Custom.showPerformance) {
+        // skip corner of interfaces, makes text harder to read
+        y += 13;
+        // skip 2 possible spots of "Close Window"
+        y += 13;
+        y += 13;
+        sprintf(buf, "LRU: %dK / %dK", bump_allocator_used() >> 10, bump_allocator_capacity() >> 10);
+        drawStringRight(c->font_plain11, x, y, buf, YELLOW, true);
+        y += 13;
         sprintf(buf, "FPS: %d", c->shell->fps);
-        drawStringRight(c->font_plain11, x, y, buf, YELLOW, true);
-        y += 13;
-        y += 13; // leave room for "Close Window" in top right
-        sprintf(buf, "Cache size: %dK", bump_allocator_used() >> 10);
-        drawStringRight(c->font_plain11, x, y, buf, YELLOW, true);
-        y += 13;
-        sprintf(buf, "Capacity: %dK", bump_allocator_capacity() >> 10);
         drawStringRight(c->font_plain11, x, y, buf, YELLOW, true);
         y += 13;
     }
