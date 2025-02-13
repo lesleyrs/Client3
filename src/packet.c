@@ -59,7 +59,7 @@ void packet_free(Packet *packet) {
     free(packet);
 }
 
-int crc32(const int8_t *data, size_t length) {
+int rs_crc32(const int8_t *data, size_t length) {
     int crc = -1;
     for (size_t i = 0; i < length; i++) {
         crc = ((uint32_t)crc >> 8) ^ crctable[(crc ^ data[i]) & 0xff];

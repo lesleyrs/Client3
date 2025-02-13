@@ -67,4 +67,4 @@ int gsmart(Packet *packet);
 int gsmarts(Packet *packet);
 void rsaenc(Packet *packet, const char *mod, const char *exp);
 void rsadec(Packet *packet, const char *mod, const char *exp);
-int crc32(const int8_t *data, size_t length);
+int rs_crc32(const int8_t *data, size_t length);

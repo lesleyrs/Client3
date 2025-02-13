@@ -43,7 +43,6 @@ struct ClientStream {
 };
 
 ClientStream *clientstream_new(GameShell *shell, int port);
-void clientstream_free(ClientStream *stream);
 void clientstream_close(ClientStream *stream);
 int clientstream_available(ClientStream *stream, int length);
 int clientstream_read_byte(ClientStream *stream);

@@ -193,7 +193,7 @@ void platform_set_midi(const char *name, int crc, int len) {
     int8_t *data = malloc(len);
     const size_t data_len = fread(data, 1, len, file);
     if (data && crc != 12345678) {
-        int data_crc = crc32(data, len);
+        int data_crc = rs_crc32(data, len);
         if (data_crc != crc) {
             free(data);
             data = NULL;

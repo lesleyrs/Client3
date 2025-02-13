@@ -321,7 +321,7 @@ Jagfile *load_archive_simple(const char *name, int crc, const char *display_name
     fclose(file);
     packet_free(packet);
 
-    int crc_value = crc32(data, file_size);
+    int crc_value = rs_crc32(data, file_size);
     if (crc_value != crc) {
         free(data);
         data = NULL;

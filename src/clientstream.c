@@ -212,10 +212,6 @@ ClientStream *clientstream_new(GameShell *shell, int port) {
     return stream;
 }
 
-void clientstream_free(ClientStream *stream) {
-    free(stream);
-}
-
 void clientstream_close(ClientStream *stream) {
 #ifdef _WIN32
     if (stream->socket > (SOCKET)-1) {
@@ -227,7 +223,6 @@ void clientstream_close(ClientStream *stream) {
     }
 
     stream->closed = true;
-    free(stream);
 }
 
 int clientstream_available(ClientStream *stream, int len) {

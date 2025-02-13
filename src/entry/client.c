@@ -4777,7 +4777,7 @@ bool client_read(Client *c) {
                 fclose(file);
 
                 if (data) {
-                    if (crc32(data, size) != landCrc) {
+                    if (rs_crc32(data, size) != landCrc) {
                         // TODO wait authentic cache
                         // free(data);
                         // data = NULL;
@@ -4812,7 +4812,7 @@ bool client_read(Client *c) {
                 fclose(file);
 
                 if (data) {
-                    if (crc32(data, size) != locCrc) {
+                    if (rs_crc32(data, size) != locCrc) {
                         // TODO wait authentic cache
                         // free(data);
                         // data = NULL;
@@ -7328,6 +7328,7 @@ void client_login(Client *c, const char *username, const char *password, bool re
         client_draw_title_screen(c);
     }
 
+    free(c->stream);
 #ifdef __EMSCRIPTEN__
     c->stream = clientstream_new(c->shell, _Custom.http_port);
 #else
@@ -10302,9 +10303,7 @@ init:
 }
 
 void client_free(Client *c) {
-    if (c->stream) {
-        clientstream_free(c->stream);
-    }
+    free(c->stream);
     client_scenemap_free(c);
     gameshell_free(c->shell);
     pixfont_free(c->font_plain11);
@@ -10685,7 +10684,7 @@ Jagfile *load_archive(Client *c, const char *name, int crc, const char *display_
     fclose(file);
     packet_free(packet);
 
-    int crc_value = crc32(data, file_size);
+    int crc_value = rs_crc32(data, file_size);
     if (crc_value != crc) {
         // TODO wait authentic cache
         // free(data);
