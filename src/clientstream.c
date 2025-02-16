@@ -15,11 +15,14 @@ static int winsock_init = 0;
 #ifdef WII
 #define socket(x, y, z) net_socket(x, y, z)
 #define gethostbyname net_gethostbyname
+// #define getsockopt net_getsockopt
 #define setsockopt net_setsockopt
 #define connect net_connect
 #define close net_close
 #define write net_write
 #define recv net_recv
+#define ioctl net_ioctl
+#define select net_select
 #endif
 
 extern ClientData _Client;
@@ -43,9 +46,24 @@ ClientStream *clientstream_new(GameShell *shell, int port) {
 
     int ret = 0;
 
+#ifdef WII
+    char local_ip[16] = {0};
+    char gateway[16] = {0};
+    char netmask[16] = {0};
+
+    // TODO only forcing 127.0.0.1 works on dolphin emulator
+    // TODO but it still shows -1 when it works?
+    ret = if_config("127.0.0.1", netmask, gateway, true, 20);
+    // ret = if_config(local_ip, netmask, gateway, true, 20);
+
+    if (ret < 0) {
+        rs2_error("if_config(): %d\n", ret);
+        // exit(1);
+    }
+#endif
+
     struct sockaddr_in server_addr = {0};
     server_addr.sin_family = AF_INET;
-
     server_addr.sin_port = htons(port);
 
 #ifdef MODERN_POSIX
@@ -180,13 +198,14 @@ ClientStream *clientstream_new(GameShell *shell, int port) {
                 socklen_t lon = sizeof(int);
                 int valopt = 0;
 
-                if (getsockopt(stream->socket, SOL_SOCKET, SO_ERROR,
-                               (void *)(&valopt), &lon) < 0) {
+                #ifndef WII
+                if (getsockopt(stream->socket, SOL_SOCKET, SO_ERROR, (void *)(&valopt), &lon) < 0) {
                     rs2_error("getsockopt() error:  %s (%d)\n", strerror(errno),
                               errno);
 
                     exit(1);
                 }
+                #endif
 
                 if (valopt > 0) {
                     ret = -1;
@@ -330,7 +349,19 @@ const char *dnslookup(const char *hostname, bool hide_dns) {
         return "unknown";
     }
 
-#ifdef MODERN_POSIX
+#ifdef WII
+    u32 ip = net_gethostip();
+
+    ip = ntohl(ip);
+
+    struct in_addr addr;
+    addr.s_addr = ip;
+    char *ip_str = inet_ntoa(addr);
+    if (!ip_str) {
+        return "unknown";
+    }
+    return ip_str;
+#elif defined(MODERN_POSIX)
     struct sockaddr_in client_addr = {0};
     client_addr.sin_family = AF_INET;
 
@@ -347,16 +378,14 @@ const char *dnslookup(const char *hostname, bool hide_dns) {
     int result = getnameinfo((struct sockaddr *)&client_addr, sizeof(client_addr), host, sizeof(host), service, sizeof(service), NI_NAMEREQD);
     if (result == 0) {
         return platform_strdup(host);
-    } else {
-        return "unknown";
     }
+    return "unknown";
 #else
     struct in_addr addr = {.s_addr = inet_addr(hostname)};
     struct hostent *host = gethostbyaddr((const char *)&addr, sizeof(addr), AF_INET);
     if (!host) {
         return "unknown";
     }
-
     return host->h_name;
 #endif
 }

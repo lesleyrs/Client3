@@ -85,7 +85,11 @@ extern WaveData _Wave;
 extern WorldData _World;
 extern SceneData _World3D;
 
+#ifdef WII
+Custom _Custom = {.chat_era = 2, .http_port = 80, .showPerformance = true};
+#else
 Custom _Custom = {.chat_era = 2, .http_port = 80};
+#endif
 ClientData _Client = {
     .clientversion = 225,
     .members = true,
@@ -4764,7 +4768,12 @@ bool client_read(Client *c) {
                 // custom NOTE move these
                 char filename[PATH_MAX];
                 snprintf(filename, sizeof(filename), "cache/client/maps/m%d_%d", mapsquareX, mapsquareZ);
+
+                initfs();
                 FILE *file = fopen(filename, "rb");
+                if (!file) {
+                    rs2_error("%s: %s\n", filename, strerror(errno));
+                }
 
                 fseek(file, 0, SEEK_END);
                 size_t size = ftell(file);
@@ -4772,7 +4781,7 @@ bool client_read(Client *c) {
 
                 data = malloc(size);
                 if (fread(data, 1, size, file) != size) {
-                    rs2_error("Failed to read file\n", strerror(errno));
+                    rs2_error("Failed to read file: %s\n", strerror(errno));
                 }
                 fclose(file);
 
@@ -4800,6 +4809,9 @@ bool client_read(Client *c) {
                 char filename[PATH_MAX];
                 snprintf(filename, sizeof(filename), "cache/client/maps/l%d_%d", mapsquareX, mapsquareZ);
                 FILE *file = fopen(filename, "rb");
+                if (!file) {
+                    rs2_error("%s: %s\n", filename, strerror(errno));
+                }
 
                 fseek(file, 0, SEEK_END);
                 size_t size = ftell(file);
@@ -4807,7 +4819,7 @@ bool client_read(Client *c) {
 
                 data = malloc(size);
                 if (fread(data, 1, size, file) != size) {
-                    rs2_error("Failed to read file\n", strerror(errno));
+                    rs2_error("Failed to read file %s\n", strerror(errno));
                 }
                 fclose(file);
 
@@ -7352,7 +7364,10 @@ void client_login(Client *c, const char *username, const char *password, bool re
     p4(c->out, _Client.uid);
     pjstr(c->out, username);
     pjstr(c->out, password);
+    // TODO temp
+    #ifndef WII
     rsaenc(c->out, _Client.rsa_modulus, _Client.rsa_exponent);
+    #endif
 
     c->login->pos = 0;
     if (reconnect) {
@@ -7568,6 +7583,8 @@ void client_prepare_game_screen(Client *c) {
     // 	pixmap_free(c->shell->draw_area);
     // 	c->shell->draw_area = NULL;
     // }
+    // TODO why does this fail on wii
+    #ifndef WII
     pixmap_free(c->image_title0);
     pixmap_free(c->image_title1);
     pixmap_free(c->image_title2);
@@ -7577,6 +7594,7 @@ void client_prepare_game_screen(Client *c) {
     pixmap_free(c->image_title6);
     pixmap_free(c->image_title7);
     pixmap_free(c->image_title8);
+    #endif
     c->image_title2 = NULL;
     c->image_title3 = NULL;
     c->image_title4 = NULL;
@@ -10249,6 +10267,7 @@ int main(int argc, char **argv) {
     const char *_free = argv[4];
     _Client.members = !_free || strcmp(_free, "1") != 0;
 #else
+    initfs();
 
     if (load_ini_args()) {
         goto init;

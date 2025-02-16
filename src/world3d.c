@@ -164,7 +164,11 @@ void world3d_init(int viewportWidth, int viewportHeight, int frustumStart, int f
     _World3D.viewportCenterX = viewportWidth / 2;
     _World3D.viewportCenterY = viewportHeight / 2;
 
+    #ifdef WII
+    bool (*matrix)[9][32][53][53] = malloc(sizeof(bool[9][32][53][53]));
+    #else
     bool matrix[9][32][53][53];
+    #endif
     for (int pitch = 128; pitch <= 384; pitch += 32) {
         for (int yaw = 0; yaw < 2048; yaw += 64) {
             _World3D.sinEyePitch = _Pix3D.sin_table[pitch];
@@ -187,7 +191,11 @@ void world3d_init(int viewportWidth, int viewportHeight, int frustumStart, int f
                         }
                     }
 
+                    #ifdef WII
+                    *matrix[pitchLevel][yawLevel][dx + 25 + 1][dz + 25 + 1] = visible;
+                    #else
                     matrix[pitchLevel][yawLevel][dx + 25 + 1][dz + 25 + 1] = visible;
+                    #endif
                 }
             }
         }
@@ -229,6 +237,9 @@ void world3d_init(int viewportWidth, int viewportHeight, int frustumStart, int f
             }
         }
     }
+    #ifdef WII
+    free(matrix);
+    #endif
 }
 
 bool world3d_test_point(int x, int z, int y) {

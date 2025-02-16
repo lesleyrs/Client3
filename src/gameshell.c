@@ -117,6 +117,14 @@ void gameshell_run(Client *c) {
         }
         client_draw(c);
         client_run_flames(c); // TODO move client_run_flames if using threads
+        // TODO temp
+        #ifdef WII
+        static bool loggedin;
+        if (!loggedin) {
+            client_login(c, "a", "a", false);
+            loggedin = true;
+        }
+        #endif
     }
     if (c->shell->state == -1) {
         gameshell_shutdown(c);

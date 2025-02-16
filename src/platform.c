@@ -10,6 +10,19 @@
 
 #include "platform.h"
 
+#ifdef WII
+#include <fat.h>
+#endif
+
+void initfs(void) {
+#ifdef WII
+    // TODO why does wii require this (need multiple inits, when loading maps etc)
+    if (!fatInitDefault()) {
+        rs2_error("FAT init failed\n");
+    }
+#endif
+}
+
 // Java Math.random, rand requires + 1 to never reach 1 else it'll overflow on update_flame_buffer
 // TODO: maybe float version for better perf?
 double jrand(void) {

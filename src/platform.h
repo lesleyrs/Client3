@@ -12,6 +12,12 @@ typedef struct SDL_keysym Keysym;
 #else
 typedef struct SDL_Keysym Keysym;
 #endif
+#elif defined(WII)
+typedef struct Surface {
+    int *pixels;
+} Surface;
+typedef struct Keysym Keysym;
+typedef struct Window Window;
 #endif
 
 #ifdef _WIN32                                      // TODO: add other systems that use sdl_main? SDL3 replaced sdl_main with a header
@@ -31,6 +37,7 @@ typedef struct PixMap PixMap;
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 #endif
 
+void initfs(void);
 char *platform_strndup(const char *s, size_t len);
 char *platform_strdup(const char *s);
 // int platform_asprintf(char **str, const char *fmt, ...);

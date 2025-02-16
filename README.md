@@ -118,7 +118,12 @@ Makefile: gcc, clang, tcc, mingw-gcc, emcc
 
 If tcc isn't working you should build latest [tcc](https://github.com/TinyCC/tinycc) from source
 
-### TODO add other systems here
+### Nintendo Wii
+use devkitpro and run: `make -f wii.mk V=1`
+config.ini is required as you can't pass cli args, but it can be empty
+move cache, Roboto, .sf2, and config.ini to sdcard
+in dolphin emu you can go to options>configuration>wii>sd card settings and click `Convert Folder to File Now`
+you can now run the .elf or .dol binaries on a wii!
 
 ## libraries
 * [micro-bunzip](https://landley.net/code/) | https://landley.net/code/bunzip-4.1.c
