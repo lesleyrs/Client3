@@ -51,19 +51,19 @@ Pix24 *pix24_from_jpeg(Jagfile *jag, const char *name) {
     }
 
     Pix24 *pix24 = pix24_new(x, y, false);
-    #ifdef WII
+    /* #ifdef WII
+    // NOTE: this is only needed for titlescreen if not using -flto and -O2/-O1
     for (int row = 0; row < y; row++) {
         for (int col = 0; col < x; col++) {
-            // TODO why is this flip needed?
             int idx = ((y - 1 - row) * x + col) * n;
             pix24->pixels[row * x + col] = (jpeg_data[idx] << 16) | (jpeg_data[idx + 1] << 8) | jpeg_data[idx + 2];
         }
     }
-    #else
+    #else */
     for (int i = 0; i < x * y; i++) {
         pix24->pixels[i] = (jpeg_data[i * n] << 16) | (jpeg_data[i * n + 1] << 8) | jpeg_data[i * n + 2];
     }
-    #endif
+    // #endif
     stbi_image_free(jpeg_data);
     return pix24;
 }

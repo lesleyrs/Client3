@@ -20,12 +20,19 @@ BUILD		:=	build
 SOURCES		:=	src src/entry src/platform src/thirdparty src/wordenc src/datastruct src/sound
 DATA		:=	data
 INCLUDES	:=
+DEBUG       :=  0
 
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
 
-CFLAGS	= -g -O3 -Wall $(MACHDEP) $(INCLUDE) -Dclient -DWII
+CFLAGS	= -Wno-parentheses -Wall $(MACHDEP) $(INCLUDE) -Dclient -DWII
+ifeq ($(DEBUG),1)
+CFLAGS += -g
+else
+# NOTE -O3 miscompiles with -flto, but flto fixes title screen jpeg being flipped and same performance
+CFLAGS += -s -O2 -ffast-math -flto=$(shell nproc)
+endif
 CXXFLAGS	=	$(CFLAGS)
 
 LDFLAGS	=	-g $(MACHDEP) -Wl,-Map,$(notdir $@).map

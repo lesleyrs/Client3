@@ -209,6 +209,27 @@ void world3d_init(int viewportWidth, int viewportHeight, int frustumStart, int f
                     bool visible = false;
                     for (int dx = -1; dx <= 1; dx++) {
                         for (int dz = -1; dz <= 1; dz++) {
+                            #ifdef WII
+                            if (*matrix[pitchLevel][yawLevel][x + dx + 25 + 1][z + dz + 25 + 1]) {
+                                visible = true;
+                                goto check_areas_done;
+                            }
+
+                            if (*matrix[pitchLevel][(yawLevel + 1) % 31][x + dx + 25 + 1][z + dz + 25 + 1]) {
+                                visible = true;
+                                goto check_areas_done;
+                            }
+
+                            if (*matrix[pitchLevel + 1][yawLevel][x + dx + 25 + 1][z + dz + 25 + 1]) {
+                                visible = true;
+                                goto check_areas_done;
+                            }
+
+                            if (*matrix[pitchLevel + 1][(yawLevel + 1) % 31][x + dx + 25 + 1][z + dz + 25 + 1]) {
+                                visible = true;
+                                goto check_areas_done;
+                            }
+                            #else
                             if (matrix[pitchLevel][yawLevel][x + dx + 25 + 1][z + dz + 25 + 1]) {
                                 visible = true;
                                 goto check_areas_done;
@@ -228,6 +249,7 @@ void world3d_init(int viewportWidth, int viewportHeight, int frustumStart, int f
                                 visible = true;
                                 goto check_areas_done;
                             }
+                            #endif
                         }
                     }
 

@@ -119,7 +119,7 @@ Makefile: gcc, clang, tcc, mingw-gcc, emcc
 If tcc isn't working you should build latest [tcc](https://github.com/TinyCC/tinycc) from source
 
 ### Nintendo Wii
-use devkitpro and run: `make -f wii.mk V=1`
+install devkitpro wii-dev package and run: `make -f wii.mk V=1`
 
 config.ini is required as you can't pass cli args, but it can be empty
 
