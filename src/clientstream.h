@@ -7,6 +7,10 @@
 #include <errno.h>
 #include <fcntl.h>
 
+#ifdef __3DS__
+#include <3ds.h>
+#endif
+
 #ifdef WII
 #include <network.h>
 #else

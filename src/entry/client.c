@@ -49,21 +49,6 @@
 #include "../world.h"
 #include "../world3d.h"
 
-typedef struct {
-    bool showDebug;
-    bool showPerformance;
-    bool cameraEditor;
-    bool remember_username;
-    bool remember_password;
-    bool hide_dns;
-    bool hide_debug_sprite;
-    bool allow_commands;
-    bool allow_debugprocs;
-    bool midi_on_logout;
-    int http_port;
-    int chat_era; // 0 - early beta, 1 - late beta, 2 - launch
-} Custom;
-
 extern int DESIGN_BODY_COLOR_LENGTH[];
 extern int *DESIGN_BODY_COLOR[];
 extern int DESIGN_HAIR_COLOR[];
@@ -85,7 +70,7 @@ extern WaveData _Wave;
 extern WorldData _World;
 extern SceneData _World3D;
 
-#ifdef WII
+#if defined(WII) || defined(__3DS__)
 Custom _Custom = {.chat_era = 2, .http_port = 80, .showPerformance = true};
 #else
 Custom _Custom = {.chat_era = 2, .http_port = 80};
@@ -7365,7 +7350,7 @@ void client_login(Client *c, const char *username, const char *password, bool re
     pjstr(c->out, username);
     pjstr(c->out, password);
     // TODO temp
-    #ifndef WII
+    #if !defined(WII) && !defined(__3DS__)
     rsaenc(c->out, _Client.rsa_modulus, _Client.rsa_exponent);
     #endif
 
@@ -11010,6 +10995,9 @@ static void draw_info_overlay(Client *c) {
         sprintf(buf, "FPS: %d", c->shell->fps);
         drawStringRight(c->font_plain11, x, y, buf, YELLOW, true);
         y += 13;
+        #ifdef __3DS__
+        rs2_log("FPS: %d, LRU: %dK / %dK\n", c->shell->fps, bump_allocator_used() >> 10, bump_allocator_capacity() >> 10);
+        #endif
     }
 
     if (_Custom.cameraEditor || _Custom.showDebug) {

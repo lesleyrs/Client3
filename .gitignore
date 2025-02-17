@@ -36,12 +36,18 @@
 /*.data
 /index.html
 
+# devkitpro
+/build
+/*.elf
+
 # wii
 /*.dol
 
+# 3ds
+/*.3dsx
+/*.smdh
+
 # extra
-/*.elf
-/build
 /SDL2.dll
 /SDL3.dll
 /config.ini

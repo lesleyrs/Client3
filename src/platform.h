@@ -12,7 +12,7 @@ typedef struct SDL_keysym Keysym;
 #else
 typedef struct SDL_Keysym Keysym;
 #endif
-#elif defined(WII)
+#elif defined(WII) || defined(__3DS__)
 typedef struct Surface {
     int *pixels;
 } Surface;

@@ -26,6 +26,7 @@ static int winsock_init = 0;
 #endif
 
 extern ClientData _Client;
+extern Custom _Custom;
 
 ClientStream *clientstream_new(GameShell *shell, int port) {
 #ifdef _WIN32
@@ -153,12 +154,14 @@ ClientStream *clientstream_new(GameShell *shell, int port) {
 #endif
     // NOTE: cast for windows
     setsockopt(stream->socket, IPPROTO_TCP, TCP_NODELAY, (const char *)&set, sizeof(set));
+    #ifndef __3DS__
     struct timeval socket_timeout = {30, 0};
     setsockopt(stream->socket, SOL_SOCKET, SO_RCVTIMEO, (const char *)&socket_timeout, sizeof(socket_timeout));
     setsockopt(stream->socket, SOL_SOCKET, SO_SNDTIMEO, (const char *)&socket_timeout, sizeof(socket_timeout));
+    #endif
 
     // NOTE need this since we are single threaded
-    // #ifdef FIONBIO
+// #ifdef FIONBIO
     ret = ioctl(stream->socket, FIONBIO, &set);
 
     if (ret < 0) {
@@ -365,9 +368,10 @@ const char *dnslookup(const char *hostname, bool hide_dns) {
     struct sockaddr_in client_addr = {0};
     client_addr.sin_family = AF_INET;
 
-    int port = 43594;
 #ifdef __EMSCRIPTEN__
-    port += 1;
+    int port = _Custom.http_port;
+#else
+    int port = 43594;
 #endif
     client_addr.sin_port = htons(port);
     char host[MAX_STR];

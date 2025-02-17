@@ -2,7 +2,6 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include <asndlib.h>
 #include <gccore.h>
@@ -23,7 +22,7 @@ static GXRModeObj *rmode = NULL;
 //---------------------------------------------------------------------------------
 //	convert two RGB pixels to one Y1CbY2Cr.
 //---------------------------------------------------------------------------------
-u32 rgb2yuv(u8 r1, u8 g1, u8 b1, u8 r2, u8 g2, u8 b2) {
+static u32 rgb2yuv(u8 r1, u8 g1, u8 b1, u8 r2, u8 g2, u8 b2) {
     //---------------------------------------------------------------------------------
     int y1, cb1, cr1, y2, cb2, cr2, cb, cr;
 
@@ -177,12 +176,7 @@ void rs2_log(const char *format, ...) {
     va_list args;
     va_start(args, format);
 
-#if !defined(_3DS) && !defined(WII) && !defined(SDL12)
-    SDL_LogMessageV(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO, format,
-                    args);
-#else
     vprintf(format, args);
-#endif
 
     va_end(args);
 }
@@ -191,12 +185,7 @@ void rs2_error(const char *format, ...) {
     va_list args;
     va_start(args, format);
 
-#if !defined(_3DS) && !defined(WII) && !defined(SDL12)
-    SDL_LogMessageV(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_ERROR,
-                    format, args);
-#else
     vfprintf(stderr, format, args);
-#endif
 
     va_end(args);
 }

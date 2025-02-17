@@ -105,7 +105,7 @@ The 2004 jar is stored for comparisons, run with EG: `java -cp cache/runescape.j
 - server http port needs to be set to 80 (2004scape on linux defaults to 8888 right now to avoid sudo)
 - TODO confirm: to connect to local java servers on WSL from Windows you might need to add `-Djava.net.preferIPv6Addresses=true` when running client
 
-## supported compilers per platform
+## Platforms and Compilers
 ### Windows 95 to Windows 11
 build.bat(32 bit): tcc (included), mingw-gcc, emcc
 
@@ -116,18 +116,28 @@ You might want the updated [PowerShell](https://github.com/PowerShell/PowerShell
 ### Linux GNU or musl
 Makefile: gcc, clang, tcc, mingw-gcc, emcc
 
-If tcc isn't working you should build latest [tcc](https://github.com/TinyCC/tinycc) from source
+If tcc from your package manager isn't working you should build latest [tcc](https://github.com/TinyCC/tinycc) from source
 
-### Nintendo Wii
-install devkitpro wii-dev package and run: `make -f wii.mk V=1`
+### Web (Emscripten)
+install [emsdk](#tools)
+run `emmake make`/`make CC=emcc` or `build.bat -c emcc` for windows
 
-config.ini is required as you can't pass cli args, but it can be empty
+### Consoles (devkitPro)
+Move the `cache/` `Roboto/`, `SCC1_Florestan.sf2`, and `config.ini` to sdcard (config needed as we can't pass cli args, but can be empty)
 
-move cache, Roboto, .sf2, and config.ini to sdcard
+#### Nintendo Wii
+install [devkitpro wii-dev package](#tools) and run: `make -f wii.mk -j$(nproc) V=1`
 
 in dolphin emu you can go to options>configuration>wii>sd card settings and click `Convert Folder to File Now`
 
 you can now run the .elf or .dol binaries on a wii!
+
+#### Nintendo 3DS
+install [devkitpro 3ds-dev package](#tools) and run: `make -f 3ds.mk -j$(nproc) V=1`
+
+in citra emu the sdcard is located in the sdmc dir here: https://citra-emulator.com/wiki/user-directory/
+
+you can now run the .elf or .3dsx binaries on a 3ds!
 
 ## libraries
 * [micro-bunzip](https://landley.net/code/) | https://landley.net/code/bunzip-4.1.c
