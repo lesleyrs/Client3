@@ -47,6 +47,10 @@
 /*.3dsx
 /*.smdh
 
+# switch
+/*.nacp
+/*.nro
+
 # extra
 /SDL2.dll
 /SDL3.dll
