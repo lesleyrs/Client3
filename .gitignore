@@ -47,6 +47,10 @@
 /*.3dsx
 /*.smdh
 
+# wiiu
+/*.rpx
+/*.wuhb
+
 # switch
 /*.nacp
 /*.nro

@@ -153,7 +153,7 @@ ClientStream *clientstream_new(GameShell *shell, int port) {
 #endif
     // NOTE: cast for windows
     setsockopt(stream->socket, IPPROTO_TCP, TCP_NODELAY, (const char *)&set, sizeof(set));
-    #ifndef __3DS__
+    #if !defined(__3DS__) && !defined(__WIIU__)
     struct timeval socket_timeout = {30, 0};
     setsockopt(stream->socket, SOL_SOCKET, SO_RCVTIMEO, (const char *)&socket_timeout, sizeof(socket_timeout));
     setsockopt(stream->socket, SOL_SOCKET, SO_SNDTIMEO, (const char *)&socket_timeout, sizeof(socket_timeout));
