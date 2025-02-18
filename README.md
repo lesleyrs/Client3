@@ -127,7 +127,7 @@ run `emmake make`/`make CC=emcc` or `build.bat -c emcc` for windows
 Linux wasm/js output seems to be quite a bit smaller than on Windows
 
 ### Nintendo consoles (devkitPro)
-The console ports are unfinished but should all draw to screen. It will currently auto-login and RSA is disabled for development.
+These are unfinished and yet to be tested on real hardware so expect some issues. It will currently auto-login and RSA is disabled for development.
 
 Install devkitpro and [(3ds/wii/wiiu/switch)-dev package](#tools) and run `make -f (3ds/wii/wiiu/switch).mk -j$(nproc)`.
 
@@ -142,6 +142,8 @@ in dolphin emulator you can find the sdcard path in `options>configuration>wii>s
 
 #### 3DS
 in citra emulator click `file>open citra folder` for sdmc dir https://citra-emulator.com/wiki/user-directory/
+
+The game in it's original state might not have a playable frame rate outside of the "New" 3ds/2ds line for higher clock speeds.
 
 #### Wii U
 in cemu emulator click `file>open mlc folder`, go 1 directory up to see sdcard dir
