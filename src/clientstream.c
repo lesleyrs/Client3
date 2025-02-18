@@ -26,7 +26,6 @@ static int winsock_init = 0;
 #endif
 
 extern ClientData _Client;
-extern Custom _Custom;
 
 ClientStream *clientstream_new(GameShell *shell, int port) {
 #ifdef _WIN32
@@ -368,18 +367,10 @@ const char *dnslookup(const char *hostname, bool hide_dns) {
     struct sockaddr_in client_addr = {0};
     client_addr.sin_family = AF_INET;
 
-#ifdef __EMSCRIPTEN__
-    int port = _Custom.http_port;
-#else
-    int port = 43594;
-#endif
-    client_addr.sin_port = htons(port);
-    char host[MAX_STR];
-    char service[MAX_STR];
-
     inet_pton(AF_INET, hostname, &client_addr.sin_addr);
 
-    int result = getnameinfo((struct sockaddr *)&client_addr, sizeof(client_addr), host, sizeof(host), service, sizeof(service), NI_NAMEREQD);
+    char host[MAX_STR];
+    int result = getnameinfo((struct sockaddr *)&client_addr, sizeof(client_addr), host, sizeof(host), NULL, 0, NI_NAMEREQD);
     if (result == 0) {
         return platform_strdup(host);
     }

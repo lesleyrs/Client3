@@ -49,6 +49,21 @@
 #include "../world.h"
 #include "../world3d.h"
 
+typedef struct {
+    bool showDebug;
+    bool showPerformance;
+    bool cameraEditor;
+    bool remember_username;
+    bool remember_password;
+    bool hide_dns;
+    bool hide_debug_sprite;
+    bool allow_commands;
+    bool allow_debugprocs;
+    bool midi_on_logout;
+    int http_port;
+    int chat_era; // 0 - early beta, 1 - late beta, 2 - launch
+} Custom;
+
 extern int DESIGN_BODY_COLOR_LENGTH[];
 extern int *DESIGN_BODY_COLOR[];
 extern int DESIGN_HAIR_COLOR[];
@@ -71,9 +86,9 @@ extern WorldData _World;
 extern SceneData _World3D;
 
 #if defined(WII) || defined(__3DS__)
-Custom _Custom = {.chat_era = 2, .http_port = 80, .showPerformance = true};
+static Custom _Custom = {.chat_era = 2, .http_port = 80, .showPerformance = true};
 #else
-Custom _Custom = {.chat_era = 2, .http_port = 80};
+static Custom _Custom = {.chat_era = 2, .http_port = 80};
 #endif
 ClientData _Client = {
     .clientversion = 225,
