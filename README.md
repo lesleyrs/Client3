@@ -139,7 +139,7 @@ you can now run the .elf or .dol binaries on a wii!
 #### Nintendo 3DS
 install [devkitpro 3ds-dev package](#tools) and run: `make -f 3ds.mk -j$(nproc) V=1`
 
-in citra emu the sdcard is located in the sdmc dir here: https://citra-emulator.com/wiki/user-directory/
+in citra emu the virtual sdcard is the sdmc dir here: https://citra-emulator.com/wiki/user-directory/
 
 you can now run the .elf or .3dsx binaries on a 3ds!
 
