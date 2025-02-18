@@ -51,7 +51,7 @@ Pix24 *pix24_from_jpeg(Jagfile *jag, const char *name) {
     }
 
     Pix24 *pix24 = pix24_new(x, y, false);
-    /* #ifdef WII
+    /* #ifdef __WII__
     // NOTE: this is only needed for titlescreen if not using -flto and -O2/-O1
     for (int row = 0; row < y; row++) {
         for (int col = 0; col < x; col++) {

@@ -164,7 +164,7 @@ void world3d_init(int viewportWidth, int viewportHeight, int frustumStart, int f
     _World3D.viewportCenterX = viewportWidth / 2;
     _World3D.viewportCenterY = viewportHeight / 2;
 
-    #if defined(WII) || defined(__3DS__)
+    #if defined(__WII__) || defined(__3DS__)
     bool (*matrix)[9][32][53][53] = malloc(sizeof(bool[9][32][53][53]));
     #else
     bool matrix[9][32][53][53];
@@ -191,7 +191,7 @@ void world3d_init(int viewportWidth, int viewportHeight, int frustumStart, int f
                         }
                     }
 
-                    #if defined(WII) || defined(__3DS__)
+                    #if defined(__WII__) || defined(__3DS__)
                     *matrix[pitchLevel][yawLevel][dx + 25 + 1][dz + 25 + 1] = visible;
                     #else
                     matrix[pitchLevel][yawLevel][dx + 25 + 1][dz + 25 + 1] = visible;
@@ -209,7 +209,7 @@ void world3d_init(int viewportWidth, int viewportHeight, int frustumStart, int f
                     bool visible = false;
                     for (int dx = -1; dx <= 1; dx++) {
                         for (int dz = -1; dz <= 1; dz++) {
-                            #if defined(WII) || defined(__3DS__)
+                            #if defined(__WII__) || defined(__3DS__)
                             if (*matrix[pitchLevel][yawLevel][x + dx + 25 + 1][z + dz + 25 + 1]) {
                                 visible = true;
                                 goto check_areas_done;
@@ -259,7 +259,7 @@ void world3d_init(int viewportWidth, int viewportHeight, int frustumStart, int f
             }
         }
     }
-    #if defined(WII) || defined(__3DS__)
+    #if defined(__WII__) || defined(__3DS__)
     free(matrix);
     #endif
 }

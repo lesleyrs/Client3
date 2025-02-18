@@ -1,4 +1,4 @@
-#ifdef WII
+#ifdef __WII__
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -85,7 +85,7 @@ extern WaveData _Wave;
 extern WorldData _World;
 extern SceneData _World3D;
 
-#if defined(WII) || defined(__3DS__)
+#if defined(__WII__) || defined(__3DS__)
 static Custom _Custom = {.chat_era = 2, .http_port = 80, .showPerformance = true};
 #else
 static Custom _Custom = {.chat_era = 2, .http_port = 80};
@@ -7365,7 +7365,7 @@ void client_login(Client *c, const char *username, const char *password, bool re
     pjstr(c->out, username);
     pjstr(c->out, password);
     // TODO temp
-    #if !defined(WII) && !defined(__3DS__)
+    #if !defined(__WII__) && !defined(__3DS__)
     rsaenc(c->out, _Client.rsa_modulus, _Client.rsa_exponent);
     #endif
 
@@ -7584,7 +7584,7 @@ void client_prepare_game_screen(Client *c) {
     // 	c->shell->draw_area = NULL;
     // }
     // TODO why does this fail on wii
-    #ifndef WII
+    #ifndef __WII__
     pixmap_free(c->image_title0);
     pixmap_free(c->image_title1);
     pixmap_free(c->image_title2);

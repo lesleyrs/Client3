@@ -12,7 +12,7 @@
 static int winsock_init = 0;
 #endif
 
-#ifdef WII
+#ifdef __WII__
 #define socket(x, y, z) net_socket(x, y, z)
 #define gethostbyname net_gethostbyname
 // #define getsockopt net_getsockopt
@@ -46,7 +46,7 @@ ClientStream *clientstream_new(GameShell *shell, int port) {
 
     int ret = 0;
 
-#ifdef WII
+#ifdef __WII__
     char local_ip[16] = {0};
     char gateway[16] = {0};
     char netmask[16] = {0};
@@ -99,7 +99,7 @@ ClientStream *clientstream_new(GameShell *shell, int port) {
 
     freeaddrinfo(result);
 #else
-    // TODO rm #if defined(WIN9X) || defined(WII)
+    // TODO rm #if defined(WIN9X) || defined(__WII__)
     struct hostent *host_addr = gethostbyname(_Client.socketip);
 
     if (host_addr) {
@@ -170,7 +170,7 @@ ClientStream *clientstream_new(GameShell *shell, int port) {
 // #endif
 
 // TODO check if this is needed
-#if !defined(_WIN32) && !defined(WII)
+#if !defined(_WIN32) && !defined(__WII__)
 // #include <signal.h>
 //     signal(SIGPIPE, SIG_IGN);
 #endif
@@ -200,7 +200,7 @@ ClientStream *clientstream_new(GameShell *shell, int port) {
                 socklen_t lon = sizeof(int);
                 int valopt = 0;
 
-                #ifndef WII
+                #ifndef __WII__
                 if (getsockopt(stream->socket, SOL_SOCKET, SO_ERROR, (void *)(&valopt), &lon) < 0) {
                     rs2_error("getsockopt() error:  %s (%d)\n", strerror(errno),
                               errno);
@@ -351,7 +351,7 @@ const char *dnslookup(const char *hostname, bool hide_dns) {
         return "unknown";
     }
 
-#ifdef WII
+#ifdef __WII__
     u32 ip = net_gethostip();
 
     ip = ntohl(ip);

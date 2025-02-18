@@ -10,12 +10,12 @@
 
 #include "platform.h"
 
-#ifdef WII
+#ifdef __WII__
 #include <fat.h>
 #endif
 
 void initfs(void) {
-#ifdef WII
+#ifdef __WII__
     // TODO why does wii require this (need multiple inits, when loading maps etc)
     if (!fatInitDefault()) {
         rs2_error("FAT init failed\n");

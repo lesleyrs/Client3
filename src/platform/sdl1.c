@@ -310,7 +310,7 @@ void rs2_log(const char *format, ...) {
     va_list args;
     va_start(args, format);
 
-#if !defined(_3DS) && !defined(WII) && SDL != 1
+#if !defined(__3DS__) && !defined(__WII__) && SDL != 1
     SDL_LogMessageV(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO, format,
                     args);
 #else
@@ -324,7 +324,7 @@ void rs2_error(const char *format, ...) {
     va_list args;
     va_start(args, format);
 
-#if !defined(_3DS) && !defined(WII) && SDL != 1
+#if !defined(__3DS__) && !defined(__WII__) && SDL != 1
     SDL_LogMessageV(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_ERROR,
                     format, args);
 #else

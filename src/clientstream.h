@@ -11,7 +11,7 @@
 #include <3ds.h>
 #endif
 
-#ifdef WII
+#ifdef __WII__
 #include <network.h>
 #else
 #ifdef _WIN32
