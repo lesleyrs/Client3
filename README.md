@@ -122,6 +122,8 @@ If tcc from your package manager isn't working you should build latest [tcc](htt
 install [emsdk](#tools)
 run `emmake make`/`make CC=emcc` or `build.bat -c emcc` for windows
 
+Linux wasm/js output seems to be quite a bit smaller than on Windows
+
 ### Consoles (devkitPro)
 Move the `cache/` `Roboto/`, `SCC1_Florestan.sf2`, and `config.ini` to sdcard (config needed as we can't pass cli args, but can be empty)
 
