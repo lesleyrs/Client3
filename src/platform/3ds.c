@@ -1,4 +1,3 @@
-#include <string.h>
 #ifdef __3DS__
 #include <stdlib.h>
 #include <stdarg.h>
