@@ -8,6 +8,8 @@ Features:
 - webassembly build to avoid javascript code being optimized out by the browser.
 - optional config.ini file to change client behaviour, see [config.ini.example](config.ini.example) for options. To avoid passing command line arguments each time you can create an empty config.ini.
 
+See [docs](/docs) for more info and media.
+
 ## disclaimer
 During limited playtesting the client seems to be stable, but it could crash at any time! Run sanitizer or tcc debug backtrace build to share errors
 
