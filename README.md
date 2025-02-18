@@ -135,7 +135,7 @@ Wii U and Switch also need the (wiiu/switch)-sdl2 package.
 
 For all consoles you have to move the `cache/` `Roboto/`, `SCC1_Florestan.sf2`, and `config.ini` to sdcard (config needed as we can't pass cli args, but can be empty).
 
-Some consoles have an option to build with romfs (read-only memory file system) which won't require an sdcard but the config would be built into the rom. (Unused for now)
+TODO: 3ds/wiiu/switch have an option to build with romfs (read-only memory file system) which won't require an sdcard. Would have to build the config into the binary though.
 
 #### Wii
 in dolphin emulator you can find the sdcard path in `options>configuration>wii>sd card` settings and after moving the files there you have to click `Convert Folder to File Now` to format it.
