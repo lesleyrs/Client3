@@ -126,22 +126,29 @@ run `emmake make`/`make CC=emcc` or `build.bat -c emcc` for windows
 
 Linux wasm/js output seems to be quite a bit smaller than on Windows
 
-### Consoles (devkitPro)
-Move the `cache/` `Roboto/`, `SCC1_Florestan.sf2`, and `config.ini` to sdcard (config needed as we can't pass cli args, but can be empty)
+### Nintendo consoles (devkitPro)
+The console ports are unfinished but should all draw to screen. It will currently auto-login and RSA is disabled for development.
 
-#### Nintendo Wii
-install [devkitpro wii-dev package](#tools) and run: `make -f wii.mk -j$(nproc) V=1`
+Install devkitpro and [(3ds/wii/wiiu/switch)-dev package](#tools) and run `make -f (3ds/wii/wiiu/switch).mk -j$(nproc)`.
 
-in dolphin emu you can go to options>configuration>wii>sd card settings and click `Convert Folder to File Now`
+Wii U and Switch also need the (wiiu/switch)-sdl2 package.
 
-you can now run the .elf or .dol binaries on a wii!
+For all consoles you have to move the `cache/` `Roboto/`, `SCC1_Florestan.sf2`, and `config.ini` to sdcard (config needed as we can't pass cli args, but can be empty).
 
-#### Nintendo 3DS
-install [devkitpro 3ds-dev package](#tools) and run: `make -f 3ds.mk -j$(nproc) V=1`
+Some consoles have an option to build with romfs (read-only memory file system) which won't require an sdcard but the config would be built into the rom. (Unused for now)
 
-in citra emu the virtual sdcard is the sdmc dir here: https://citra-emulator.com/wiki/user-directory/
+#### Wii
+in dolphin emulator you can find the sdcard path in `options>configuration>wii>sd card` settings and after moving the files there you have to click `Convert Folder to File Now` to format it.
 
-you can now run the .elf or .3dsx binaries on a 3ds!
+#### 3DS
+in citra emulator click `file>open citra folder` for sdmc dir https://citra-emulator.com/wiki/user-directory/
+
+#### Wii U
+in cemu emulator click `file>open mlc folder`, go 1 directory up to see sdcard dir
+
+highmem seems to not start due to tinysoundfont failing to load the soundfont, it works on other consoles though...
+
+Touch input seems to not work in cemu, or is their SDL2 port the issue?
 
 ## libraries
 * [micro-bunzip](https://landley.net/code/) | https://landley.net/code/bunzip-4.1.c
