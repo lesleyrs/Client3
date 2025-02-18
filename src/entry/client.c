@@ -85,7 +85,7 @@ extern WaveData _Wave;
 extern WorldData _World;
 extern SceneData _World3D;
 
-#if defined(__WII__) || defined(__3DS__)
+#if defined(__WII__) || defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__)
 static Custom _Custom = {.chat_era = 2, .http_port = 80, .showPerformance = true};
 #else
 static Custom _Custom = {.chat_era = 2, .http_port = 80};
@@ -7365,7 +7365,7 @@ void client_login(Client *c, const char *username, const char *password, bool re
     pjstr(c->out, username);
     pjstr(c->out, password);
     // TODO temp
-    #if !defined(__WII__) && !defined(__3DS__)
+    #if !defined(__WII__) && !defined(__3DS__) && !defined(__WIIU__) && !defined(__SWITCH__)
     rsaenc(c->out, _Client.rsa_modulus, _Client.rsa_exponent);
     #endif
 

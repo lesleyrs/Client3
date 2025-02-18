@@ -47,7 +47,7 @@ DEBUG       :=  0
 CFLAGS	:=	-Wno-parentheses -Wall -ffunction-sections \
 			$(MACHDEP)
 
-CFLAGS	+=	$(INCLUDE) -D__WIIU__ -D__WUT__ -Dclient -DSDL=2 `sdl2-config --cflags`
+CFLAGS	+=	$(INCLUDE) -D__WIIU__ -D__WUT__ -Dclient -DSDL=2 -DMODERN_POSIX `sdl2-config --cflags`
 ifeq ($(DEBUG),1)
 CFLAGS += -g
 else

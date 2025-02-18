@@ -369,11 +369,13 @@ const char *dnslookup(const char *hostname, bool hide_dns) {
 
     inet_pton(AF_INET, hostname, &client_addr.sin_addr);
 
+    #ifndef __WIIU__
     char host[MAX_STR];
     int result = getnameinfo((struct sockaddr *)&client_addr, sizeof(client_addr), host, sizeof(host), NULL, 0, NI_NAMEREQD);
     if (result == 0) {
         return platform_strdup(host);
     }
+    #endif
     return "unknown";
 #else
     struct in_addr addr = {.s_addr = inet_addr(hostname)};
