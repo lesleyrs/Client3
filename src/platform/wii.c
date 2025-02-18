@@ -131,7 +131,11 @@ int *get_pixels(Surface *surface) {
 }
 void set_pixels(PixMap *pixmap, int x, int y) {
     for (int row = 0; row < pixmap->height; row++) {
+        if (y + row >= 480) break;
+
         for (int col = 0; col < pixmap->width; col += 2) {
+            if (x + col >= 640) break;
+
             int src_offset = row * pixmap->width + col;
             int dest_offset = (y + row) * (rmode->fbWidth / 2) + (x + col) / 2;
 
