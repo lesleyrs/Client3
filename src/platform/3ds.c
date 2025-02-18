@@ -143,6 +143,8 @@ void set_pixels(PixMap *pixmap, int x, int y) {
             fb_bottom[pixel_offset + 2] = r;
         }
     }
+
+    // gspWaitForVBlank();
 }
 
 void platform_get_keycodes(Keysym *keysym, int *code, char *ch) {

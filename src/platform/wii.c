@@ -149,8 +149,8 @@ void set_pixels(PixMap *pixmap, int x, int y) {
         }
     }
 
-    VIDEO_Flush();
-    VIDEO_WaitVSync();
+    // VIDEO_Flush();
+    // VIDEO_WaitVSync();
 }
 void platform_get_keycodes(Keysym *keysym, int *code, char *ch) {
 }
