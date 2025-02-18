@@ -144,6 +144,8 @@ void set_pixels(PixMap *pixmap, int x, int y) {
         }
     }
 
+    // gfxFlushBuffers();
+    // gfxSwapBuffers();
     // gspWaitForVBlank();
 }
 
