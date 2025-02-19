@@ -148,12 +148,12 @@ The game in it's original state might not have a playable frame rate outside of 
 #### Wii U
 in cemu emulator click `file>open mlc folder`, go 1 directory up to see sdcard dir
 
-highmem seems to not start due to tinysoundfont failing to load the soundfont, it works on other consoles though...
-
 Touch input seems to not work in cemu, or is their SDL2 port the issue?
 
+TODO: highmem seems to not start due to tinysoundfont tsf_load failing, it works on all other consoles though...
+
 #### Switch
-untested, might need some more changes in order to work
+in suyu emulator (yuzu fork) click `file->open suyu folder` for sdmc dir
 
 ## libraries
 * [micro-bunzip](https://landley.net/code/) | https://landley.net/code/bunzip-4.1.c
