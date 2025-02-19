@@ -6,7 +6,7 @@ Compatible with [2004Scape](https://github.com/2004Scape/Server), the most accur
 Features:
 - should run on any 32 bit system with 64 MB of RAM on lowmem.
 - webassembly build to avoid javascript code being optimized out by the browser.
-- WIP ports for all nintendo consoles that support networking and can simulate clicks (mouse, touch, or wii-mote).
+- WIP ports for nintendo consoles that support networking and can simulate clicks (mouse, touch, or wiimote).
 - optional config.ini file to change client behaviour, see [config.ini.example](config.ini.example) for options. To avoid passing command line arguments each time you can create an empty config.ini.
 
 See [docs](/docs) for more info and media.
