@@ -6,7 +6,7 @@
 check if macos works + add system ttf font in gameshell_draw_string
 check if bsds works + add system ttf font in gameshell_draw_string
 32MB ram could work: lowmem + lower bump_allocator_init cap (::perf, avoid towns or stay in the Wilderness)
-nintendo consoles using devkitpro
+make nintendo consoles properly playable
 postmarketos mobile "right clicking", rotating camera, onscreen keyboard input, single press uses last mouse pos
 possibly target wasm directly with clang, but then we don't have a libc at all
 maybe add android build

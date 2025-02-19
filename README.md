@@ -129,7 +129,7 @@ Linux wasm/js output seems to be quite a bit smaller than on Windows
 ### Nintendo consoles (devkitPro)
 These are unfinished and yet to be tested on real hardware so expect some issues. It will currently auto-login and RSA is disabled for development.
 
-Install devkitpro and [(3ds/wii/wiiu/switch)-dev package](#tools) and run `make -f (3ds/wii/wiiu/switch).mk -j$(nproc)`.
+Install [devkitpro](#tools) with (wii/3ds/wiiu/switch)-dev package and run `make -f (wii/3ds/wiiu/switch).mk -j$(nproc)`.
 
 Wii U and Switch also need the (wiiu/switch)-sdl2 package.
 
