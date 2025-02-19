@@ -152,6 +152,9 @@ highmem seems to not start due to tinysoundfont failing to load the soundfont, i
 
 Touch input seems to not work in cemu, or is their SDL2 port the issue?
 
+#### Switch
+untested, might need some more changes in order to work
+
 ## libraries
 * [micro-bunzip](https://landley.net/code/) | https://landley.net/code/bunzip-4.1.c
 * [isaac](https://burtleburtle.net/bob/rand/isaacafa.html) | https://burtleburtle.net/bob/c/readable.c
