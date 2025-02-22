@@ -30,11 +30,9 @@ GameShell *gameshell_new(void) {
 
 void gameshell_free(GameShell *shell) {
     platform_free(shell);
-#ifndef client
     if (shell->draw_area) {
         pixmap_free(shell->draw_area);
     }
-#endif
     free(shell->otim);
     free(shell->action_key);
     free(shell->key_queue);

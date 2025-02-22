@@ -7357,10 +7357,10 @@ void client_login(Client *c, const char *username, const char *password, bool re
     p4(c->out, _Client.uid);
     pjstr(c->out, username);
     pjstr(c->out, password);
-    // TODO temp
-    #if !defined(__WII__) && !defined(__3DS__) && !defined(__WIIU__) && !defined(__SWITCH__)
+// TODO temp
+#if !defined(__WII__) && !defined(__3DS__) && !defined(__WIIU__) && !defined(__SWITCH__)
     rsaenc(c->out, _Client.rsa_modulus, _Client.rsa_exponent);
-    #endif
+#endif
 
     c->login->pos = 0;
     if (reconnect) {
@@ -7571,13 +7571,10 @@ void client_prepare_game_screen(Client *c) {
 
     client_unload_title(c);
 
-    // draw_area is only used for other entrypoints
-    // if (c->shell->draw_area) {
-    // 	pixmap_free(c->shell->draw_area);
-    // 	c->shell->draw_area = NULL;
-    // }
-    // TODO why does this fail on wii
-    #ifndef __WII__
+    if (c->shell->draw_area) {
+        pixmap_free(c->shell->draw_area);
+        c->shell->draw_area = NULL;
+    }
     pixmap_free(c->image_title0);
     pixmap_free(c->image_title1);
     pixmap_free(c->image_title2);
@@ -7587,7 +7584,6 @@ void client_prepare_game_screen(Client *c) {
     pixmap_free(c->image_title6);
     pixmap_free(c->image_title7);
     pixmap_free(c->image_title8);
-    #endif
     c->image_title2 = NULL;
     c->image_title3 = NULL;
     c->image_title4 = NULL;
@@ -8371,7 +8367,7 @@ static void draw2DEntityElements(Client *c) {
 
             if (c->projectX > -1) {
                 pix24_draw(c->image_hitmarks[entity->damageType], c->projectX - 12, c->projectY - 12);
-                char* damage = valueof(entity->damage);
+                char *damage = valueof(entity->damage);
                 drawStringCenter(c->font_plain11, c->projectX, c->projectY + 4, damage, BLACK);
                 drawStringCenter(c->font_plain11, c->projectX - 1, c->projectY + 3, damage, WHITE);
                 free(damage);
@@ -10711,11 +10707,10 @@ void client_load_title(Client *c) {
         return;
     }
 
-    // draw_area is only used for other entrypoints
-    // if (c->shell->draw_area) {
-    //     pixmap_free(c->shell->draw_area);
-    //     c->shell->draw_area = NULL;
-    // }
+    if (c->shell->draw_area) {
+        pixmap_free(c->shell->draw_area);
+        c->shell->draw_area = NULL;
+    }
     if (c->area_chatback) {
         // other images are allocated at same time
         pixmap_free(c->area_chatback);
@@ -11002,9 +10997,9 @@ static void draw_info_overlay(Client *c) {
         sprintf(buf, "FPS: %d", c->shell->fps);
         drawStringRight(c->font_plain11, x, y, buf, YELLOW, true);
         y += 13;
-        #ifdef __3DS__
+#ifdef __3DS__
         rs2_log("FPS: %d, LRU: %dK / %dK\n", c->shell->fps, bump_allocator_used() >> 10, bump_allocator_capacity() >> 10);
-        #endif
+#endif
     }
 
     if (_Custom.cameraEditor || _Custom.showDebug) {
