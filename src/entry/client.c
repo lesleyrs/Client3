@@ -59,7 +59,6 @@ typedef struct {
     bool hide_debug_sprite;
     bool allow_commands;
     bool allow_debugprocs;
-    bool midi_on_logout;
     int http_port;
     int chat_era; // 0 - early beta, 1 - late beta, 2 - launch
 } Custom;
@@ -7206,13 +7205,7 @@ void client_logout(Client *c) {
         collisionmap_reset(c->levelCollisionMap[level]);
     }
 
-    if (_Custom.midi_on_logout) {
-        if (!_Client.lowmem) {
-            platform_set_midi("scape_main", 12345678, 40000);
-        }
-    } else {
-        platform_stop_midi();
-    }
+    platform_stop_midi();
 
     c->currentMidi[0] = '\0';
     c->nextMusicDelay = 0;
@@ -10876,7 +10869,6 @@ static void load_ini_config(Client *c) {
 
     INI_INT_LOG(&(&_Custom), hide_dns, );
     INI_INT_LOG(&(&_Custom), hide_debug_sprite, );
-    INI_INT_LOG(&(&_Custom), midi_on_logout, );
     INI_INT_LOG(&(&_Custom), allow_commands, );
     INI_INT_LOG(&(&_Custom), allow_debugprocs, );
     INI_INT_LOG(&(&_Custom), chat_era, );
