@@ -132,8 +132,10 @@ Makefile: gcc, clang, tcc, mingw-gcc, emcc
 If tcc from your package manager isn't working you should build latest [tcc](https://github.com/TinyCC/tinycc) from source
 
 TODO:
-add the following and add default helvetica-like system ttf font in gameshell_draw_string
+```
 macos, bsds, android https://wiki.libsdl.org/SDL2/Android
++ add default helvetica-like system ttf font in gameshell_draw_string for each
+```
 
 ### Web (Emscripten)
 install [emsdk](#tools)
