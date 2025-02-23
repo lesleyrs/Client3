@@ -141,6 +141,10 @@ run `emmake make`/`make CC=emcc` or `build.bat -c emcc` for windows
 
 Linux wasm/js output seems to be quite a bit smaller than on Windows
 
+If you pass args in the html file the ip address and http port are from the URL itself.
+
+If not passing args make sure to set http_port to 8888 on linux (or whatever it's configured as in server).
+
 NOTE: bring back worldlist loading in [shell.html](https://github.com/lesleyrs/Client3/commit/5da924b9f766005e82163d899e52a5df2f771584#diff-c878553ed816480a5e85ff602ff3c5d38788ca1d21095cd8f8ebc36a4dbc07ee) if it gets re-added for live servers
 
 TODO: maybe take webworker server compat from Client2: https://emscripten.org/docs/api_reference/wasm_workers.html
