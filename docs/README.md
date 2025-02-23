@@ -12,8 +12,10 @@ change a bunch of functions and function prototypes to static
 clientstream is based off rsc-c, double check it for accuracy
 the following are (partially) based on RS2-225 by accident, some funcs might take args in diff order to Client repo: animbase, animframe, pix2d, pix3d, gameshell, jagfile, model, packet, pix8, pixfont, pixmap. Rewrite maybe?
 inconsistent naming: used both world3d and scene for world3d, rename world3d to scene? or at least for args only
+COLLISIONMAP_LEVELS should probably be added in some more places
 global search TODO and NOTE
 add CI: check both highmem/lowmem, members/free, all entrypoints, run make check/scan/san and clang-format
+maybe allow resizing canvas/fullscreen on desktop (draw to sdl texture and use gpu, sdl2 wrapper for sdl1 on linux already does this)
 ```
 ## Java and C differences + codestyle
 ```

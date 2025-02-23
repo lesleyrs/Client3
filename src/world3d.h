@@ -13,12 +13,12 @@ typedef struct {
     int maxLevel;
     int maxTileX;
     int maxTileZ;
-    int ***levelHeightmaps;
+    int (*levelHeightmaps)[COLLISIONMAP_SIZE + 1][COLLISIONMAP_SIZE + 1];
     Ground ****levelTiles;
     int minLevel;
     int temporaryLocCount;
     Location *temporaryLocs[5000];
-    int ***levelTileOcclusionCycles;
+    int (*levelTileOcclusionCycles)[COLLISIONMAP_SIZE + 1][COLLISIONMAP_SIZE + 1];
     int mergeIndexA[10000];
     int mergeIndexB[10000];
     int tmpMergeIndex;
@@ -53,8 +53,8 @@ typedef struct {
     int activeOccluderCount;
     Occlude *activeOccluders[500];
     LinkList *drawTileQueue;   // = new LinkList();
-    bool ****visibilityMatrix; //[8][32][51][51];
-    bool **visibilityMap;
+    bool (*visibilityMatrix)[32][51][51]; //[8][32][51][51];
+    bool (*visibilityMap)[51];
     int viewportCenterX;
     int viewportCenterY;
     int viewportLeft;
@@ -72,7 +72,7 @@ typedef struct {
 
 void world3d_init_global(void);
 void world3d_free_global(void);
-World3D *world3d_new(int ***levelHeightmaps, int maxTileZ, int maxLevel, int maxTileX);
+World3D *world3d_new(int (*levelHeightmaps)[COLLISIONMAP_SIZE + 1][COLLISIONMAP_SIZE + 1], int maxTileZ, int maxLevel, int maxTileX);
 void world3d_free(World3D *world3d, int maxTileZ, int maxLevel, int maxTileX);
 void world3d_add_occluder(int level, int type, int minX, int minY, int minZ, int maxX, int maxY, int maxZ);
 void world3d_init(int viewportWidth, int viewportHeight, int frustumStart, int frustumEnd, int *pitchDistance);

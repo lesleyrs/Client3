@@ -248,10 +248,10 @@ struct Client {
     LinkList *merged_locations;
     LinkList *spawned_locations;
     LinkList ****level_obj_stacks;
-    int8_t ***levelTileFlags;
-    int ***levelHeightmap;
+    int8_t (*levelTileFlags)[COLLISIONMAP_SIZE][COLLISIONMAP_SIZE];
+    int (*levelHeightmap)[COLLISIONMAP_SIZE + 1][COLLISIONMAP_SIZE + 1];
     World3D *scene;
-    CollisionMap *levelCollisionMap[4];
+    CollisionMap *levelCollisionMap[COLLISIONMAP_LEVELS];
     int skillLevel[50];
     int skillBaseLevel[50];
     int skillExperience[50];
@@ -297,7 +297,7 @@ struct Client {
     int cameraModifierCycle[5];
     int cameraModifierWobbleSpeed[5];
     int cameraModifierWobbleScale[5];
-    int tileLastOccupiedCycle[104][104];
+    int tileLastOccupiedCycle[COLLISIONMAP_SIZE][COLLISIONMAP_SIZE];
     LinkList *locList;
     int heartbeatTimer;
     int varCache[VARPS_COUNT];
@@ -383,8 +383,8 @@ struct Client {
     Pix24 *genderButtonImage0;
     Pix24 *genderButtonImage1;
     int chatEffects;
-    int bfsDirection[104][104];
-    int bfsCost[104][104];
+    int bfsDirection[COLLISIONMAP_SIZE][COLLISIONMAP_SIZE];
+    int bfsCost[COLLISIONMAP_SIZE][COLLISIONMAP_SIZE];
     int bfsStepX[BFS_STEP_SIZE];
     int bfsStepZ[BFS_STEP_SIZE];
     int tryMoveNearest;

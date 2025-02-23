@@ -224,23 +224,11 @@ void client_load(Client *c) {
     Jagfile *wordenc = load_archive(c, "wordenc", c->archive_checksum[7], "chat system", 65);
     Jagfile *sounds = load_archive(c, "sounds", c->archive_checksum[8], "sound effects", 70);
 
-    c->levelTileFlags = calloc(4, sizeof(int8_t **));
-    for (int level = 0; level < 4; level++) {
-        c->levelTileFlags[level] = calloc(104, sizeof(int8_t *));
-        for (int x = 0; x < 104; x++) {
-            c->levelTileFlags[level][x] = calloc(104, sizeof(int8_t));
-        }
-    }
-    c->levelHeightmap = calloc(4, sizeof(int **));
-    for (int level = 0; level < 4; level++) {
-        c->levelHeightmap[level] = calloc(105, sizeof(int *));
-        for (int x = 0; x < 105; x++) {
-            c->levelHeightmap[level][x] = calloc(105, sizeof(int));
-        }
-    }
-    c->scene = world3d_new(c->levelHeightmap, 104, 4, 104);
-    for (int level = 0; level < 4; level++) {
-        c->levelCollisionMap[level] = collisionmap_new(104, 104);
+    c->levelTileFlags = calloc(COLLISIONMAP_LEVELS, sizeof(*c->levelTileFlags));
+    c->levelHeightmap = calloc(COLLISIONMAP_LEVELS, sizeof(*c->levelHeightmap));
+    c->scene = world3d_new(c->levelHeightmap, COLLISIONMAP_SIZE, COLLISIONMAP_LEVELS, COLLISIONMAP_SIZE);
+    for (int level = 0; level < COLLISIONMAP_LEVELS; level++) {
+        c->levelCollisionMap[level] = collisionmap_new(COLLISIONMAP_SIZE, COLLISIONMAP_SIZE);
     }
     c->image_minimap = pix24_new(512, 512, false);
     client_draw_progress(c, "Unpacking media", 75);
@@ -2512,8 +2500,8 @@ static void client_update_orbit_camera(Client *c) {
 }
 
 static bool client_try_move(Client *c, int srcX, int srcZ, int dx, int dz, int type, int locWidth, int locLength, int locRotation, int locShape, int forceapproach, bool tryNearest) {
-    int8_t sceneWidth = 104;
-    int8_t sceneLength = 104;
+    int8_t sceneWidth = COLLISIONMAP_SIZE;
+    int8_t sceneLength = COLLISIONMAP_SIZE;
     for (int x = 0; x < sceneWidth; x++) {
         for (int z = 0; z < sceneLength; z++) {
             c->bfsDirection[x][z] = 0;
@@ -2640,7 +2628,7 @@ static bool client_try_move(Client *c, int srcX, int srcZ, int dx, int dz, int t
             for (int padding = 1; padding < 2; padding++) {
                 for (int px = dx - padding; px <= dx + padding; px++) {
                     for (int pz = dz - padding; pz <= dz + padding; pz++) {
-                        if (px >= 0 && pz >= 0 && px < 104 && pz < 104 && c->bfsCost[px][pz] < min) {
+                        if (px >= 0 && pz >= 0 && px < COLLISIONMAP_SIZE && pz < COLLISIONMAP_SIZE && c->bfsCost[px][pz] < min) {
                             min = c->bfsCost[px][pz];
                             x = px;
                             z = pz;
@@ -3824,9 +3812,9 @@ static void handleInputKey(Client *c) {
                             if (strcmp(c->chat_typed, "::clientdrop") == 0 && c->shell->window) {
                                 client_try_reconnect(c);
                             } else if (strcmp(c->chat_typed, "::noclip") == 0) {
-                                for (int level = 0; level < 4; level++) {
-                                    for (int x = 1; x < 103; x++) {
-                                        for (int z = 1; z < 103; z++) {
+                                for (int level = 0; level < COLLISIONMAP_LEVELS; level++) {
+                                    for (int x = 1; x < COLLISIONMAP_SIZE - 1; x++) {
+                                        for (int z = 1; z < COLLISIONMAP_SIZE - 1; z++) {
                                             c->levelCollisionMap[level]->flags[x][z] = 0;
                                         }
                                     }
@@ -4876,18 +4864,18 @@ bool client_read(Client *c) {
             }
         }
         int8_t startTileX = 0;
-        int8_t endTileX = 104;
+        int8_t endTileX = COLLISIONMAP_SIZE;
         int8_t dirX = 1;
         if (dx < 0) {
-            startTileX = 103;
+            startTileX = COLLISIONMAP_SIZE - 1;
             endTileX = -1;
             dirX = -1;
         }
         int8_t startTileZ = 0;
-        int8_t endTileZ = 104;
+        int8_t endTileZ = COLLISIONMAP_SIZE;
         int8_t dirZ = 1;
         if (dz < 0) {
-            startTileZ = 103;
+            startTileZ = COLLISIONMAP_SIZE - 1;
             endTileZ = -1;
             dirZ = -1;
         }
@@ -4895,8 +4883,8 @@ bool client_read(Client *c) {
             for (int z = startTileZ; z != endTileZ; z += dirZ) {
                 int lastX = x + dx;
                 int lastZ = z + dz;
-                for (int level = 0; level < 4; level++) {
-                    if (lastX >= 0 && lastZ >= 0 && lastX < 104 && lastZ < 104) {
+                for (int level = 0; level < COLLISIONMAP_LEVELS; level++) {
+                    if (lastX >= 0 && lastZ >= 0 && lastX < COLLISIONMAP_SIZE && lastZ < COLLISIONMAP_SIZE) {
                         c->level_obj_stacks[level][x][z] = c->level_obj_stacks[level][lastX][lastZ];
                     } else {
                         c->level_obj_stacks[level][x][z] = NULL;
@@ -4907,7 +4895,7 @@ bool client_read(Client *c) {
         for (LocAddEntity *loc = (LocAddEntity *)linklist_head(c->spawned_locations); loc; loc = (LocAddEntity *)linklist_next(c->spawned_locations)) {
             loc->x -= dx;
             loc->z -= dz;
-            if (loc->x < 0 || loc->z < 0 || loc->x >= 104 || loc->z >= 104) {
+            if (loc->x < 0 || loc->z < 0 || loc->x >= COLLISIONMAP_SIZE || loc->z >= COLLISIONMAP_SIZE) {
                 linkable_unlink(&loc->link);
                 free(loc);
             }
@@ -6097,11 +6085,11 @@ static void client_build_scene(Client *c) {
     pix3d_clear_texels();
     client_clear_caches();
     world3d_reset(c->scene);
-    for (int level = 0; level < 4; level++) {
+    for (int level = 0; level < COLLISIONMAP_LEVELS; level++) {
         collisionmap_reset(c->levelCollisionMap[level]);
     }
 
-    World *world = world_new(104, 104, c->levelHeightmap, c->levelTileFlags);
+    World *world = world_new(COLLISIONMAP_SIZE, COLLISIONMAP_SIZE, c->levelHeightmap, c->levelTileFlags);
     _World.lowMemory = _World3D.lowMemory;
 
     int maps = c->sceneMapIndexLength;
@@ -6177,8 +6165,8 @@ static void client_build_scene(Client *c) {
         }
     }
 
-    for (int x = 0; x < 104; x++) {
-        for (int z = 0; z < 104; z++) {
+    for (int x = 0; x < COLLISIONMAP_SIZE; x++) {
+        for (int z = 0; z < COLLISIONMAP_SIZE; z++) {
             sortObjStacks(c, x, z);
         }
     }
@@ -6206,7 +6194,7 @@ void drawMinimapLoc(Client *c, int tileX, int tileZ, int level, int wallRgb, int
         }
 
         int *dst = c->image_minimap->pixels;
-        int offset = tileX * 4 + (103 - tileZ) * 512 * 4 + 24624;
+        int offset = tileX * COLLISIONMAP_LEVELS + (COLLISIONMAP_SIZE - 1 - tileZ) * 512 * 4 + 24624;
         int locId = bitset >> 14 & 0x7fff;
 
         LocType *loc = loctype_get(locId);
@@ -6275,7 +6263,7 @@ void drawMinimapLoc(Client *c, int tileX, int tileZ, int level, int wallRgb, int
             if (scene) {
                 int offsetX = (loc->width * 4 - scene->width) / 2;
                 int offsetY = (loc->length * 4 - scene->height) / 2;
-                pix8_draw(scene, tileX * 4 + 48 + offsetX, (104 - tileZ - loc->length) * 4 + offsetY + 48);
+                pix8_draw(scene, tileX * 4 + 48 + offsetX, (COLLISIONMAP_SIZE - tileZ - loc->length) * 4 + offsetY + 48);
             }
         }
     }
@@ -6293,7 +6281,7 @@ void drawMinimapLoc(Client *c, int tileX, int tileZ, int level, int wallRgb, int
             if (scene) {
                 int offsetX = (loc->width * 4 - scene->width) / 2;
                 int offsetY = (loc->length * 4 - scene->height) / 2;
-                pix8_draw(scene, tileX * 4 + 48 + offsetX, (104 - tileZ - loc->length) * 4 + offsetY + 48);
+                pix8_draw(scene, tileX * 4 + 48 + offsetX, (COLLISIONMAP_SIZE - tileZ - loc->length) * 4 + offsetY + 48);
             }
         } else if (shape == WALL_DIAGONAL) {
             int rgb = 0xeeeeee;
@@ -6302,7 +6290,7 @@ void drawMinimapLoc(Client *c, int tileX, int tileZ, int level, int wallRgb, int
             }
 
             int *dst = c->image_minimap->pixels;
-            int offset = tileX * 4 + (103 - tileZ) * 512 * 4 + 24624;
+            int offset = tileX * 4 + (COLLISIONMAP_SIZE - 1 - tileZ) * 512 * 4 + 24624;
 
             if (angle == 0 || angle == 2) {
                 dst[offset + 1536] = rgb;
@@ -6327,7 +6315,7 @@ void drawMinimapLoc(Client *c, int tileX, int tileZ, int level, int wallRgb, int
             if (scene) {
                 int offsetX = (loc->width * 4 - scene->width) / 2;
                 int offsetY = (loc->length * 4 - scene->height) / 2;
-                pix8_draw(scene, tileX * 4 + 48 + offsetX, (104 - tileZ - loc->length) * 4 + offsetY + 48);
+                pix8_draw(scene, tileX * 4 + 48 + offsetX, (COLLISIONMAP_SIZE - tileZ - loc->length) * 4 + offsetY + 48);
             }
         }
     }
@@ -6340,10 +6328,10 @@ void createMinimap(Client *c, int level) {
         pixels[i] = 0;
     }
 
-    for (int z = 1; z < 103; z++) {
-        int offset = (103 - z) * 512 * 4 + 24628;
+    for (int z = 1; z < COLLISIONMAP_SIZE - 1; z++) {
+        int offset = (COLLISIONMAP_SIZE - 1 - z) * 512 * 4 + 24628;
 
-        for (int x = 1; x < 103; x++) {
+        for (int x = 1; x < COLLISIONMAP_SIZE - 1; x++) {
             if ((c->levelTileFlags[level][x][z] & 0x18) == 0) {
                 world3d_draw_minimaptile(c->scene, level, x, z, pixels, offset, 512);
             }
@@ -6361,8 +6349,8 @@ void createMinimap(Client *c, int level) {
 
     pix24_bind(c->image_minimap);
 
-    for (int z = 1; z < 103; z++) {
-        for (int x = 1; x < 103; x++) {
+    for (int z = 1; z < COLLISIONMAP_SIZE - 1; z++) {
+        for (int x = 1; x < COLLISIONMAP_SIZE - 1; x++) {
             if ((c->levelTileFlags[level][x][z] & 0x18) == 0) {
                 drawMinimapLoc(c, x, z, level, wallRgb, doorRgb);
             }
@@ -6376,8 +6364,8 @@ void createMinimap(Client *c, int level) {
     pixmap_bind(c->area_viewport);
     c->activeMapFunctionCount = 0;
 
-    for (int x = 0; x < 104; x++) {
-        for (int z = 0; z < 104; z++) {
+    for (int x = 0; x < COLLISIONMAP_SIZE; x++) {
+        for (int z = 0; z < COLLISIONMAP_SIZE; z++) {
             int bitset = world3d_get_grounddecorationbitset(c->scene, c->currentLevel, x, z);
             if (bitset == 0) {
                 continue;
@@ -6394,8 +6382,8 @@ void createMinimap(Client *c, int level) {
             int stz = z;
 
             if (func != 22 && func != 29 && func != 34 && func != 36 && func != 46 && func != 47 && func != 48) {
-                int8_t maxX = 104;
-                int8_t maxZ = 104;
+                int8_t maxX = COLLISIONMAP_SIZE;
+                int8_t maxZ = COLLISIONMAP_SIZE;
                 int **flags = c->levelCollisionMap[c->currentLevel]->flags;
 
                 for (int i = 0; i < 10; i++) {
@@ -6496,7 +6484,7 @@ void addLoc(Client *c, int level, int x, int z, int id, int angle, int shape, in
             world3d_remove_loc(c->scene, level, x, z);
             LocType *type = loctype_get(otherId);
 
-            if (x + type->width > 103 || z + type->width > 103 || x + type->length > 103 || z + type->length > 103) {
+            if (x + type->width > COLLISIONMAP_SIZE - 1 || z + type->width > COLLISIONMAP_SIZE - 1 || x + type->length > COLLISIONMAP_SIZE - 1 || z + type->length > COLLISIONMAP_SIZE - 1) {
                 return;
             }
 
@@ -6600,7 +6588,7 @@ void readZonePacket(Client *c, Packet *buf, int opcode) {
         } else {
             id = g2(buf);
         }
-        if (x >= 0 && z >= 0 && x < 104 && z < 104) {
+        if (x >= 0 && z >= 0 && x < COLLISIONMAP_SIZE && z < COLLISIONMAP_SIZE) {
             LocAddEntity *loc = NULL;
             for (LocAddEntity *next = (LocAddEntity *)linklist_head(c->spawned_locations); next != NULL; next = (LocAddEntity *)linklist_next(c->spawned_locations)) {
                 if (next->plane == c->currentLevel && next->x == x && next->z == z && next->layer == layer) {
@@ -6652,7 +6640,7 @@ void readZonePacket(Client *c, Packet *buf, int opcode) {
         int shape = info >> 2;
         int layer = LOC_SHAPE_TO_LAYER[shape];
         int id = g2(buf);
-        if (x >= 0 && z >= 0 && x < 104 && z < 104) {
+        if (x >= 0 && z >= 0 && x < COLLISIONMAP_SIZE && z < COLLISIONMAP_SIZE) {
             int bitset = 0;
             if (layer == 0) {
                 bitset = world3d_get_wallbitset(c->scene, c->currentLevel, x, z);
@@ -6675,7 +6663,7 @@ void readZonePacket(Client *c, Packet *buf, int opcode) {
         // OBJ_ADD
         int id = g2(buf);
         int count = g2(buf);
-        if (x >= 0 && z >= 0 && x < 104 && z < 104) {
+        if (x >= 0 && z >= 0 && x < COLLISIONMAP_SIZE && z < COLLISIONMAP_SIZE) {
             ObjStackEntity *obj = objstackentity_new();
             obj->index = id;
             obj->count = count;
@@ -6688,7 +6676,7 @@ void readZonePacket(Client *c, Packet *buf, int opcode) {
     } else if (opcode == 49) {
         // OBJ_DEL
         int id = g2(buf);
-        if (x >= 0 && z >= 0 && x < 104 && z < 104) {
+        if (x >= 0 && z >= 0 && x < COLLISIONMAP_SIZE && z < COLLISIONMAP_SIZE) {
             LinkList *list = c->level_obj_stacks[c->currentLevel][x][z];
             if (list) {
                 for (ObjStackEntity *next = (ObjStackEntity *)linklist_head(list); next; next = (ObjStackEntity *)linklist_next(list)) {
@@ -6717,7 +6705,7 @@ void readZonePacket(Client *c, Packet *buf, int opcode) {
         int endDelay = g2(buf);
         int peak = g1(buf);
         int arc = g1(buf);
-        if (x >= 0 && z >= 0 && x < 104 && z < 104 && dx >= 0 && dz >= 0 && dx < 104 && dz < 104) {
+        if (x >= 0 && z >= 0 && x < COLLISIONMAP_SIZE && z < COLLISIONMAP_SIZE && dx >= 0 && dz >= 0 && dx < COLLISIONMAP_SIZE && dz < COLLISIONMAP_SIZE) {
             x = x * 128 + 64;
             z = z * 128 + 64;
             dx = dx * 128 + 64;
@@ -6731,7 +6719,7 @@ void readZonePacket(Client *c, Packet *buf, int opcode) {
         int id = g2(buf);
         int height = g1(buf);
         int delay = g2(buf);
-        if (x >= 0 && z >= 0 && x < 104 && z < 104) {
+        if (x >= 0 && z >= 0 && x < COLLISIONMAP_SIZE && z < COLLISIONMAP_SIZE) {
             x = x * 128 + 64;
             z = z * 128 + 64;
             SpotAnimEntity *spotanim = spotanimentity_new(id, c->currentLevel, x, z, getHeightmapY(c, c->currentLevel, x, z) - height, _Client.loop_cycle, delay);
@@ -6742,7 +6730,7 @@ void readZonePacket(Client *c, Packet *buf, int opcode) {
         int id = g2(buf);
         int count = g2(buf);
         int receiver = g2(buf);
-        if (x >= 0 && z >= 0 && x < 104 && z < 104 && receiver != c->local_pid) {
+        if (x >= 0 && z >= 0 && x < COLLISIONMAP_SIZE && z < COLLISIONMAP_SIZE && receiver != c->local_pid) {
             ObjStackEntity *obj = objstackentity_new();
             obj->index = id;
             obj->count = count;
@@ -6825,7 +6813,7 @@ void readZonePacket(Client *c, Packet *buf, int opcode) {
         int id = g2(buf);
         int oldCount = g2(buf);
         int newCount = g2(buf);
-        if (x >= 0 && z >= 0 && x < 104 && z < 104) {
+        if (x >= 0 && z >= 0 && x < COLLISIONMAP_SIZE && z < COLLISIONMAP_SIZE) {
             LinkList *list = c->level_obj_stacks[c->currentLevel][x][z];
             if (list) {
                 for (ObjStackEntity *next = (ObjStackEntity *)linklist_head(list); next; next = (ObjStackEntity *)linklist_next(list)) {
@@ -7460,9 +7448,9 @@ void client_login(Client *c, const char *username, const char *password, bool re
         linklist_clear(c->projectiles);
         linklist_clear(c->spotanims);
         linklist_clear(c->merged_locations);
-        for (int level = 0; level < 4; level++) {
-            for (int x = 0; x < 104; x++) {
-                for (int z = 0; z < 104; z++) {
+        for (int level = 0; level < COLLISIONMAP_LEVELS; level++) {
+            for (int x = 0; x < COLLISIONMAP_SIZE; x++) {
+                for (int z = 0; z < COLLISIONMAP_SIZE; z++) {
                     if (c->level_obj_stacks[c->currentLevel][x][z]) {
                         // TODO this is wrong?
                         // linklist_free(c->level_obj_stacks[c->currentLevel][x][z]);
@@ -8382,7 +8370,7 @@ static void draw2DEntityElements(Client *c) {
     // TODO
     // if (c->showDebug) {
     // 	for (int i = 0; i < c->userTileMarkers.length; i++) {
-    // 		if (c->userTileMarkers[i] == null || c->userTileMarkers[i].level != c->currentLevel || c->userTileMarkers[i].x < 0 || c->userTileMarkers[i].z < 0 || c->userTileMarkers[i].x >= 104 || c->userTileMarkers[i].z >= 104) {
+    // 		if (c->userTileMarkers[i] == null || c->userTileMarkers[i].level != c->currentLevel || c->userTileMarkers[i].x < 0 || c->userTileMarkers[i].z < 0 || c->userTileMarkers[i].x >= COLLISIONMAP_SIZE || c->userTileMarkers[i].z >= COLLISIONMAP_SIZE) {
     // 			continue;
     // 		}
 
@@ -8908,8 +8896,8 @@ int getTopLevelCutscene(Client *c) {
 }
 
 int getHeightmapY(Client *c, int level, int sceneX, int sceneZ) {
-    int tileX = MIN(sceneX >> 7, 103);
-    int tileZ = MIN(sceneZ >> 7, 103);
+    int tileX = MIN(sceneX >> 7, COLLISIONMAP_SIZE - 1);
+    int tileZ = MIN(sceneZ >> 7, COLLISIONMAP_SIZE - 1);
     int realLevel = level;
     if (level < 3 && (c->levelTileFlags[1][tileX][tileZ] & 0x2) == 2) {
         realLevel = level + 1;
@@ -9119,7 +9107,7 @@ void pushNpcs(Client *c) {
         int x = npc->pathing_entity.x >> 7;
         int z = npc->pathing_entity.z >> 7;
 
-        if (x < 0 || x >= 104 || z < 0 || z >= 104) {
+        if (x < 0 || x >= COLLISIONMAP_SIZE || z < 0 || z >= COLLISIONMAP_SIZE) {
             continue;
         }
 
@@ -9159,7 +9147,7 @@ void pushPlayers(Client *c) {
         int stx = player->pathing_entity.x >> 7;
         int stz = player->pathing_entity.z >> 7;
 
-        if (stx < 0 || stx >= 104 || stz < 0 || stz >= 104) {
+        if (stx < 0 || stx >= COLLISIONMAP_SIZE || stz < 0 || stz >= COLLISIONMAP_SIZE) {
             continue;
         }
 
@@ -9196,8 +9184,8 @@ void client_draw_minimap(Client *c) {
         client_draw_on_minimap(c, anchorY, c->activeMapFunctions[i], anchorX);
     }
 
-    for (int ltx = 0; ltx < 104; ltx++) {
-        for (int ltz = 0; ltz < 104; ltz++) {
+    for (int ltx = 0; ltx < COLLISIONMAP_SIZE; ltx++) {
+        for (int ltz = 0; ltz < COLLISIONMAP_SIZE; ltz++) {
             LinkList *stack = c->level_obj_stacks[c->currentLevel][ltx][ltz];
             if (stack) {
                 anchorX = ltx * 4 + 2 - c->local_player->pathing_entity.x / 32;
@@ -10446,9 +10434,9 @@ void client_free(Client *c) {
     linklist_free(c->spotanims);
     linklist_free(c->merged_locations);
     linklist_free(c->spawned_locations);
-    for (int level = 0; level < 4; level++) {
-        for (int x = 0; x < 104; x++) {
-            for (int z = 0; z < 104; z++) {
+    for (int level = 0; level < COLLISIONMAP_LEVELS; level++) {
+        for (int x = 0; x < COLLISIONMAP_SIZE; x++) {
+            for (int z = 0; z < COLLISIONMAP_SIZE; z++) {
                 if (c->level_obj_stacks[level][x][z]) {
                     linklist_free(c->level_obj_stacks[level][x][z]);
                 }
@@ -10459,24 +10447,10 @@ void client_free(Client *c) {
     }
     free(c->level_obj_stacks);
     linklist_free(c->locList);
-    for (int level = 0; level < 4; level++) {
-        for (int x = 0; x < 104; x++) {
-            for (int z = 0; z < 104; z++) {
-            }
-            free(c->levelTileFlags[level][x]);
-        }
-        free(c->levelTileFlags[level]);
-    }
     free(c->levelTileFlags);
-    for (int level = 0; level < 4; level++) {
-        for (int x = 0; x < 105; x++) {
-            free(c->levelHeightmap[level][x]);
-        }
-        free(c->levelHeightmap[level]);
-    }
     free(c->levelHeightmap);
-    world3d_free(c->scene, 104, 4, 104);
-    for (int level = 0; level < 4; level++) {
+    world3d_free(c->scene, COLLISIONMAP_SIZE, COLLISIONMAP_LEVELS, COLLISIONMAP_SIZE);
+    for (int level = 0; level < COLLISIONMAP_LEVELS; level++) {
         collisionmap_free(c->levelCollisionMap[level]);
     }
     free(c->chat_interface);
@@ -10619,12 +10593,12 @@ Client *client_new(void) {
     c->spotanims = linklist_new();
     c->merged_locations = linklist_new();
     c->spawned_locations = linklist_new();
-    c->level_obj_stacks = calloc(4, sizeof(LinkList ***));
-    for (int level = 0; level < 4; level++) {
-        c->level_obj_stacks[level] = calloc(104, sizeof(LinkList **));
-        for (int x = 0; x < 104; x++) {
-            c->level_obj_stacks[level][x] = calloc(104, sizeof(LinkList *));
-            for (int z = 0; z < 104; z++) {
+    c->level_obj_stacks = calloc(COLLISIONMAP_LEVELS, sizeof(LinkList ***));
+    for (int level = 0; level < COLLISIONMAP_LEVELS; level++) {
+        c->level_obj_stacks[level] = calloc(COLLISIONMAP_SIZE, sizeof(LinkList **));
+        for (int x = 0; x < COLLISIONMAP_SIZE; x++) {
+            c->level_obj_stacks[level][x] = calloc(COLLISIONMAP_SIZE, sizeof(LinkList *));
+            for (int z = 0; z < COLLISIONMAP_SIZE; z++) {
                 c->level_obj_stacks[level][x][z] = linklist_new();
             }
         }

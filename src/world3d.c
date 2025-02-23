@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "datastruct/linklist.h"
+#include "defines.h"
 #include "entity.h"
 #include "ground.h"
 #include "location.h"
@@ -55,20 +56,10 @@ void world3d_init_global(void) {
     _World3D.clickTileX = -1;
     _World3D.clickTileZ = -1;
     _World3D.drawTileQueue = linklist_new();
-
-    _World3D.visibilityMatrix = calloc(8, sizeof(bool ***));
-    for (int i = 0; i < 8; i++) {
-        _World3D.visibilityMatrix[i] = calloc(32, sizeof(bool **));
-        for (int j = 0; j < 32; j++) {
-            _World3D.visibilityMatrix[i][j] = calloc(51, sizeof(bool *));
-            for (int k = 0; k < 51; k++) {
-                _World3D.visibilityMatrix[i][j][k] = calloc(51, sizeof(bool));
-            }
-        }
-    }
+    _World3D.visibilityMatrix = calloc(8, sizeof(*_World3D.visibilityMatrix));
 }
 
-World3D *world3d_new(int ***levelHeightmaps, int maxTileZ, int maxLevel, int maxTileX) {
+World3D *world3d_new(int (*levelHeightmaps)[COLLISIONMAP_SIZE + 1][COLLISIONMAP_SIZE + 1], int maxTileZ, int maxLevel, int maxTileX) {
     World3D *world3d = calloc(1, sizeof(World3D));
     world3d->maxLevel = maxLevel;
     world3d->maxTileX = maxTileX;
@@ -82,28 +73,13 @@ World3D *world3d_new(int ***levelHeightmaps, int maxTileZ, int maxLevel, int max
         }
     }
 
-    world3d->levelTileOcclusionCycles = calloc(world3d->maxLevel, sizeof(int **));
-    for (int i = 0; i < maxLevel; i++) {
-        world3d->levelTileOcclusionCycles[i] = calloc(world3d->maxTileX + 1, sizeof(int *));
-        for (int j = 0; j < maxTileX + 1; j++) {
-            world3d->levelTileOcclusionCycles[i][j] = calloc(world3d->maxTileZ + 1, sizeof(int));
-        }
-    }
+    world3d->levelTileOcclusionCycles = calloc(world3d->maxLevel, sizeof(*world3d->levelTileOcclusionCycles));
     world3d->levelHeightmaps = levelHeightmaps;
     world3d_reset(world3d);
     return world3d;
 }
 
 void world3d_free_global(void) {
-    for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 32; j++) {
-            for (int k = 0; k < 51; k++) {
-                free(_World3D.visibilityMatrix[i][j][k]);
-            }
-            free(_World3D.visibilityMatrix[i][j]);
-        }
-        free(_World3D.visibilityMatrix[i]);
-    }
     free(_World3D.visibilityMatrix);
 
     linklist_free(_World3D.drawTileQueue);
@@ -129,14 +105,7 @@ void world3d_free(World3D *world3d, int maxTileZ, int maxLevel, int maxTileX) {
     }
     free(world3d->levelTiles);
 
-    for (int i = 0; i < maxLevel; i++) {
-        for (int j = 0; j < maxTileX + 1; j++) {
-            free(world3d->levelTileOcclusionCycles[i][j]);
-        }
-        free(world3d->levelTileOcclusionCycles[i]);
-    }
     free(world3d->levelTileOcclusionCycles);
-
     free(world3d);
 }
 
