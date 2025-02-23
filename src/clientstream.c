@@ -346,11 +346,7 @@ int clientstream_write(ClientStream *stream, int8_t *src, int len, int off) {
     return -1;
 }
 
-const char *dnslookup(const char *hostname, bool hide_dns) {
-    if (hide_dns) {
-        return "unknown";
-    }
-
+const char *dnslookup(const char *hostname) {
 #ifdef __WII__
     u32 ip = net_gethostip();
 

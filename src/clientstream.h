@@ -56,4 +56,4 @@ int clientstream_available(ClientStream *stream, int length);
 int clientstream_read_byte(ClientStream *stream);
 int clientstream_read_bytes(ClientStream *stream, int8_t *dst, int off, int len);
 int clientstream_write(ClientStream *stream, int8_t *src, int len, int off);
-const char *dnslookup(const char *hostname, bool hide_dns);
+const char *dnslookup(const char *hostname);

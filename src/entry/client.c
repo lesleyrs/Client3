@@ -5167,7 +5167,11 @@ bool client_read(Client *c) {
         c->daysSinceRecoveriesChanged = g1(c->in);
         c->unreadMessages = g2(c->in);
         if (c->lastAddress != 0 && c->viewport_interface_id == -1) {
-            _Client.dns = dnslookup(jstring_format_ipv4(c->lastAddress), _Custom.hide_dns);
+            if (_Custom.hide_dns) {
+                _Client.dns = "unknown";
+            } else {
+                _Client.dns = dnslookup(jstring_format_ipv4(c->lastAddress));
+            }
             closeInterfaces(c);
             int clientCode = 650;
             if (c->daysSinceRecoveriesChanged != 201) {
