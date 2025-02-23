@@ -3,9 +3,10 @@
 ![postmarketos](postmarketos.png)
 ## TODO
 ```
+remove original cache at bin/archives when the cache matches exactly
 add diskstore/gzip just for later cache loading
 SDL3 is not officially released yet, need updated binaries when it is.
-icon etc for the different platforms: title+taskbar+desktop
+icon/metadata etc for the different platforms: title+taskbar+desktop
 http requests for checksums/cache (not done as they aren't supposed to change and saving files on consoles depends on if sdcard or romfs was used)
 change a bunch of functions and function prototypes to static
 clientstream is based off rsc-c, double check it for accuracy

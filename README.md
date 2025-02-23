@@ -101,7 +101,7 @@ instead of a clean target, try: `git clean -fXdn`, remove n to delete files for 
 * https://oldschool.runescape.wiki/w/User:Hlwys
 
 ## Java client
-The 2004 jar is stored for comparisons, run with EG: `java -cp cache/runescape.jar client 10 0 highmem members` but:
+The 2004 jar is stored for comparisons, run with EG: `java -cp bin/runescape.jar client 10 0 highmem members` but:
 - there is no audio, it saves audio files for the browser to play which is no longer applicable
 - right clicking breaks past java 8
 - window insets on modern systems are causing the sides of the game to be cut off slightly
