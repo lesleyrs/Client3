@@ -162,7 +162,7 @@ Install [devkitpro](#tools) with (wii/3ds/wiiu/switch)-dev package and run `make
 
 Wii U and Switch also need the (wiiu/switch)-sdl2 package.
 
-For all consoles you have to move the `cache/` `Roboto/`, `SCC1_Florestan.sf2`, and `config.ini` to sdcard (config needed as we can't pass cli args, but can be empty).
+For all consoles besides NDS you have to move the `cache/` `Roboto/`, `SCC1_Florestan.sf2`, and `config.ini` to sdcard (config needed as we can't pass cli args, but can be empty).
 
 TODO: 3ds/wiiu/switch have an option to build with romfs (read-only memory file system) which won't require an sdcard. Would have to build the config into the binary or load from sd card still.
 
