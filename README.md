@@ -147,7 +147,10 @@ TODO: maybe take webworker server compat from Client2: https://emscripten.org/do
 TODO: possibly target wasm directly with clang instead of emscripten, but then we don't have a libc at all
 
 ### Nintendo consoles (devkitPro)
-These are unfinished and need testing on real hardware so expect some issues. It will currently auto-login and RSA is disabled for development.
+These are unfinished and need testing on real hardware so expect some issues.
+
+TODO: 3ds/wiiu/switch currently logs in automatically due to input issues in emulators?
+TODO: RSA is disabled because tiny-bignum is slow (try mbedtls devkitpro package?)
 
 Install [devkitpro](#tools) with (wii/3ds/wiiu/switch)-dev package and run `make -f (wii/3ds/wiiu/switch).mk -j$(nproc)`.
 

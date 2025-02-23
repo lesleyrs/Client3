@@ -119,7 +119,7 @@ void gameshell_run(Client *c) {
         #if defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__)
         static bool loggedin;
         if (!loggedin) {
-            client_login(c, "a", "a", false);
+            client_login(c, c->username, c->password, false);
             loggedin = true;
         }
         #endif
