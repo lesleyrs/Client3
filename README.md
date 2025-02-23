@@ -192,6 +192,8 @@ in dolphin emulator you can find the sdcard path in `options>configuration>wii>s
 
 wiimote IR pointer works as mouse, Dpad works as arrow keys, home button to exit.
 
+lowmem is recommended, highmem only barely fits in wii's memory and crashes quite fast. Might become better if the last small leaks are fixed.
+
 TODO: draw wiimote cursor on screen to show exact position (need double buffer just for this), support keyboard and mouse on wii, audio, add game offset on real HW?
 
 #### 3DS
