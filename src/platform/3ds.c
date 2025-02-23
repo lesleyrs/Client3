@@ -6,9 +6,11 @@
 #include <3ds.h>
 #include <malloc.h>
 
+#include "../client.h"
 #include "../gameshell.h"
 #include "../pixmap.h"
 #include "../platform.h"
+#include "../inputtracking.h"
 
 // NOTE: if screens are swapped on EG 3ds you have to change screen_width/height directly
 // top screen
