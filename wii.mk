@@ -26,7 +26,7 @@ DEBUG       :=  0
 # options for code generation
 #---------------------------------------------------------------------------------
 
-CFLAGS	= -Wno-parentheses -Wall $(MACHDEP) $(INCLUDE) -Dclient -D__WII__
+CFLAGS	= -Wno-parentheses -Wall $(MACHDEP) $(INCLUDE) -D__WII__ -Dclient
 ifeq ($(DEBUG),1)
 CFLAGS += -g
 else

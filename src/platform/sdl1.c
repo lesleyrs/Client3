@@ -303,32 +303,4 @@ int64_t get_ticks(void) {
 void delay_ticks(int ticks) {
     SDL_Delay(ticks);
 }
-
-void rs2_log(const char *format, ...) {
-    va_list args;
-    va_start(args, format);
-
-#if !defined(__3DS__) && !defined(__WII__) && SDL != 1
-    SDL_LogMessageV(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO, format,
-                    args);
-#else
-    vprintf(format, args);
-#endif
-
-    va_end(args);
-}
-
-void rs2_error(const char *format, ...) {
-    va_list args;
-    va_start(args, format);
-
-#if !defined(__3DS__) && !defined(__WII__) && SDL != 1
-    SDL_LogMessageV(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_ERROR,
-                    format, args);
-#else
-    vfprintf(stderr, format, args);
-#endif
-
-    va_end(args);
-}
 #endif

@@ -316,21 +316,4 @@ void delay_ticks(int ticks) {
     while (get_ticks() != end)
         ;
 }
-void rs2_log(const char *format, ...) {
-    va_list args;
-    va_start(args, format);
-
-    vprintf(format, args);
-
-    va_end(args);
-}
-
-void rs2_error(const char *format, ...) {
-    va_list args;
-    va_start(args, format);
-
-    vfprintf(stderr, format, args);
-
-    va_end(args);
-}
 #endif

@@ -14,6 +14,10 @@
 #include <fat.h>
 #endif
 
+#if SDL > 1
+#include "SDL.h"
+#endif
+
 void initfs(void) {
 #ifdef __WII__
     // TODO why does wii require this (need multiple inits, when loading maps etc)
@@ -21,6 +25,34 @@ void initfs(void) {
         rs2_error("FAT init failed\n");
     }
 #endif
+}
+
+void rs2_log(const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+
+#if SDL > 1
+    SDL_LogMessageV(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO, format,
+                    args);
+#else
+    vprintf(format, args);
+#endif
+
+    va_end(args);
+}
+
+void rs2_error(const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+
+#if SDL > 1
+    SDL_LogMessageV(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_ERROR,
+                    format, args);
+#else
+    vfprintf(stderr, format, args);
+#endif
+
+    va_end(args);
 }
 
 // Java Math.random, rand requires + 1 to never reach 1 else it'll overflow on update_flame_buffer
