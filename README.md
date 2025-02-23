@@ -133,7 +133,7 @@ If tcc from your package manager isn't working you should build latest [tcc](htt
 
 TODO:
 add the following and add default helvetica-like system ttf font in gameshell_draw_string
-macos, bsds, android https://github.com/libsdl-org/SDL/blob/main/docs/README-android.md
+macos, bsds, android https://wiki.libsdl.org/SDL2/Android
 
 ### Web (Emscripten)
 install [emsdk](#tools)
