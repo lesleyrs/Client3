@@ -10,6 +10,19 @@
 #include "../pixmap.h"
 #include "../platform.h"
 
+// NOTE: if screens are swapped on EG 3ds you have to change screen_width/height directly
+// top screen
+// #define SCREEN_WIDTH 400
+// bottom screen
+#undef SCREEN_WIDTH
+#undef SCREEN_HEIGHT
+
+#define SCREEN_WIDTH 320
+#define SCREEN_HEIGHT 240
+
+extern ClientData _Client;
+extern InputTracking _InputTracking;
+
 static u32 *SOC_buffer = NULL;
 #define SOC_ALIGN 0x1000
 #define SOC_BUFFER_SIZE 0x100000
@@ -122,15 +135,15 @@ void set_pixels(PixMap *pixmap, int x, int y) {
     // memset(fb_bottom, 0xff, 320 * 240 * 3);
     // TODO rm temp checks for going past framebuffer
     for (int row = 0; row < pixmap->height; row++) {
-        if (y + row >= 240) break;
+        if (y + row >= SCREEN_HEIGHT) break;
 
         for (int col = 0; col < pixmap->width; col++) {
-            if (x + col >= 320) break;
+            if (x + col >= SCREEN_WIDTH) break;
 
             int src_offset = row * pixmap->width + col;
 
-            int pixel_offset = (x + col) * 240 * 3 + (239 - (y + row)) * 3;
-            // int pixel_offset = (y + row) * 240 * 3 + (x + col) * 3;
+            int pixel_offset = (x + col) * SCREEN_HEIGHT * 3 + (SCREEN_HEIGHT - 1 - (y + row)) * 3;
+            // int pixel_offset = (y + row) * SCREEN_HEIGHT * 3 + (x + col) * 3;
 
             int pixel = pixmap->pixels[src_offset];
             uint8_t b = pixel & 0xff;

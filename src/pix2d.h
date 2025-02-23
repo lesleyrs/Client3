@@ -24,5 +24,6 @@ void pix2d_set_clipping(int bottom, int right, int top, int left);
 void pix2d_clear(void);
 void pix2d_fill_rect(int x, int y, int rgb, int w, int h);
 void pix2d_draw_rect(int x, int y, int rgb, int w, int h);
+void pix2d_fill_circle(int x_center, int y_center, int y_radius, int rgb, int alpha);
 void pix2d_hline(int x, int y, int rgb, int w);
 void pix2d_vline(int x, int y, int rgb, int h);

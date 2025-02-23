@@ -90,6 +90,8 @@ emrun causes extra batch job message on windows sigint, can swap it for `py -m h
 
 Recompile is needed to change between different RSA key lengths, RSA_BUF_LEN needs to be set at compile time because it's needed for stack allocated arrays and BN_ARRAY_SIZE define.
 
+Mobile input is unfinished (only left clicks on postmarketos/android), as touchscreen only input doesn't feel good to play. Use keyboard and mouse. Missing: right clicking, rotating camera, onscreen keyboard input, TODO: single press uses last mouse pos? Console touchscreens are fine because they have other buttons to use in combination.
+
 instead of a clean target, try: `git clean -fXdn`, remove n to delete files for real
 
 ## game history info
@@ -116,10 +118,22 @@ run.ps1: cl, clang, tcc, mingw-gcc, emcc
 
 You might want the updated [PowerShell](https://github.com/PowerShell/PowerShell) for run.ps1
 
+NOTE: currently bignum lib isn't working with tcc on windows and gives [invalid memory access](https://lists.nongnu.org/archive/html/tinycc-devel/2024-12/msg00020.html) so we use openssl
+
+TODO:
+confirm win9x work still, maybe add screenshot to /docs
+do we assume windows 95 has -lws2_32, otherwise re-add -lwsock32 and remove -DMODERN_POSIX in batch file
+make win9x compatible batch file (no delayed expansion?) right now needs to build from more modern system
+clean up ps1 script so it doesn't need to be modified
+
 ### Linux GNU or musl
 Makefile: gcc, clang, tcc, mingw-gcc, emcc
 
 If tcc from your package manager isn't working you should build latest [tcc](https://github.com/TinyCC/tinycc) from source
+
+TODO:
+check if macos works + add default helvetica-like system ttf font in gameshell_draw_string
+check if bsds works + add default helvetica-like system ttf font in gameshell_draw_string
 
 ### Web (Emscripten)
 install [emsdk](#tools)
@@ -127,8 +141,13 @@ run `emmake make`/`make CC=emcc` or `build.bat -c emcc` for windows
 
 Linux wasm/js output seems to be quite a bit smaller than on Windows
 
+NOTE: bring back worldlist loading in [shell.html](https://github.com/lesleyrs/Client3/commit/5da924b9f766005e82163d899e52a5df2f771584#diff-c878553ed816480a5e85ff602ff3c5d38788ca1d21095cd8f8ebc36a4dbc07ee) if it gets re-added for live servers
+
+TODO: maybe take webworker server compat from Client2: https://emscripten.org/docs/api_reference/wasm_workers.html
+TODO: possibly target wasm directly with clang instead of emscripten, but then we don't have a libc at all
+
 ### Nintendo consoles (devkitPro)
-These are unfinished and yet to be tested on real hardware so expect some issues. It will currently auto-login and RSA is disabled for development.
+These are unfinished and need testing on real hardware so expect some issues. It will currently auto-login and RSA is disabled for development.
 
 Install [devkitpro](#tools) with (wii/3ds/wiiu/switch)-dev package and run `make -f (wii/3ds/wiiu/switch).mk -j$(nproc)`.
 
@@ -138,8 +157,33 @@ For all consoles you have to move the `cache/` `Roboto/`, `SCC1_Florestan.sf2`, 
 
 TODO: 3ds/wiiu/switch have an option to build with romfs (read-only memory file system) which won't require an sdcard. Would have to build the config into the binary though.
 
+TODO: on wii use the remaining wiimote buttons for switching views due to the entire game not fitting in 640x480 and same for 3ds at 320x240
+
+TODO: touchscreens systems need a way to right click and rotate camera, use buttons in combination
+
+#### NDS/3DS DSi mode
+Not working right now but 32MB ram could work: lowmem + lower bump_allocator_init cap (see ::perf, avoid towns or stay in the Wilderness)
+
+NDS
+```
+with 32 mb ram gba expansion pak + 4MB system ram
+original game will probably run at 1 fps if it works at all
+would need major changes to run smoothly, need separate client entrypoint for it
+```
+
+3DS DSi mode
+```
+has the full 32MB ram instead of 16MB on normal DSi (IS-TWL-DEBUGGER consoles have 32MB too)
+will probably work right now but the full game will run at a few fps, but the 3ds already has it's own build so it's not as cool.
+need to test this on a real 3DS as melonDS and other emulators don't support wifi in DSi mode or the increased 3ds/debugger RAM
+```
+
 #### Wii
 in dolphin emulator you can find the sdcard path in `options>configuration>wii>sd card` settings and after moving the files there you have to click `Convert Folder to File Now` to format it.
+
+wiimote IR pointer works as mouse, Dpad works as arrow keys, home button to exit.
+
+TODO: draw wiimote cursor on screen to show exact position (need double buffer just for this), support keyboard and mouse on wii, audio, add game offset on real HW?
 
 #### 3DS
 in citra emulator click `file>open citra folder` for sdmc dir https://citra-emulator.com/wiki/user-directory/

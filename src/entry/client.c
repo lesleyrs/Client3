@@ -10306,7 +10306,7 @@ init:
 #ifdef __EMSCRIPTEN__
     rs2_log("socketip: %s http_port: %d\n", _Client.socketip, _Custom.http_port);
 #endif
-    gameshell_init_application(c, 789, 532);
+    gameshell_init_application(c, SCREEN_WIDTH, SCREEN_HEIGHT);
     return 0;
 }
 

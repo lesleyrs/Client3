@@ -1,4 +1,5 @@
 #ifdef __WII__
+#include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,12 +13,87 @@
 #include <ogc/lwp_watchdog.h>
 #include <ogcsys.h>
 
+#include "../client.h"
 #include "../gameshell.h"
+#include "../inputtracking.h"
 #include "../pixmap.h"
 #include "../platform.h"
+#include "../pix2d.h"
+
+#undef SCREEN_WIDTH
+#undef SCREEN_HEIGHT
+
+#define SCREEN_WIDTH 640
+#define SCREEN_HEIGHT 480
+
+extern ClientData _Client;
+extern InputTracking _InputTracking;
 
 static void *xfb = NULL;
 static GXRModeObj *rmode = NULL;
+static int wii_mouse_x = 0;
+static int wii_mouse_y = 0;
+
+static int arrow_yuv_width = 12;
+static int arrow_yuv_height = 20;
+static int arrow_yuv_lines[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 9, 7, 8, 8, 4, 4, 4, 4, 2, 0};
+static int arrow_yuv_offsets[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 6, 6, 7, 0};
+static uint8_t arrow_yuv[] = {
+    0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80,
+    0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80,
+    0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80,
+    0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80,
+    0x10, 0x80, 0xeb, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80,
+    0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80,
+    0x10, 0x80, 0xeb, 0x80, 0xeb, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80,
+    0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80,
+    0x10, 0x80, 0xeb, 0x80, 0xeb, 0x80, 0xeb, 0x80, 0x10, 0x80, 0x10, 0x80,
+    0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80,
+    0x10, 0x80, 0xeb, 0x80, 0xeb, 0x80, 0xeb, 0x80, 0xeb, 0x80, 0x10, 0x80,
+    0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80,
+    0x10, 0x80, 0xeb, 0x80, 0xeb, 0x80, 0xeb, 0x80, 0xeb, 0x80, 0xeb, 0x80,
+    0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80,
+    0x10, 0x80, 0xeb, 0x80, 0xeb, 0x80, 0xeb, 0x80, 0xeb, 0x80, 0xeb, 0x80,
+    0xeb, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80,
+    0x10, 0x80, 0xeb, 0x80, 0xeb, 0x80, 0xeb, 0x80, 0xeb, 0x80, 0xeb, 0x80,
+    0xeb, 0x80, 0xeb, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80,
+    0x10, 0x80, 0xeb, 0x80, 0xeb, 0x80, 0xeb, 0x80, 0xeb, 0x80, 0xeb, 0x80,
+    0xeb, 0x80, 0xeb, 0x80, 0xeb, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80,
+    0x10, 0x80, 0xeb, 0x80, 0xeb, 0x80, 0xeb, 0x80, 0xeb, 0x80, 0xeb, 0x80,
+    0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80,
+    0x10, 0x80, 0xeb, 0x80, 0xeb, 0x80, 0x10, 0x80, 0xeb, 0x80, 0xeb, 0x80,
+    0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80,
+    0x10, 0x80, 0xeb, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0xeb, 0x80,
+    0xeb, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80,
+    0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0xeb, 0x80,
+    0xeb, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80,
+    0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80,
+    0xeb, 0x80, 0xeb, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80,
+    0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80,
+    0xeb, 0x80, 0xeb, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80,
+    0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80,
+    0x10, 0x80, 0xeb, 0x80, 0xeb, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80,
+    0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80,
+    0x10, 0x80, 0xeb, 0x80, 0xeb, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80,
+    0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80,
+    0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80,
+    0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80,
+    0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80};
+static void draw_arrow(void) {
+    if (wii_mouse_x >= SCREEN_WIDTH || wii_mouse_y >= SCREEN_HEIGHT - 20 /* NOTE ? */) {
+        return;
+    }
+
+    for (int y = 0; y < arrow_yuv_height; y++) {
+        int fb_index = (SCREEN_WIDTH * 2 * (y + wii_mouse_y)) + (wii_mouse_x * 2);
+
+        int arrow_offset = (arrow_yuv_offsets[y] * 2) + (arrow_yuv_width * 2 * y);
+
+        int arrow_width = arrow_yuv_lines[y] * 2;
+
+        memcpy((u8*)xfb + fb_index + (arrow_yuv_offsets[y] * 2), arrow_yuv + arrow_offset, arrow_width);
+    }
+}
 
 //---------------------------------------------------------------------------------
 //	convert two RGB pixels to one Y1CbY2Cr.
@@ -46,15 +122,22 @@ void platform_new(GameShell *shell, int width, int height) {
     // This function initialises the attached controllers
     WPAD_Init();
 
+    if (!_Client.lowmem) {
+        AUDIO_Init(NULL);
+        ASND_Init();
+        ASND_Pause(0); // TODO move
+    }
+
     // Obtain the preferred video mode from the system
     // This will correspond to the settings in the Wii menu
     rmode = VIDEO_GetPreferredMode(NULL);
 
     // Allocate memory for the display in the uncached region
-    xfb = MEM_K0_TO_K1(SYS_AllocateFramebuffer(rmode));
+    // xfb = MEM_K0_TO_K1(SYS_AllocateFramebuffer(rmode)); // NOTE: causes glitchy cursor
+    xfb = SYS_AllocateFramebuffer(rmode);
 
     // Initialise the console, required for printf
-    console_init(xfb, 20, 20, rmode->fbWidth, rmode->xfbHeight, rmode->fbWidth * VI_DISPLAY_PIX_SZ);
+    // console_init(xfb, 20, 20, rmode->fbWidth, rmode->xfbHeight, rmode->fbWidth * VI_DISPLAY_PIX_SZ);
     SYS_STDIO_Report(true);
 
     // Set up the video registers with the chosen mode
@@ -74,35 +157,12 @@ void platform_new(GameShell *shell, int width, int height) {
     if (rmode->viTVMode & VI_NON_INTERLACE)
         VIDEO_WaitVSync();
 
-    // WPAD_SetDataFormat(0, WPAD_FMT_BTNS_ACC_IR);
-    // WPAD_SetVRes(0, rmode->fbWidth, rmode->xfbHeight);
+    WPAD_SetDataFormat(0, WPAD_FMT_BTNS_ACC_IR);
+    WPAD_SetVRes(0, rmode->fbWidth, rmode->xfbHeight);
 
     KEYBOARD_Init(NULL);
     MOUSE_Init();
     initfs();
-    // The console understands VT terminal escape codes
-    // This positions the cursor on row 2, column 0
-    // we can use variables for this with format codes too
-    // e.g. printf ("\x1b[%d;%dH", row, column );
-    printf("\x1b[2;0H");
-
-    printf("Hello World!\n");
-
-    // while(1) {
-
-    // Call WPAD_ScanPads each loop, this reads the latest controller states
-    // WPAD_ScanPads();
-
-    // WPAD_ButtonsDown tells us which buttons were pressed in this loop
-    // this is a "one shot" state which will not fire again until the button has been released
-    // u32 pressed = WPAD_ButtonsDown(0);
-
-    // We return to the launcher application via exit
-    // if ( pressed & WPAD_BUTTON_HOME ) exit(0);
-
-    // Wait for the next frame
-    // VIDEO_WaitVSync();
-    // }
 }
 void platform_free(GameShell *shell) {
 }
@@ -131,10 +191,12 @@ int *get_pixels(Surface *surface) {
 }
 void set_pixels(PixMap *pixmap, int x, int y) {
     for (int row = 0; row < pixmap->height; row++) {
-        if (y + row >= 480) break;
+        if (y + row >= SCREEN_HEIGHT)
+            break;
 
         for (int col = 0; col < pixmap->width; col += 2) {
-            if (x + col >= 640) break;
+            if (x + col >= SCREEN_WIDTH)
+                break;
 
             int src_offset = row * pixmap->width + col;
             int dest_offset = (y + row) * (rmode->fbWidth / 2) + (x + col) / 2;
@@ -144,7 +206,7 @@ void set_pixels(PixMap *pixmap, int x, int y) {
             uint8_t g1 = (pixel1 >> 8) & 0xff;
             uint8_t b1 = pixel1 & 0xff;
 
-            int pixel2 = pixmap->pixels[src_offset+1];
+            int pixel2 = pixmap->pixels[src_offset + 1];
             uint8_t r2 = (pixel2 >> 16) & 0xff;
             uint8_t g2 = (pixel2 >> 8) & 0xff;
             uint8_t b2 = pixel2 & 0xff;
@@ -153,12 +215,90 @@ void set_pixels(PixMap *pixmap, int x, int y) {
         }
     }
 
+    // TODO
+    // draw_arrow();
+
     // VIDEO_Flush();
     // VIDEO_WaitVSync();
 }
 void platform_get_keycodes(Keysym *keysym, int *code, char *ch) {
 }
+#define K_LEFT 37
+#define K_RIGHT 39
+#define K_UP 38
+#define K_DOWN 40
+
 void platform_poll_events(Client *c) {
+    WPAD_ScanPads();
+    WPADData *data = WPAD_Data(0);
+    if (data->btns_d & WPAD_BUTTON_HOME) {
+        exit(0);
+    }
+    if (data->ir.valid) {
+        wii_mouse_x = data->ir.x;
+        wii_mouse_y = data->ir.y;
+
+        c->shell->idle_cycles = 0;
+        c->shell->mouse_x = wii_mouse_x;
+        c->shell->mouse_y = wii_mouse_y;
+
+        if (_InputTracking.enabled) {
+            inputtracking_mouse_moved(&_InputTracking, wii_mouse_x, wii_mouse_y);
+        }
+    }
+
+    if (data->btns_d & WPAD_BUTTON_A || data->btns_d & WPAD_BUTTON_B) {
+        c->shell->idle_cycles = 0;
+        c->shell->mouse_click_x = wii_mouse_x;
+        c->shell->mouse_click_y = wii_mouse_y;
+
+        if (data->btns_d & WPAD_BUTTON_B) {
+            c->shell->mouse_click_button = 2;
+            c->shell->mouse_button = 2;
+        } else {
+            c->shell->mouse_click_button = 1;
+            c->shell->mouse_button = 1;
+        }
+
+        if (_InputTracking.enabled) {
+            inputtracking_mouse_pressed(&_InputTracking, wii_mouse_x, wii_mouse_y, data->btns_d & WPAD_BUTTON_B ? 1 : 0);
+        }
+    }
+    if (data->btns_u & WPAD_BUTTON_A || data->btns_u & WPAD_BUTTON_B) {
+        if (data->ir.valid) {
+            c->shell->idle_cycles = 0;
+            c->shell->mouse_button = 0;
+
+            if (_InputTracking.enabled) {
+                inputtracking_mouse_released(&_InputTracking, (data->btns_d & WPAD_BUTTON_B) != 0 ? 1 : 0);
+            }
+        }
+    }
+    if (data->btns_d & WPAD_BUTTON_LEFT) {
+        key_pressed(c->shell, K_LEFT, -1);
+    }
+    if (data->btns_d & WPAD_BUTTON_RIGHT) {
+        key_pressed(c->shell, K_RIGHT, -1);
+    }
+    if (data->btns_d & WPAD_BUTTON_UP) {
+        key_pressed(c->shell, K_UP, -1);
+    }
+    if (data->btns_d & WPAD_BUTTON_DOWN) {
+        key_pressed(c->shell, K_DOWN, -1);
+    }
+
+    if (data->btns_u & WPAD_BUTTON_LEFT) {
+        key_released(c->shell, K_LEFT, -1);
+    }
+    if (data->btns_u & WPAD_BUTTON_RIGHT) {
+        key_released(c->shell, K_RIGHT, -1);
+    }
+    if (data->btns_u & WPAD_BUTTON_UP) {
+        key_released(c->shell, K_UP, -1);
+    }
+    if (data->btns_u & WPAD_BUTTON_DOWN) {
+        key_released(c->shell, K_DOWN, -1);
+    }
 }
 void platform_update_surface(GameShell *shell) {
 }

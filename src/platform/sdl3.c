@@ -148,8 +148,6 @@ void platform_poll_events(Client *c) {
             c->shell->mouse_click_y = y;
 
             if (e.button.button == SDL_BUTTON_RIGHT) {
-                c->shell->mouse_click_button = e.button.button;
-
                 c->shell->mouse_click_button = 2;
                 c->shell->mouse_button = 2;
             } else {

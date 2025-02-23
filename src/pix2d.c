@@ -1,3 +1,4 @@
+#include <math.h>
 #include <string.h>
 
 #include "pix2d.h"
@@ -94,6 +95,45 @@ void pix2d_draw_rect(int x, int y, int rgb, int w, int h) {
     pix2d_hline(x, y + h - 1, rgb, w);
     pix2d_vline(x, y, rgb, h);
     pix2d_vline(x + w - 1, y, rgb, h);
+}
+
+void pix2d_fill_circle(int x_center, int y_center, int y_radius, int rgb, int alpha) {
+	int inv_alpha = 256 - alpha;
+	int r0 = (rgb >> 16 & 0xff) * alpha;
+	int g0 = (rgb >> 8 & 0xff) * alpha;
+	int b0 = (rgb & 0xff) * alpha;
+	int y_start = y_center - y_radius;
+	if (y_start < 0) {
+		y_start = 0;
+	}
+
+	int y_end = y_center + y_radius;
+	if (y_end >= _Pix2D.height) {
+		y_end = _Pix2D.height - 1;
+	}
+
+	for (int y = y_start; y <= y_end; y++) {
+		int midpoint = y - y_center;
+		int x_radius = (int) sqrt((y_radius * y_radius) - (midpoint * midpoint));
+		int x_start = x_center - x_radius;
+		if (x_start < 0) {
+			x_start = 0;
+		}
+
+		int x_end = x_center + x_radius;
+		if (x_end >= _Pix2D.width) {
+			x_end = _Pix2D.width - 1;
+		}
+
+		int offset = x_start + y * _Pix2D.width;
+		for (int x = x_start; x <= x_end; x++) {
+			int r1 = (_Pix2D.pixels[offset] >> 16 & 0xff) * inv_alpha;
+			int g1 = (_Pix2D.pixels[offset] >> 8 & 0xff) * inv_alpha;
+			int b1 = (_Pix2D.pixels[offset] & 0xff) * inv_alpha;
+			int color = ((r0 + r1) >> 8 << 16) + ((g0 + g1) >> 8 << 8) + ((b0 + b1) >> 8);
+			_Pix2D.pixels[offset++] = color;
+		}
+	}
 }
 
 // TODO line memsets

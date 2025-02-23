@@ -3,33 +3,17 @@
 ![postmarketos](postmarketos.png)
 ## TODO
 ```
-check if macos works + add system ttf font in gameshell_draw_string
-check if bsds works + add system ttf font in gameshell_draw_string
-32MB ram could work: lowmem + lower bump_allocator_init cap (::perf, avoid towns or stay in the Wilderness)
-make nintendo consoles properly playable
-postmarketos mobile "right clicking", rotating camera, onscreen keyboard input, single press uses last mouse pos
-possibly target wasm directly with clang, but then we don't have a libc at all
-maybe add android build
-check windows 95 doesn't require -lwsock32, otherwise add to batch file and remove -DMODERN_POSIX, wii needs it though?
-make win98 compatible batch file (no delayed expansion?)
-clean up ps1 script so it doesn't need to be modified
-take webworker server support from Client2: https://emscripten.org/docs/api_reference/wasm_workers.html
 add diskstore/gzip just for later cache loading
 SDL3 is not officially released yet, need updated binaries when it is.
-icon for the different platforms: title+taskbar+desktop
-http requests for checksums/cache (not done as they aren't supposed to change and some systems don't support saving files)
+icon etc for the different platforms: title+taskbar+desktop
+http requests for checksums/cache (not done as they aren't supposed to change and saving files on consoles depends on if sdcard or romfs was used)
 change a bunch of functions and function prototypes to static
 clientstream is based off rsc-c, double check it for accuracy
 the following are (partially) based on RS2-225 by accident, some funcs might take args in diff order to Client repo: animbase, animframe, pix2d, pix3d, gameshell, jagfile, model, packet, pix8, pixfont, pixmap. Rewrite maybe?
 inconsistent naming: used both world3d and scene for world3d, rename world3d to scene? or at least for args only
 global search TODO and NOTE
+add CI: check both highmem/lowmem, members/free, all entrypoints, run make check/scan/san and clang-format
 ```
-check both highmem/lowmem, members/free, all entrypoints, run make check/scan/san and clang-format
-
-bring back worldlist loading in [shell.html](https://github.com/lesleyrs/Client3/commit/5da924b9f766005e82163d899e52a5df2f771584#diff-c878553ed816480a5e85ff602ff3c5d38788ca1d21095cd8f8ebc36a4dbc07ee) if it gets re-added for live servers
-
-currently bignum lib isn't working with tcc on windows and gives [invalid memory access](https://lists.nongnu.org/archive/html/tinycc-devel/2024-12/msg00020.html) so we use openssl
-
 ## Java and C differences + codestyle
 ```
 - errorhost, errorstarted and errorloading code never runs

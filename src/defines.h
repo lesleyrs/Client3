@@ -10,6 +10,13 @@
 #define RSA_BUF_LEN 128
 #endif
 
+#ifndef SCREEN_WIDTH
+#define SCREEN_WIDTH 789
+#endif
+#ifndef SCREEN_HEIGHT
+#define SCREEN_HEIGHT 532
+#endif
+
 // arbitrary to fix -Wall possible overflow warnings
 // NOTE maybe change the ones using half_str to use strncpy but yolo
 // NOTE could also double both buf sizes to be 100% sure, would waste memory though
