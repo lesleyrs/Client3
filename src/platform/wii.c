@@ -133,8 +133,9 @@ void platform_new(GameShell *shell, int width, int height) {
     rmode = VIDEO_GetPreferredMode(NULL);
 
     // Allocate memory for the display in the uncached region
-    // xfb = MEM_K0_TO_K1(SYS_AllocateFramebuffer(rmode)); // NOTE: causes glitchy cursor
+    // xfb = MEM_K0_TO_K1(SYS_AllocateFramebuffer(rmode)); // NOTE: causes green glitchy cursor
     xfb = SYS_AllocateFramebuffer(rmode);
+    VIDEO_ClearFrameBuffer(rmode, xfb, COLOR_BLACK); // NOTE: why is this needed to avoid garbage fb on boot when rsc-c doesn't
 
     // Initialise the console, required for printf
     // console_init(xfb, 20, 20, rmode->fbWidth, rmode->xfbHeight, rmode->fbWidth * VI_DISPLAY_PIX_SZ);
