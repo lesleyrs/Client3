@@ -25,7 +25,7 @@ int bump_allocator_capacity(void) {
 void bump_allocator_init(int capacity) {
     alloc.data = calloc(capacity, sizeof(int8_t));
     if (!alloc.data) {
-        rs2_error("Failed to initialize allocater with size of: %d", capacity);
+        rs2_error("Failed to init allocator with size of: %d", capacity);
         exit(1);
     }
     alloc.capacity = capacity;

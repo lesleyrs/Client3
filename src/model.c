@@ -559,15 +559,9 @@ Model *model_from_models(Model **models, int count, bool use_allocator) {
         Model *model = models[i];
 
         if (model) {
-            // TODO memset here
-
             for (int face = 0; face < model->face_count; face++) {
-                if (copyInfo) {
-                    if (!model->face_infos) {
-                        new->face_infos[new->face_count] = 0;
-                    } else {
-                        new->face_infos[new->face_count] = model->face_infos[face];
-                    }
+                if (copyInfo && model->face_infos) {
+                    new->face_infos[new->face_count] = model->face_infos[face];
                 }
 
                 if (copyPriorities) {
@@ -578,12 +572,8 @@ Model *model_from_models(Model **models, int count, bool use_allocator) {
                     }
                 }
 
-                if (copyAlpha) {
-                    if (!model->face_alphas) {
-                        new->face_alphas[new->face_count] = 0;
-                    } else {
-                        new->face_alphas[new->face_count] = model->face_alphas[face];
-                    }
+                if (copyAlpha && model->face_alphas) {
+                    new->face_alphas[new->face_count] = model->face_alphas[face];
                 }
 
                 if (copyLabels && model->face_labels) {
@@ -699,13 +689,8 @@ Model *model_from_models_bounds(Model **models, int count) {
                 new->face_color_b[new->face_count] = model->face_color_b[f];
                 new->face_color_c[new->face_count] = model->face_color_c[f];
 
-                // TODO memset here
-                if (copyInfo) {
-                    if (!model->face_infos) {
-                        new->face_infos[new->face_count] = 0;
-                    } else {
-                        new->face_infos[new->face_count] = model->face_infos[f];
-                    }
+                if (copyInfo && model->face_infos) {
+                    new->face_infos[new->face_count] = model->face_infos[f];
                 }
 
                 if (copyPriority) {
@@ -716,12 +701,8 @@ Model *model_from_models_bounds(Model **models, int count) {
                     }
                 }
 
-                if (copyAlpha) {
-                    if (!model->face_alphas) {
-                        new->face_alphas[new->face_count] = 0;
-                    } else {
-                        new->face_alphas[new->face_count] = model->face_alphas[f];
-                    }
+                if (copyAlpha && model->face_alphas) {
+                    new->face_alphas[new->face_count] = model->face_alphas[f];
                 }
 
                 if (copyColor && model->face_colors) {
