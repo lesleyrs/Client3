@@ -16,8 +16,6 @@ typedef struct {
     int center_y;
 } Pix2D;
 
-// TODO: ts Client2/java Client (lastmain/webclient branch) repo have extra funcs
-
 void pix2d_bind(int width, int height, int *pixels);
 void pix2d_reset_clipping(void);
 void pix2d_set_clipping(int bottom, int right, int top, int left);

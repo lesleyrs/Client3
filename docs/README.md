@@ -3,6 +3,7 @@
 ![postmarketos](postmarketos.png)
 ## TODO
 ```
+ts Client2/java Client (lastmain/webclient branch) repo have extra funcs (pix2d etc?)
 remove original cache at bin/archives when the cache matches exactly
 add diskstore/gzip just for later cache loading
 SDL3 is not officially released yet, need updated binaries when it is.

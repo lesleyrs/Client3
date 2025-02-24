@@ -158,7 +158,7 @@ These are unfinished and need testing on real hardware so expect some issues.
 TODO: 3ds/wiiu/switch currently logs in automatically due to input issues in emulators?
 TODO: RSA is disabled because tiny-bignum is slow (try mbedtls devkitpro package?)
 
-Install [devkitpro](#tools) with (wii/3ds/wiiu/switch)-dev package and run `make -f (wii/3ds/wiiu/switch).mk -j$(nproc)`.
+Install [devkitpro](#tools) with (wii/3ds/wiiu/switch)-dev package and run `make -f (wii/3ds/wiiu/switch).mk -j$(nproc) -B`.
 
 Wii U and Switch also need the (wiiu/switch)-sdl2 package.
 

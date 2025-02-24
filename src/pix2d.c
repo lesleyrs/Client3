@@ -49,11 +49,6 @@ void pix2d_set_clipping(int bottom, int right, int top, int left) {
 
 void pix2d_clear(void) {
     int length = _Pix2D.width * _Pix2D.height;
-    // for (int i = 0; i < length; i++) {
-    // 	_Pix2D.pixels[i] = 0;
-    // }
-
-    // NOTE: compare performance on diff platforms and entrypoints (playground etc should be better as they use draw_area)
     memset(_Pix2D.pixels, 0, length * sizeof(int));
 }
 
@@ -136,7 +131,6 @@ void pix2d_fill_circle(int x_center, int y_center, int y_radius, int rgb, int al
 	}
 }
 
-// TODO line memsets
 void pix2d_hline(int x, int y, int rgb, int w) {
     if (y < _Pix2D.top || y >= _Pix2D.bottom) {
         return;

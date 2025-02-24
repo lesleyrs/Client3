@@ -778,10 +778,7 @@ Model *model_share_colored(Model *src, bool shareColors, bool shareAlpha, bool s
     } else {
         new->face_alphas = rs2_calloc(use_allocator, new->face_count, sizeof(int));
         if (!src->face_alphas) {
-            // TODO memset here
-            for (int f = 0; f < new->face_count; f++) {
-                new->face_alphas[f] = 0;
-            }
+            memset(new->face_alphas, 0, new->face_count * sizeof(int));
         } else {
             memcpy(new->face_alphas, src->face_alphas, new->face_count * sizeof(int));
         }
@@ -826,10 +823,7 @@ Model *model_copy_faces(Model *src, bool copyVertexY, bool copyFaces, bool use_a
 
         new->face_infos = rs2_calloc(use_allocator, new->face_count, sizeof(int));
         if (!src->face_infos) {
-            // TODO memset here
-            for (int f = 0; f < new->face_count; f++) {
-                new->face_infos[f] = 0;
-            }
+            memset(new->face_infos, 0, new->face_count * sizeof(int));
         } else {
             memcpy(new->face_infos, src->face_infos, new->face_count * sizeof(int));
         }
@@ -893,10 +887,7 @@ Model *model_share_alpha(Model *src, bool shareAlpha) {
     } else {
         new->face_alphas = calloc(new->face_count, sizeof(int));
         if (!src->face_alphas) {
-            // TODO memset here
-            for (int f = 0; f < new->face_count; f++) {
-                new->face_alphas[f] = 0;
-            }
+            memset(new->face_alphas, 0, new->face_count * sizeof(int));
         } else {
             memcpy(new->face_alphas, src->face_alphas, new->face_count * sizeof(int));
         }
