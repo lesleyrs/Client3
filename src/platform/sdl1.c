@@ -296,7 +296,7 @@ void platform_poll_events(Client *c) {
     }
 }
 
-int64_t get_ticks(void) {
+uint64_t get_ticks(void) {
     return SDL_GetTicks();
 }
 

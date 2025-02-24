@@ -797,7 +797,7 @@ static void client_draw_flames(Client *c) {
 }
 
 void client_run_flames(Client *c) {
-    static int64_t next = 0;
+    static uint64_t next = 0;
     if (!c->flame_active || next >= get_ticks()) {
         return;
     }
@@ -808,7 +808,7 @@ void client_run_flames(Client *c) {
 
     /* NOTE: original
     // try {
-    int64_t last = get_ticks();
+    uint64_t last = get_ticks();
     int cycle = 0;
     int interval = 20;
     while (c->flame_active) {
@@ -819,7 +819,7 @@ void client_run_flames(Client *c) {
         cycle++;
 
         if (cycle > 10) {
-            int64_t now = get_ticks();
+            uint64_t now = get_ticks();
             int delay = (int)(now - last) / 10 - interval;
 
             interval = 40 - delay;
@@ -4276,7 +4276,7 @@ void client_update_game(Client *c) {
                 // if (c->wave_ids[wave] != c->last_wave_id || c->wave_loops[wave] != c->last_wave_loops) {
                 Packet *buf = wave_generate(c->wave_ids[wave], c->wave_loops[wave]);
 
-                if (get_ticks() + (int64_t)(buf->pos / 22) > c->last_wave_start_time + (int64_t)(c->last_wave_length / 22)) {
+                if (get_ticks() + (uint64_t)(buf->pos / 22) > c->last_wave_start_time + (uint64_t)(c->last_wave_length / 22)) {
                     c->last_wave_length = buf->pos;
                     c->last_wave_start_time = get_ticks();
                     // if (c->saveWave(buf->data, buf->pos)) {

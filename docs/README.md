@@ -41,8 +41,8 @@ maybe allow resizing canvas/fullscreen on desktop (draw to sdl texture and use g
 
 - int is assumed to be 32 bits, the few uses of shorts are ignored
 - use int8_t for java byte arrays, char isn't guaranteed to be signed
-- use in64_t for longs, size_t for stdlib calls, uints are used for interacting with libs
-- long is 32 bits on windows, int64_t is used for packet, size_t otherwise
+- use in64_t for longs as long is 32 bits on windows
+- few uses of size_t and other uints for interacting with libs/unsigned bitshift
 - *.length checks replaced with *_count vars (EG label_vertices) or *_LENGTH define if it doesn't change
 - replaced labelled break/continue with goto
 - removed explicit null checks with with var and !var

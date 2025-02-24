@@ -45,8 +45,8 @@ void inputtracking_mouse_pressed(InputTracking *it, int x, int y, int button) {
     if (it->enabled && (x >= 0 && x < 789 && y >= 0 && y < 532)) {
         it->trackedCount++;
 
-        int64_t now = get_ticks();
-        int64_t delta = (now - it->lastTime) / 10L;
+        uint64_t now = get_ticks();
+        uint64_t delta = (now - it->lastTime) / 10L;
         if (delta > 250L) {
             delta = 250L;
         }
@@ -69,8 +69,8 @@ void inputtracking_mouse_released(InputTracking *it, int button) {
     if (it->enabled) {
         it->trackedCount++;
 
-        int64_t now = get_ticks();
-        int64_t delta = (now - it->lastTime) / 10L;
+        uint64_t now = get_ticks();
+        uint64_t delta = (now - it->lastTime) / 10L;
         if (delta > 250L) {
             delta = 250L;
         }
@@ -90,13 +90,13 @@ void inputtracking_mouse_released(InputTracking *it, int button) {
 
 void inputtracking_mouse_moved(InputTracking *it, int x, int y) {
     if (it->enabled && (x >= 0 && x < 789 && y >= 0 && y < 532)) {
-        int64_t now = get_ticks();
+        uint64_t now = get_ticks();
 
         if (now - it->lastMoveTime >= 50L) {
             it->lastMoveTime = now;
             it->trackedCount++;
 
-            int64_t delta = (now - it->lastTime) / 10L;
+            uint64_t delta = (now - it->lastTime) / 10L;
             if (delta > 250L) {
                 delta = 250L;
             }
@@ -130,8 +130,8 @@ void inputtracking_key_pressed(InputTracking *it, int key) {
     if (it->enabled) {
         it->trackedCount++;
 
-        int64_t now = get_ticks();
-        int64_t delta = (now - it->lastTime) / 10L;
+        uint64_t now = get_ticks();
+        uint64_t delta = (now - it->lastTime) / 10L;
         if (delta > 250L) {
             delta = 250L;
         }
@@ -160,8 +160,8 @@ void inputtracking_key_released(InputTracking *it, int key) {
     if (it->enabled) {
         it->trackedCount++;
 
-        int64_t now = get_ticks();
-        int64_t delta = (now - it->lastTime) / 10L;
+        uint64_t now = get_ticks();
+        uint64_t delta = (now - it->lastTime) / 10L;
         if (delta > 250L) {
             delta = 250L;
         }
@@ -190,8 +190,8 @@ void inputtracking_focus_gained(InputTracking *it) {
     if (it->enabled) {
         it->trackedCount++;
 
-        int64_t now = get_ticks();
-        int64_t delta = (now - it->lastTime) / 10L;
+        uint64_t now = get_ticks();
+        uint64_t delta = (now - it->lastTime) / 10L;
         if (delta > 250L) {
             delta = 250L;
         }
@@ -207,8 +207,8 @@ void inputtracking_focus_lost(InputTracking *it) {
     if (it->enabled) {
         it->trackedCount++;
 
-        int64_t now = get_ticks();
-        int64_t delta = (now - it->lastTime) / 10L;
+        uint64_t now = get_ticks();
+        uint64_t delta = (now - it->lastTime) / 10L;
         if (delta > 250L) {
             delta = 250L;
         }
@@ -224,8 +224,8 @@ void inputtracking_mouse_entered(InputTracking *it) {
     if (it->enabled) {
         it->trackedCount++;
 
-        int64_t now = get_ticks();
-        int64_t delta = (now - it->lastTime) / 10L;
+        uint64_t now = get_ticks();
+        uint64_t delta = (now - it->lastTime) / 10L;
         if (delta > 250L) {
             delta = 250L;
         }
@@ -241,8 +241,8 @@ void inputtracking_mouse_exited(InputTracking *it) {
     if (it->enabled) {
         it->trackedCount++;
 
-        int64_t now = get_ticks();
-        int64_t delta = (now - it->lastTime) / 10L;
+        uint64_t now = get_ticks();
+        uint64_t delta = (now - it->lastTime) / 10L;
         if (delta > 250L) {
             delta = 250L;
         }

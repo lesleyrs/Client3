@@ -17,7 +17,7 @@ GameShell *gameshell_new(void) {
     GameShell *shell = calloc(1, sizeof(GameShell));
     shell->deltime = 20;
     shell->mindel = 1;
-    shell->otim = calloc(10, sizeof(size_t));
+    shell->otim = calloc(10, sizeof(uint64_t));
     // TODO remove?
     // shell->sprite_cache = calloc(6, sizeof(Sprite));
     shell->refresh = true;
@@ -62,7 +62,7 @@ void gameshell_run(Client *c) {
     for (int i = 0; i < 10; i++) {
         c->shell->otim[i] = get_ticks();
     }
-    size_t ntime;
+    uint64_t ntime;
     while (c->shell->state >= 0) {
         if (c->shell->state > 0) {
             c->shell->state--;
@@ -87,7 +87,7 @@ void gameshell_run(Client *c) {
         }
         if (ratio > 256) {
             ratio = 256;
-            delta = (int)((size_t)c->shell->deltime - (ntime - c->shell->otim[opos]) / 10L);
+            delta = (int)((uint64_t)c->shell->deltime - (ntime - c->shell->otim[opos]) / 10L);
         }
         c->shell->otim[opos] = ntime;
         opos = (opos + 1) % 10;
@@ -114,15 +114,15 @@ void gameshell_run(Client *c) {
             c->shell->fps = ratio * 1000 / (c->shell->deltime * 256);
         }
         client_draw(c);
-        client_run_flames(c); // TODO move client_run_flames if using threads
+        client_run_flames(c); // NOTE: random placement of run_flames
         // TODO temp
-        #if defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__)
-        static bool loggedin;
-        if (!loggedin) {
-            client_login(c, c->username, c->password, false);
-            loggedin = true;
-        }
-        #endif
+        // #if defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__)
+        // static bool loggedin;
+        // if (!loggedin) {
+        //     client_login(c, c->username, c->password, false);
+        //     loggedin = true;
+        // }
+        // #endif
     }
     if (c->shell->state == -1) {
         gameshell_shutdown(c);

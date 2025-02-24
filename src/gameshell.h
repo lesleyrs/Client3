@@ -23,7 +23,7 @@ struct GameShell {
     int mouse_click_y;
     int deltime;
     int mindel;
-    size_t *otim;
+    uint64_t *otim;
     bool refresh;
     int *action_key;
     int *key_queue;

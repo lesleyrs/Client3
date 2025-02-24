@@ -173,12 +173,12 @@ void platform_fill_rect(GameShell *shell, int x, int y, int w, int h, int color)
 }
 void platform_blit_surface(GameShell *shell, int x, int y, int w, int h, Surface *surface) {
 }
-int64_t get_ticks(void) {
-    // return (int)osGetTime();
-    return (int)(svcGetSystemTick() / CPU_TICKS_PER_MSEC);
+uint64_t get_ticks(void) {
+    // return osGetTime();
+    return (uint64_t)(svcGetSystemTick() / CPU_TICKS_PER_MSEC);
 }
 void delay_ticks(int ticks) {
-    svcSleepThread((s64)ticks * (s64)1000000);
+    svcSleepThread((s64)ticks * 1000000);
     /* int end = get_ticks() + ticks;
 
     while (get_ticks() != end)

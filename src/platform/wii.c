@@ -306,12 +306,12 @@ void platform_fill_rect(GameShell *shell, int x, int y, int w, int h, int color)
 }
 void platform_blit_surface(GameShell *shell, int x, int y, int w, int h, Surface *surface) {
 }
-int64_t get_ticks(void) {
+uint64_t get_ticks(void) {
     uint64_t ticks = gettime();
-    return (int)(ticks / TB_TIMER_CLOCK);
+    return (uint64_t)(ticks / TB_TIMER_CLOCK);
 }
 void delay_ticks(int ticks) {
-    int end = get_ticks() + ticks;
+    uint64_t end = get_ticks() + ticks;
 
     while (get_ticks() != end)
         ;

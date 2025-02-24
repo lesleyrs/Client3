@@ -14,7 +14,10 @@
 #include <fat.h>
 #endif
 
-#if SDL > 1
+#if SDL == 3
+#include "SDL3/SDL.h"
+#endif
+#if SDL == 2
 #include "SDL.h"
 #endif
 

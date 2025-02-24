@@ -2150,35 +2150,35 @@ void textureRaster(int xA, int xB, int *dst, int offset, int *texels, int curU, 
 
         if (_Pix3D.opaque) {
             while (strides-- > 0) {
-                dst[offset++] = (uint32_t)texels[(curV & 0x3F80) + (curU >> 7)] >> shadeShift;
+                dst[offset++] = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift;
                 curU += stepU;
                 curV += stepV;
 
-                dst[offset++] = (uint32_t)texels[(curV & 0x3F80) + (curU >> 7)] >> shadeShift;
+                dst[offset++] = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift;
                 curU += stepU;
                 curV += stepV;
 
-                dst[offset++] = (uint32_t)texels[(curV & 0x3F80) + (curU >> 7)] >> shadeShift;
+                dst[offset++] = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift;
                 curU += stepU;
                 curV += stepV;
 
-                dst[offset++] = (uint32_t)texels[(curV & 0x3F80) + (curU >> 7)] >> shadeShift;
+                dst[offset++] = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift;
                 curU += stepU;
                 curV += stepV;
 
-                dst[offset++] = (uint32_t)texels[(curV & 0x3F80) + (curU >> 7)] >> shadeShift;
+                dst[offset++] = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift;
                 curU += stepU;
                 curV += stepV;
 
-                dst[offset++] = (uint32_t)texels[(curV & 0x3F80) + (curU >> 7)] >> shadeShift;
+                dst[offset++] = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift;
                 curU += stepU;
                 curV += stepV;
 
-                dst[offset++] = (uint32_t)texels[(curV & 0x3F80) + (curU >> 7)] >> shadeShift;
+                dst[offset++] = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift;
                 curU += stepU;
                 curV += stepV;
 
-                dst[offset++] = (uint32_t)texels[(curV & 0x3F80) + (curU >> 7)] >> shadeShift;
+                dst[offset++] = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift;
                 curU = nextU;
                 curV = nextV;
 
@@ -2206,63 +2206,63 @@ void textureRaster(int xA, int xB, int *dst, int offset, int *texels, int curU, 
 
             strides = xB - xA & 0x7;
             while (strides-- > 0) {
-                dst[offset++] = (uint32_t)texels[(curV & 0x3F80) + (curU >> 7)] >> shadeShift;
+                dst[offset++] = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift;
                 curU += stepU;
                 curV += stepV;
             }
         } else {
             while (strides-- > 0) {
                 int rgb;
-                if ((rgb = (uint32_t)texels[(curV & 0x3F80) + (curU >> 7)] >> shadeShift) != 0) {
+                if ((rgb = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift) != 0) {
                     dst[offset] = rgb;
                 }
                 offset++;
                 curU += stepU;
                 curV += stepV;
 
-                if ((rgb = (uint32_t)texels[(curV & 0x3F80) + (curU >> 7)] >> shadeShift) != 0) {
+                if ((rgb = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift) != 0) {
                     dst[offset] = rgb;
                 }
                 offset++;
                 curU += stepU;
                 curV += stepV;
 
-                if ((rgb = (uint32_t)texels[(curV & 0x3F80) + (curU >> 7)] >> shadeShift) != 0) {
+                if ((rgb = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift) != 0) {
                     dst[offset] = rgb;
                 }
                 offset++;
                 curU += stepU;
                 curV += stepV;
 
-                if ((rgb = (uint32_t)texels[(curV & 0x3F80) + (curU >> 7)] >> shadeShift) != 0) {
+                if ((rgb = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift) != 0) {
                     dst[offset] = rgb;
                 }
                 offset++;
                 curU += stepU;
                 curV += stepV;
 
-                if ((rgb = (uint32_t)texels[(curV & 0x3F80) + (curU >> 7)] >> shadeShift) != 0) {
+                if ((rgb = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift) != 0) {
                     dst[offset] = rgb;
                 }
                 offset++;
                 curU += stepU;
                 curV += stepV;
 
-                if ((rgb = (uint32_t)texels[(curV & 0x3F80) + (curU >> 7)] >> shadeShift) != 0) {
+                if ((rgb = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift) != 0) {
                     dst[offset] = rgb;
                 }
                 offset++;
                 curU += stepU;
                 curV += stepV;
 
-                if ((rgb = (uint32_t)texels[(curV & 0x3F80) + (curU >> 7)] >> shadeShift) != 0) {
+                if ((rgb = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift) != 0) {
                     dst[offset] = rgb;
                 }
                 offset++;
                 curU += stepU;
                 curV += stepV;
 
-                if ((rgb = (uint32_t)texels[(curV & 0x3F80) + (curU >> 7)] >> shadeShift) != 0) {
+                if ((rgb = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift) != 0) {
                     dst[offset] = rgb;
                 }
                 offset++;
@@ -2294,7 +2294,7 @@ void textureRaster(int xA, int xB, int *dst, int offset, int *texels, int curU, 
             strides = xB - xA & 0x7;
             while (strides-- > 0) {
                 int rgb;
-                if ((rgb = (uint32_t)texels[(curV & 0x3F80) + (curU >> 7)] >> shadeShift) != 0) {
+                if ((rgb = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift) != 0) {
                     dst[offset] = rgb;
                 }
 
