@@ -755,9 +755,9 @@ Model *model_share_colored(Model *src, bool shareColors, bool shareAlpha, bool s
         new->vertices_y = src->vertices_y;
         new->vertices_z = src->vertices_z;
     } else {
-        new->vertices_x = rs2_calloc(use_allocator, new->vertex_count, sizeof(int));
-        new->vertices_y = rs2_calloc(use_allocator, new->vertex_count, sizeof(int));
-        new->vertices_z = rs2_calloc(use_allocator, new->vertex_count, sizeof(int));
+        new->vertices_x = rs2_malloc(use_allocator, new->vertex_count * sizeof(int));
+        new->vertices_y = rs2_malloc(use_allocator, new->vertex_count * sizeof(int));
+        new->vertices_z = rs2_malloc(use_allocator, new->vertex_count * sizeof(int));
 
         for (int v = 0; v < new->vertex_count; v++) {
             new->vertices_x[v] = src->vertices_x[v];
@@ -769,14 +769,14 @@ Model *model_share_colored(Model *src, bool shareColors, bool shareAlpha, bool s
     if (shareColors) {
         new->face_colors = src->face_colors;
     } else {
-        new->face_colors = rs2_calloc(use_allocator, new->face_count, sizeof(int));
+        new->face_colors = rs2_malloc(use_allocator, new->face_count * sizeof(int));
         memcpy(new->face_colors, src->face_colors, new->face_count * sizeof(int));
     }
 
     if (shareAlpha) {
         new->face_alphas = src->face_alphas;
     } else {
-        new->face_alphas = rs2_calloc(use_allocator, new->face_count, sizeof(int));
+        new->face_alphas = rs2_malloc(use_allocator, new->face_count * sizeof(int));
         if (!src->face_alphas) {
             memset(new->face_alphas, 0, new->face_count * sizeof(int));
         } else {
@@ -805,23 +805,23 @@ Model *model_copy_faces(Model *src, bool copyVertexY, bool copyFaces, bool use_a
     new->textured_face_count = src->textured_face_count;
 
     if (copyVertexY) {
-        new->vertices_y = rs2_calloc(use_allocator, new->vertex_count, sizeof(int));
+        new->vertices_y = rs2_malloc(use_allocator, new->vertex_count * sizeof(int));
         memcpy(new->vertices_y, src->vertices_y, new->vertex_count * sizeof(int));
     } else {
         new->vertices_y = src->vertices_y;
     }
 
     if (copyFaces) {
-        new->face_color_a = rs2_calloc(use_allocator, new->face_count, sizeof(int));
-        new->face_color_b = rs2_calloc(use_allocator, new->face_count, sizeof(int));
-        new->face_color_c = rs2_calloc(use_allocator, new->face_count, sizeof(int));
+        new->face_color_a = rs2_malloc(use_allocator, new->face_count * sizeof(int));
+        new->face_color_b = rs2_malloc(use_allocator, new->face_count * sizeof(int));
+        new->face_color_c = rs2_malloc(use_allocator, new->face_count * sizeof(int));
         for (int f = 0; f < new->face_count; f++) {
             new->face_color_a[f] = src->face_color_a[f];
             new->face_color_b[f] = src->face_color_b[f];
             new->face_color_c[f] = src->face_color_c[f];
         }
 
-        new->face_infos = rs2_calloc(use_allocator, new->face_count, sizeof(int));
+        new->face_infos = rs2_malloc(use_allocator, new->face_count * sizeof(int));
         if (!src->face_infos) {
             memset(new->face_infos, 0, new->face_count * sizeof(int));
         } else {
@@ -872,9 +872,9 @@ Model *model_share_alpha(Model *src, bool shareAlpha) {
     new->face_count = src->face_count;
     new->textured_face_count = src->textured_face_count;
 
-    new->vertices_x = calloc(new->vertex_count, sizeof(int));
-    new->vertices_y = calloc(new->vertex_count, sizeof(int));
-    new->vertices_z = calloc(new->vertex_count, sizeof(int));
+    new->vertices_x = malloc(new->vertex_count * sizeof(int));
+    new->vertices_y = malloc(new->vertex_count * sizeof(int));
+    new->vertices_z = malloc(new->vertex_count * sizeof(int));
 
     for (int v = 0; v < new->vertex_count; v++) {
         new->vertices_x[v] = src->vertices_x[v];
@@ -885,7 +885,7 @@ Model *model_share_alpha(Model *src, bool shareAlpha) {
     if (shareAlpha) {
         new->face_alphas = src->face_alphas;
     } else {
-        new->face_alphas = calloc(new->face_count, sizeof(int));
+        new->face_alphas = malloc(new->face_count * sizeof(int));
         if (!src->face_alphas) {
             memset(new->face_alphas, 0, new->face_count * sizeof(int));
         } else {
