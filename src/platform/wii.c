@@ -163,6 +163,7 @@ void platform_new(GameShell *shell, int width, int height) {
     KEYBOARD_Init(NULL);
     MOUSE_Init();
     initfs();
+    // settime(0); // would start gettime at 0, but why does this break on login?
 }
 void platform_free(GameShell *shell) {
 }
