@@ -116,13 +116,13 @@ void gameshell_run(Client *c) {
         client_draw(c);
         client_run_flames(c); // NOTE: random placement of run_flames
         // TODO temp
-        // #if defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__)
-        // static bool loggedin;
-        // if (!loggedin) {
-        //     client_login(c, c->username, c->password, false);
-        //     loggedin = true;
-        // }
-        // #endif
+        #if defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__)
+        static bool loggedin;
+        if (!loggedin) {
+            client_login(c, c->username, c->password, false);
+            loggedin = true;
+        }
+        #endif
     }
     if (c->shell->state == -1) {
         gameshell_shutdown(c);
