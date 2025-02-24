@@ -796,6 +796,7 @@ Model *model_copy_faces(Model *src, bool copyVertexY, bool copyFaces, bool use_a
         new->face_color_a = rs2_malloc(use_allocator, new->face_count * sizeof(int));
         new->face_color_b = rs2_malloc(use_allocator, new->face_count * sizeof(int));
         new->face_color_c = rs2_malloc(use_allocator, new->face_count * sizeof(int));
+
         for (int f = 0; f < new->face_count; f++) {
             new->face_color_a[f] = src->face_color_a[f];
             new->face_color_b[f] = src->face_color_b[f];
