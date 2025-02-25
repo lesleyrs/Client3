@@ -107,7 +107,7 @@ void platform_new(GameShell *shell, int width, int height) {
     ndspChnWaveBufAdd(0, &wave_buf[0]);
     // ndspChnWaveBufAdd(0, &wave_buf[1]); */
 
-    HIDUSER_EnableGyroscope();
+    // HIDUSER_EnableGyroscope();
 }
 void platform_free(GameShell *shell) {
 }
@@ -166,7 +166,103 @@ void set_pixels(PixMap *pixmap, int x, int y) {
 
 void platform_get_keycodes(Keysym *keysym, int *code, char *ch) {
 }
+#define K_LEFT 37
+#define K_RIGHT 39
+#define K_UP 38
+#define K_DOWN 40
+
 void platform_poll_events(Client *c) {
+    hidScanInput();
+
+    u32 keys_down = hidKeysDown();
+
+    if (keys_down & KEY_LEFT) {
+        key_pressed(c->shell, K_LEFT, -1);
+    }
+
+    if (keys_down & KEY_RIGHT) {
+        key_pressed(c->shell, K_RIGHT, -1);
+    }
+
+    if (keys_down & KEY_UP) {
+        key_pressed(c->shell, K_UP, -1);
+    }
+
+    if (keys_down & KEY_DOWN) {
+        key_pressed(c->shell, K_DOWN, -1);
+    }
+
+    u32 keys_up = hidKeysUp();
+
+    if (keys_up & KEY_LEFT) {
+        key_released(c->shell, K_LEFT, -1);
+    }
+
+    if (keys_up & KEY_RIGHT) {
+        key_released(c->shell, K_RIGHT, -1);
+    }
+
+    if (keys_up & KEY_UP) {
+        key_released(c->shell, K_UP, -1);
+    }
+
+    if (keys_up & KEY_DOWN) {
+        key_released(c->shell, K_DOWN, -1);
+    }
+
+    touchPosition touch = {0};
+    hidTouchRead(&touch);
+
+    static bool right_touch = false;
+    if (keys_down & KEY_L) {
+        right_touch = true;
+    }
+
+    if (keys_up & KEY_L) {
+        right_touch = false;
+    }
+
+    static bool touch_down = false;
+    if (touch.px == 0 && touch.py == 0) {
+        if (touch_down) {
+            c->shell->idle_cycles = 0;
+            c->shell->mouse_button = 0;
+
+            if (_InputTracking.enabled) {
+                inputtracking_mouse_released(&_InputTracking, right_touch ? 1 : 0);
+            }
+
+            touch_down = false;
+        }
+    } else {
+        int x = touch.px;
+        int y = touch.py;
+
+        c->shell->mouse_x = x;
+        c->shell->mouse_y = y;
+
+        if (_InputTracking.enabled) {
+            inputtracking_mouse_moved(&_InputTracking, x, y);
+        }
+
+        c->shell->idle_cycles = 0;
+        c->shell->mouse_click_x = x;
+        c->shell->mouse_click_y = y;
+
+        if (right_touch) {
+            c->shell->mouse_click_button = 2;
+            c->shell->mouse_button = 2;
+        } else {
+            c->shell->mouse_click_button = 1;
+            c->shell->mouse_button = 1;
+        }
+
+        if (_InputTracking.enabled) {
+            inputtracking_mouse_pressed(&_InputTracking, x, y, right_touch ? 1 : 0);
+        }
+
+        touch_down = true;
+    }
 }
 void platform_update_surface(GameShell *shell) {
 }
