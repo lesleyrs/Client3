@@ -218,6 +218,7 @@ void set_pixels(PixMap *pixmap, int x, int y) {
             uint8_t g2 = (pixel2 >> 8) & 0xff;
             uint8_t b2 = pixel2 & 0xff;
 
+            // TODO is this conversion ok? some pixels seem off on left side of the inventory
             ((uint32_t *)xfb)[dest_offset] = rgb2yuv(r1, g1, b1, r2, g2, b2);
         }
     }
