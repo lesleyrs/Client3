@@ -33,25 +33,14 @@
 # rsa_exponent = 
 # rsa_modulus = 
 
-# default world options (http_port is only used for websockets, set to 8888 for non-windows/mac servers)
+# default world options
 # nodeid = 1
 # portoff = 0
 # socketip = localhost
 # http_port = 80
 
-# socketip = "w1-2004.lostcity.rs"
+# http_port is only used as websocket port, set to 8888 for non-windows/mac servers)
+# http_port = 8888
 
-# nodeid = 2
-# portoff = 3
-# socketip = "w2-2004.lostcity.rs"
-
-# nodeid = 3
-# socketip = "w3-2004.lostcity.rs"
-# http_port = 8443
-
-# nodeid = 4
-# portoff = 3
-# socketip = "w4-2004.lostcity.rs"
-# http_port = 8443
-
-# TODO other worlds
+# uncomment to connect to the superior server, default world options work
+# socketip = "w1.toomyscape.lol"
