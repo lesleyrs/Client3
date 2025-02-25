@@ -40,17 +40,16 @@ static void soc_shutdown() {
 
 void platform_init(void) {
     osSetSpeedupEnable(true);
+
+    // gfxInit(GSP_BGR8_OES, GSP_BGR8_OES, 0);
+    gfxInitDefault();
+    /* uncomment and disable draw_top_background to see stdout */
+    consoleInit(GFX_TOP, NULL);
 }
 
 void platform_new(GameShell *shell, int width, int height) {
     (void)shell, (void)width, (void)height;
     atexit(soc_shutdown);
-
-    // gfxInit(GSP_BGR8_OES, GSP_BGR8_OES, 0);
-    gfxInitDefault();
-
-    /* uncomment and disable draw_top_background to see stdout */
-    consoleInit(GFX_TOP, NULL);
 
     // NOTE we could use romfs, but we need sdcard to store the 3dsx anyway
     /* Result romfs_res = romfsInit();

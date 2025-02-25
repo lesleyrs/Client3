@@ -350,6 +350,7 @@ int clientstream_write(ClientStream *stream, int8_t *src, int len, int off) {
     return -1;
 }
 
+// TODO test this when adding new platforms due to localhost not showing welcome screen by default
 const char *dnslookup(const char *hostname) {
 #ifdef __WII__
     u32 ip = net_gethostip();
