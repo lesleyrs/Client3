@@ -9,7 +9,7 @@
 #include <ogc/usbmouse.h>
 #include <wiikeyboard/keyboard.h>
 #include <wiiuse/wpad.h>
-
+#include <fat.h>
 #include <ogc/lwp_watchdog.h>
 #include <ogcsys.h>
 
@@ -114,6 +114,12 @@ static u32 rgb2yuv(u8 r1, u8 g1, u8 b1, u8 r2, u8 g2, u8 b2) {
     return (y1 << 24) | (cb << 16) | (y2 << 8) | cr;
 }
 
+void platform_init(void) {
+    if (!fatInitDefault()) {
+        rs2_error("FAT init failed\n");
+    }
+}
+
 void platform_new(GameShell *shell, int width, int height) {
     (void)shell, (void)width, (void)height;
     // Initialise the video system
@@ -135,7 +141,7 @@ void platform_new(GameShell *shell, int width, int height) {
     // Allocate memory for the display in the uncached region
     // xfb = MEM_K0_TO_K1(SYS_AllocateFramebuffer(rmode)); // NOTE: causes green glitchy cursor
     xfb = SYS_AllocateFramebuffer(rmode);
-    VIDEO_ClearFrameBuffer(rmode, xfb, COLOR_BLACK); // NOTE: why is this needed to avoid garbage fb on boot when rsc-c doesn't
+    // VIDEO_ClearFrameBuffer(rmode, xfb, COLOR_BLACK); // NOTE: why is this needed to avoid garbage fb on boot when rsc-c doesn't
 
     // Initialise the console, required for printf
     // console_init(xfb, 20, 20, rmode->fbWidth, rmode->xfbHeight, rmode->fbWidth * VI_DISPLAY_PIX_SZ);
@@ -163,7 +169,6 @@ void platform_new(GameShell *shell, int width, int height) {
 
     KEYBOARD_Init(NULL);
     MOUSE_Init();
-    initfs();
     // settime(0); // would start gettime at 0, but why does this break on login?
 }
 void platform_free(GameShell *shell) {

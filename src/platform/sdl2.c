@@ -73,6 +73,9 @@ static void midi_callback(void *data, uint8_t *stream, int len) {
     }
 }
 
+void platform_init(void) {
+}
+
 void platform_new(GameShell *shell, int width, int height) {
     SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
     // SDL_SetHint(SDL_HINT_WINDOWS_NO_CLOSE_ON_ALT_F4, "1"); // OSRS desktop client always had this, not sure about before?

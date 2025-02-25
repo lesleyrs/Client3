@@ -38,9 +38,11 @@ static void soc_shutdown() {
     // _3ds_toggle_top_screen(1);
 }
 
-void platform_new(GameShell *shell, int width, int height) {
-    osSetSpeedupEnable(true); // TODO add this in some kind of platform_init?
+void platform_init(void) {
+    osSetSpeedupEnable(true);
+}
 
+void platform_new(GameShell *shell, int width, int height) {
     (void)shell, (void)width, (void)height;
     atexit(soc_shutdown);
 

@@ -11,6 +11,9 @@
 
 extern InputTracking _InputTracking;
 
+void platform_init(void) {
+}
+
 void platform_new(GameShell *shell, int width, int height) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         rs2_error("SDL_Init failed: %s\n", SDL_GetError());

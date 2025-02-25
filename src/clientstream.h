@@ -7,14 +7,6 @@
 #include <errno.h>
 #include <fcntl.h>
 
-#ifdef __SWITCH__
-#include <switch.h>
-#endif
-
-#ifdef __3DS__
-#include <3ds.h>
-#endif
-
 #ifdef __WII__
 #include <network.h>
 #else

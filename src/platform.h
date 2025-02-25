@@ -37,7 +37,6 @@ typedef struct PixMap PixMap;
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 #endif
 
-void initfs(void);
 char *platform_strndup(const char *s, size_t len);
 char *platform_strdup(const char *s);
 // int platform_asprintf(char **str, const char *fmt, ...);
@@ -52,6 +51,7 @@ int indexof(const char *str, const char *str2);
 char *substring(const char *src, size_t start, size_t length);
 double jrand(void);
 
+void platform_init(void);
 void platform_new(GameShell *shell, int width, int height);
 void platform_free(GameShell *shell);
 void platform_set_wave_volume(int wavevol);

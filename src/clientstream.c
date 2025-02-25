@@ -5,6 +5,10 @@
 #include "clientstream.h"
 #include "platform.h"
 
+#ifdef __SWITCH__
+#include <switch.h>
+#endif
+
 #if _WIN32
 #define close closesocket
 #define ioctl ioctlsocket

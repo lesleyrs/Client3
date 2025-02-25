@@ -4756,7 +4756,6 @@ bool client_read(Client *c) {
                 char filename[PATH_MAX];
                 snprintf(filename, sizeof(filename), "cache/client/maps/m%d_%d", mapsquareX, mapsquareZ);
 
-                initfs();
                 FILE *file = fopen(filename, "rb");
                 if (!file) {
                     rs2_error("%s: %s\n", filename, strerror(errno));
@@ -10221,6 +10220,7 @@ EM_JS(void, get_host_js, (char *socketip, size_t len, int *http_port), {
 #endif
 
 int main(int argc, char **argv) {
+    platform_init();
     // NOTE: to print argv on emscripten you need to print index to flush instead of just \n?
     rs2_log("RS2 user client - release #%d\n", _Client.clientversion);
 
@@ -10248,8 +10248,6 @@ int main(int argc, char **argv) {
     const char *_free = argv[4];
     _Client.members = !_free || strcmp(_free, "1") != 0;
 #else
-    initfs();
-
     if (load_ini_args()) {
         goto init;
     }
