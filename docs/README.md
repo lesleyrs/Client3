@@ -17,6 +17,8 @@ COLLISIONMAP_LEVELS should probably be added in some more places
 global search TODO and NOTE
 add CI: check both highmem/lowmem, members/free, all entrypoints, run make check/scan/san and clang-format
 maybe allow resizing canvas/fullscreen on desktop (draw to sdl texture and use gpu, sdl2 wrapper for sdl1 on linux already does this)
+maybe take webworker server compat from Client2: https://emscripten.org/docs/api_reference/wasm_workers.html
+bring back worldlist loading in [shell.html](https://github.com/lesleyrs/Client3/commit/5da924b9f766005e82163d899e52a5df2f771584#diff-c878553ed816480a5e85ff602ff3c5d38788ca1d21095cd8f8ebc36a4dbc07ee) if it gets re-added for live servers
 ```
 ## Java and C differences + codestyle
 ```
