@@ -208,7 +208,7 @@ Citra on windows gets an error trying to connect?
 #### Wii U
 in cemu emulator click `file>open mlc folder`, go 1 directory up to see sdcard dir
 
-TODO: Touch input not working yet, SDL2 issue.
+TODO: Touch input not working yet, might be fixed by last wiiu-sdl2 commit.
 
 TODO: highmem seems to not start due to tinysoundfont tsf_load failing, it works on all other consoles though...
 
