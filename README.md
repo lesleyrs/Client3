@@ -165,11 +165,9 @@ Wii U and Switch also need the (wiiu/switch)-sdl2 package.
 
 For all consoles besides NDS you have to move the `cache/` `Roboto/`, `SCC1_Florestan.sf2`, and `config.ini` to sdcard (config needed as we can't pass cli args, but can be empty).
 
-TODO: 3ds/wiiu/switch have an option to build with romfs (read-only memory file system) which won't require an sdcard. Would have to build the config into the binary or load from sd card still.
+TODO: nds/3ds/wiiu/switch have an option to build with romfs (read-only memory file system) which won't require an sdcard. Would have to build the config into the binary or load from sd card still.
 
 TODO: on wii use the remaining wiimote buttons for switching views due to the entire game not fitting in 640x480 and same for 3ds at 320x240
-
-TODO: touchscreens systems need a way to right click and rotate camera, use buttons in combination
 
 #### NDS
 Not working right now but 32MB ram could work in some areas of the game with lowmem + lower bump_allocator_init cap
