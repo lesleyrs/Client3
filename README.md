@@ -56,6 +56,8 @@ auto-generated js by emscripten is blocking default browser shortcuts why exactl
 
 the most complete platform layer is SDL2, but keyboard input is just an unfinished hack but usable except ctrl doesn't work for running yet.
 
+Any touchscreen input has an issue where the first click can still use it's last touch position. Mobile isn't playable for now without mouse/keyboard (no right clicking, rotating camera, onscreen keyboard)
+
 no midi fading, old js code for IE: https://github.com/2004Scape/Server/blob/61bf21fb3755c14b5cf6d47c9d974dee5783beda/view/javaclient.ejs new ts code: https://github.com/2004Scape/Client2/commit/92e74f1f134ea82e48dd608dcca3422777a7a986 (client-ts has more some fade fixes)
 
 locs like fires have no animations as pushLocs is disabled for now, it constantly allocates memory due to always calling model_copy_faces in loctype which requires a different approach. The leaks get worse if the dynamic model cache can't fit all sequences (animations) of the models in an area, disable the allocator to see origins.
@@ -89,8 +91,6 @@ On windows we aren't loading system gm.dls but use a similar sf2 soundfont inste
 emrun causes extra batch job message on windows sigint, can swap it for `py -m http.server` or so to avoid it
 
 Recompile is needed to change between different RSA key lengths, RSA_BUF_LEN needs to be set at compile time because it's needed for stack allocated arrays and BN_ARRAY_SIZE define.
-
-Mobile input is unfinished (only left clicks on postmarketos/android), as touchscreen only input doesn't feel good to play. Use keyboard and mouse. Missing: right clicking, rotating camera, onscreen keyboard input, TODO: single press uses last mouse pos? Console touchscreens are fine because they have other buttons to use in combination.
 
 instead of a clean target, try: `git clean -fXdn`, remove n to delete files for real
 
@@ -172,21 +172,13 @@ TODO: on wii use the remaining wiimote buttons for switching views due to the en
 
 TODO: touchscreens systems need a way to right click and rotate camera, use buttons in combination
 
-#### NDS/3DS DSi mode
-Not working right now but 32MB ram could work: lowmem + lower bump_allocator_init cap (see ::perf, avoid towns or stay in the Wilderness)
+#### NDS
+Not working right now but 32MB ram could work in some areas of the game with lowmem + lower bump_allocator_init cap
 
-NDS
 ```
 with 32 mb ram gba expansion pak + 4MB system ram
 original game will probably run at 1 fps if it works at all
 would need major changes to run smoothly, need separate client entrypoint for it
-```
-
-3DS DSi mode
-```
-has the full 32MB ram instead of 16MB on normal DSi (IS-TWL-DEBUGGER consoles have 32MB too)
-will probably work right now but the full game will run at a few fps, but the 3ds already has it's own build so it's not as cool.
-need to test this on a real 3DS as melonDS and other emulators don't support wifi in DSi mode or the increased 3ds/debugger RAM
 ```
 
 #### Wii

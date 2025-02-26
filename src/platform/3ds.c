@@ -238,6 +238,8 @@ void platform_poll_events(Client *c) {
         int x = touch.px;
         int y = touch.py;
 
+        // TODO: custom but has issue where it sometimes doesn't click or uses last pos
+        c->shell->idle_cycles = 0;
         c->shell->mouse_x = x;
         c->shell->mouse_y = y;
 
@@ -245,23 +247,25 @@ void platform_poll_events(Client *c) {
             inputtracking_mouse_moved(&_InputTracking, x, y);
         }
 
-        c->shell->idle_cycles = 0;
-        c->shell->mouse_click_x = x;
-        c->shell->mouse_click_y = y;
+        if (!touch_down) {
+            // c->shell->idle_cycles = 0;
+            c->shell->mouse_click_x = x;
+            c->shell->mouse_click_y = y;
 
-        if (right_touch) {
-            c->shell->mouse_click_button = 2;
-            c->shell->mouse_button = 2;
-        } else {
-            c->shell->mouse_click_button = 1;
-            c->shell->mouse_button = 1;
+            if (right_touch) {
+                c->shell->mouse_click_button = 2;
+                c->shell->mouse_button = 2;
+            } else {
+                c->shell->mouse_click_button = 1;
+                c->shell->mouse_button = 1;
+            }
+
+            if (_InputTracking.enabled) {
+                inputtracking_mouse_pressed(&_InputTracking, x, y, right_touch ? 1 : 0);
+            }
+
+            touch_down = true;
         }
-
-        if (_InputTracking.enabled) {
-            inputtracking_mouse_pressed(&_InputTracking, x, y, right_touch ? 1 : 0);
-        }
-
-        touch_down = true;
     }
 }
 void platform_update_surface(GameShell *shell) {

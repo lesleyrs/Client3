@@ -27,6 +27,7 @@ static tsf *g_TinySoundFont;
 // Holds global MIDI playback state
 static double g_Msec;              // current playback time
 static tml_message *g_MidiMessage; // next message to be played
+static SDL_AudioDeviceID device;
 
 // TODO separate sdl1? or separate midi
 static void midi_callback(void *data, uint8_t *stream, int len) {
@@ -111,14 +112,10 @@ void platform_new(GameShell *shell, int width, int height) {
         // Set the SoundFont rendering output mode
         tsf_set_output(g_TinySoundFont, TSF_STEREO_INTERLEAVED, midiSpec.freq, 0.0f);
 
-        // if (SDL_OpenAudio(&midiSpec, NULL) < 0) {
-        SDL_AudioDeviceID device = SDL_OpenAudioDevice(NULL, 0, &midiSpec, NULL, 0);
-        if (!device) {
+        if (SDL_OpenAudio(&midiSpec, NULL) < 0) {
             rs2_error("Could not open the audio hardware or the desired audio output format\n");
         }
-
-        SDL_PauseAudioDevice(device, 0);
-        // }
+        SDL_PauseAudio(0);
 
 #ifndef __EMSCRIPTEN__
         SDL_AudioSpec wavSpec;
@@ -128,8 +125,9 @@ void platform_new(GameShell *shell, int width, int height) {
         wavSpec.samples = 4096;
         wavSpec.callback = NULL;
 
-        if (SDL_OpenAudio(&wavSpec, NULL) < 0) {
-            rs2_error("SDL_OpenAudio(): %s\n", SDL_GetError());
+        device = SDL_OpenAudioDevice(NULL, 0, &wavSpec, NULL, 0);
+        if (!device) {
+            rs2_error("SDL_OpenAudioDevice(): %s\n", SDL_GetError());
         }
 #endif
     }
@@ -141,7 +139,6 @@ void platform_new(GameShell *shell, int width, int height) {
         return;
     }
 
-    // TODO all platforms SDL_FreeSurface(shell->surface); // https://wiki.libsdl.org/SDL3/SDL_GetWindowSurface#Remarks
     shell->surface = SDL_GetWindowSurface(shell->window);
     if (!shell->surface) {
         rs2_error("Window surface creation failed: %s\n", SDL_GetError());
@@ -255,7 +252,6 @@ void platform_set_wave_volume(int wavevol) {
 
 void platform_play_wave(int8_t *src, int length) {
     if (!src || length > 2000000) {
-        rs2_log("TODO does this ever happen: wav buffer empty or too large: %i\n", length);
         return;
     }
 
@@ -276,14 +272,10 @@ void platform_play_wave(int8_t *src, int length) {
 
     // TODO rm
     // rs2_log("wav %i %i %i\n", wavSpec.freq, wavSpec.samples, wavSpec.format);
-    // SDL_AudioDeviceID deviceId = SDL_OpenAudioDevice(NULL, 0, &wavSpec, NULL, 0);
-    // int success = SDL_QueueAudio(deviceId, wavBuffer, wavLength);
-    // SDL_PauseAudioDevice(deviceId, 0);
-    // TODO: custom option for having multiple audio devices play sounds at same time (inauthentic)
-    // TODO: web already plays multiple sounds at once as it uses different code (inauthentic)
-    if (SDL_GetQueuedAudioSize(1) == 0) {
-        SDL_QueueAudio(1, wavBuffer, wavLength);
-        SDL_PauseAudio(0);
+    // TODO: custom option for having multiple audio devices play sounds at same time (inauthentic) web already does it
+    if (SDL_GetQueuedAudioSize(device) == 0) {
+        SDL_QueueAudio(device, wavBuffer, wavLength);
+        SDL_PauseAudioDevice(device, 0);
     }
     SDL_FreeWAV(wavBuffer);
 }
