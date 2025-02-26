@@ -201,12 +201,14 @@ TODO: virtual keyboard to type, for now set user and pass in config.ini, audio, 
 #### 3DS
 in citra emulator click `file>open citra folder` for sdmc dir https://citra-emulator.com/wiki/user-directory/
 
-The game in it's original state might not have a playable frame rate outside of the "New" 3ds/2ds line for higher clock rate.
+The "New" 3ds/2ds line for higher cpu clock rate does not seem to make much difference in citra?
+
+Citra on windows gets an error trying to connect?
 
 #### Wii U
 in cemu emulator click `file>open mlc folder`, go 1 directory up to see sdcard dir
 
-TODO: Touch input isn't working in cemu, or is their SDL2 port the issue?
+TODO: Touch input not working yet, SDL2 issue.
 
 TODO: highmem seems to not start due to tinysoundfont tsf_load failing, it works on all other consoles though...
 
