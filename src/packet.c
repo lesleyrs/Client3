@@ -395,7 +395,7 @@ void rsaenc(Packet *packet, const char *mod, const char *exp) {
 }
 
 void rsadec(Packet *packet, const char *mod, const char *exp) {
-    int length = g1(packet);
+    /* int length = g1(packet);
     int8_t *enc = malloc(length);
     gdata(packet, length, 0, enc);
 
@@ -407,7 +407,7 @@ void rsadec(Packet *packet, const char *mod, const char *exp) {
     }
 
     int8_t dec[RSA_BUF_LEN / 2] = {0};
-    int dec_len = rsa_crypt(&rsa, enc, length, dec, sizeof(enc));
+    int dec_len = rsa_decrypt(&rsa, enc, length, dec, sizeof(enc));
     if (dec_len < 0) {
         rs2_error("failed to rsa_crypt\n");
         return;
@@ -416,5 +416,5 @@ void rsadec(Packet *packet, const char *mod, const char *exp) {
 
     packet->pos = 0;
     pdata(packet, dec, dec_len, 0);
-    packet->pos = 0; // reset afterwards to read the new data
+    packet->pos = 0; // reset afterwards to read the new data */
 }

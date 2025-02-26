@@ -59,6 +59,7 @@ typedef struct {
     bool hide_debug_sprite;
     bool allow_commands;
     bool allow_debugprocs;
+    bool disable_rsa;
     int http_port;
     int chat_era; // 0 - early beta, 1 - late beta, 2 - launch
 } Custom;
@@ -7348,10 +7349,9 @@ void client_login(Client *c, const char *username, const char *password, bool re
     p4(c->out, _Client.uid);
     pjstr(c->out, username);
     pjstr(c->out, password);
-// TODO temp
-#if !defined(__WII__) && !defined(__3DS__) && !defined(__WIIU__) && !defined(__SWITCH__)
-    rsaenc(c->out, _Client.rsa_modulus, _Client.rsa_exponent);
-#endif
+    if (!_Custom.disable_rsa) {
+        rsaenc(c->out, _Client.rsa_modulus, _Client.rsa_exponent);
+    }
 
     c->login->pos = 0;
     if (reconnect) {
@@ -10841,6 +10841,7 @@ static void load_ini_config(Client *c) {
     INI_INT_LOG(&(&_Custom), chat_era, );
     INI_INT_LOG(&(&_Custom), remember_username, );
     INI_INT_LOG(&(&_Custom), remember_password, );
+    INI_INT_LOG(&(&_Custom), disable_rsa, );
 
     rs2_log("\n");
     ini_free(config);

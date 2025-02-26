@@ -28,6 +28,9 @@
 # remember_username = 1
 # remember_password = 1
 
+# for faster development when openssl is not available (consoles etc) comment out rsadec in the server
+# disable_rsa = 1
+
 # currently you have to recompile to change RSA length with -DRSA_BUF_LEN=(bits/4)
 # prefix the exponent with a 0 if the number isn't even
 # rsa_exponent = 
