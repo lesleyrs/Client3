@@ -181,6 +181,8 @@ in dolphin emulator you can find the sdcard path in `options>configuration>wii>s
 
 wiimote IR pointer works as mouse, Dpad works as arrow keys, home button to exit.
 
+TODO: need 2 framebuffers to a show cursor on screen without flickering or you won't see where you are aiming (dolphin mouse is slightly offset)
+
 TODO: lowmem is recommended, highmem only barely fits in wii's memory and crashes quite fast. Might become better if the last small leaks are fixed.
 
 TODO: virtual keyboard to type, for now set user and pass in config.ini, audio, add game offset on real HW?, support usb keyboard and mouse on wii
