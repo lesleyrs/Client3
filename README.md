@@ -207,7 +207,7 @@ in suyu emulator (yuzu fork) click `file->open suyu folder` for sdmc dir
 * [isaac](https://burtleburtle.net/bob/rand/isaacafa.html) | https://burtleburtle.net/bob/c/readable.c
 * [tiny-bignum-c](https://github.com/kokke/tiny-bignum-c)
 * [ini](https://github.com/rxi/ini)
-* [TinySoundFont](https://github.com/schellingb/TinySoundFont)
+* [TinySoundFont](https://github.com/schellingb/TinySoundFont) - with fix for attack1.mid by skipping RIFF header
 * [stb_image and stb_truetype](https://github.com/nothings/stb)
 
 ## optional libraries
