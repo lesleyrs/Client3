@@ -54,8 +54,6 @@ emscripten wasm on firefox has memleaks related to midi, gets cleaned up by pres
 
 auto-generated js by emscripten is blocking default browser shortcuts why exactly, also pressing fkeys types uppercase letters even if it doesn't steal input
 
-the most complete platform layer is SDL2, but keyboard input is just an unfinished hack but usable except ctrl doesn't work for running yet.
-
 Any touchscreen input has an issue where the first click can still use it's last touch position. Mobile isn't playable for now without mouse/keyboard (no right clicking, rotating camera, onscreen keyboard)
 
 no midi fading, old js code for IE: https://github.com/2004Scape/Server/blob/61bf21fb3755c14b5cf6d47c9d974dee5783beda/view/javaclient.ejs new ts code: https://github.com/2004Scape/Client2/commit/92e74f1f134ea82e48dd608dcca3422777a7a986 (client-ts has more some fade fixes)
@@ -177,7 +175,7 @@ would need major changes to run smoothly, need separate client entrypoint for it
 #### Wii
 in dolphin emulator you can find the sdcard path in `options>configuration>wii>sd card` settings and after moving the files there you have to click `Convert Folder to File Now` to format it.
 
-Controls: wiimote IR pointer works as mouse, A for left click, B for right click, Dpad works as arrow keys, home button to exit.
+Controls: wiimote IR pointer works as mouse, A for left click, B for right click, Dpad works as arrow keys, 1 for control, home button to exit.
 
 TODO: need 2 framebuffers to a show cursor on screen without flickering or you won't see where you are aiming (dolphin mouse is slightly offset)
 
@@ -188,7 +186,7 @@ TODO: virtual keyboard to type, for now set user and pass in config.ini, audio, 
 #### 3DS
 in citra emulator click `file>open citra folder` for sdmc dir https://citra-emulator.com/wiki/user-directory/
 
-Controls: Touch to left click, L + touch to right click, Dpad for arrow keys
+Controls: Touch to left click, L + touch to right click, Dpad for arrow keys, X for control
 
 The "New" 3ds/2ds line for higher cpu clock rate does not seem to make much difference in citra?
 
@@ -211,7 +209,7 @@ Install [pspdev](#tools) and run `make -f psp.mk -j$(nproc) -B`.
 
 ppsspp emulator loads relative dir as memstick, so the filesystem works automatically.
 
-Controls: move cursor with analog stick, O for left click, X for right click, /\ for control (to run), Dpad as arrow keys
+Controls: move cursor with analog stick, O for left click, X for right click, /\ for control, Dpad as arrow keys
 
 Requires at least model 2000, and only lowmem fits into memory.
 

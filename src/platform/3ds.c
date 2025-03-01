@@ -166,10 +166,6 @@ void set_pixels(PixMap *pixmap, int x, int y) {
 
 void platform_get_keycodes(Keysym *keysym, int *code, char *ch) {
 }
-#define K_LEFT 37
-#define K_RIGHT 39
-#define K_UP 38
-#define K_DOWN 40
 
 void platform_poll_events(Client *c) {
     hidScanInput();
@@ -208,6 +204,15 @@ void platform_poll_events(Client *c) {
 
     if (keys_up & KEY_DOWN) {
         key_released(c->shell, K_DOWN, -1);
+    }
+
+
+    if (keys_down & KEY_X) {
+        key_pressed(c->shell, K_CONTROL, -1);
+    }
+
+    if (keys_up & KEY_X) {
+        key_released(c->shell, K_CONTROL, -1);
     }
 
     touchPosition touch = {0};

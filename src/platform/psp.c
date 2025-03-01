@@ -121,11 +121,6 @@ void set_pixels(PixMap *pixmap, int x, int y) {
 
 void platform_get_keycodes(Keysym *keysym, int *code, char *ch) {
 }
-#define K_LEFT 37
-#define K_RIGHT 39
-#define K_UP 38
-#define K_DOWN 40
-#define K_CONTROL 17
 
 void platform_poll_events(Client *c) {
     sceCtrlPeekBufferPositive(&pad, 1);

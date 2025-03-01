@@ -50,6 +50,39 @@
 #define USERNAME_LENGTH 12
 #define PASSWORD_LENGTH 20
 
+// key codes
+#define K_LEFT 37
+#define K_RIGHT 39
+#define K_UP 38
+#define K_DOWN 40
+#define K_PAGE_UP 33
+#define K_PAGE_DOWN 34
+#define K_HOME 36
+#define K_F1 112
+#define K_ENTER 13
+#define K_CONTROL 17
+
+#define K_BACKSPACE 8
+#define K_ESCAPE 27
+#define K_TAB 9
+
+#define K_FWD_SLASH 47
+#define K_ASTERISK 42
+#define K_MINUS 45
+#define K_PLUS 43
+#define K_PERIOD 46
+
+#define K_0 48
+#define K_1 49
+#define K_2 50
+#define K_3 51
+#define K_4 52
+#define K_5 53
+#define K_6 54
+#define K_7 55
+#define K_8 56
+#define K_9 57
+
 // ---- these are in rgb 24 bits
 #define RED 0xff0000      // 16711680
 #define GREEN 0xff00      // 65280

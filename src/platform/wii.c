@@ -241,10 +241,6 @@ void set_pixels(PixMap *pixmap, int x, int y) {
 }
 void platform_get_keycodes(Keysym *keysym, int *code, char *ch) {
 }
-#define K_LEFT 37
-#define K_RIGHT 39
-#define K_UP 38
-#define K_DOWN 40
 
 void platform_poll_events(Client *c) {
     WPAD_ScanPads();
@@ -316,6 +312,15 @@ void platform_poll_events(Client *c) {
     }
     if (data->btns_u & WPAD_BUTTON_DOWN) {
         key_released(c->shell, K_DOWN, -1);
+    }
+
+
+    if (data->btns_d & WPAD_BUTTON_1) {
+        key_pressed(c->shell, K_CONTROL, -1);
+    }
+
+    if (data->btns_u & WPAD_BUTTON_1) {
+        key_released(c->shell, K_CONTROL, -1);
     }
 }
 void platform_update_surface(GameShell *shell) {

@@ -11,7 +11,7 @@ SDL3 is not officially released yet, need updated binaries when it is.
 icon/metadata etc for the different platforms: title+taskbar+desktop
 http requests for checksums/cache (not done as they aren't supposed to change and saving files on consoles depends on if sdcard or romfs was used)
 change a bunch of functions and function prototypes to static
-clientstream is based off rsc-c, double check it for accuracy
+clientstream and keycodes are based off rsc-c (but both have some tweaks), double check them for accuracy
 the following are (partially) based on RS2-225 by accident, some funcs might take args in diff order to Client repo: animbase, animframe, pix2d, pix3d, gameshell, jagfile, model, packet, pix8, pixfont, pixmap. Rewrite maybe?
 inconsistent naming: used both world3d and scene for world3d, rename world3d to scene? or at least for args only
 COLLISIONMAP_LEVELS should probably be added in some more places
