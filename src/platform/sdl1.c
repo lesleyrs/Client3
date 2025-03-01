@@ -120,6 +120,9 @@ void platform_get_keycodes(SDL_keysym *keysym, int *code, char *ch) {
     case SDLK_DOWN:
         *code = K_DOWN;
         break;
+    case SDLK_RCTRL:
+    case SDLK_LCTRL:
+        *code = K_CONTROL;
     case SDLK_PAGEUP:
         *code = K_PAGE_UP;
         break;

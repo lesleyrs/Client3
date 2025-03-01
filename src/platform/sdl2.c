@@ -336,6 +336,10 @@ void platform_get_keycodes(SDL_Keysym *keysym, int *code, char *ch) {
     case SDL_SCANCODE_DOWN:
         *code = K_DOWN;
         break;
+    case SDL_SCANCODE_LCTRL:
+    case SDL_SCANCODE_RCTRL:
+        *code = K_CONTROL;
+        break;
     case SDL_SCANCODE_PAGEUP:
         *code = K_PAGE_UP;
         break;
