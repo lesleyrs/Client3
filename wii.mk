@@ -30,7 +30,6 @@ CFLAGS	= -Wno-parentheses -Wall $(MACHDEP) $(INCLUDE) -D__WII__ -Dclient
 ifeq ($(DEBUG),1)
 CFLAGS += -g
 else
-# NOTE -O3 miscompiles with -flto, but flto fixes title screen jpeg being flipped and same performance
 CFLAGS += -s -O2 -ffast-math -flto=$(shell nproc)
 endif
 CXXFLAGS	=	$(CFLAGS)

@@ -4,9 +4,7 @@ OBJS = $(patsubst %.c, %.o, $(SRCS))
 LIBS = -lpsppower
 
 INCDIR =
-CFLAGS = -O3 -ffast-math -Wno-parentheses -Wall -Dclient
-# TODO why flto pthread error
-# -flto=$(shell nproc)
+CFLAGS = -O2 -ffast-math -Wno-parentheses -Wall -Dclient -flto=$(shell nproc)
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS = $(CFLAGS)
 

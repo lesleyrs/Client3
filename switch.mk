@@ -57,7 +57,6 @@ CFLAGS	+=	$(INCLUDE) -D__SWITCH__ -Dclient -DSDL=2 `sdl2-config --cflags`
 ifeq ($(DEBUG),1)
 CFLAGS += -g
 else
-# NOTE -O3 miscompiles with -flto
 CFLAGS += -s -O2 -ffast-math -flto=$(shell nproc)
 endif
 

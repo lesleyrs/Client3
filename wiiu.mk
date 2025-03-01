@@ -51,7 +51,6 @@ CFLAGS	+=	$(INCLUDE) -D__WIIU__ -D__WUT__ -Dclient -DSDL=2 -DMODERN_POSIX `sdl2-
 ifeq ($(DEBUG),1)
 CFLAGS += -g
 else
-# NOTE -O3 miscompiles with -flto
 CFLAGS += -s -O2 -ffast-math -flto=$(shell nproc)
 endif
 
