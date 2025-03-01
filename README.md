@@ -204,14 +204,6 @@ TODO: highmem seems to not start due to tinysoundfont tsf_load failing, it works
 #### Switch
 in suyu emulator (yuzu fork) click `file->open suyu folder` for sdmc dir
 
-## libraries
-* [micro-bunzip](https://landley.net/code/) | https://landley.net/code/bunzip-4.1.c
-* [isaac](https://burtleburtle.net/bob/rand/isaacafa.html) | https://burtleburtle.net/bob/c/readable.c
-* [tiny-bignum-c](https://github.com/kokke/tiny-bignum-c)
-* [ini](https://github.com/rxi/ini)
-* [TinySoundFont](https://github.com/schellingb/TinySoundFont) - with fix for attack1.mid by skipping RIFF header
-* [stb_image and stb_truetype](https://github.com/nothings/stb)
-
 ### Sony consoles
 
 #### PSP
@@ -226,6 +218,14 @@ TODO: Model 1000 has the same CPU just less memory, if the entire 32 MB was acce
 
 #### Vita
 TODO
+
+## libraries
+* [micro-bunzip](https://landley.net/code/) | https://landley.net/code/bunzip-4.1.c
+* [isaac](https://burtleburtle.net/bob/rand/isaacafa.html) | https://burtleburtle.net/bob/c/readable.c
+* [tiny-bignum-c](https://github.com/kokke/tiny-bignum-c)
+* [ini](https://github.com/rxi/ini)
+* [TinySoundFont](https://github.com/schellingb/TinySoundFont) - with fix for attack1.mid by skipping RIFF header
+* [stb_image and stb_truetype](https://github.com/nothings/stb)
 
 ## optional libraries
 * [OpenSSL](https://github.com/openssl/openssl) | https://wiki.openssl.org/index.php/Binaries
