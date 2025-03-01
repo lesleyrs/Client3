@@ -208,6 +208,7 @@ in suyu emulator (yuzu fork) click `file->open suyu folder` for sdmc dir
 
 #### PSP
 Install [pspdev](#tools) and run `make -f psp.mk -j$(nproc) -B`.
+
 ppsspp emulator loads relative dir as memstick, so the filesystem works automatically.
 
 Controls: move cursor with analog stick, O for left click, X for right click, /\ for control (to run), Dpad as arrow keys
