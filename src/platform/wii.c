@@ -115,7 +115,7 @@ static u32 rgb2yuv(u8 r1, u8 g1, u8 b1, u8 r2, u8 g2, u8 b2) {
 }
 
 int get_free_mem(void) {
-    return 0; // TODO
+    return SYS_GetArena1Hi() - SYS_GetArena1Lo() + SYS_GetArena2Hi() - SYS_GetArena2Lo();
 }
 int get_cursor_x(void) {
     return cursor_x;
