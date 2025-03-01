@@ -55,6 +55,11 @@
 /*.nacp
 /*.nro
 
+# psp
+*.PBP
+*.SFO
+/**/*.o
+
 # extra
 /SDL2.dll
 /SDL3.dll

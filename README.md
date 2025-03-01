@@ -4,9 +4,9 @@ Portable single-threaded C client for early RS2, the last update before a new ca
 Compatible with [2004Scape](https://github.com/2004Scape/Server), the most accurate runescape remake
 
 Features:
-- should run on any 32 bit system with 64 MB of RAM on lowmem.
+- should work on any 32 bit system with 64 MB of RAM on lowmem, with networking and a (read-only) filesystem.
+- WIP ports for many game consoles mostly from the 2000s that fit the above.
 - webassembly build to avoid javascript code being optimized out by the browser.
-- WIP ports for nintendo consoles that support networking and can simulate clicks (mouse, touch, or wiimote).
 - optional config.ini file to change client behaviour, see [config.ini.example](config.ini.example) for options. To avoid passing command line arguments each time you can create an empty config.ini.
 
 See [docs](/docs) for more info and media.
@@ -168,10 +168,8 @@ TODO: nds/3ds/wiiu/switch have an option to build with romfs (read-only memory f
 TODO: on wii use the remaining wiimote buttons for switching views due to the entire game not fitting in 640x480 and same for 3ds at 320x240
 
 #### NDS
-Not working right now but 32MB ram could work in some areas of the game with lowmem + lower bump_allocator_init cap
-
 ```
-with 32 mb ram gba expansion pak + 4MB system ram
+with 32 mb ram gba expansion pak? + 4MB system ram
 original game will probably run at 1 fps if it works at all
 would need major changes to run smoothly, need separate client entrypoint for it
 ```
@@ -179,7 +177,7 @@ would need major changes to run smoothly, need separate client entrypoint for it
 #### Wii
 in dolphin emulator you can find the sdcard path in `options>configuration>wii>sd card` settings and after moving the files there you have to click `Convert Folder to File Now` to format it.
 
-wiimote IR pointer works as mouse, Dpad works as arrow keys, home button to exit.
+Controls: wiimote IR pointer works as mouse, A for left click, B for right click, Dpad works as arrow keys, home button to exit.
 
 TODO: need 2 framebuffers to a show cursor on screen without flickering or you won't see where you are aiming (dolphin mouse is slightly offset)
 
@@ -189,6 +187,8 @@ TODO: virtual keyboard to type, for now set user and pass in config.ini, audio, 
 
 #### 3DS
 in citra emulator click `file>open citra folder` for sdmc dir https://citra-emulator.com/wiki/user-directory/
+
+Controls: Touch to left click, L + touch to right click, Dpad for arrow keys
 
 The "New" 3ds/2ds line for higher cpu clock rate does not seem to make much difference in citra?
 
@@ -212,6 +212,21 @@ in suyu emulator (yuzu fork) click `file->open suyu folder` for sdmc dir
 * [TinySoundFont](https://github.com/schellingb/TinySoundFont) - with fix for attack1.mid by skipping RIFF header
 * [stb_image and stb_truetype](https://github.com/nothings/stb)
 
+### Sony consoles
+
+#### PSP
+Install [pspdev](#tools) and run `make -f psp.mk -j$(nproc) -B`.
+ppsspp emulator loads relative dir as memstick, so the filesystem works automatically.
+
+Controls: move cursor with analog stick, O for left click, X for right click, /\ for control (to run), Dpad as arrow keys
+
+Requires at least model 2000, and only lowmem fits into memory.
+
+TODO: Model 1000 has the same CPU just less memory, if the entire 32 MB was accessible some ingame areas might work. In practice even after enabling kernel mode it doesn't give you the full RAM access?
+
+#### Vita
+TODO
+
 ## optional libraries
 * [OpenSSL](https://github.com/openssl/openssl) | https://wiki.openssl.org/index.php/Binaries
 
@@ -228,6 +243,7 @@ Latest SDL1 already contains the tcc fix but they don't make new releases for it
 * [tcc](https://github.com/TinyCC/tinycc) | https://bellard.org/tcc/
 * [emsdk](https://github.com/emscripten-core/emsdk) | https://emscripten.org/docs/getting_started/downloads.html
 * [devkitpro](https://github.com/devkitPro) | https://devkitpro.org/
+* [pspdev](https://github.com/pspdev/pspdev) | https://pspdev.github.io/
 
 ## references
 * https://github.com/2003scape/rsc-c - did a lot of the dirty work in advance (finding libs, networking, input)

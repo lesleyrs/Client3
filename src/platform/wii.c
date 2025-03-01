@@ -31,8 +31,8 @@ extern InputTracking _InputTracking;
 
 static void *xfb = NULL;
 static GXRModeObj *rmode = NULL;
-static int wii_mouse_x = 0;
-static int wii_mouse_y = 0;
+static int cursor_x = SCREEN_WIDTH / 2;
+static int cursor_y = SCREEN_HEIGHT / 2;
 
 static int arrow_yuv_width = 12;
 static int arrow_yuv_height = 20;
@@ -80,12 +80,12 @@ static uint8_t arrow_yuv[] = {
     0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80,
     0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80};
 static void draw_arrow(void) {
-    if (wii_mouse_x >= SCREEN_WIDTH || wii_mouse_y >= SCREEN_HEIGHT - 20 /* NOTE ? */) {
+    if (cursor_x >= SCREEN_WIDTH || cursor_y >= SCREEN_HEIGHT - 20 /* NOTE ? */) {
         return;
     }
 
     for (int y = 0; y < arrow_yuv_height; y++) {
-        int fb_index = (SCREEN_WIDTH * 2 * (y + wii_mouse_y)) + (wii_mouse_x * 2);
+        int fb_index = (SCREEN_WIDTH * 2 * (y + cursor_y)) + (cursor_x * 2);
 
         int arrow_offset = (arrow_yuv_offsets[y] * 2) + (arrow_yuv_width * 2 * y);
 
@@ -112,6 +112,16 @@ static u32 rgb2yuv(u8 r1, u8 g1, u8 b1, u8 r2, u8 g2, u8 b2) {
     cb = (cb1 + cb2) >> 1;
     cr = (cr1 + cr2) >> 1;
     return (y1 << 24) | (cb << 16) | (y2 << 8) | cr;
+}
+
+int get_free_mem(void) {
+    return 0; // TODO
+}
+int get_cursor_x(void) {
+    return cursor_x;
+}
+int get_cursor_y(void) {
+    return cursor_y;
 }
 
 void platform_init(void) {
@@ -243,22 +253,22 @@ void platform_poll_events(Client *c) {
         exit(0);
     }
     if (data->ir.valid) {
-        wii_mouse_x = data->ir.x;
-        wii_mouse_y = data->ir.y;
+        cursor_x = data->ir.x;
+        cursor_y = data->ir.y;
 
         c->shell->idle_cycles = 0;
-        c->shell->mouse_x = wii_mouse_x;
-        c->shell->mouse_y = wii_mouse_y;
+        c->shell->mouse_x = cursor_x;
+        c->shell->mouse_y = cursor_y;
 
         if (_InputTracking.enabled) {
-            inputtracking_mouse_moved(&_InputTracking, wii_mouse_x, wii_mouse_y);
+            inputtracking_mouse_moved(&_InputTracking, cursor_x, cursor_y);
         }
     }
 
     if (data->btns_d & WPAD_BUTTON_A || data->btns_d & WPAD_BUTTON_B) {
         c->shell->idle_cycles = 0;
-        c->shell->mouse_click_x = wii_mouse_x;
-        c->shell->mouse_click_y = wii_mouse_y;
+        c->shell->mouse_click_x = cursor_x;
+        c->shell->mouse_click_y = cursor_y;
 
         if (data->btns_d & WPAD_BUTTON_B) {
             c->shell->mouse_click_button = 2;
@@ -269,7 +279,7 @@ void platform_poll_events(Client *c) {
         }
 
         if (_InputTracking.enabled) {
-            inputtracking_mouse_pressed(&_InputTracking, wii_mouse_x, wii_mouse_y, data->btns_d & WPAD_BUTTON_B ? 1 : 0);
+            inputtracking_mouse_pressed(&_InputTracking, cursor_x, cursor_y, data->btns_d & WPAD_BUTTON_B ? 1 : 0);
         }
     }
     if (data->btns_u & WPAD_BUTTON_A || data->btns_u & WPAD_BUTTON_B) {

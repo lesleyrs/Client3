@@ -116,7 +116,7 @@ void gameshell_run(Client *c) {
         client_draw(c);
         client_run_flames(c); // NOTE: random placement of run_flames
         // TODO temp
-        #if defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__)
+        #if defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__PSP__)
         static bool loggedin;
         if (!loggedin) {
             client_login(c, c->username, c->password, false);
@@ -326,6 +326,10 @@ void gameshell_draw_string(Client *c, const char *str, int x, int y, int color, 
 
     if (!file) {
         file = fopen("Roboto/Roboto-Bold.ttf", "rb");
+        if (!file) {
+            rs2_error("Failed to open font file\n");
+            return;
+        }
     }
 
     fseek(file, 0, SEEK_END);

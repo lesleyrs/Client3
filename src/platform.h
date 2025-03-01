@@ -12,7 +12,7 @@ typedef struct SDL_keysym Keysym;
 #else
 typedef struct SDL_Keysym Keysym;
 #endif
-#elif defined(__WII__) || defined(__3DS__)
+#elif defined(__WII__) || defined(__3DS__) || defined(__PSP__)
 typedef struct Surface {
     int *pixels;
 } Surface;
@@ -35,6 +35,13 @@ typedef struct PixMap PixMap;
 #endif
 #ifndef MAX
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
+#endif
+
+// TODO rm temp func
+#if defined(__WII__) || defined(__PSP__)
+int get_cursor_x(void);
+int get_cursor_y(void);
+int get_free_mem(void);
 #endif
 
 char *platform_strndup(const char *s, size_t len);

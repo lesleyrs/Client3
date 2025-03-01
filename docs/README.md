@@ -1,3 +1,4 @@
+![psp](psp.png)
 ![3ds](3ds.png)
 ![wii](wii.png)
 ![postmarketos](postmarketos.png)

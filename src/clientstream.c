@@ -163,7 +163,8 @@ ClientStream *clientstream_new(GameShell *shell, int port) {
     setsockopt(stream->socket, SOL_SOCKET, SO_SNDTIMEO, (const char *)&socket_timeout, sizeof(socket_timeout));
     #endif
 
-    // NOTE need this since we are single threaded
+// NOTE: PSP handheld is already non-blocking by default
+#ifndef __PSP__
 // #ifdef FIONBIO
     ret = ioctl(stream->socket, FIONBIO, &set);
 
@@ -171,7 +172,7 @@ ClientStream *clientstream_new(GameShell *shell, int port) {
         rs2_error("ioctl() error: %d\n", ret);
         exit(1);
     }
-// #endif
+#endif
 
 // TODO check if this is needed
 #if !defined(_WIN32) && !defined(__WII__)

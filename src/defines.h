@@ -21,6 +21,7 @@
 // NOTE maybe change the ones using half_str to use strncpy but yolo
 // NOTE could also double both buf sizes to be 100% sure, would waste memory though
 #define HALF_STR (CHAT_LENGTH / 2)
+#define SIXTY_STR 60
 #define DOUBLE_STR (CHAT_LENGTH * 2)
 // arbitrary + null terminator
 #define MAX_STR (CHAT_LENGTH + 1)
