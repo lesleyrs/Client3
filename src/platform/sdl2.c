@@ -27,7 +27,10 @@ static tsf *g_TinySoundFont;
 // Holds global MIDI playback state
 static double g_Msec;              // current playback time
 static tml_message *g_MidiMessage; // next message to be played
+
+#ifndef __EMSCRIPTEN__
 static SDL_AudioDeviceID device;
+#endif
 
 // TODO separate sdl1? or separate midi
 static void midi_callback(void *data, uint8_t *stream, int len) {
