@@ -56,7 +56,7 @@ void platform_init(void) {
 	// pspDebugScreenPrintf("Hello World\n");
 
     // TODO setup callbacks needed?
-    scePowerSetClockFrequency(333, 333, 167);
+    scePowerSetClockFrequency(333, 333, 166);
 }
 
 void platform_new(GameShell *shell, int width, int height) {
