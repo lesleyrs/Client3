@@ -1,21 +1,25 @@
 #ifdef __PSP__
-#include <stdlib.h>
+#include <malloc.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include <malloc.h>
+#include <stdlib.h>
 
-#include <pspkernel.h>
+#include <pspctrl.h>
 #include <pspdebug.h>
 #include <pspdisplay.h>
-#include <psprtc.h>
-#include <pspctrl.h>
+#include <pspkernel.h>
+#include <pspnet.h>
+#include <pspnet_inet.h>
+#include <pspnet_resolver.h>
 #include <psppower.h>
+#include <psprtc.h>
+#include <psputility.h>
 
 #include "../client.h"
 #include "../gameshell.h"
+#include "../inputtracking.h"
 #include "../pixmap.h"
 #include "../platform.h"
-#include "../inputtracking.h"
 // NOTE temp
 #include "../pix2d.h"
 
@@ -39,6 +43,22 @@ static SceCtrlData pad, last_pad;
 static int cursor_x = SCREEN_WIDTH / 2;
 static int cursor_y = SCREEN_HEIGHT / 2;
 
+void throwError(int ms, char *fmt, ...) {
+    va_list list;
+    char msg[256];
+
+    va_start(list, fmt);
+    vsprintf(msg, fmt, list);
+    va_end(list);
+
+    pspDebugScreenInit();
+    pspDebugScreenClear();
+    pspDebugScreenPrintf("%s", msg);
+
+    sceKernelDelayThread(ms * 1000);
+    sceKernelExitGame();
+}
+
 #include <pspsdk.h>
 int get_free_mem(void) {
     return pspSdkTotalFreeUserMemSize();
@@ -50,12 +70,35 @@ int get_cursor_y(void) {
     return cursor_y;
 }
 
+int exit_callback(int arg1, int arg2, void *common) {
+    sceKernelExitGame();
+    return 0;
+}
+
+/* Callback thread */
+int CallbackThread(SceSize args, void *argp) {
+    int cbid = sceKernelCreateCallback("Exit Callback", exit_callback, NULL);
+    sceKernelRegisterExitCallback(cbid);
+    sceKernelSleepThreadCB();
+    return 0;
+}
+
+/* Sets up the callback thread and returns its thread id */
+int SetupCallbacks(void) {
+    int thid = 0;
+    thid = sceKernelCreateThread("update_thread", CallbackThread, 0x11, 0xFA0, 0, 0);
+    if (thid >= 0) {
+        sceKernelStartThread(thid, 0, 0);
+    }
+    return thid;
+}
+
 void platform_init(void) {
     // NOTE use this in rs2_log maybe? or does printf get output somewhere still
-	// pspDebugScreenInit();
-	// pspDebugScreenPrintf("Hello World\n");
+    // pspDebugScreenInit();
+    // pspDebugScreenPrintf("Hello World\n");
 
-    // TODO setup callbacks needed?
+    SetupCallbacks();
     scePowerSetClockFrequency(333, 333, 166);
 }
 
@@ -64,12 +107,41 @@ void platform_new(GameShell *shell, int width, int height) {
     sceDisplaySetFrameBuf(fb, VRAM_STRIDE, PSP_DISPLAY_PIXEL_FORMAT_565, PSP_DISPLAY_SETBUF_NEXTFRAME);
     // TODO rm
     rs2_log("%d\n", sceCtrlGetSamplingCycle);
-    
+
     sceCtrlSetSamplingCycle(0);
     sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
 
+    sceUtilityLoadNetModule(PSP_NET_MODULE_COMMON);
+    sceUtilityLoadNetModule(PSP_NET_MODULE_INET);
+    // sceNetInit(128*1024, 42, 4*1024, 42, 4*1024);
+    // sceNetInetInit();
+    // sceNetResolverInit();
+
+    int res;
+    res = sceNetInit(0x20000, 0x2A, 0, 0x2A, 0);
+
+    if (res < 0) {
+        throwError(6000, "Error 0x%08X in sceNetInit\n", res);
+    }
+
+    res = sceNetInetInit();
+
+    if (res < 0) {
+        throwError(6000, "Error 0x%08X in sceNetInetInit\n", res);
+    }
+
+    // res = sceNetResolverInit();
+
+    // if (res < 0) {
+    // 	throwError(6000, "Error 0x%08X in sceNetResolverInit\n", res);
+    // }
 }
 void platform_free(GameShell *shell) {
+    sceNetResolverTerm();
+    sceNetInetTerm();
+    sceNetTerm();
+    sceUtilityUnloadNetModule(PSP_NET_MODULE_INET);
+    sceUtilityUnloadNetModule(PSP_NET_MODULE_COMMON);
 }
 void platform_set_wave_volume(int wavevol) {
 }
@@ -98,10 +170,12 @@ void set_pixels(PixMap *pixmap, int x, int y) {
     pix2d_fill_circle(cursor_x - 8, cursor_y - 8, 8, WHITE, 96);
     // TODO rm temp checks for going past framebuffer
     for (int row = 0; row < pixmap->height; row++) {
-        if (y + row >= SCREEN_HEIGHT) break;
+        if (y + row >= SCREEN_HEIGHT)
+            break;
 
         for (int col = 0; col < pixmap->width; col++) {
-            if (x + col >= SCREEN_WIDTH) break;
+            if (x + col >= SCREEN_WIDTH)
+                break;
 
             int src_offset = row * pixmap->width + col;
             int pixel_offset = (y + row) * VRAM_STRIDE + (x + col);
@@ -113,7 +187,7 @@ void set_pixels(PixMap *pixmap, int x, int y) {
 
             uint16_t rgb565 = ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3);
 
-            ((uint16_t*)fb)[pixel_offset] = rgb565;
+            ((uint16_t *)fb)[pixel_offset] = rgb565;
         }
     }
     // sceDisplayWaitVblankStart();
@@ -142,7 +216,6 @@ void platform_poll_events(Client *c) {
         key_pressed(c->shell, K_DOWN, -1);
     }
 
-
     if (last_pad.Buttons & PSP_CTRL_LEFT && !(pad.Buttons & PSP_CTRL_LEFT)) {
         key_released(c->shell, K_LEFT, -1);
     }
@@ -169,8 +242,10 @@ void platform_poll_events(Client *c) {
         key_released(c->shell, K_CONTROL, -1);
     }
 
-    if (!(last_pad.Buttons & PSP_CTRL_HOME) && pad.Buttons & PSP_CTRL_HOME) {
-        sceKernelExitGame();
+    if (!(last_pad.Buttons & PSP_CTRL_SQUARE) && pad.Buttons & PSP_CTRL_SQUARE) {
+        if (!c->ingame) {
+            client_login(c, c->username, c->password, false);
+        }
     }
 
     if (pad.Lx != 128 || pad.Ly != 128) {
@@ -196,7 +271,7 @@ void platform_poll_events(Client *c) {
             inputtracking_mouse_moved(&_InputTracking, x, y);
         }
     }
-    
+
     bool left_press = !(last_pad.Buttons & PSP_CTRL_CIRCLE) && pad.Buttons & PSP_CTRL_CIRCLE;
     bool right_press = !(last_pad.Buttons & PSP_CTRL_CROSS) && pad.Buttons & PSP_CTRL_CROSS;
 
