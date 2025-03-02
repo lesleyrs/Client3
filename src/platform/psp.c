@@ -243,13 +243,10 @@ void platform_blit_surface(GameShell *shell, int x, int y, int w, int h, Surface
 }
 uint64_t get_ticks(void) {
     return sceKernelGetSystemTimeWide() / 1000;
-    // uint64_t ticks;
-    // sceRtcGetCurrentTick(&ticks);
-    // return ticks;
 }
 void delay_ticks(int ticks) {
     sceKernelDelayThreadCB(ticks * 1000);
-    /* int end = get_ticks() + ticks;
+    /* uint64_t end = get_ticks() + ticks;
 
     while (get_ticks() != end)
         ; */
