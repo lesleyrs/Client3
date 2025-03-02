@@ -168,6 +168,10 @@ void platform_poll_events(Client *c) {
         key_released(c->shell, K_CONTROL, -1);
     }
 
+    if (!(last_pad.Buttons & PSP_CTRL_HOME) && pad.Buttons & PSP_CTRL_HOME) {
+        sceKernelExitGame();
+    }
+
     if (pad.Lx != 128 || pad.Ly != 128) {
         // TODO allow changing cursor sensitivity
         cursor_x += (pad.Lx - 128) / 20;

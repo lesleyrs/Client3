@@ -5,8 +5,8 @@ Compatible with [2004Scape](https://github.com/2004Scape/Server), the most accur
 
 Features:
 - should work on any 32 bit system with 64 MB of RAM on lowmem, with networking and a (read-only) filesystem.
-- WIP ports for many game consoles mostly from the 2000s that fit the above.
 - webassembly build to avoid javascript code being optimized out by the browser.
+- WIP ports for many game consoles mostly from the 2000s.
 - optional config.ini file to change client behaviour, see [config.ini.example](config.ini.example) for options. To avoid passing command line arguments each time you can create an empty config.ini.
 
 See [docs](/docs) for more info and media.
@@ -109,6 +109,12 @@ The 2004 jar is stored for comparisons, run with EG: `java -cp bin/runescape.jar
 - TODO confirm: to connect to local java servers on WSL from Windows you might need to add `-Djava.net.preferIPv6Addresses=true` when running client
 
 ## Platforms and Compilers
+TODO:
+```
+macos, bsds, android https://wiki.libsdl.org/SDL2/Android
++ add default helvetica-like system ttf font in gameshell_draw_string for each
+```
+
 ### Windows 95 to Windows 11
 build.bat(32 bit): tcc (included), mingw-gcc, emcc
 
@@ -119,21 +125,17 @@ You might want the updated [PowerShell](https://github.com/PowerShell/PowerShell
 NOTE: currently bignum lib isn't working with tcc on windows and gives [invalid memory access](https://lists.nongnu.org/archive/html/tinycc-devel/2024-12/msg00020.html) so we use openssl
 
 TODO:
+```
 confirm win9x work still, maybe add screenshot to /docs
 do we assume windows 95 has -lws2_32, otherwise re-add -lwsock32 and remove -DMODERN_POSIX in batch file
 make win9x compatible batch file (no delayed expansion?) right now needs to build from more modern system
 clean up ps1 script so it doesn't need to be modified
+```
 
 ### Linux GNU or musl
 Makefile: gcc, clang, tcc, mingw-gcc, emcc
 
 If tcc from your package manager isn't working you should build latest [tcc](https://github.com/TinyCC/tinycc) from source
-
-TODO:
-```
-macos, bsds, android https://wiki.libsdl.org/SDL2/Android
-+ add default helvetica-like system ttf font in gameshell_draw_string for each
-```
 
 ### Web (Emscripten)
 install [emsdk](#tools)
@@ -213,7 +215,7 @@ Controls: move cursor with analog stick, O for left click, X for right click, /\
 
 Requires at least model 2000, and only lowmem fits into memory.
 
-TODO: Model 1000 has the same CPU just less memory, if the entire 32 MB was accessible some ingame areas might work. In practice even after enabling kernel mode it doesn't give you the full RAM access?
+TODO: Model 1000 has the same CPU just less memory, if the entire 32 MB was accessible some ingame areas might work. In practice even after enabling kernel mode it doesn't give you the full RAM access? Also could enable audio in lowmem for 64 MB consoles
 
 #### Vita
 TODO
