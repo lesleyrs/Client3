@@ -116,6 +116,7 @@ void set_pixels(PixMap *pixmap, int x, int y) {
             ((uint16_t*)fb)[pixel_offset] = rgb565;
         }
     }
+    // sceDisplayWaitVblankStart();
     // sceDisplaySetFrameBuf(fb, VRAM_STRIDE, PSP_DISPLAY_PIXEL_FORMAT_565, PSP_DISPLAY_SETBUF_NEXTFRAME);
 }
 
