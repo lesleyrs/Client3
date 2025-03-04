@@ -160,10 +160,10 @@ void platform_new(GameShell *shell, int width, int height) {
     sceNetApctlInit(0x2000, 20);
     sceNetApctlConnect(1);
 
-    int apctl_status;
+    int apctl_status = 0;
     while(apctl_status != PSP_NET_APCTL_STATE_GOT_IP){
         sceNetApctlGetState(&apctl_status);
-        sceKernelDelayThread(50 * 1000); // Needs to have a delay. Otherwise fails.
+        delay_ticks(50); // Needs to have a delay. Otherwise fails.
     }
     
 }

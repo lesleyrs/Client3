@@ -164,13 +164,28 @@ ClientStream *clientstream_new(GameShell *shell, int port) {
     #endif
 
 // TODO see if this is fine on real hardware for psp/vita
-#if !defined(__PSP__) && !defined(__vita__)
+#if defined(__PSP__) || defined(__vita__)
+    int flags = fcntl(stream->socket, F_GETFL, 0);
+    if (flags == -1) {
+        rs2_error("fcntl F_GETFL failed\n");
+        clientstream_close(stream);
+        return NULL;
+        // exit(1);
+    }
+    if (fcntl(stream->socket, F_SETFL, flags | O_NONBLOCK) == -1) {
+        rs2_error("fcntl F_SETFL failed\n");
+        clientstream_close(stream);
+        return NULL;
+        // exit(1);
+    }
+#else
 // #ifdef FIONBIO
     ret = ioctl(stream->socket, FIONBIO, &set);
 
     if (ret < 0) {
         rs2_error("ioctl() error: %d\n", ret);
-        exit(1);
+        return NULL;
+        // exit(1);
     }
 #endif
 
