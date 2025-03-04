@@ -216,16 +216,20 @@ Controls: move cursor with analog stick, O for left click, X for right click, /\
 
 Works on real hardware but requires at least model 2000, and only lowmem fits into memory.
 
+```
 TODO: where do psp stdout/stderr go if not debug printing on screen and without sdl2?
 TODO: Model 1000 has the same CPU just less memory, might be worth trying to make it work in kernel mode for 28MB. Also could enable audio in lowmem for 64 MB consoles
+```
 
 #### Vita
+```
 TODO: check nonblocking socket working
 TODO: button input
 TODO: draw game at offset to center it, and offset touch input based on that
 TODO: after the vpk is unpacked on real HW can you still replace the config.ini with your own?
 TODO: what happens with touch input on the back, disable it?
 TODO: update sce_sys assets
+```
 
 ## libraries
 * [micro-bunzip](https://landley.net/code/) | https://landley.net/code/bunzip-4.1.c
