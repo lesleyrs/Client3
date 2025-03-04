@@ -10,6 +10,7 @@
 #include <pspkernel.h>
 #include <pspnet.h>
 #include <pspnet_inet.h>
+#include <pspnet_apctl.h>
 #include <pspnet_resolver.h>
 #include <psppower.h>
 #include <psprtc.h>
@@ -102,6 +103,7 @@ void platform_init(void) {
     scePowerSetClockFrequency(333, 333, 166);
 }
 
+/* OLD CODE 
 void platform_new(GameShell *shell, int width, int height) {
     (void)shell, (void)width, (void)height;
     sceDisplaySetFrameBuf(fb, VRAM_STRIDE, PSP_DISPLAY_PIXEL_FORMAT_565, PSP_DISPLAY_SETBUF_NEXTFRAME);
@@ -136,6 +138,36 @@ void platform_new(GameShell *shell, int width, int height) {
     // 	throwError(6000, "Error 0x%08X in sceNetResolverInit\n", res);
     // }
 }
+*/
+
+/* .:: New Version ::. */
+void platform_new(GameShell *shell, int width, int height) {
+    (void)shell, (void)width, (void)height;
+    sceDisplaySetFrameBuf(fb, VRAM_STRIDE, PSP_DISPLAY_PIXEL_FORMAT_565, PSP_DISPLAY_SETBUF_NEXTFRAME);
+    rs2_log("%d\n", sceCtrlGetSamplingCycle);
+
+    sceCtrlSetSamplingCycle(0);
+    sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
+
+    sceUtilityLoadNetModule(PSP_NET_MODULE_COMMON);
+    sceUtilityLoadNetModule(PSP_NET_MODULE_INET);
+
+    int res;
+    res = sceNetInit(64*1024, 32, 2*1024, 32, 2*1024);
+    res = sceNetInetInit();
+    res = sceNetResolverInit();
+
+    sceNetApctlInit(0x2000, 20);
+    sceNetApctlConnect(1);
+
+    int apctl_status;
+    while(apctl_status != PSP_NET_APCTL_STATE_GOT_IP){
+        sceNetApctlGetState(&apctl_status);
+        sceKernelDelayThread(50 * 1000); // Needs to have a delay. Otherwise fails.
+    }
+    
+}
+
 void platform_free(GameShell *shell) {
     sceNetResolverTerm();
     sceNetInetTerm();
