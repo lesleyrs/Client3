@@ -223,6 +223,10 @@ TODO: Could enable audio in lowmem for 2000+ models if there's enough memory rem
 ```
 
 #### Vita
+Install [vitasdk](#tools) and run `make -f vita.mk -j$(nproc) -B`.
+
+vita3k emulator expects you to install the .vpk each time? and non-blocking networking causes connect fail on windows.
+
 ```
 TODO: check nonblocking socket working
 TODO: button input
@@ -257,6 +261,7 @@ Latest SDL1 already contains the tcc fix but they don't make new releases for it
 * [emsdk](https://github.com/emscripten-core/emsdk) | https://emscripten.org/docs/getting_started/downloads.html
 * [devkitpro](https://github.com/devkitPro) | https://devkitpro.org/
 * [pspdev](https://github.com/pspdev/pspdev) | https://pspdev.github.io/
+* [vitasdk](https://github.com/vitasdk/vdpm) | https://vitasdk.org/
 
 ## references
 * https://github.com/2003scape/rsc-c - did a lot of the dirty work in advance (finding libs, networking, input)
