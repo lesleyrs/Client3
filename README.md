@@ -218,7 +218,8 @@ Works on real hardware but requires at least model 2000, and only lowmem fits in
 
 ```
 TODO: where do psp stdout/stderr go if not debug printing on screen and without sdl2?
-TODO: Model 1000 has the same CPU just less memory, might be worth trying to make it work in kernel mode for 28MB. Also could enable audio in lowmem for 64 MB consoles
+TODO: Model 1000 has the same CPU just less memory, might be worth trying to make it work in kernel mode for 28MB BUT is it safe to do so?
+TODO: Could enable audio in lowmem for 2000+ models if there's enough memory remaining?
 ```
 
 #### Vita
