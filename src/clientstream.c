@@ -163,8 +163,8 @@ ClientStream *clientstream_new(GameShell *shell, int port) {
     setsockopt(stream->socket, SOL_SOCKET, SO_SNDTIMEO, (const char *)&socket_timeout, sizeof(socket_timeout));
     #endif
 
-// NOTE: PSP handheld is already non-blocking by default
-#ifndef __PSP__
+// TODO see if this is fine on real hardware for psp/vita
+#if !defined(__PSP__) && !defined(__vita__)
 // #ifdef FIONBIO
     ret = ioctl(stream->socket, FIONBIO, &set);
 

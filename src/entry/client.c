@@ -85,7 +85,7 @@ extern WaveData _Wave;
 extern WorldData _World;
 extern SceneData _World3D;
 
-#if defined(__WII__) || defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__PSP__)
+#if defined(__WII__) || defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__PSP__) || defined(__vita__)
 static Custom _Custom = {.chat_era = 2, .http_port = 80, .showPerformance = true};
 #else
 static Custom _Custom = {.chat_era = 2, .http_port = 80};

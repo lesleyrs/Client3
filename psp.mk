@@ -4,7 +4,13 @@ OBJS = $(patsubst %.c, %.o, $(SRCS))
 LIBS = -lpsppower
 
 INCDIR =
-CFLAGS = -O2 -ffast-math -Wno-parentheses -Wall -Dclient -flto=$(shell nproc)
+CFLAGS = -Wno-parentheses -Wall -Dclient
+DEBUG := 0
+ifeq ($(DEBUG),1)
+CFLAGS += -g
+else
+CFLAGS += -s -O2 -ffast-math -flto=$(shell nproc)
+endif
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS = $(CFLAGS)
 

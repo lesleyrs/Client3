@@ -8,14 +8,14 @@ ts Client2/java Client (lastmain/webclient branch) repo have extra funcs (pix2d 
 remove original cache at bin/archives when the cache matches exactly
 add diskstore/gzip just for later cache loading
 SDL3 is not officially released yet, need updated binaries when it is.
-icon/metadata etc for the different platforms: title+taskbar+desktop
+icon/metadata/title etc for the different platforms: title+taskbar+desktop
 http requests for checksums/cache (not done as they aren't supposed to change and saving files on consoles depends on if sdcard or romfs was used)
 change a bunch of functions and function prototypes to static
 clientstream and keycodes are based off rsc-c (but both have some tweaks), double check them for accuracy
 the following are (partially) based on RS2-225 by accident, some funcs might take args in diff order to Client repo: animbase, animframe, pix2d, pix3d, gameshell, jagfile, model, packet, pix8, pixfont, pixmap. Rewrite maybe?
 inconsistent naming: used both world3d and scene for world3d, rename world3d to scene? or at least for args only
 COLLISIONMAP_LEVELS should probably be added in some more places
-global search TODO and NOTE
+global search TODO and NOTE and all console __defines__
 add CI: check both highmem/lowmem, members/free, all entrypoints, run make check/scan/san and clang-format
 maybe allow resizing canvas/fullscreen on desktop (draw to sdl texture and use gpu, sdl2 wrapper for sdl1 on linux already does this)
 maybe take webworker server compat from Client2: https://emscripten.org/docs/api_reference/wasm_workers.html

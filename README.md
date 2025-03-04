@@ -205,6 +205,7 @@ TODO: highmem seems to not start due to tinysoundfont tsf_load failing, it works
 in suyu emulator (yuzu fork) click `file->open suyu folder` for sdmc dir
 
 ### Sony consoles
+Neither of those are playable on real console for now: PSP has connection issues, and Vita has blocking socket
 
 #### PSP
 Install [pspdev](#tools) and run `make -f psp.mk -j$(nproc) -B`.
@@ -215,10 +216,16 @@ Controls: move cursor with analog stick, O for left click, X for right click, /\
 
 Requires at least model 2000, and only lowmem fits into memory.
 
-TODO: Model 1000 has the same CPU just less memory, if the entire 32 MB was accessible some ingame areas might work. In practice even after enabling kernel mode it doesn't give you the full RAM access? Also could enable audio in lowmem for 64 MB consoles
+TODO: where do psp stdout/stderr go if not debug printing on screen and without sdl2?
+TODO: does non blocking sockets work? if not same issue as vita, also check dnslookup
+TODO: Model 1000 has the same CPU just less memory, might be worth trying to make it work in kernel mode for 28MB. Also could enable audio in lowmem for 64 MB consoles
 
 #### Vita
-TODO
+TODO: figure out if nonblocking networking is possible otherwise use a thread, also check dnslookup
+TODO: draw game at offset to center it, and offset touch input based on that
+TODO: after the vpk is unpacked on real HW can you still replace the config.ini with your own?
+TODO: what happens with touch input on the back, disable it?
+TODO: update sce_sys assets
 
 ## libraries
 * [micro-bunzip](https://landley.net/code/) | https://landley.net/code/bunzip-4.1.c

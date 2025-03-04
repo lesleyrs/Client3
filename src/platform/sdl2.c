@@ -557,6 +557,58 @@ void platform_poll_events(Client *c) {
             key_released(c->shell, code, ch);
             break;
         }
+        // TODO: apply this to other consoles/mobile if needed
+        #ifdef __vita__
+        #define TOUCH_SCALE_WIDTH 960
+        #define TOUCH_SCALE_HEIGHT 544
+
+        case SDL_FINGERMOTION: {
+            float x = e.tfinger.x * TOUCH_SCALE_WIDTH;
+            float y = e.tfinger.y * TOUCH_SCALE_HEIGHT;
+
+            c->shell->idle_cycles = 0;
+            c->shell->mouse_x = x;
+            c->shell->mouse_y = y;
+
+            if (_InputTracking.enabled) {
+                inputtracking_mouse_moved(&_InputTracking, x, y);
+            }
+        } break;
+        case SDL_FINGERDOWN: {
+            float x = e.tfinger.x * TOUCH_SCALE_WIDTH;
+            float y = e.tfinger.y * TOUCH_SCALE_HEIGHT;
+
+            c->shell->idle_cycles = 0;
+            // NOTE: set mouse pos here again due to no mouse movement
+            c->shell->mouse_x = x;
+            c->shell->mouse_y = y;
+            c->shell->mouse_click_x = x;
+            c->shell->mouse_click_y = y;
+
+            // TODO remove all false below for right click button
+            if (false) {
+                c->shell->mouse_click_button = 2;
+                c->shell->mouse_button = 2;
+            } else {
+                c->shell->mouse_click_button = 1;
+                c->shell->mouse_button = 1;
+            }
+
+            if (_InputTracking.enabled) {
+                inputtracking_mouse_pressed(&_InputTracking, x, y, false ? 1 : 0);
+            }
+        } break;
+        case SDL_FINGERUP: {
+            c->shell->idle_cycles = 0;
+            c->shell->mouse_button = 0;
+
+            if (_InputTracking.enabled) {
+                inputtracking_mouse_released(&_InputTracking, false ? 1 : 0);
+            }
+            break;
+        } break;
+        #endif
+
         case SDL_MOUSEMOTION: {
             int x = e.motion.x;
             int y = e.motion.y;
