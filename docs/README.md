@@ -4,6 +4,7 @@
 ![postmarketos](postmarketos.png)
 ## TODO
 ```
+all consoles without touch need to be able to redraw entire screen (even parts it normally doesn't) due to not having a builtin pointer/cursor to show where your virtual pointer is. This means it will never redraw that part of the screen and will just accumulate those images.
 ts Client2/java Client (lastmain/webclient branch) repo have extra funcs (pix2d etc?)
 remove original cache at bin/archives when the cache matches exactly
 add diskstore/gzip just for later cache loading

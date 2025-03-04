@@ -80,8 +80,7 @@ int SetupCallbacks(void) {
 
 void platform_init(void) {
     // NOTE maybe re-add throwError code from sample? look where stdout/stderr goes in emulator
-    // pspDebugScreenInit();
-    // pspDebugScreenPrintf("Hello World\n");
+    pspDebugScreenInit();
 
     SetupCallbacks();
     scePowerSetClockFrequency(333, 333, 166);
@@ -109,11 +108,15 @@ void platform_new(GameShell *shell, int width, int height) {
 
     // TODO: check possible issue with multiple saved access points
     int apctl_status = 0;
+    int last_status = -1;
     while(apctl_status != PSP_NET_APCTL_STATE_GOT_IP){
         sceNetApctlGetState(&apctl_status);
+        if (apctl_status != last_status) {
+			pspDebugScreenPrintf("connection state %d of 4\n", apctl_status);
+			last_status = apctl_status;
+        }
         delay_ticks(50); // Needs to have a delay. Otherwise fails.
     }
-    
 }
 
 void platform_free(GameShell *shell) {
