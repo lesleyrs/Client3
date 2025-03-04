@@ -205,7 +205,7 @@ TODO: highmem seems to not start due to tinysoundfont tsf_load failing, it works
 in suyu emulator (yuzu fork) click `file->open suyu folder` for sdmc dir
 
 ### Sony consoles
-TODO: check nonblocking socket + dnslookup for both vita and psp
+TODO: check dnslookup for both vita and psp
 
 #### PSP
 Install [pspdev](#tools) and run `make -f psp.mk -j$(nproc) -B`.
@@ -214,12 +214,14 @@ ppsspp emulator loads relative dir as memstick, so the filesystem works automati
 
 Controls: move cursor with analog stick, O for left click, X for right click, /\ for control, Dpad as arrow keys
 
-Requires at least model 2000, and only lowmem fits into memory.
+Works on real hardware but requires at least model 2000, and only lowmem fits into memory.
 
 TODO: where do psp stdout/stderr go if not debug printing on screen and without sdl2?
 TODO: Model 1000 has the same CPU just less memory, might be worth trying to make it work in kernel mode for 28MB. Also could enable audio in lowmem for 64 MB consoles
 
 #### Vita
+TODO: check nonblocking socket working
+TODO: button input
 TODO: draw game at offset to center it, and offset touch input based on that
 TODO: after the vpk is unpacked on real HW can you still replace the config.ini with your own?
 TODO: what happens with touch input on the back, disable it?
