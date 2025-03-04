@@ -44,22 +44,6 @@ static SceCtrlData pad, last_pad;
 static int cursor_x = SCREEN_WIDTH / 2;
 static int cursor_y = SCREEN_HEIGHT / 2;
 
-void throwError(int ms, char *fmt, ...) {
-    va_list list;
-    char msg[256];
-
-    va_start(list, fmt);
-    vsprintf(msg, fmt, list);
-    va_end(list);
-
-    pspDebugScreenInit();
-    pspDebugScreenClear();
-    pspDebugScreenPrintf("%s", msg);
-
-    sceKernelDelayThread(ms * 1000);
-    sceKernelExitGame();
-}
-
 #include <pspsdk.h>
 int get_free_mem(void) {
     return pspSdkTotalFreeUserMemSize();
@@ -95,7 +79,7 @@ int SetupCallbacks(void) {
 }
 
 void platform_init(void) {
-    // NOTE use this in rs2_log maybe? or does printf get output somewhere still
+    // NOTE maybe re-add throwError code from sample? look where stdout/stderr goes in emulator
     // pspDebugScreenInit();
     // pspDebugScreenPrintf("Hello World\n");
 
@@ -103,47 +87,10 @@ void platform_init(void) {
     scePowerSetClockFrequency(333, 333, 166);
 }
 
-/* OLD CODE 
 void platform_new(GameShell *shell, int width, int height) {
     (void)shell, (void)width, (void)height;
     sceDisplaySetFrameBuf(fb, VRAM_STRIDE, PSP_DISPLAY_PIXEL_FORMAT_565, PSP_DISPLAY_SETBUF_NEXTFRAME);
     // TODO rm
-    rs2_log("%d\n", sceCtrlGetSamplingCycle);
-
-    sceCtrlSetSamplingCycle(0);
-    sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
-
-    sceUtilityLoadNetModule(PSP_NET_MODULE_COMMON);
-    sceUtilityLoadNetModule(PSP_NET_MODULE_INET);
-    // sceNetInit(128*1024, 42, 4*1024, 42, 4*1024);
-    // sceNetInetInit();
-    // sceNetResolverInit();
-
-    int res;
-    res = sceNetInit(0x20000, 0x2A, 0, 0x2A, 0);
-
-    if (res < 0) {
-        throwError(6000, "Error 0x%08X in sceNetInit\n", res);
-    }
-
-    res = sceNetInetInit();
-
-    if (res < 0) {
-        throwError(6000, "Error 0x%08X in sceNetInetInit\n", res);
-    }
-
-    // res = sceNetResolverInit();
-
-    // if (res < 0) {
-    // 	throwError(6000, "Error 0x%08X in sceNetResolverInit\n", res);
-    // }
-}
-*/
-
-/* .:: New Version ::. */
-void platform_new(GameShell *shell, int width, int height) {
-    (void)shell, (void)width, (void)height;
-    sceDisplaySetFrameBuf(fb, VRAM_STRIDE, PSP_DISPLAY_PIXEL_FORMAT_565, PSP_DISPLAY_SETBUF_NEXTFRAME);
     rs2_log("%d\n", sceCtrlGetSamplingCycle);
 
     sceCtrlSetSamplingCycle(0);
@@ -160,6 +107,7 @@ void platform_new(GameShell *shell, int width, int height) {
     sceNetApctlInit(0x2000, 20);
     sceNetApctlConnect(1);
 
+    // TODO: check possible issue with multiple saved access points
     int apctl_status = 0;
     while(apctl_status != PSP_NET_APCTL_STATE_GOT_IP){
         sceNetApctlGetState(&apctl_status);
