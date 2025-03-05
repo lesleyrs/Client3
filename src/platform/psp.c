@@ -119,6 +119,7 @@ void platform_new(GameShell *shell, int width, int height) {
 }
 
 void platform_free(GameShell *shell) {
+    sceNetApctlTerm();
     sceNetResolverTerm();
     sceNetInetTerm();
     sceNetTerm();
