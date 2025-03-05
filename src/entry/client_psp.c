@@ -128,7 +128,7 @@ static void draw_info_overlay(Client *c);
 #define SCREEN_INVENTORY 1
 #define SCREEN_CHAT 2
 
-static int current_screen = 0;
+static int current_screen = SCREEN_VIEWPORT;
 
 void client_init_global(void) {
     int acc = 0;
