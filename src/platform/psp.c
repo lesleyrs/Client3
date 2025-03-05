@@ -81,7 +81,6 @@ int SetupCallbacks(void) {
 void platform_init(void) {
     // NOTE maybe re-add throwError code from sample? look where stdout/stderr goes in emulator
     pspDebugScreenInit();
-
     SetupCallbacks();
     scePowerSetClockFrequency(333, 333, 166);
 }

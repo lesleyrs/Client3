@@ -28,9 +28,63 @@ static tsf *g_TinySoundFont;
 static double g_Msec;              // current playback time
 static tml_message *g_MidiMessage; // next message to be played
 
-#ifndef __EMSCRIPTEN__
+#ifdef __EMSCRIPTEN__
+#include "emscripten.h"
+
+EM_JS(void, set_wave_volume_js, (int wavevol), {
+    setWaveVolume(wavevol);
+})
+
+EM_JS(void, play_wave_js, (int8_t * src, int length), {
+    playWave(HEAP8.subarray(src, src + length));
+})
+
+void platform_set_wave_volume(int wavevol) {
+    set_wave_volume_js(wavevol);
+}
+
+void platform_play_wave(int8_t *src, int length) {
+    play_wave_js(src, length);
+}
+
+#else
 static SDL_AudioDeviceID device;
-#endif
+static int g_wavevol = 128;
+
+void platform_set_wave_volume(int wavevol) {
+    g_wavevol = wavevol;
+}
+
+void platform_play_wave(int8_t *src, int length) {
+    if (!src || length > 2000000) {
+        return;
+    }
+
+    SDL_AudioSpec wavSpec;
+    uint8_t *wavBuffer;
+    uint32_t wavLength;
+
+    SDL_RWops *rw = SDL_RWFromMem(src, length);
+
+    SDL_LoadWAV_RW(rw, 1, &wavSpec, &wavBuffer, &wavLength);
+
+    // TODO precompute volume table just for 128 96 64 32?
+    if (g_wavevol != 128) {
+        for (uint32_t i = 0; i < wavLength; i++) {
+            wavBuffer[i] = (wavBuffer[i] - 128) * g_wavevol / 128 + 128;
+        }
+    }
+
+    // TODO rm
+    // rs2_log("wav %i %i %i\n", wavSpec.freq, wavSpec.samples, wavSpec.format);
+    // TODO: custom option for having multiple audio devices play sounds at same time (inauthentic) web already does it
+    if (SDL_GetQueuedAudioSize(device) == 0) {
+        SDL_QueueAudio(device, wavBuffer, wavLength);
+        SDL_PauseAudioDevice(device, 0);
+    }
+    SDL_FreeWAV(wavBuffer);
+}
+#endif /* not EMSCRIPTEN */
 
 // TODO separate sdl1? or separate midi
 static void midi_callback(void *data, uint8_t *stream, int len) {
@@ -226,63 +280,6 @@ void platform_stop_midi(void) {
     // Initialize preset on special 10th MIDI channel to use percussion sound bank (128) if available
     tsf_channel_set_bank_preset(g_TinySoundFont, 9, 128, 0);
 }
-
-#ifdef __EMSCRIPTEN__
-#include "emscripten.h"
-
-EM_JS(void, set_wave_volume_js, (int wavevol), {
-    setWaveVolume(wavevol);
-})
-
-EM_JS(void, play_wave_js, (int8_t * src, int length), {
-    playWave(HEAP8.subarray(src, src + length));
-})
-
-void platform_set_wave_volume(int wavevol) {
-    set_wave_volume_js(wavevol);
-}
-
-void platform_play_wave(int8_t *src, int length) {
-    play_wave_js(src, length);
-}
-
-#else
-static int g_wavevol = 128;
-
-void platform_set_wave_volume(int wavevol) {
-    g_wavevol = wavevol;
-}
-
-void platform_play_wave(int8_t *src, int length) {
-    if (!src || length > 2000000) {
-        return;
-    }
-
-    SDL_AudioSpec wavSpec;
-    uint8_t *wavBuffer;
-    uint32_t wavLength;
-
-    SDL_RWops *rw = SDL_RWFromMem(src, length);
-
-    SDL_LoadWAV_RW(rw, 1, &wavSpec, &wavBuffer, &wavLength);
-
-    // TODO precompute volume table just for 128 96 64 32?
-    if (g_wavevol != 128) {
-        for (uint32_t i = 0; i < wavLength; i++) {
-            wavBuffer[i] = (wavBuffer[i] - 128) * g_wavevol / 128 + 128;
-        }
-    }
-
-    // TODO rm
-    // rs2_log("wav %i %i %i\n", wavSpec.freq, wavSpec.samples, wavSpec.format);
-    // TODO: custom option for having multiple audio devices play sounds at same time (inauthentic) web already does it
-    if (SDL_GetQueuedAudioSize(device) == 0) {
-        SDL_QueueAudio(device, wavBuffer, wavLength);
-        SDL_PauseAudioDevice(device, 0);
-    }
-    SDL_FreeWAV(wavBuffer);
-}
-#endif /* not EMSCRIPTEN */
 
 Surface *platform_create_surface(int *pixels, int width, int height, int alpha) {
     return SDL_CreateRGBSurfaceFrom(pixels, width, height, 32, width * sizeof(int), 0xff0000, 0x00ff00, 0x0000ff, alpha);
