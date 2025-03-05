@@ -4,6 +4,7 @@
 ![postmarketos](postmarketos.png)
 ## TODO
 ```
+some platforms don't like it when you call exit() (aka sceKernelExitGame on psp) yourself, need to avoid it?
 all consoles except vita expect rsa to be disabled (comment out rsadec in server and set disable_rsa = 1 in config.ini) due to tiny-bignum being too slow and timing out the authentic 30 second socket timer in both server and client.
 all consoles without touch need to be able to redraw entire screen (even parts it normally doesn't) due to not having a builtin pointer/cursor to show where your virtual pointer is. This means it will never redraw that part of the screen and will just accumulate those images.
 ts Client2/java Client (lastmain/webclient branch) repo have extra funcs (pix2d etc?)
