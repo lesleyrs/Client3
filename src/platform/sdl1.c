@@ -21,7 +21,6 @@ void platform_new(GameShell *shell, int width, int height) {
     }
 
     // NOTE: input isn't compatible with sdl2 :(
-    // (void)SDL_EnableUNICODE(1);
     // SDL_EnableUNICODE(1);
     SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
     SDL_WM_SetCaption("Jagex", NULL);

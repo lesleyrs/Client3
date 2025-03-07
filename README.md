@@ -174,6 +174,11 @@ original game will probably run at 1 fps if it works at all
 would need major changes to run smoothly, need separate client entrypoint for it
 ```
 
+#### GameCube
+Unable to test as dolphin can't load files, but it should be quick to find out if it works with a GC makefile and the existing wii code. Make sure to enable lowmem, and maybe lower bump_allocator_init cap.
+
+https://gbatemp.net/threads/need-help-with-file-i-o-for-gamecube-homebrew.652000/#post-10386060
+
 #### Wii
 in dolphin emulator you can find the sdcard path in `options>configuration>wii>sd card` settings and after moving the files there you have to click `Convert Folder to File Now` to format it.
 

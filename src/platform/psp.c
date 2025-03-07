@@ -21,7 +21,6 @@
 #include "../inputtracking.h"
 #include "../pixmap.h"
 #include "../platform.h"
-// NOTE temp
 #include "../pix2d.h"
 
 extern ClientData _Client;
