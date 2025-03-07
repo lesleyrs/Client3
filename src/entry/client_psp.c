@@ -9677,7 +9677,7 @@ static const char *formatObjCountTagged(int amount) {
 }
 
 static const char *formatObjCount(int amount) {
-    static char s[6];
+    static char s[12];
     if (amount < 100000) {
         sprintf(s, "%d", amount);
     } else if (amount < 10000000) {

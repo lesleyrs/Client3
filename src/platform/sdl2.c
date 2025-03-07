@@ -366,6 +366,39 @@ void platform_get_keycodes(SDL_Keysym *keysym, int *code, char *ch) {
     case SDL_SCANCODE_F1:
         *code = K_F1;
         break;
+    case SDL_SCANCODE_F2:
+        *code = K_F2;
+        break;
+    case SDL_SCANCODE_F3:
+        *code = K_F3;
+        break;
+    case SDL_SCANCODE_F4:
+        *code = K_F4;
+        break;
+    case SDL_SCANCODE_F5:
+        *code = K_F5;
+        break;
+    case SDL_SCANCODE_F6:
+        *code = K_F6;
+        break;
+    case SDL_SCANCODE_F7:
+        *code = K_F7;
+        break;
+    case SDL_SCANCODE_F8:
+        *code = K_F8;
+        break;
+    case SDL_SCANCODE_F9:
+        *code = K_F9;
+        break;
+    case SDL_SCANCODE_F10:
+        *code = K_F10;
+        break;
+    case SDL_SCANCODE_F11:
+        *code = K_F11;
+        break;
+    case SDL_SCANCODE_F12:
+        *code = K_F12;
+        break;
     case SDL_SCANCODE_ESCAPE:
         *code = K_ESCAPE;
         break;

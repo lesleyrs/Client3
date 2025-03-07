@@ -122,6 +122,7 @@ void platform_get_keycodes(SDL_keysym *keysym, int *code, char *ch) {
     case SDLK_RCTRL:
     case SDLK_LCTRL:
         *code = K_CONTROL;
+        break;
     case SDLK_PAGEUP:
         *code = K_PAGE_UP;
         break;
@@ -133,6 +134,39 @@ void platform_get_keycodes(SDL_keysym *keysym, int *code, char *ch) {
         break;
     case SDLK_F1:
         *code = K_F1;
+        break;
+    case SDLK_F2:
+        *code = K_F2;
+        break;
+    case SDLK_F3:
+        *code = K_F3;
+        break;
+    case SDLK_F4:
+        *code = K_F4;
+        break;
+    case SDLK_F5:
+        *code = K_F5;
+        break;
+    case SDLK_F6:
+        *code = K_F6;
+        break;
+    case SDLK_F7:
+        *code = K_F7;
+        break;
+    case SDLK_F8:
+        *code = K_F8;
+        break;
+    case SDLK_F9:
+        *code = K_F9;
+        break;
+    case SDLK_F10:
+        *code = K_F10;
+        break;
+    case SDLK_F11:
+        *code = K_F11;
+        break;
+    case SDLK_F12:
+        *code = K_F12;
         break;
     case SDLK_ESCAPE:
         *code = K_ESCAPE;

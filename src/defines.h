@@ -88,6 +88,17 @@
 #define K_9 57
 
 #define K_F1 112
+#define K_F2 113
+#define K_F3 114
+#define K_F4 115
+#define K_F5 116
+#define K_F6 117
+#define K_F7 118
+#define K_F8 119
+#define K_F9 120
+#define K_F10 121
+#define K_F11 122
+#define K_F12 123
 
 // ---- these are in rgb 24 bits
 #define RED 0xff0000      // 16711680

@@ -28,7 +28,8 @@ bring back worldlist loading in [shell.html](https://github.com/lesleyrs/Client3
 ## Java and C differences + codestyle
 ```
 - errorhost, errorstarted and errorloading code never runs
-- no pound character as it doesn't fit in ascii
+- java has 16 bit char, undefined keychar is 0xffff, pound char doesn't fit in ascii
+- some keycodes differ from java virtual keycodes
 - window insets removed, (gameframe/viewbox).java replaced with platform dir
 - added pix error checking in client_load
 - java static class members are added to a separate global struct

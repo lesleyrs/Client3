@@ -52,7 +52,7 @@ figure out rsaenc bug(s), i'm thinking there are multiple issues (chance of fail
 
 emscripten wasm on firefox has memleaks related to midi, gets cleaned up by pressing GC in about:memory but why does this happen? Chromium based browsers are ok
 
-auto-generated js by emscripten is blocking default browser shortcuts why exactly, also pressing fkeys types uppercase letters even if it doesn't steal input
+auto-generated js by emscripten is blocking default browser shortcuts why exactly
 
 Any touchscreen input has an issue where the first click can still use it's last touch position. Mobile isn't playable for now without mouse/keyboard (no right clicking, rotating camera, onscreen keyboard)
 
