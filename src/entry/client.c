@@ -48,21 +48,7 @@
 #include "../wordenc/wordpack.h"
 #include "../world.h"
 #include "../world3d.h"
-
-typedef struct {
-    bool showDebug;
-    bool showPerformance;
-    bool cameraEditor;
-    bool remember_username;
-    bool remember_password;
-    bool hide_dns;
-    bool hide_debug_sprite;
-    bool allow_commands;
-    bool allow_debugprocs;
-    bool disable_rsa;
-    int http_port;
-    int chat_era; // 0 - early beta, 1 - late beta, 2 - launch
-} Custom;
+#include "../custom.h"
 
 extern int DESIGN_BODY_COLOR_LENGTH[];
 extern int *DESIGN_BODY_COLOR[];
@@ -86,9 +72,9 @@ extern WorldData _World;
 extern SceneData _World3D;
 
 #if defined(__WII__) || defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__PSP__)
-static Custom _Custom = {.chat_era = 2, .http_port = 80, .showPerformance = true};
+Custom _Custom = {.chat_era = 2, .http_port = 80, .showPerformance = true};
 #else
-static Custom _Custom = {.chat_era = 2, .http_port = 80};
+Custom _Custom = {.chat_era = 2, .http_port = 80};
 #endif
 ClientData _Client = {
     .clientversion = 225,
@@ -10842,6 +10828,7 @@ static void load_ini_config(Client *c) {
     INI_INT_LOG(&(&_Custom), remember_username, );
     INI_INT_LOG(&(&_Custom), remember_password, );
     INI_INT_LOG(&(&_Custom), disable_rsa, );
+    INI_INT_LOG(&(&_Custom), resizeable, );
 
     rs2_log("\n");
     ini_free(config);

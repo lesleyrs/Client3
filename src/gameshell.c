@@ -115,6 +115,7 @@ void gameshell_run(Client *c) {
         }
         client_draw(c);
         client_run_flames(c); // NOTE: random placement of run_flames
+
         // TODO temp
         #if defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__PSP__)
         static bool loggedin;
@@ -367,7 +368,7 @@ void gameshell_draw_string(Client *c, const char *str, int x, int y, int color, 
         for (int i = 0; i < width * height; i++) {
             unsigned char value = bitmap[i];
             pixels[i] = (value << 24) | (value << 16) | (value << 8) | value;
-            pixels[i] = (pixels[i] & 0xff000000) | color;
+            pixels[i] = (pixels[i] & 0xff000000) | (pixels[i] & color);
         }
 
         // TODO: is this centering correct? maybe few pixels to the left?
