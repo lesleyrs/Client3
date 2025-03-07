@@ -30,7 +30,7 @@
 
 // -Dclient_psp
 // -D__PSP__
-// -I/home/lesley/pspdev/psp/sdk/include/
+// -I/usr/local/pspdev/psp/sdk/include/
 
 -D__vita__
 -I/usr/local/vitasdk/arm-vita-eabi/include/
