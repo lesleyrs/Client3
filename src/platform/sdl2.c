@@ -10,15 +10,19 @@
 #include "../inputtracking.h"
 #include "../pixmap.h"
 
-extern ClientData _Client;
-extern InputTracking _InputTracking;
-
 #include "../thirdparty/bzip.h"
 #define TSF_IMPLEMENTATION
 #include "../thirdparty/tsf.h"
 
 #define TML_IMPLEMENTATION
 #include "../thirdparty/tml.h"
+
+extern ClientData _Client;
+extern InputTracking _InputTracking;
+
+#ifdef __vita__
+static SDL_Joystick *joystick;
+#endif
 
 static tml_message *TinyMidiLoader = NULL;
 
@@ -142,10 +146,17 @@ void platform_new(GameShell *shell, int width, int height) {
     if (!_Client.lowmem) {
         init |= SDL_INIT_AUDIO;
     }
+#ifdef __vita__
+    init |= SDL_INIT_JOYSTICK;
+#endif
     if (SDL_Init(init) < 0) {
         rs2_error("SDL_Init failed: %s\n", SDL_GetError());
         return;
     }
+#ifdef __vita__
+    SDL_JoystickEventState(SDL_ENABLE);
+    joystick = SDL_JoystickOpen(0);
+#endif
 
     if (!_Client.lowmem) {
         SDL_AudioSpec midiSpec;
@@ -215,6 +226,9 @@ void platform_new(GameShell *shell, int width, int height) {
 }
 
 void platform_free(GameShell *shell) {
+#ifdef __vita__
+    SDL_JoystickClose(0);
+#endif
     // SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(shell->window);
     SDL_Quit();
@@ -554,14 +568,103 @@ void platform_poll_events(Client *c) {
             key_released(c->shell, code, ch);
             break;
         }
-        // TODO: apply this to other consoles/mobile if needed
-        #ifdef __vita__
-        #define TOUCH_SCALE_WIDTH 960
-        #define TOUCH_SCALE_HEIGHT 544
+// TODO: apply touch to other consoles/mobile if needed + test on real hw, can't login on vita emu
+#ifdef __vita__
+        case SDL_JOYAXISMOTION: {
+            // rs2_log("axis %d value %d\n", e.jaxis.axis, e.jaxis.value);
+        } break;
+        case SDL_JOYBUTTONDOWN: {
+            switch (e.jbutton.button) {
+            case 0: // Triangle
+                key_pressed(c->shell, K_CONTROL, -1);
+                break;
+            case 1: // Circle
+                break;
+            case 2: // Cross
+                break;
+            case 3: // Square
+                break;
+            case 4: // L1
+                break;
+            case 5: // R1
+                break;
+            case 6: // Down
+                key_pressed(c->shell, K_DOWN, -1);
+                break;
+            case 7: // Left
+                key_pressed(c->shell, K_LEFT, -1);
+                break;
+            case 8: // Up
+                key_pressed(c->shell, K_UP, -1);
+                break;
+            case 9: // Right
+                key_pressed(c->shell, K_RIGHT, -1);
+                break;
+            case 10: // Select
+                break;
+            case 11: // Start
+                break;
+                // NOTE unused PS TV mode
+                // case 12: // L2
+                //     break;
+                // case 13: // R2
+                //     break;
+                // case 14: // L3
+                //     break;
+                // case 15: // R3
+                //     break;
+            }
+            break;
+        } break;
+        case SDL_JOYBUTTONUP: {
+            switch (e.jbutton.button) {
+            case 0: // Triangle
+                key_released(c->shell, K_CONTROL, -1);
+                break;
+            case 1: // Circle
+                break;
+            case 2: // Cross
+                break;
+            case 3: // Square
+                break;
+            case 4: // L1
+                break;
+            case 5: // R1
+                break;
+            case 6: // Down
+                key_released(c->shell, K_DOWN, -1);
+                break;
+            case 7: // Left
+                key_released(c->shell, K_LEFT, -1);
+                break;
+            case 8: // Up
+                key_released(c->shell, K_UP, -1);
+                break;
+            case 9: // Right
+                key_released(c->shell, K_RIGHT, -1);
+                break;
+            case 10: // Select
+                break;
+            case 11: // Start
+                break;
+                // NOTE unused PS TV mode
+                // case 12: // L2
+                //     break;
+                // case 13: // R2
+                //     break;
+                // case 14: // L3
+                //     break;
+                // case 15: // R3
+                //     break;
+            }
+            break;
+        } break;
 
+#define FRAMEBUFFER_WIDTH 960
+#define FRAMEBUFFER_HEIGHT 544
         case SDL_FINGERMOTION: {
-            float x = e.tfinger.x * TOUCH_SCALE_WIDTH;
-            float y = e.tfinger.y * TOUCH_SCALE_HEIGHT;
+            float x = e.tfinger.x * FRAMEBUFFER_WIDTH;
+            float y = e.tfinger.y * FRAMEBUFFER_HEIGHT;
 
             c->shell->idle_cycles = 0;
             c->shell->mouse_x = x;
@@ -572,8 +675,8 @@ void platform_poll_events(Client *c) {
             }
         } break;
         case SDL_FINGERDOWN: {
-            float x = e.tfinger.x * TOUCH_SCALE_WIDTH;
-            float y = e.tfinger.y * TOUCH_SCALE_HEIGHT;
+            float x = e.tfinger.x * FRAMEBUFFER_WIDTH;
+            float y = e.tfinger.y * FRAMEBUFFER_HEIGHT;
 
             c->shell->idle_cycles = 0;
             // NOTE: set mouse pos here again due to no mouse movement
@@ -604,8 +707,7 @@ void platform_poll_events(Client *c) {
             }
             break;
         } break;
-        #endif
-
+#endif
         case SDL_MOUSEMOTION: {
             int x = e.motion.x;
             int y = e.motion.y;

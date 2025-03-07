@@ -9,7 +9,7 @@ CXX := arm-vita-eabi-g++
 STRIP := arm-vita-eabi-strip
 
 PROJECT_TITLE := Jagex
-PROJECT_TITLEID := VSDK00007
+PROJECT_TITLEID := VSDK20225
 
 PROJECT := client
 CFLAGS += -Wl,-q -I../common
@@ -28,8 +28,7 @@ SRC_CPP :=$(call rwildcard, src/, *.cpp)
 OBJ_DIRS := $(addprefix out/, $(dir $(SRC_C:src/%.c=%.o))) $(addprefix out/, $(dir $(SRC_CPP:src/%.cpp=%.o)))
 OBJS := $(addprefix out/, $(SRC_C:src/%.c=%.o)) $(addprefix out/, $(SRC_CPP:src/%.cpp=%.o))
 
-# Needed by psvDebugScreenPrintf
-LIBS += -lSceDisplay_stub $(shell $(VITASDK)/arm-vita-eabi/bin/sdl2-config --libs) -lcrypto
+LIBS += $(shell $(VITASDK)/arm-vita-eabi/bin/sdl2-config --libs) -lcrypto
 
 all: package
 

@@ -226,12 +226,11 @@ TODO: Could enable audio in lowmem for 2000+ models if there's enough memory rem
 #### Vita
 Install [vitasdk](#tools) and run `make -f vita.mk -j$(nproc) -B`.
 
-vita3k emulator expects you to install the .vpk each time? and non-blocking networking causes connect fail on windows.
+on vita3k emulator to avoid installing the .vpk each change just copy the eboot.bin, and non-blocking networking causes connect fail on windows same as 3ds.
 
 ```
 TODO: check nonblocking socket working
-TODO: button input
-TODO: draw game at offset to center it, and offset touch input based on that
+TODO: draw game at offset to center it, and offset touch input based on that. Confirm issue on real hw? maybe applies to wiiu/switch too
 TODO: after the vpk is unpacked on real HW can you still replace the config.ini with your own?
 TODO: what happens with touch input on the back, disable it?
 TODO: update sce_sys assets
