@@ -886,6 +886,7 @@ void platform_poll_events(Client *c) {
                         return;
                     }
                 } else {
+                    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xff);
                     SDL_RenderClear(renderer);
                 }
                 c->redraw_background = true;
