@@ -176,9 +176,6 @@ void set_pixels(PixMap *pixmap, int x, int y) {
     // sceDisplaySetFrameBuf(fb, VRAM_STRIDE, PSP_DISPLAY_PIXEL_FORMAT_565, PSP_DISPLAY_SETBUF_NEXTFRAME);
 }
 
-void platform_get_keycodes(Keysym *keysym, int *code, char *ch) {
-}
-
 void platform_poll_events(Client *c) {
     sceCtrlPeekBufferPositive(&pad, 1);
 

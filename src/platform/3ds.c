@@ -163,9 +163,6 @@ void set_pixels(PixMap *pixmap, int x, int y) {
     // gspWaitForVBlank();
 }
 
-void platform_get_keycodes(Keysym *keysym, int *code, char *ch) {
-}
-
 void platform_poll_events(Client *c) {
     hidScanInput();
 

@@ -103,7 +103,7 @@ ClientStream *clientstream_new(GameShell *shell, int port) {
 
     freeaddrinfo(result);
 #else
-    // TODO rm #if defined(WIN9X) || defined(__WII__) || defined(__PSP__) || defined(__NDS__)
+    // used by old windows, wii, psp, nds
     struct hostent *host_addr = gethostbyname(_Client.socketip);
 
     if (host_addr) {

@@ -42,6 +42,8 @@ static SDL_Surface *window_surface;
 static SDL_Texture *texture;
 static SDL_Renderer *renderer;
 
+static void platform_get_keycodes(SDL_Keysym *keysym, int *code, char *ch);
+
 #ifdef __EMSCRIPTEN__
 #include "emscripten.h"
 
@@ -434,7 +436,7 @@ void platform_fill_rect(int x, int y, int w, int h, int color) {
     }
 }
 
-void platform_get_keycodes(SDL_Keysym *keysym, int *code, char *ch) {
+static void platform_get_keycodes(SDL_Keysym *keysym, int *code, char *ch) {
     *ch = -1;
 
     switch (keysym->scancode) {

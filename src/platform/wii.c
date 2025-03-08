@@ -239,9 +239,6 @@ void set_pixels(PixMap *pixmap, int x, int y) {
     // VIDEO_Flush();
     // VIDEO_WaitVSync();
 }
-void platform_get_keycodes(Keysym *keysym, int *code, char *ch) {
-}
-
 void platform_poll_events(Client *c) {
     WPAD_ScanPads();
     WPADData *data = WPAD_Data(0);

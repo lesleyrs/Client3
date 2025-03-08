@@ -13,6 +13,8 @@ extern InputTracking _InputTracking;
 
 static SDL_Surface *window_surface;
 
+static void platform_get_keycodes(SDL_keysym *keysym, int *code, char *ch);
+
 void platform_init(void) {
 }
 
@@ -86,7 +88,7 @@ void platform_fill_rect(int x, int y, int w, int h, int color) {
     SDL_FillRect(window_surface, &rect, color);
 }
 
-void platform_get_keycodes(SDL_keysym *keysym, int *code, char *ch) {
+static void platform_get_keycodes(SDL_keysym *keysym, int *code, char *ch) {
     *code = -1;
     *ch = -1;
 

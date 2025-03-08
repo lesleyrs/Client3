@@ -4,18 +4,12 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#ifdef SDL // NOTE: SDL1 has no SDL_Window so checks using it like ::clientdrop will not work I guess?
+#ifdef SDL
 typedef struct SDL_Surface Surface;
-#if SDL == 1
-typedef struct SDL_keysym Keysym;
 #else
-typedef struct SDL_Keysym Keysym;
-#endif
-#elif defined(__WII__) || defined(__3DS__) || defined(__PSP__)
 typedef struct Surface {
     int *pixels;
 } Surface;
-typedef struct Keysym Keysym;
 #endif
 
 #ifdef _WIN32                                      // TODO: add other systems that use sdl_main? SDL3 replaced sdl_main with a header
@@ -69,7 +63,6 @@ Surface *platform_create_surface(int *pixels, int width, int height, int alpha);
 void platform_free_surface(Surface *surface);
 int *get_pixels(Surface *surface);
 void set_pixels(PixMap *pixmap, int x, int y);
-void platform_get_keycodes(Keysym *keysym, int *code, char *ch);
 void platform_poll_events(Client *c);
 void platform_update_surface(void);
 void platform_fill_rect(int x, int y, int w, int h, int color);
