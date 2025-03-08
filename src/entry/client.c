@@ -10829,7 +10829,7 @@ static void load_ini_config(Client *c) {
     INI_INT_LOG(&(&_Custom), remember_username, );
     INI_INT_LOG(&(&_Custom), remember_password, );
     INI_INT_LOG(&(&_Custom), disable_rsa, );
-    INI_INT_LOG(&(&_Custom), resizeable, );
+    INI_INT_LOG(&(&_Custom), resizable, );
 
     rs2_log("\n");
     ini_free(config);
