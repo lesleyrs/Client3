@@ -14,7 +14,6 @@ typedef struct {
     bool disable_rsa;
     int http_port;
     int chat_era; // 0 - early beta, 1 - late beta, 2 - launch
-    int fps;
     bool resizeable;
 } Custom;
 
