@@ -11,7 +11,7 @@
 
 // -Dplayground
 // -Dmidi
-// -Dclient
+-Dclient
 
 // -DSDL=1
 // -Ibin/SDL-devel-1.2.15-VC/SDL-1.2.15/include

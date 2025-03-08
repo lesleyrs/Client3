@@ -1,4 +1,6 @@
 #pragma once
+
+#include "client.h"
 #include <stdbool.h>
 
 typedef struct {
@@ -17,4 +19,7 @@ typedef struct {
     bool resizable;
 } Custom;
 
-extern Custom _Custom;
+bool load_ini_args(void);
+void load_ini_config(Client *c);
+void update_camera_editor(Client *c);
+void draw_info_overlay(Client *c);

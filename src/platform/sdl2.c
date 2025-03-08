@@ -20,6 +20,7 @@
 
 extern ClientData _Client;
 extern InputTracking _InputTracking;
+extern Custom _Custom;
 
 #ifdef __vita__
 #define FRAMEBUFFER_WIDTH 960

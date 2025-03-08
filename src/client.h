@@ -507,3 +507,5 @@ void projectFromGround(Client *c, PathingEntity *entity, int height);
 void projectFromGround2(Client *c, int x, int height, int z);
 void project(Client *c, int x, int y, int z);
 void client_run_flames(Client *c);
+void client_set_lowmem(void);
+void client_set_highmem(void);

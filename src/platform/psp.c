@@ -21,9 +21,11 @@
 #include "../inputtracking.h"
 #include "../pixmap.h"
 #include "../platform.h"
+#include "../custom.h"
 
 extern ClientData _Client;
 extern InputTracking _InputTracking;
+extern Custom _Custom;
 
 PSP_MODULE_INFO("client", 0, 2, 225);
 // PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER | THREAD_ATTR_VFPU);
@@ -220,6 +222,10 @@ void platform_poll_events(Client *c) {
 
     if (ctrl_release) {
         key_released(c->shell, K_CONTROL, -1);
+    }
+
+    if (!(last_pad.Buttons & PSP_CTRL_SELECT) && pad.Buttons & PSP_CTRL_SELECT) {
+        _Custom.showPerformance = !_Custom.showPerformance;
     }
 
     if (!(last_pad.Buttons & PSP_CTRL_SQUARE) && pad.Buttons & PSP_CTRL_SQUARE) {
