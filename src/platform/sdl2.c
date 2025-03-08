@@ -387,17 +387,17 @@ void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
         // Lock the texture (texture) so that we may write directly to the pixels:
         int *pix_write = NULL;
         int _pitch_unused = 0;
-        if (SDL_LockTexture(texture, NULL, (void **)&pix_write, &_pitch_unused) < 0 || pix_write == NULL) {
+        if (SDL_LockTexture(texture, NULL, (void **)&pix_write, &_pitch_unused) < 0) {
             rs2_error("SDL2: SDL_LockTexture failed: %s\n", SDL_GetError());
             return;
         }
         int row_size = w * sizeof(int);
-        int *as_src_intptr = (int *)surface->pixels;
+        int *src_pixels = (int *)surface->pixels;
         for (int src_y = y; src_y < (y + h); src_y++) {
             // Calculate offset in texture to write a single row of pixels
             int *row = &pix_write[(src_y * SCREEN_WIDTH) + x];
             // Copy a single row of pixels
-            memcpy(row, &as_src_intptr[(src_y - y) * w], row_size);
+            memcpy(row, &src_pixels[(src_y - y) * w], row_size);
         }
         // Unlock the texture so that it may be used elsewhere
         SDL_UnlockTexture(texture);
