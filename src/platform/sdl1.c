@@ -11,10 +11,12 @@
 
 extern InputTracking _InputTracking;
 
+static SDL_Surface *window_surface;
+
 void platform_init(void) {
 }
 
-void platform_new(GameShell *shell, int width, int height) {
+void platform_new(int width, int height) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         rs2_error("SDL_Init failed: %s\n", SDL_GetError());
         return;
@@ -24,12 +26,11 @@ void platform_new(GameShell *shell, int width, int height) {
     // SDL_EnableUNICODE(1);
     SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
     SDL_WM_SetCaption("Jagex", NULL);
-    // shell->surface = SDL_SetVideoMode(width, height, 32, SDL_HWSURFACE | SDL_RESIZABLE);
-    shell->surface = SDL_SetVideoMode(width, height, 32, SDL_SWSURFACE);
+    // window_surface = SDL_SetVideoMode(width, height, 32, SDL_HWSURFACE | SDL_RESIZABLE);
+    window_surface = SDL_SetVideoMode(width, height, 32, SDL_SWSURFACE);
 }
 
-void platform_free(GameShell *shell) {
-    (void)shell;
+void platform_free(void) {
     SDL_Quit();
 }
 
@@ -62,27 +63,27 @@ int *get_pixels(Surface *surface) {
 
 void set_pixels(PixMap *pixmap, int x, int y) {
     SDL_Rect dest = {x, y, pixmap->width, pixmap->height};
-    SDL_BlitSurface(pixmap->image, NULL, pixmap->shell->surface, &dest);
-    // SDL_BlitSurface(pixmap->image, NULL, pixmap->shell->surface, NULL);
-    SDL_Flip(pixmap->shell->surface);
+    SDL_BlitSurface(pixmap->image, NULL, window_surface, &dest);
+    // SDL_BlitSurface(pixmap->image, NULL, window_surface, NULL);
+    SDL_Flip(window_surface);
 }
 
-void platform_blit_surface(GameShell *shell, int x, int y, int w, int h, Surface *surface) {
+void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
     SDL_Rect rect = {x, y, w, h};
-    SDL_BlitSurface(surface, NULL, shell->surface, &rect);
+    SDL_BlitSurface(surface, NULL, window_surface, &rect);
 }
 
-void platform_update_surface(GameShell *shell) {
-    SDL_Flip(shell->surface);
+void platform_update_surface(void) {
+    SDL_Flip(window_surface);
 }
 
-void platform_fill_rect(GameShell *shell, int x, int y, int w, int h, int color) {
+void platform_fill_rect(int x, int y, int w, int h, int color) {
     if (color != BLACK) { // TODO other grayscale?
-        color = SDL_MapRGB(shell->surface->format, color >> 16 & 0xff, color >> 8 & 0xff, color & 0xff);
+        color = SDL_MapRGB(window_surface->format, color >> 16 & 0xff, color >> 8 & 0xff, color & 0xff);
     }
 
     SDL_Rect rect = {x, y, w, h};
-    SDL_FillRect(shell->surface, &rect, color);
+    SDL_FillRect(window_surface, &rect, color);
 }
 
 void platform_get_keycodes(SDL_keysym *keysym, int *code, char *ch) {

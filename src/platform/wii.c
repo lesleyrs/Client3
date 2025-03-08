@@ -130,8 +130,8 @@ void platform_init(void) {
     }
 }
 
-void platform_new(GameShell *shell, int width, int height) {
-    (void)shell, (void)width, (void)height;
+void platform_new(int width, int height) {
+    (void)width, (void)height;
     // Initialise the video system
     VIDEO_Init();
 
@@ -181,7 +181,7 @@ void platform_new(GameShell *shell, int width, int height) {
     MOUSE_Init();
     // settime(0); // would start gettime at 0, but why does this break on login?
 }
-void platform_free(GameShell *shell) {
+void platform_free(void) {
 }
 void platform_set_wave_volume(int wavevol) {
 }
@@ -323,11 +323,11 @@ void platform_poll_events(Client *c) {
         key_released(c->shell, K_CONTROL, -1);
     }
 }
-void platform_update_surface(GameShell *shell) {
+void platform_update_surface(void) {
 }
-void platform_fill_rect(GameShell *shell, int x, int y, int w, int h, int color) {
+void platform_fill_rect(int x, int y, int w, int h, int color) {
 }
-void platform_blit_surface(GameShell *shell, int x, int y, int w, int h, Surface *surface) {
+void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
 }
 uint64_t get_ticks(void) {
     uint64_t ticks = gettime();

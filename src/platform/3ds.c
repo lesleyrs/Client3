@@ -47,8 +47,8 @@ void platform_init(void) {
     consoleInit(GFX_TOP, NULL);
 }
 
-void platform_new(GameShell *shell, int width, int height) {
-    (void)shell, (void)width, (void)height;
+void platform_new(int width, int height) {
+    (void)width, (void)height;
     atexit(soc_shutdown);
 
     // NOTE we could use romfs, but we need sdcard to store the 3dsx anyway
@@ -109,7 +109,7 @@ void platform_new(GameShell *shell, int width, int height) {
 
     // HIDUSER_EnableGyroscope();
 }
-void platform_free(GameShell *shell) {
+void platform_free(void) {
 }
 void platform_set_wave_volume(int wavevol) {
 }
@@ -272,11 +272,11 @@ void platform_poll_events(Client *c) {
         }
     }
 }
-void platform_update_surface(GameShell *shell) {
+void platform_update_surface(void) {
 }
-void platform_fill_rect(GameShell *shell, int x, int y, int w, int h, int color) {
+void platform_fill_rect(int x, int y, int w, int h, int color) {
 }
-void platform_blit_surface(GameShell *shell, int x, int y, int w, int h, Surface *surface) {
+void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
 }
 uint64_t get_ticks(void) {
     // return osGetTime();

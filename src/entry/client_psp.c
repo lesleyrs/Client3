@@ -10,6 +10,7 @@
 #include "../clientstream.h"
 #include "../collisionmap.h"
 #include "../component.h"
+#include "../custom.h"
 #include "../datastruct/jstring.h"
 #include "../datastruct/linklist.h"
 #include "../defines.h"
@@ -48,7 +49,6 @@
 #include "../wordenc/wordpack.h"
 #include "../world.h"
 #include "../world3d.h"
-#include "../custom.h"
 
 extern int DESIGN_BODY_COLOR_LENGTH[];
 extern int *DESIGN_BODY_COLOR[];
@@ -297,34 +297,34 @@ void client_load(Client *c) {
     pix8_flip_horizontally(c->image_redstone2hv);
     pix8_flip_vertically(c->image_redstone2hv);
     Pix24 *backleft1 = pix24_from_archive(media, "backleft1", 0);
-    c->area_backleft1 = pixmap_new(c->shell, backleft1->width, backleft1->height);
+    c->area_backleft1 = pixmap_new(backleft1->width, backleft1->height);
     pix24_blit_opaque(backleft1, 0, 0);
     Pix24 *backleft2 = pix24_from_archive(media, "backleft2", 0);
-    c->area_backleft2 = pixmap_new(c->shell, backleft2->width, backleft2->height);
+    c->area_backleft2 = pixmap_new(backleft2->width, backleft2->height);
     pix24_blit_opaque(backleft2, 0, 0);
     Pix24 *backright1 = pix24_from_archive(media, "backright1", 0);
-    c->area_backright1 = pixmap_new(c->shell, backright1->width, backright1->height);
+    c->area_backright1 = pixmap_new(backright1->width, backright1->height);
     pix24_blit_opaque(backright1, 0, 0);
     Pix24 *backright2 = pix24_from_archive(media, "backright2", 0);
-    c->area_backright2 = pixmap_new(c->shell, backright2->width, backright2->height);
+    c->area_backright2 = pixmap_new(backright2->width, backright2->height);
     pix24_blit_opaque(backright2, 0, 0);
     Pix24 *backtop1 = pix24_from_archive(media, "backtop1", 0);
-    c->area_backtop1 = pixmap_new(c->shell, backtop1->width, backtop1->height);
+    c->area_backtop1 = pixmap_new(backtop1->width, backtop1->height);
     pix24_blit_opaque(backtop1, 0, 0);
     Pix24 *backtop2 = pix24_from_archive(media, "backtop2", 0);
-    c->area_backtop2 = pixmap_new(c->shell, backtop2->width, backtop2->height);
+    c->area_backtop2 = pixmap_new(backtop2->width, backtop2->height);
     pix24_blit_opaque(backtop2, 0, 0);
     Pix24 *backvmid1 = pix24_from_archive(media, "backvmid1", 0);
-    c->area_backvmid1 = pixmap_new(c->shell, backvmid1->width, backvmid1->height);
+    c->area_backvmid1 = pixmap_new(backvmid1->width, backvmid1->height);
     pix24_blit_opaque(backvmid1, 0, 0);
     Pix24 *backvmid2 = pix24_from_archive(media, "backvmid2", 0);
-    c->area_backvmid2 = pixmap_new(c->shell, backvmid2->width, backvmid2->height);
+    c->area_backvmid2 = pixmap_new(backvmid2->width, backvmid2->height);
     pix24_blit_opaque(backvmid2, 0, 0);
     Pix24 *backvmid3 = pix24_from_archive(media, "backvmid3", 0);
-    c->area_backvmid3 = pixmap_new(c->shell, backvmid3->width, backvmid3->height);
+    c->area_backvmid3 = pixmap_new(backvmid3->width, backvmid3->height);
     pix24_blit_opaque(backvmid3, 0, 0);
     Pix24 *backhmid2 = pix24_from_archive(media, "backhmid2", 0);
-    c->area_backhmid2 = pixmap_new(c->shell, backhmid2->width, backhmid2->height);
+    c->area_backhmid2 = pixmap_new(backhmid2->width, backhmid2->height);
     pix24_blit_opaque(backhmid2, 0, 0);
 
     int rand_r = (int)(jrand() * 21.0) - 10;
@@ -3801,8 +3801,9 @@ static void handleInputKey(Client *c) {
                     }
 
                     if ((key == 13 || key == 10) && strlen(c->chat_typed) > 0) {
-                        if (c->rights /* custom, originally only with frame or local servers */ || _Custom.allow_commands) {
-                            if (strcmp(c->chat_typed, "::clientdrop") == 0 && c->shell->window) {
+                        // custom, originally only with frame or local servers
+                        if (c->rights || _Custom.allow_commands) {
+                            if (strcmp(c->chat_typed, "::clientdrop") == 0 /* && c->shell->window */) {
                                 client_try_reconnect(c);
                             } else if (strcmp(c->chat_typed, "::noclip") == 0) {
                                 for (int level = 0; level < COLLISIONMAP_LEVELS; level++) {
@@ -7576,16 +7577,16 @@ void client_prepare_game_screen(Client *c) {
     c->image_title6 = NULL;
     c->image_title7 = NULL;
     c->image_title8 = NULL;
-    c->area_chatback = pixmap_new(c->shell, 479, 96);
-    c->area_mapback = pixmap_new(c->shell, 168, 160);
+    c->area_chatback = pixmap_new(479, 96);
+    c->area_mapback = pixmap_new(168, 160);
     pix2d_clear();
     pix8_draw(c->image_mapback, 0, 0);
-    c->area_sidebar = pixmap_new(c->shell, 190, 261);
-    c->area_viewport = pixmap_new(c->shell, 512, 334);
+    c->area_sidebar = pixmap_new(190, 261);
+    c->area_viewport = pixmap_new(512, 334);
     pix2d_clear();
-    c->area_backbase1 = pixmap_new(c->shell, 501, 61);
-    c->area_backbase2 = pixmap_new(c->shell, 288, 40);
-    c->area_backhmid1 = pixmap_new(c->shell, 269, 66);
+    c->area_backbase1 = pixmap_new(501, 61);
+    c->area_backbase2 = pixmap_new(288, 40);
+    c->area_backhmid1 = pixmap_new(269, 66);
     c->redraw_background = true;
 }
 
@@ -10024,7 +10025,7 @@ void client_draw_menu(Client *c) {
 }
 
 void client_draw_error(Client *c) {
-    platform_fill_rect(c->shell, 0, 0, 789, 532, BLACK);
+    platform_fill_rect(0, 0, 789, 532, BLACK);
     gameshell_set_framerate(c->shell, 1);
 
     int color;
@@ -10082,7 +10083,7 @@ void client_draw_error(Client *c) {
         y += 30;
     }
 
-    platform_update_surface(c->shell);
+    platform_update_surface();
 }
 
 void client_draw_title_screen(Client *c) {
@@ -10695,31 +10696,31 @@ void client_load_title(Client *c) {
         c->area_backhmid1 = NULL;
     }
 
-    c->image_title0 = pixmap_new(c->shell, 128, 265);
+    c->image_title0 = pixmap_new(128, 265);
     pix2d_clear();
 
-    c->image_title1 = pixmap_new(c->shell, 128, 265);
+    c->image_title1 = pixmap_new(128, 265);
     pix2d_clear();
 
-    c->image_title2 = pixmap_new(c->shell, 533, 186);
+    c->image_title2 = pixmap_new(533, 186);
     pix2d_clear();
 
-    c->image_title3 = pixmap_new(c->shell, 360, 146);
+    c->image_title3 = pixmap_new(360, 146);
     pix2d_clear();
 
-    c->image_title4 = pixmap_new(c->shell, 360, 200);
+    c->image_title4 = pixmap_new(360, 200);
     pix2d_clear();
 
-    c->image_title5 = pixmap_new(c->shell, 214, 267);
+    c->image_title5 = pixmap_new(214, 267);
     pix2d_clear();
 
-    c->image_title6 = pixmap_new(c->shell, 215, 267);
+    c->image_title6 = pixmap_new(215, 267);
     pix2d_clear();
 
-    c->image_title7 = pixmap_new(c->shell, 86, 79);
+    c->image_title7 = pixmap_new(86, 79);
     pix2d_clear();
 
-    c->image_title8 = pixmap_new(c->shell, 87, 79);
+    c->image_title8 = pixmap_new(87, 79);
     pix2d_clear();
 
     if (c->archive_title) {

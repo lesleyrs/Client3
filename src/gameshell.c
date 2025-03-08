@@ -29,7 +29,7 @@ GameShell *gameshell_new(void) {
 }
 
 void gameshell_free(GameShell *shell) {
-    platform_free(shell);
+    platform_free();
     if (shell->draw_area) {
         pixmap_free(shell->draw_area);
     }
@@ -42,11 +42,11 @@ void gameshell_free(GameShell *shell) {
 void gameshell_init_application(Client *c, int width, int height) {
     c->shell->screen_width = width;
     c->shell->screen_height = height;
-    platform_new(c->shell, c->shell->screen_width, c->shell->screen_height);
+    platform_new(c->shell->screen_width, c->shell->screen_height);
 #ifdef client
     c->shell->draw_area = NULL;
 #else
-    c->shell->draw_area = pixmap_new(c->shell, c->shell->screen_width, c->shell->screen_height);
+    c->shell->draw_area = pixmap_new(c->shell->screen_width, c->shell->screen_height);
 #endif
     gameshell_run(c);
 }
@@ -373,9 +373,9 @@ void gameshell_draw_string(Client *c, const char *str, int x, int y, int color, 
 
         // TODO: is this centering correct? maybe few pixels to the left?
         if (x == -1) {
-            platform_blit_surface(c->shell, (c->shell->screen_width - ttf_string_width(&font, str, scale)) / 2 + (int)xpos + x0, y + y0, width, height, surface);
+            platform_blit_surface((c->shell->screen_width - ttf_string_width(&font, str, scale)) / 2 + (int)xpos + x0, y + y0, width, height, surface);
         } else {
-            platform_blit_surface(c->shell, x + (int)xpos + x0, y + y0, width, height, surface);
+            platform_blit_surface(x + (int)xpos + x0, y + y0, width, height, surface);
         }
         stbtt_FreeBitmap(bitmap, NULL);
         platform_free_surface(surface);
@@ -395,18 +395,18 @@ void gameshell_draw_string(Client *c, const char *str, int x, int y, int color, 
 void gameshell_draw_progress(Client *c, const char *message, int progress) {
     // NOTE there's no update or paint to call refresh, only focus gained event
     if (c->shell->refresh) {
-        platform_fill_rect(c->shell, 0, 0, c->shell->screen_width, c->shell->screen_height, BLACK);
+        platform_fill_rect(0, 0, c->shell->screen_width, c->shell->screen_height, BLACK);
         c->shell->refresh = false;
     }
 
     int y = c->shell->screen_height / 2 - 18;
 
-    platform_fill_rect(c->shell, c->shell->screen_width / 2 - 152, y, 304, 34, PROGRESS_RED); // NOTE: actually drawRect, but seems to be same effect
-    platform_fill_rect(c->shell, c->shell->screen_width / 2 - 150, y + 2, progress * 3, 30, PROGRESS_RED);
-    platform_fill_rect(c->shell, c->shell->screen_width / 2 + progress * 3 - 150, y + 2, 300 - progress * 3, 30, BLACK);
+    platform_fill_rect(c->shell->screen_width / 2 - 152, y, 304, 34, PROGRESS_RED); // NOTE: actually drawRect, but seems to be same effect
+    platform_fill_rect(c->shell->screen_width / 2 - 150, y + 2, progress * 3, 30, PROGRESS_RED);
+    platform_fill_rect(c->shell->screen_width / 2 + progress * 3 - 150, y + 2, 300 - progress * 3, 30, BLACK);
 
     int color = WHITE;
     gameshell_draw_string(c, message, -1, y + 22, HELVETICA_BOLD_13);
 
-    platform_update_surface(c->shell);
+    platform_update_surface();
 }

@@ -11,26 +11,29 @@
 
 extern InputTracking _InputTracking;
 
+static SDL_Window *window;
+static SDL_Surface *window_surface;
+
 void platform_init(void) {
 }
 
-void platform_new(GameShell *shell, int width, int height) {
+void platform_new(int width, int height) {
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         rs2_error("SDL_Init failed: %s\n", SDL_GetError());
         return;
     }
 
-    shell->window = SDL_CreateWindow("Jagex", width, height, 0);
-    if (!shell->window) {
+    window = SDL_CreateWindow("Jagex", width, height, 0);
+    if (!window) {
         rs2_error("Window creation failed: %s\n", SDL_GetError());
         SDL_Quit();
         return;
     }
 
-    shell->surface = SDL_GetWindowSurface(shell->window);
-    if (!shell->surface) {
+    window_surface = SDL_GetWindowSurface(window);
+    if (!window_surface) {
         rs2_error("Window surface creation failed: %s\n", SDL_GetError());
-        SDL_DestroyWindow(shell->window);
+        SDL_DestroyWindow(window);
         SDL_Quit();
         return;
     }
@@ -45,9 +48,9 @@ void platform_new(GameShell *shell, int width, int height) {
     // }
 }
 
-void platform_free(GameShell *shell) {
+void platform_free(void) {
     // SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(shell->window);
+    SDL_DestroyWindow(window);
     SDL_Quit();
 }
 
@@ -83,29 +86,29 @@ int *get_pixels(Surface *surface) {
 
 void set_pixels(PixMap *pixmap, int x, int y) {
     SDL_Rect dest = {x, y, pixmap->width, pixmap->height};
-    SDL_BlitSurfaceScaled(pixmap->image, NULL, pixmap->shell->surface, &dest, SDL_SCALEMODE_NEAREST);
-    // SDL_BlitSurfaceScaled(pixmap->image, NULL, pixmap->shell->surface, NULL, SDL_SCALEMODE_NEAREST);
-    // SDL_BlitSurface(pixmap->image, NULL, pixmap->shell->surface, NULL);
-    SDL_UpdateWindowSurface(pixmap->shell->window);
+    SDL_BlitSurfaceScaled(pixmap->image, NULL, window_surface, &dest, SDL_SCALEMODE_NEAREST);
+    // SDL_BlitSurfaceScaled(pixmap->image, NULL, window_surface, NULL, SDL_SCALEMODE_NEAREST);
+    // SDL_BlitSurface(pixmap->image, NULL, window_surface, NULL);
+    SDL_UpdateWindowSurface(window);
 }
 
-void platform_blit_surface(GameShell *shell, int x, int y, int w, int h, Surface *surface) {
+void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
     SDL_Rect rect = {x, y, w, h};
-    SDL_BlitSurfaceScaled(surface, NULL, shell->surface, &rect, SDL_SCALEMODE_NEAREST);
-    // SDL_BlitSurface(surface, NULL, shell->surface, &rect);
+    SDL_BlitSurfaceScaled(surface, NULL, window_surface, &rect, SDL_SCALEMODE_NEAREST);
+    // SDL_BlitSurface(surface, NULL, window_surface, &rect);
 }
 
-void platform_update_surface(GameShell *shell) {
-    SDL_UpdateWindowSurface(shell->window);
+void platform_update_surface(void) {
+    SDL_UpdateWindowSurface(window);
 }
 
-void platform_fill_rect(GameShell *shell, int x, int y, int w, int h, int color) {
+void platform_fill_rect(int x, int y, int w, int h, int color) {
     if (color != BLACK) { // TODO other grayscale?
-        color = SDL_MapRGB(SDL_GetPixelFormatDetails(shell->surface->format), SDL_GetSurfacePalette(shell->surface), color >> 16 & 0xff, color >> 8 & 0xff, color & 0xff);
+        color = SDL_MapRGB(SDL_GetPixelFormatDetails(window_surface->format), SDL_GetSurfacePalette(window_surface), color >> 16 & 0xff, color >> 8 & 0xff, color & 0xff);
     }
 
     SDL_Rect rect = {x, y, w, h};
-    SDL_FillSurfaceRect(shell->surface, &rect, color);
+    SDL_FillSurfaceRect(window_surface, &rect, color);
 }
 
 void platform_poll_events(Client *c) {
@@ -171,10 +174,10 @@ void platform_poll_events(Client *c) {
             }
             break;
         case SDL_EVENT_WINDOW_RESIZED:
-            c->shell->surface = SDL_GetWindowSurface(c->shell->window);
-            if (!c->shell->surface) {
+            window_surface = SDL_GetWindowSurface(window);
+            if (!window_surface) {
                 rs2_error("Window surface creation failed: %s\n", SDL_GetError());
-                SDL_DestroyWindow(c->shell->window);
+                SDL_DestroyWindow(window);
                 SDL_Quit();
                 return;
             }

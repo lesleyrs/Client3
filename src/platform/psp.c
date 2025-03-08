@@ -83,8 +83,8 @@ void platform_init(void) {
     scePowerSetClockFrequency(333, 333, 166);
 }
 
-void platform_new(GameShell *shell, int width, int height) {
-    (void)shell, (void)width, (void)height;
+void platform_new(int width, int height) {
+    (void)width, (void)height;
     sceDisplaySetFrameBuf(fb, VRAM_STRIDE, PSP_DISPLAY_PIXEL_FORMAT_565, PSP_DISPLAY_SETBUF_NEXTFRAME);
     // TODO rm
     rs2_log("%d\n", sceCtrlGetSamplingCycle);
@@ -116,7 +116,7 @@ void platform_new(GameShell *shell, int width, int height) {
     }
 }
 
-void platform_free(GameShell *shell) {
+void platform_free(void) {
     sceNetApctlTerm();
     sceNetResolverTerm();
     sceNetInetTerm();
@@ -290,11 +290,11 @@ void platform_poll_events(Client *c) {
 
     last_pad = pad;
 }
-void platform_update_surface(GameShell *shell) {
+void platform_update_surface(void) {
 }
-void platform_fill_rect(GameShell *shell, int x, int y, int w, int h, int color) {
+void platform_fill_rect(int x, int y, int w, int h, int color) {
 }
-void platform_blit_surface(GameShell *shell, int x, int y, int w, int h, Surface *surface) {
+void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
 }
 uint64_t get_ticks(void) {
     return sceKernelGetSystemTimeWide() / 1000;

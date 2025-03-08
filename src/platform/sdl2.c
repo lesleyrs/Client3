@@ -5,11 +5,11 @@
 #include <string.h>
 
 #include "../client.h"
+#include "../custom.h"
 #include "../defines.h"
 #include "../gameshell.h"
 #include "../inputtracking.h"
 #include "../pixmap.h"
-#include "../custom.h"
 
 #include "../thirdparty/bzip.h"
 #define TSF_IMPLEMENTATION
@@ -28,7 +28,7 @@ static SDL_Joystick *joystick;
 static bool right_touch = false;
 #endif
 
-static tml_message *TinyMidiLoader = NULL;
+static tml_message *TinyMidiLoader;
 
 // Holds the global instance pointer
 static tsf *g_TinySoundFont;
@@ -36,8 +36,10 @@ static tsf *g_TinySoundFont;
 static double g_Msec;              // current playback time
 static tml_message *g_MidiMessage; // next message to be played
 
-static SDL_Texture* texture = NULL;
-static SDL_Renderer* renderer = NULL;
+static SDL_Window *window;
+static SDL_Surface *window_surface;
+static SDL_Texture *texture;
+static SDL_Renderer *renderer;
 
 #ifdef __EMSCRIPTEN__
 #include "emscripten.h"
@@ -145,10 +147,10 @@ static void midi_callback(void *data, uint8_t *stream, int len) {
 void platform_init(void) {
 }
 
-void platform_new(GameShell *shell, int width, int height) {
+void platform_new(int width, int height) {
     SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
     if (_Custom.resizable) {
-        SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");  // Linear scaling
+        SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"); // Linear scaling
     }
     // SDL_SetHint(SDL_HINT_WINDOWS_NO_CLOSE_ON_ALT_F4, "1"); // OSRS desktop client always had this, not sure about before?
 
@@ -211,17 +213,17 @@ void platform_new(GameShell *shell, int width, int height) {
     }
 
     if (!_Custom.resizable) {
-        shell->window = SDL_CreateWindow("Jagex", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
-        if (!shell->window) {
+        window = SDL_CreateWindow("Jagex", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
+        if (!window) {
             rs2_error("Window creation failed: %s\n", SDL_GetError());
             SDL_Quit();
             return;
         }
 
-        shell->surface = SDL_GetWindowSurface(shell->window);
-        if (!shell->surface) {
+        window_surface = SDL_GetWindowSurface(window);
+        if (!window_surface) {
             rs2_error("Window surface creation failed: %s\n", SDL_GetError());
-            SDL_DestroyWindow(shell->window);
+            SDL_DestroyWindow(window);
             SDL_Quit();
             return;
         }
@@ -230,8 +232,8 @@ void platform_new(GameShell *shell, int width, int height) {
         if (_Custom.resizable) {
             window_flags |= SDL_WINDOW_RESIZABLE;
         }
-        shell->window = SDL_CreateWindow("Jagex", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, window_flags);
-        if (!shell->window) {
+        window = SDL_CreateWindow("Jagex", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, window_flags);
+        if (!window) {
             rs2_error("SDL2: window creation failed: %s\n", SDL_GetError());
             SDL_Quit();
             return;
@@ -240,17 +242,17 @@ void platform_new(GameShell *shell, int width, int height) {
         int num_renderers = SDL_GetNumRenderDrivers();
         if (num_renderers == 0) {
             rs2_error("SDL2: no renderers available\n");
-            SDL_DestroyWindow(shell->window);
+            SDL_DestroyWindow(window);
             SDL_Quit();
             return;
         }
 
-        renderer = SDL_CreateRenderer(shell->window, -1, SDL_RENDERER_ACCELERATED);
+        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
         if (!renderer) {
-            renderer = SDL_CreateRenderer(shell->window, -1, SDL_RENDERER_SOFTWARE);
+            renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
             if (!renderer) {
                 rs2_error("SDL2: renderer creation failed: %s\n", SDL_GetError());
-                SDL_DestroyWindow(shell->window);
+                SDL_DestroyWindow(window);
                 SDL_Quit();
                 return;
             }
@@ -258,7 +260,6 @@ void platform_new(GameShell *shell, int width, int height) {
         }
         SDL_RendererInfo active_info = {0};
         SDL_GetRendererInfo(renderer, &active_info);
-
 
         SDL_RendererInfo current_info = {0};
         char renderers[1024] = {0};
@@ -277,7 +278,7 @@ void platform_new(GameShell *shell, int width, int height) {
         texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_XRGB8888, SDL_TEXTUREACCESS_STREAMING, width, height);
         if (!texture) {
             rs2_error("SDL2: texture creation failed: %s\n", SDL_GetError());
-            SDL_DestroyWindow(shell->window);
+            SDL_DestroyWindow(window);
             SDL_Quit();
             return;
         }
@@ -286,7 +287,7 @@ void platform_new(GameShell *shell, int width, int height) {
     }
 }
 
-void platform_free(GameShell *shell) {
+void platform_free(void) {
 #ifdef __vita__
     SDL_JoystickClose(0);
 #endif
@@ -294,7 +295,7 @@ void platform_free(GameShell *shell) {
         SDL_DestroyTexture(texture);
         SDL_DestroyRenderer(renderer);
     }
-    SDL_DestroyWindow(shell->window);
+    SDL_DestroyWindow(window);
     SDL_Quit();
     tsf_close(g_TinySoundFont);
     tml_free(TinyMidiLoader);
@@ -360,7 +361,7 @@ void platform_stop_midi(void) {
 }
 
 Surface *platform_create_surface(int *pixels, int width, int height, int alpha) {
-    Surface* new_surface = SDL_CreateRGBSurfaceFrom(pixels, width, height, 32, width * sizeof(int), 0xff0000, 0x00ff00, 0x0000ff, alpha);
+    Surface *new_surface = SDL_CreateRGBSurfaceFrom(pixels, width, height, 32, width * sizeof(int), 0xff0000, 0x00ff00, 0x0000ff, alpha);
     if (!new_surface) {
         rs2_error("SDL2: SDL_CreateRGBSurfaceFrom failed\n");
     }
@@ -376,30 +377,29 @@ int *get_pixels(Surface *surface) {
 }
 
 void set_pixels(PixMap *pixmap, int x, int y) {
-    platform_blit_surface(pixmap->shell, x, y, pixmap->width, pixmap->height, pixmap->image);
-    platform_update_surface(pixmap->shell);
+    platform_blit_surface(x, y, pixmap->width, pixmap->height, pixmap->image);
+    platform_update_surface();
 }
 
-void platform_blit_surface(GameShell *shell, int x, int y, int w, int h, Surface *surface) {
+void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
     if (!_Custom.resizable) {
         SDL_Rect dest = {x, y, w, h};
-        SDL_BlitScaled(surface, NULL, shell->surface, &dest);
-        // SDL_BlitScaled(surface, NULL, shell->surface, NULL);
-        // SDL_BlitSurface(surface, NULL, shell->surface, NULL);
+        SDL_BlitScaled(surface, NULL, window_surface, &dest);
+        // SDL_BlitScaled(surface, NULL, window_surface, NULL);
+        // SDL_BlitSurface(surface, NULL, window_surface, NULL);
     } else {
-        (void)shell;
         // Lock the texture (texture) so that we may write directly to the pixels:
-        int* pix_write = NULL;
+        int *pix_write = NULL;
         int _pitch_unused = 0;
-        if (SDL_LockTexture(texture, NULL, (void**)&pix_write, &_pitch_unused) < 0 || pix_write == NULL) {
+        if (SDL_LockTexture(texture, NULL, (void **)&pix_write, &_pitch_unused) < 0 || pix_write == NULL) {
             rs2_error("SDL2: SDL_LockTexture failed: %s\n", SDL_GetError());
             return;
         }
         int row_size = w * sizeof(int);
-        int* as_src_intptr = (int*)surface->pixels;
+        int *as_src_intptr = (int *)surface->pixels;
         for (int src_y = y; src_y < (y + h); src_y++) {
             // Calculate offset in texture to write a single row of pixels
-            int* row = &pix_write[(src_y * SCREEN_WIDTH) + x];
+            int *row = &pix_write[(src_y * SCREEN_WIDTH) + x];
             // Copy a single row of pixels
             memcpy(row, &as_src_intptr[(src_y - y) * w], row_size);
         }
@@ -408,27 +408,25 @@ void platform_blit_surface(GameShell *shell, int x, int y, int w, int h, Surface
     }
 }
 
-void platform_update_surface(GameShell *shell) {
+void platform_update_surface(void) {
     if (!_Custom.resizable) {
-        SDL_UpdateWindowSurface(shell->window);
+        SDL_UpdateWindowSurface(window);
     } else {
-        (void)shell;
         SDL_SetRenderTarget(renderer, NULL);
         SDL_RenderCopy(renderer, texture, NULL, NULL);
         SDL_RenderPresent(renderer);
     }
 }
 
-void platform_fill_rect(GameShell *shell, int x, int y, int w, int h, int color) {
+void platform_fill_rect(int x, int y, int w, int h, int color) {
     if (!_Custom.resizable) {
         if (color != BLACK) { // TODO other grayscale?
-            color = SDL_MapRGB(shell->surface->format, color >> 16 & 0xff, color >> 8 & 0xff, color & 0xff);
+            color = SDL_MapRGB(window_surface->format, color >> 16 & 0xff, color >> 8 & 0xff, color & 0xff);
         }
 
         SDL_Rect rect = {x, y, w, h};
-        SDL_FillRect(shell->surface, &rect, color);
+        SDL_FillRect(window_surface, &rect, color);
     } else {
-        (void)shell;
         SDL_SetRenderDrawColor(renderer, (color >> 16) & 0xff, (color >> 8) & 0xff, color & 0xff, 0xff);
         SDL_Rect rect = {x, y, w, h};
         SDL_RenderFillRect(renderer, &rect);
@@ -884,10 +882,10 @@ void platform_poll_events(Client *c) {
             switch (e.window.event) {
             case SDL_WINDOWEVENT_RESIZED:
                 if (!_Custom.resizable) {
-                    c->shell->surface = SDL_GetWindowSurface(c->shell->window);
-                    if (!c->shell->surface) {
+                    window_surface = SDL_GetWindowSurface(window);
+                    if (!window_surface) {
                         rs2_error("Failed to get window surface: %s\n", SDL_GetError());
-                        SDL_DestroyWindow(c->shell->window);
+                        SDL_DestroyWindow(window);
                         SDL_Quit();
                         return;
                     }

@@ -11,9 +11,7 @@ struct GameShell {
     int fps;
     int screen_width;
     int screen_height;
-    Surface *surface;
     PixMap *draw_area;
-    Window *window;
     int idle_cycles;
     int mouse_button;
     int mouse_x;

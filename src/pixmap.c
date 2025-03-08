@@ -4,9 +4,8 @@
 #include "pix2d.h"
 #include "pixmap.h"
 
-PixMap *pixmap_new(GameShell *shell, int width, int height) {
+PixMap *pixmap_new(int width, int height) {
     PixMap *pixmap = calloc(1, sizeof(PixMap));
-    pixmap->shell = shell;
     pixmap->width = width;
     pixmap->height = height;
     pixmap->pixels = calloc(pixmap->width * pixmap->height, sizeof(int));
