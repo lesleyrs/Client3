@@ -215,33 +215,26 @@ void platform_new(int width, int height) {
 #endif
     }
 
-    if (!_Custom.resizable) {
-        window = SDL_CreateWindow("Jagex", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
-        if (!window) {
-            rs2_error("Window creation failed: %s\n", SDL_GetError());
-            SDL_Quit();
-            return;
-        }
+    int window_flags = SDL_WINDOW_SHOWN;
+    if (_Custom.resizable) {
+        window_flags |= SDL_WINDOW_RESIZABLE;
+    }
+    window = SDL_CreateWindow("Jagex", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, window_flags);
+    if (!window) {
+        rs2_error("SDL2: window creation failed: %s\n", SDL_GetError());
+        SDL_Quit();
+        return;
+    }
 
+    if (!_Custom.resizable) {
         window_surface = SDL_GetWindowSurface(window);
         if (!window_surface) {
-            rs2_error("Window surface creation failed: %s\n", SDL_GetError());
+            rs2_error("SDL2: window surface creation failed: %s\n", SDL_GetError());
             SDL_DestroyWindow(window);
             SDL_Quit();
             return;
         }
     } else {
-        int window_flags = SDL_WINDOW_SHOWN;
-        if (_Custom.resizable) {
-            window_flags |= SDL_WINDOW_RESIZABLE;
-        }
-        window = SDL_CreateWindow("Jagex", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, window_flags);
-        if (!window) {
-            rs2_error("SDL2: window creation failed: %s\n", SDL_GetError());
-            SDL_Quit();
-            return;
-        }
-
         int num_renderers = SDL_GetNumRenderDrivers();
         if (num_renderers == 0) {
             rs2_error("SDL2: no renderers available\n");
