@@ -234,7 +234,7 @@ Install [vitasdk](#tools) and run `make -f vita.mk -j$(nproc) -B`.
 
 on vita3k emulator to avoid installing the .vpk each change just copy the eboot.bin, and non-blocking networking causes connect fail on windows same as 3ds.
 
-Controls: touch as mouse (TODO right click), /\ for control, Dpad as arrow keys
+Controls: touch as mouse, X for right click, /\ for control, Dpad as arrow keys
 
 ```
 TODO: check nonblocking socket working

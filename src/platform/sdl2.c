@@ -21,7 +21,10 @@ extern ClientData _Client;
 extern InputTracking _InputTracking;
 
 #ifdef __vita__
+#define FRAMEBUFFER_WIDTH 960
+#define FRAMEBUFFER_HEIGHT 544
 static SDL_Joystick *joystick;
+static bool right_touch = false;
 #endif
 
 static tml_message *TinyMidiLoader = NULL;
@@ -614,6 +617,7 @@ void platform_poll_events(Client *c) {
             case 1: // Circle
                 break;
             case 2: // Cross
+                right_touch = true;
                 break;
             case 3: // Square
                 break;
@@ -657,6 +661,7 @@ void platform_poll_events(Client *c) {
             case 1: // Circle
                 break;
             case 2: // Cross
+                right_touch = false;
                 break;
             case 3: // Square
                 break;
@@ -692,9 +697,6 @@ void platform_poll_events(Client *c) {
             }
             break;
         } break;
-
-#define FRAMEBUFFER_WIDTH 960
-#define FRAMEBUFFER_HEIGHT 544
         case SDL_FINGERMOTION: {
             float x = e.tfinger.x * FRAMEBUFFER_WIDTH;
             float y = e.tfinger.y * FRAMEBUFFER_HEIGHT;
@@ -719,7 +721,7 @@ void platform_poll_events(Client *c) {
             c->shell->mouse_click_y = y;
 
             // TODO remove all false below for right click button
-            if (false) {
+            if (right_touch) {
                 c->shell->mouse_click_button = 2;
                 c->shell->mouse_button = 2;
             } else {
@@ -728,7 +730,7 @@ void platform_poll_events(Client *c) {
             }
 
             if (_InputTracking.enabled) {
-                inputtracking_mouse_pressed(&_InputTracking, x, y, false ? 1 : 0);
+                inputtracking_mouse_pressed(&_InputTracking, x, y, right_touch ? 1 : 0);
             }
         } break;
         case SDL_FINGERUP: {
@@ -736,7 +738,7 @@ void platform_poll_events(Client *c) {
             c->shell->mouse_button = 0;
 
             if (_InputTracking.enabled) {
-                inputtracking_mouse_released(&_InputTracking, false ? 1 : 0);
+                inputtracking_mouse_released(&_InputTracking, right_touch ? 1 : 0);
             }
             break;
         } break;
