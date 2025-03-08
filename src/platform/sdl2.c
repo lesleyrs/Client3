@@ -231,10 +231,14 @@ void platform_new(GameShell *shell, int width, int height) {
 
     renderer = SDL_CreateRenderer(shell->window, -1, SDL_RENDERER_ACCELERATED);
     if (!renderer) {
-        rs2_error("SDL2: renderer creation failed: %s\n", SDL_GetError());
-        SDL_DestroyWindow(shell->window);
-        SDL_Quit();
-        return;
+        renderer = SDL_CreateRenderer(shell->window, -1, SDL_RENDERER_SOFTWARE);
+        if (!renderer) {
+            rs2_error("SDL2: renderer creation failed: %s\n", SDL_GetError());
+            SDL_DestroyWindow(shell->window);
+            SDL_Quit();
+            return;
+        }
+        rs2_log("SDL2: software renderer in use");
     }
     SDL_RendererInfo active_info = {0};
     SDL_GetRendererInfo(renderer, &active_info);
