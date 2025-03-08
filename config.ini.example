@@ -1,4 +1,4 @@
-# use hardware acceleration to allow resizing the window and draw the game at any scale
+# use hardware acceleration to allow resizing the window and draw the game at any scale (sdl2 only for now)
 # resizable = 1
 
 # for faster development when openssl is not available (consoles etc) comment out rsadec in the server
