@@ -5,8 +5,8 @@ Compatible with [2004Scape](https://github.com/2004Scape/Server), the most accur
 
 Features:
 - should work on any 32 bit system with 64 MB of RAM on lowmem, with networking and a (read-only) filesystem.
-- WIP ports for many game consoles mostly from the 2000s that fit the above.
 - webassembly build to avoid javascript code being optimized out by the browser.
+- WIP ports for many game consoles, mostly from the 2000s.
 - optional config.ini file to change client behaviour, see [config.ini.example](config.ini.example) for options. To avoid passing command line arguments each time you can create an empty config.ini.
 
 See [docs](/docs) for more info and media.
@@ -52,7 +52,7 @@ figure out rsaenc bug(s), i'm thinking there are multiple issues (chance of fail
 
 emscripten wasm on firefox has memleaks related to midi, gets cleaned up by pressing GC in about:memory but why does this happen? Chromium based browsers are ok
 
-auto-generated js by emscripten is blocking default browser shortcuts why exactly, also pressing fkeys types uppercase letters even if it doesn't steal input
+auto-generated js by emscripten is blocking default browser shortcuts why exactly
 
 Any touchscreen input has an issue where the first click can still use it's last touch position. Mobile isn't playable for now without mouse/keyboard (no right clicking, rotating camera, onscreen keyboard)
 
@@ -109,6 +109,12 @@ The 2004 jar is stored for comparisons, run with EG: `java -cp bin/runescape.jar
 - TODO confirm: to connect to local java servers on WSL from Windows you might need to add `-Djava.net.preferIPv6Addresses=true` when running client
 
 ## Platforms and Compilers
+TODO:
+```
+macos, bsds, android https://wiki.libsdl.org/SDL2/Android
++ add default helvetica-like system ttf font in gameshell_draw_string for each
+```
+
 ### Windows 95 to Windows 11
 build.bat(32 bit): tcc (included), mingw-gcc, emcc
 
@@ -119,21 +125,17 @@ You might want the updated [PowerShell](https://github.com/PowerShell/PowerShell
 NOTE: currently bignum lib isn't working with tcc on windows and gives [invalid memory access](https://lists.nongnu.org/archive/html/tinycc-devel/2024-12/msg00020.html) so we use openssl
 
 TODO:
+```
 confirm win9x work still, maybe add screenshot to /docs
 do we assume windows 95 has -lws2_32, otherwise re-add -lwsock32 and remove -DMODERN_POSIX in batch file
 make win9x compatible batch file (no delayed expansion?) right now needs to build from more modern system
 clean up ps1 script so it doesn't need to be modified
+```
 
 ### Linux GNU or musl
 Makefile: gcc, clang, tcc, mingw-gcc, emcc
 
 If tcc from your package manager isn't working you should build latest [tcc](https://github.com/TinyCC/tinycc) from source
-
-TODO:
-```
-macos, bsds, android https://wiki.libsdl.org/SDL2/Android
-+ add default helvetica-like system ttf font in gameshell_draw_string for each
-```
 
 ### Web (Emscripten)
 install [emsdk](#tools)
@@ -172,6 +174,11 @@ original game will probably run at 1 fps if it works at all
 would need major changes to run smoothly, need separate client entrypoint for it
 ```
 
+#### GameCube
+Unable to test as dolphin can't load files, but it should be quick to find out if it works with a GC makefile and the existing wii code. Make sure to enable lowmem, and maybe lower bump_allocator_init cap.
+
+https://gbatemp.net/threads/need-help-with-file-i-o-for-gamecube-homebrew.652000/#post-10386060
+
 #### Wii
 in dolphin emulator you can find the sdcard path in `options>configuration>wii>sd card` settings and after moving the files there you have to click `Convert Folder to File Now` to format it.
 
@@ -203,6 +210,7 @@ TODO: highmem seems to not start due to tinysoundfont tsf_load failing, it works
 in suyu emulator (yuzu fork) click `file->open suyu folder` for sdmc dir
 
 ### Sony consoles
+TODO: check dnslookup for both vita and psp and maybe use -DMODERN_POSIX for it
 
 #### PSP
 Install [pspdev](#tools) and run `make -f psp.mk -j$(nproc) -B`.
@@ -211,12 +219,30 @@ ppsspp emulator loads relative dir as memstick, so the filesystem works automati
 
 Controls: move cursor with analog stick, O for left click, X for right click, /\ for control, Dpad as arrow keys
 
-Requires at least model 2000, and only lowmem fits into memory.
+Works on real hardware but requires at least model 2000, only lowmem fits into memory so client_psp entrypoint ignores the setting.
 
-TODO: Model 1000 has the same CPU just less memory, if the entire 32 MB was accessible some ingame areas might work. In practice even after enabling kernel mode it doesn't give you the full RAM access?
+```
+TODO: try to get libcrypto from openssl on psp
+TODO: how to trigger clean exit in emulator so gprof writes gmon.out, right now calling exit(0) from button works but maybe crashes on HW?
+TODO: where do psp stdout/stderr go if not debug printing on screen and without sdl2?
+TODO: Model 1000 has the same CPU just less memory, might be worth trying to make it work in kernel mode for 28MB BUT is it safe to do so?
+TODO: Could enable audio in lowmem for 2000+ models if there's enough memory remaining?
+```
 
 #### Vita
-TODO
+Install [vitasdk](#tools) and run `make -f vita.mk -j$(nproc) -B`.
+
+on vita3k emulator to avoid installing the .vpk each change just copy the eboot.bin, and non-blocking networking causes connect fail on windows same as 3ds.
+
+Controls: touch as mouse, X for right click, /\ for control, Dpad as arrow keys
+
+```
+TODO: check nonblocking socket working
+TODO: draw game at offset to center it, and offset touch input based on that. Confirm issue on real hw? maybe applies to wiiu/switch too
+TODO: after the vpk is unpacked on real HW can you still replace the config.ini with your own?
+TODO: what happens with touch input on the back, disable it?
+TODO: update sce_sys assets
+```
 
 ## libraries
 * [micro-bunzip](https://landley.net/code/) | https://landley.net/code/bunzip-4.1.c
@@ -243,6 +269,7 @@ Latest SDL1 already contains the tcc fix but they don't make new releases for it
 * [emsdk](https://github.com/emscripten-core/emsdk) | https://emscripten.org/docs/getting_started/downloads.html
 * [devkitpro](https://github.com/devkitPro) | https://devkitpro.org/
 * [pspdev](https://github.com/pspdev/pspdev) | https://pspdev.github.io/
+* [vitasdk](https://github.com/vitasdk/vdpm) | https://vitasdk.org/
 
 ## references
 * https://github.com/2003scape/rsc-c - did a lot of the dirty work in advance (finding libs, networking, input)

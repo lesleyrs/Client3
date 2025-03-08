@@ -3,21 +3,20 @@
 -Wpedantic
 -Wvla
 
--DMODERN_POSIX
+-D_CRT_SECURE_NO_WARNINGS
 -D_POSIX_C_SOURCE=200112L
 // -D_POSIX_C_SOURCE=200809L
+-DMODERN_POSIX
+-DWITH_RSA_OPENSSL
 
--Dclient
 // -Dplayground
 // -Dmidi
--D_CRT_SECURE_NO_WARNINGS
-
--DWITH_RSA_OPENSSL
+// -Dclient
 
 // -DSDL=1
 // -Ibin/SDL-devel-1.2.15-VC/SDL-1.2.15/include
-// -DSDL=2
-// -Ibin/SDL2-devel-2.30.9-VC/SDL2-2.30.9/include
+-DSDL=2
+-Ibin/SDL2-devel-2.30.9-VC/SDL2-2.30.9/include
 // -DSDL=3
 // -Ibin/SDL3-devel-3.1.6-VC/SDL3-3.1.6/include
 // -D__WII__
@@ -28,5 +27,10 @@
 // -I/opt/devkitpro/wut/include/
 // -D__SWITCH__
 // -I/opt/devkitpro/libnx/include/
--D__PSP__
--I/home/lesley/pspdev/psp/sdk/include
+
+// -Dclient_psp
+// -D__PSP__
+// -I/usr/local/pspdev/psp/sdk/include/
+
+-D__vita__
+-I/usr/local/vitasdk/arm-vita-eabi/include/

@@ -1,3 +1,6 @@
+# for faster development when openssl is not available (consoles etc) comment out rsadec in the server
+# disable_rsa = 1
+
 # 1 for low detail: disables audio, ground decor, some animations, less textures, and only builds scene for current height lvl
 # lowmem = 1
 
@@ -28,9 +31,6 @@
 # remember_username = 1
 # remember_password = 1
 
-# for faster development when openssl is not available (consoles etc) comment out rsadec in the server
-# disable_rsa = 1
-
 # currently you have to recompile to change RSA length with -DRSA_BUF_LEN=(bits/4)
 # prefix the exponent with a 0 if the number isn't even
 # rsa_exponent = 
@@ -42,6 +42,8 @@
 # socketip = localhost
 # http_port = 80
 
-# uncomment both lines below connect to the superior server
-# socketip = "w1.toomyscape.lol"
+# available servers, staging doesn't require signup
+# socketip = wstaging-tcp.lostcity.rs
+
+# socketip = w1.toomyscape.lol
 # http_port = 8888

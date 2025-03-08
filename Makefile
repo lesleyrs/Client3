@@ -185,7 +185,7 @@ ifeq ($(basename $(notdir $(CC))),emcc)
 OUT = index.html
 RUN = emrun --no-browser --hostname localhost .
 else
-OUT = $(ENTRY)
+OUT = $(if $(findstring client,$(ENTRY)),client,$(ENTRY))
 RUN = $(if $(findstring -w64-mingw32-gcc,$(CC)),$(if $(filter $(shell uname -r | grep -c microsoft), 0),wine)) ./$(OUT)$(if $(findstring -w64-mingw32-gcc,$(CC)),.exe)
 endif
 

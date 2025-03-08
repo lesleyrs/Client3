@@ -56,8 +56,16 @@
 /*.nro
 
 # psp
-*.PBP
-*.SFO
+EBOOT.PBP
+PARAM.SFO
+
+# vita
+eboot.bin
+param.sfo
+*.velf
+*.vpk
+
+# psp/vita
 /**/*.o
 
 # extra

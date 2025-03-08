@@ -11,15 +11,22 @@
 #include "../pixmap.h"
 #include "../custom.h"
 
-extern ClientData _Client;
-extern InputTracking _InputTracking;
-
 #include "../thirdparty/bzip.h"
 #define TSF_IMPLEMENTATION
 #include "../thirdparty/tsf.h"
 
 #define TML_IMPLEMENTATION
 #include "../thirdparty/tml.h"
+
+extern ClientData _Client;
+extern InputTracking _InputTracking;
+
+#ifdef __vita__
+#define FRAMEBUFFER_WIDTH 960
+#define FRAMEBUFFER_HEIGHT 544
+static SDL_Joystick *joystick;
+static bool right_touch = false;
+#endif
 
 static tml_message *TinyMidiLoader = NULL;
 
@@ -32,9 +39,63 @@ static tml_message *g_MidiMessage; // next message to be played
 static SDL_Texture* window_tex = NULL;
 static SDL_Renderer* renderer = NULL;
 
-#ifndef __EMSCRIPTEN__
+#ifdef __EMSCRIPTEN__
+#include "emscripten.h"
+
+EM_JS(void, set_wave_volume_js, (int wavevol), {
+    setWaveVolume(wavevol);
+})
+
+EM_JS(void, play_wave_js, (int8_t * src, int length), {
+    playWave(HEAP8.subarray(src, src + length));
+})
+
+void platform_set_wave_volume(int wavevol) {
+    set_wave_volume_js(wavevol);
+}
+
+void platform_play_wave(int8_t *src, int length) {
+    play_wave_js(src, length);
+}
+
+#else
 static SDL_AudioDeviceID device;
-#endif
+static int g_wavevol = 128;
+
+void platform_set_wave_volume(int wavevol) {
+    g_wavevol = wavevol;
+}
+
+void platform_play_wave(int8_t *src, int length) {
+    if (!src || length > 2000000) {
+        return;
+    }
+
+    SDL_AudioSpec wavSpec;
+    uint8_t *wavBuffer;
+    uint32_t wavLength;
+
+    SDL_RWops *rw = SDL_RWFromMem(src, length);
+
+    SDL_LoadWAV_RW(rw, 1, &wavSpec, &wavBuffer, &wavLength);
+
+    // TODO precompute volume table just for 128 96 64 32?
+    if (g_wavevol != 128) {
+        for (uint32_t i = 0; i < wavLength; i++) {
+            wavBuffer[i] = (wavBuffer[i] - 128) * g_wavevol / 128 + 128;
+        }
+    }
+
+    // TODO rm
+    // rs2_log("wav %i %i %i\n", wavSpec.freq, wavSpec.samples, wavSpec.format);
+    // TODO: custom option for having multiple audio devices play sounds at same time (inauthentic) web already does it
+    if (SDL_GetQueuedAudioSize(device) == 0) {
+        SDL_QueueAudio(device, wavBuffer, wavLength);
+        SDL_PauseAudioDevice(device, 0);
+    }
+    SDL_FreeWAV(wavBuffer);
+}
+#endif /* not EMSCRIPTEN */
 
 // TODO separate sdl1? or separate midi
 static void midi_callback(void *data, uint8_t *stream, int len) {
@@ -95,10 +156,17 @@ void platform_new(GameShell *shell, int width, int height) {
     if (!_Client.lowmem) {
         init |= SDL_INIT_AUDIO;
     }
+#ifdef __vita__
+    init |= SDL_INIT_JOYSTICK;
+#endif
     if (SDL_Init(init) < 0) {
         rs2_error("SDL_Init failed: %s\n", SDL_GetError());
         return;
     }
+#ifdef __vita__
+    SDL_JoystickEventState(SDL_ENABLE);
+    joystick = SDL_JoystickOpen(0);
+#endif
 
     if (!_Client.lowmem) {
         SDL_AudioSpec midiSpec;
@@ -200,6 +268,10 @@ void platform_new(GameShell *shell, int width, int height) {
 void platform_free(GameShell *shell) {
     SDL_DestroyTexture(window_tex);
     SDL_DestroyRenderer(renderer);
+#ifdef __vita__
+    SDL_JoystickClose(0);
+#endif
+    // SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(shell->window);
     SDL_Quit();
     tsf_close(g_TinySoundFont);
@@ -264,63 +336,6 @@ void platform_stop_midi(void) {
     // Initialize preset on special 10th MIDI channel to use percussion sound bank (128) if available
     tsf_channel_set_bank_preset(g_TinySoundFont, 9, 128, 0);
 }
-
-#ifdef __EMSCRIPTEN__
-#include "emscripten.h"
-
-EM_JS(void, set_wave_volume_js, (int wavevol), {
-    setWaveVolume(wavevol);
-})
-
-EM_JS(void, play_wave_js, (int8_t * src, int length), {
-    playWave(HEAP8.subarray(src, src + length));
-})
-
-void platform_set_wave_volume(int wavevol) {
-    set_wave_volume_js(wavevol);
-}
-
-void platform_play_wave(int8_t *src, int length) {
-    play_wave_js(src, length);
-}
-
-#else
-static int g_wavevol = 128;
-
-void platform_set_wave_volume(int wavevol) {
-    g_wavevol = wavevol;
-}
-
-void platform_play_wave(int8_t *src, int length) {
-    if (!src || length > 2000000) {
-        return;
-    }
-
-    SDL_AudioSpec wavSpec;
-    uint8_t *wavBuffer;
-    uint32_t wavLength;
-
-    SDL_RWops *rw = SDL_RWFromMem(src, length);
-
-    SDL_LoadWAV_RW(rw, 1, &wavSpec, &wavBuffer, &wavLength);
-
-    // TODO precompute volume table just for 128 96 64 32?
-    if (g_wavevol != 128) {
-        for (uint32_t i = 0; i < wavLength; i++) {
-            wavBuffer[i] = (wavBuffer[i] - 128) * g_wavevol / 128 + 128;
-        }
-    }
-
-    // TODO rm
-    // rs2_log("wav %i %i %i\n", wavSpec.freq, wavSpec.samples, wavSpec.format);
-    // TODO: custom option for having multiple audio devices play sounds at same time (inauthentic) web already does it
-    if (SDL_GetQueuedAudioSize(device) == 0) {
-        SDL_QueueAudio(device, wavBuffer, wavLength);
-        SDL_PauseAudioDevice(device, 0);
-    }
-    SDL_FreeWAV(wavBuffer);
-}
-#endif /* not EMSCRIPTEN */
 
 Surface *platform_create_surface(int *pixels, int width, int height, int alpha) {
     Surface* new_surface = SDL_CreateRGBSurfaceFrom(pixels, width, height, 32, width * sizeof(int), 0xff0000, 0x00ff00, 0x0000ff, alpha);
@@ -429,6 +444,39 @@ void platform_get_keycodes(SDL_Keysym *keysym, int *code, char *ch) {
         break;
     case SDL_SCANCODE_F1:
         *code = K_F1;
+        break;
+    case SDL_SCANCODE_F2:
+        *code = K_F2;
+        break;
+    case SDL_SCANCODE_F3:
+        *code = K_F3;
+        break;
+    case SDL_SCANCODE_F4:
+        *code = K_F4;
+        break;
+    case SDL_SCANCODE_F5:
+        *code = K_F5;
+        break;
+    case SDL_SCANCODE_F6:
+        *code = K_F6;
+        break;
+    case SDL_SCANCODE_F7:
+        *code = K_F7;
+        break;
+    case SDL_SCANCODE_F8:
+        *code = K_F8;
+        break;
+    case SDL_SCANCODE_F9:
+        *code = K_F9;
+        break;
+    case SDL_SCANCODE_F10:
+        *code = K_F10;
+        break;
+    case SDL_SCANCODE_F11:
+        *code = K_F11;
+        break;
+    case SDL_SCANCODE_F12:
+        *code = K_F12;
         break;
     case SDL_SCANCODE_ESCAPE:
         *code = K_ESCAPE;
@@ -632,6 +680,145 @@ void platform_poll_events(Client *c) {
             key_released(c->shell, code, ch);
             break;
         }
+// TODO: apply touch to other consoles/mobile if needed + test on real hw, can't login on vita emu
+#ifdef __vita__
+        case SDL_JOYAXISMOTION: {
+            // rs2_log("axis %d value %d\n", e.jaxis.axis, e.jaxis.value);
+        } break;
+        case SDL_JOYBUTTONDOWN: {
+            switch (e.jbutton.button) {
+            case 0: // Triangle
+                key_pressed(c->shell, K_CONTROL, -1);
+                break;
+            case 1: // Circle
+                break;
+            case 2: // Cross
+                right_touch = true;
+                break;
+            case 3: // Square
+                break;
+            case 4: // L1
+                break;
+            case 5: // R1
+                break;
+            case 6: // Down
+                key_pressed(c->shell, K_DOWN, -1);
+                break;
+            case 7: // Left
+                key_pressed(c->shell, K_LEFT, -1);
+                break;
+            case 8: // Up
+                key_pressed(c->shell, K_UP, -1);
+                break;
+            case 9: // Right
+                key_pressed(c->shell, K_RIGHT, -1);
+                break;
+            case 10: // Select
+                break;
+            case 11: // Start
+                break;
+                // NOTE unused PS TV mode
+                // case 12: // L2
+                //     break;
+                // case 13: // R2
+                //     break;
+                // case 14: // L3
+                //     break;
+                // case 15: // R3
+                //     break;
+            }
+            break;
+        } break;
+        case SDL_JOYBUTTONUP: {
+            switch (e.jbutton.button) {
+            case 0: // Triangle
+                key_released(c->shell, K_CONTROL, -1);
+                break;
+            case 1: // Circle
+                break;
+            case 2: // Cross
+                right_touch = false;
+                break;
+            case 3: // Square
+                break;
+            case 4: // L1
+                break;
+            case 5: // R1
+                break;
+            case 6: // Down
+                key_released(c->shell, K_DOWN, -1);
+                break;
+            case 7: // Left
+                key_released(c->shell, K_LEFT, -1);
+                break;
+            case 8: // Up
+                key_released(c->shell, K_UP, -1);
+                break;
+            case 9: // Right
+                key_released(c->shell, K_RIGHT, -1);
+                break;
+            case 10: // Select
+                break;
+            case 11: // Start
+                break;
+                // NOTE unused PS TV mode
+                // case 12: // L2
+                //     break;
+                // case 13: // R2
+                //     break;
+                // case 14: // L3
+                //     break;
+                // case 15: // R3
+                //     break;
+            }
+            break;
+        } break;
+        case SDL_FINGERMOTION: {
+            float x = e.tfinger.x * FRAMEBUFFER_WIDTH;
+            float y = e.tfinger.y * FRAMEBUFFER_HEIGHT;
+
+            c->shell->idle_cycles = 0;
+            c->shell->mouse_x = x;
+            c->shell->mouse_y = y;
+
+            if (_InputTracking.enabled) {
+                inputtracking_mouse_moved(&_InputTracking, x, y);
+            }
+        } break;
+        case SDL_FINGERDOWN: {
+            float x = e.tfinger.x * FRAMEBUFFER_WIDTH;
+            float y = e.tfinger.y * FRAMEBUFFER_HEIGHT;
+
+            c->shell->idle_cycles = 0;
+            // NOTE: set mouse pos here again due to no mouse movement
+            c->shell->mouse_x = x;
+            c->shell->mouse_y = y;
+            c->shell->mouse_click_x = x;
+            c->shell->mouse_click_y = y;
+
+            // TODO remove all false below for right click button
+            if (right_touch) {
+                c->shell->mouse_click_button = 2;
+                c->shell->mouse_button = 2;
+            } else {
+                c->shell->mouse_click_button = 1;
+                c->shell->mouse_button = 1;
+            }
+
+            if (_InputTracking.enabled) {
+                inputtracking_mouse_pressed(&_InputTracking, x, y, right_touch ? 1 : 0);
+            }
+        } break;
+        case SDL_FINGERUP: {
+            c->shell->idle_cycles = 0;
+            c->shell->mouse_button = 0;
+
+            if (_InputTracking.enabled) {
+                inputtracking_mouse_released(&_InputTracking, right_touch ? 1 : 0);
+            }
+            break;
+        } break;
+#endif
         case SDL_MOUSEMOTION: {
             int x = e.motion.x;
             int y = e.motion.y;

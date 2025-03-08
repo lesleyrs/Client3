@@ -18,7 +18,9 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
+#ifndef __vita__
 #include <sys/ioctl.h>
+#endif
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <sys/types.h>

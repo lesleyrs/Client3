@@ -1,21 +1,25 @@
-![psp](psp.png)
+![psp](psp.jpg)
 ![3ds](3ds.png)
 ![wii](wii.png)
 ![postmarketos](postmarketos.png)
 ## TODO
 ```
+compare performance on consoles for floats instead of doubles
+some platforms don't like it when you call exit() (aka sceKernelExitGame on psp) yourself, need to avoid it?
+all consoles except vita expect rsa to be disabled (comment out rsadec in server and set disable_rsa = 1 in config.ini) due to tiny-bignum being too slow and timing out the authentic 30 second socket timer in both server and client.
+all consoles without touch need to be able to redraw entire screen (even parts it normally doesn't) due to not having a builtin pointer/cursor to show where your virtual pointer is. This means it will never redraw that part of the screen and will just accumulate those images.
 ts Client2/java Client (lastmain/webclient branch) repo have extra funcs (pix2d etc?)
 remove original cache at bin/archives when the cache matches exactly
 add diskstore/gzip just for later cache loading
 SDL3 is not officially released yet, need updated binaries when it is.
-icon/metadata etc for the different platforms: title+taskbar+desktop
+icon/metadata/title etc for the different platforms: title+taskbar+desktop
 http requests for checksums/cache (not done as they aren't supposed to change and saving files on consoles depends on if sdcard or romfs was used)
 change a bunch of functions and function prototypes to static
 clientstream and keycodes are based off rsc-c (but both have some tweaks), double check them for accuracy
 the following are (partially) based on RS2-225 by accident, some funcs might take args in diff order to Client repo: animbase, animframe, pix2d, pix3d, gameshell, jagfile, model, packet, pix8, pixfont, pixmap. Rewrite maybe?
 inconsistent naming: used both world3d and scene for world3d, rename world3d to scene? or at least for args only
 COLLISIONMAP_LEVELS should probably be added in some more places
-global search TODO and NOTE
+global search TODO and NOTE and all console __defines__
 add CI: check both highmem/lowmem, members/free, all entrypoints, run make check/scan/san and clang-format
 maybe allow resizing canvas/fullscreen on desktop (draw to sdl texture and use gpu, sdl2 wrapper for sdl1 on linux already does this)
 maybe take webworker server compat from Client2: https://emscripten.org/docs/api_reference/wasm_workers.html
@@ -24,7 +28,8 @@ bring back worldlist loading in [shell.html](https://github.com/lesleyrs/Client3
 ## Java and C differences + codestyle
 ```
 - errorhost, errorstarted and errorloading code never runs
-- no pound character as it doesn't fit in ascii
+- java has 16 bit char, undefined keychar is 0xffff, pound char doesn't fit in ascii
+- some keycodes differ from java virtual keycodes
 - window insets removed, (gameframe/viewbox).java replaced with platform dir
 - added pix error checking in client_load
 - java static class members are added to a separate global struct

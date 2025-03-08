@@ -1,4 +1,4 @@
-#ifdef client
+#ifdef client_psp
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,7 +48,21 @@
 #include "../wordenc/wordpack.h"
 #include "../world.h"
 #include "../world3d.h"
-#include "../custom.h"
+
+typedef struct {
+    bool showDebug;
+    bool showPerformance;
+    bool cameraEditor;
+    bool remember_username;
+    bool remember_password;
+    bool hide_dns;
+    bool hide_debug_sprite;
+    bool allow_commands;
+    bool allow_debugprocs;
+    bool disable_rsa;
+    int http_port;
+    int chat_era; // 0 - early beta, 1 - late beta, 2 - launch
+} Custom;
 
 extern int DESIGN_BODY_COLOR_LENGTH[];
 extern int *DESIGN_BODY_COLOR[];
@@ -71,11 +85,10 @@ extern WaveData _Wave;
 extern WorldData _World;
 extern SceneData _World3D;
 
-
 #if defined(__WII__) || defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__PSP__) || defined(__vita__)
-Custom _Custom = {.chat_era = 2, .http_port = 80, .showPerformance = true};
+static Custom _Custom = {.chat_era = 2, .http_port = 80, .showPerformance = true};
 #else
-Custom _Custom = {.chat_era = 2, .http_port = 80};
+static Custom _Custom = {.chat_era = 2, .http_port = 80};
 #endif
 ClientData _Client = {
     .clientversion = 225,
@@ -110,6 +123,12 @@ static bool load_ini_args(void);
 static void load_ini_config(Client *c);
 static void update_camera_editor(Client *c);
 static void draw_info_overlay(Client *c);
+
+#define SCREEN_VIEWPORT 0
+#define SCREEN_INVENTORY 1
+#define SCREEN_CHAT 2
+
+static int current_screen = SCREEN_VIEWPORT;
 
 void client_init_global(void) {
     int acc = 0;
@@ -8786,6 +8805,8 @@ void client_draw_scene(Client *c) {
     drawTileHint(c);
     updateTextures(c, jitter);
     draw3DEntityElements(c);
+    // NOTE: good place to put it?
+    pix2d_fill_circle(get_cursor_x() - 8, get_cursor_y() - 12, 8, WHITE, 96);
     pixmap_draw(c->area_viewport, 8, 11);
     c->cameraX = cameraX;
     c->cameraY = cameraY;
@@ -10799,7 +10820,9 @@ static bool load_ini_args(void) {
     // world nodeid 1 = 10 (default)
     INI_INT_LOG(&(&_Client), nodeid, _Client.nodeid = 10 + _Client.nodeid - 1);
     INI_INT_LOG(&(&_Client), portoff, );
-    INI_INT_LOG(&(&_Client), lowmem, );
+    // NOTE: implicitly ignore highmem, avoids confusion as there's no way it'll load
+    _Client.lowmem = true;
+    // INI_INT_LOG(&(&_Client), lowmem, );
     _Client.lowmem ? client_set_lowmem() : client_set_highmem();
     INI_INT_LOG(&(&_Client), members, _Client.members = !_Client.members);
 
@@ -10829,7 +10852,6 @@ static void load_ini_config(Client *c) {
     INI_INT_LOG(&(&_Custom), remember_username, );
     INI_INT_LOG(&(&_Custom), remember_password, );
     INI_INT_LOG(&(&_Custom), disable_rsa, );
-    INI_INT_LOG(&(&_Custom), resizeable, );
 
     rs2_log("\n");
     ini_free(config);

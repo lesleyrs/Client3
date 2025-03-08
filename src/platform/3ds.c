@@ -12,7 +12,7 @@
 #include "../platform.h"
 #include "../inputtracking.h"
 
-// NOTE: if screens are swapped on EG 3ds you have to change screen_width/height directly
+// NOTE: if screens are swapped on 3ds you have to change screen_width/height directly
 // top screen
 // #define SCREEN_WIDTH 400
 // bottom screen
@@ -135,7 +135,6 @@ int *get_pixels(Surface *surface) {
     return surface->pixels;
 }
 void set_pixels(PixMap *pixmap, int x, int y) {
-    // memset(fb_bottom, 0xff, 320 * 240 * 3);
     // TODO rm temp checks for going past framebuffer
     for (int row = 0; row < pixmap->height; row++) {
         if (y + row >= SCREEN_HEIGHT) break;
