@@ -8805,6 +8805,8 @@ void client_draw_scene(Client *c) {
     drawTileHint(c);
     updateTextures(c, jitter);
     draw3DEntityElements(c);
+    // NOTE: good place to put it?
+    pix2d_fill_circle(get_cursor_x() - 8, get_cursor_y() - 12, 8, WHITE, 96);
     pixmap_draw(c->area_viewport, 8, 11);
     c->cameraX = cameraX;
     c->cameraY = cameraY;
@@ -10818,7 +10820,9 @@ static bool load_ini_args(void) {
     // world nodeid 1 = 10 (default)
     INI_INT_LOG(&(&_Client), nodeid, _Client.nodeid = 10 + _Client.nodeid - 1);
     INI_INT_LOG(&(&_Client), portoff, );
-    INI_INT_LOG(&(&_Client), lowmem, );
+    // NOTE: implicitly ignore highmem, avoids confusion as there's no way it'll load
+    _Client.lowmem = true;
+    // INI_INT_LOG(&(&_Client), lowmem, );
     _Client.lowmem ? client_set_lowmem() : client_set_highmem();
     INI_INT_LOG(&(&_Client), members, _Client.members = !_Client.members);
 

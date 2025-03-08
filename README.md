@@ -219,10 +219,11 @@ ppsspp emulator loads relative dir as memstick, so the filesystem works automati
 
 Controls: move cursor with analog stick, O for left click, X for right click, /\ for control, Dpad as arrow keys
 
-Works on real hardware but requires at least model 2000, and only lowmem fits into memory.
+Works on real hardware but requires at least model 2000, only lowmem fits into memory so client_psp entrypoint ignores the setting.
 
 ```
 TODO: try to get libcrypto from openssl on psp
+TODO: how to trigger clean exit in emulator so gprof writes gmon.out, right now calling exit(0) from button works but maybe crashes on HW?
 TODO: where do psp stdout/stderr go if not debug printing on screen and without sdl2?
 TODO: Model 1000 has the same CPU just less memory, might be worth trying to make it work in kernel mode for 28MB BUT is it safe to do so?
 TODO: Could enable audio in lowmem for 2000+ models if there's enough memory remaining?

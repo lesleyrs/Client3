@@ -7,7 +7,7 @@ INCDIR =
 CFLAGS = -Wno-parentheses -Wall -Dclient_psp
 DEBUG := 0
 ifeq ($(DEBUG),1)
-CFLAGS += -g
+CFLAGS += -g -pg -O2 -ffast-math -flto=$(shell nproc)
 else
 CFLAGS += -s -O2 -ffast-math -flto=$(shell nproc)
 endif

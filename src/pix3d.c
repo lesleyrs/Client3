@@ -306,6 +306,22 @@ void pix3d_set_brightness(double brightness) {
     }
 }
 
+// NOTE: avoid doubles on consoles with only single precision floats
+// TODO add other consoles
+#ifdef __PSP__
+int pix3d_set_gamma(int rgb, double gamma) {
+    float r = (float)(rgb >> 16) / 256.0f;
+    float g = (float)(rgb >> 8 & 0xff) / 256.0f;
+    float b = (float)(rgb & 0xff) / 256.0f;
+    float powR = powf(r, gamma);
+    float powG = powf(g, gamma);
+    float powB = powf(b, gamma);
+    int intR = (int)(powR * 256.0f);
+    int intG = (int)(powG * 256.0f);
+    int intB = (int)(powB * 256.0f);
+    return (intR << 16) + (intG << 8) + intB;
+}
+#else
 int pix3d_set_gamma(int rgb, double gamma) {
     double r = (double)(rgb >> 16) / 256.0;
     double g = (double)(rgb >> 8 & 0xff) / 256.0;
@@ -318,6 +334,7 @@ int pix3d_set_gamma(int rgb, double gamma) {
     int intB = (int)(powB * 256.0);
     return (intR << 16) + (intG << 8) + intB;
 }
+#endif
 
 void gouraudTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int colorA, int colorB, int colorC) {
     int dxAB = xB - xA;

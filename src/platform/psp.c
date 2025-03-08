@@ -9,8 +9,8 @@
 #include <pspdisplay.h>
 #include <pspkernel.h>
 #include <pspnet.h>
-#include <pspnet_inet.h>
 #include <pspnet_apctl.h>
+#include <pspnet_inet.h>
 #include <pspnet_resolver.h>
 #include <psppower.h>
 #include <psprtc.h>
@@ -21,7 +21,6 @@
 #include "../inputtracking.h"
 #include "../pixmap.h"
 #include "../platform.h"
-#include "../pix2d.h"
 
 extern ClientData _Client;
 extern InputTracking _InputTracking;
@@ -97,7 +96,7 @@ void platform_new(GameShell *shell, int width, int height) {
     sceUtilityLoadNetModule(PSP_NET_MODULE_INET);
 
     int res;
-    res = sceNetInit(64*1024, 32, 2*1024, 32, 2*1024);
+    res = sceNetInit(64 * 1024, 32, 2 * 1024, 32, 2 * 1024);
     res = sceNetInetInit();
     res = sceNetResolverInit();
 
@@ -107,11 +106,11 @@ void platform_new(GameShell *shell, int width, int height) {
     // TODO: check possible issue with multiple saved access points
     int apctl_status = 0;
     int last_status = -1;
-    while(apctl_status != PSP_NET_APCTL_STATE_GOT_IP){
+    while (apctl_status != PSP_NET_APCTL_STATE_GOT_IP) {
         sceNetApctlGetState(&apctl_status);
         if (apctl_status != last_status) {
-			pspDebugScreenPrintf("connection state %d of 4\n", apctl_status);
-			last_status = apctl_status;
+            pspDebugScreenPrintf("connection state %d of 4\n", apctl_status);
+            last_status = apctl_status;
         }
         delay_ticks(50); // Needs to have a delay. Otherwise fails.
     }
@@ -149,8 +148,8 @@ int *get_pixels(Surface *surface) {
     return surface->pixels;
 }
 void set_pixels(PixMap *pixmap, int x, int y) {
-    pix2d_fill_circle(cursor_x - 8, cursor_y - 8, 8, WHITE, 96);
     // TODO rm temp checks for going past framebuffer
+    uint16_t *fb_ptr = (uint16_t *)fb + (y * VRAM_STRIDE + x);
     for (int row = 0; row < pixmap->height; row++) {
         if (y + row >= SCREEN_HEIGHT)
             break;
@@ -160,7 +159,6 @@ void set_pixels(PixMap *pixmap, int x, int y) {
                 break;
 
             int src_offset = row * pixmap->width + col;
-            int pixel_offset = (y + row) * VRAM_STRIDE + (x + col);
 
             int pixel = pixmap->pixels[src_offset];
             uint8_t b = (pixel >> 16) & 0xff;
@@ -169,7 +167,7 @@ void set_pixels(PixMap *pixmap, int x, int y) {
 
             uint16_t rgb565 = ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3);
 
-            ((uint16_t *)fb)[pixel_offset] = rgb565;
+            fb_ptr[row * VRAM_STRIDE + col] = rgb565;
         }
     }
     // sceDisplayWaitVblankStart();
