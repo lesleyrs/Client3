@@ -246,7 +246,9 @@ TODO: update sce_sys assets
 
 emcc libcrypto.a from: [get-openssl-wasm.sh](get-openssl-wasm.sh)
 
-* [LibTomMath](https://github.com/libtom/libtommath)
+* [LibTomMath](https://github.com/libtom/libtommath) | https://github.com/libtom/libtommath/releases/latest
+
+libtommath releases include a gen.pl script to generate a single mpi.c file from the whole source
 
 * [SDL-1.2](https://github.com/libsdl-org/SDL-1.2) | [SDL-2/SDL-3](https://github.com/libsdl-org/SDL) | https://libsdl.org/release/
 

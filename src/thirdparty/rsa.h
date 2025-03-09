@@ -19,7 +19,6 @@ struct rsa {
     BIGNUM *modulus;
 };
 #elif defined(WITH_RSA_LIBTOM)
-// #include <tommath.h>
 #include "tommath.h"
 
 struct rsa {
