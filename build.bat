@@ -73,7 +73,7 @@ if not exist SDL3.dll (
 
 @rem add remaining debug builds
 if "%CC%" == "cl" (
-	echo TODO support some legacy version, we don't have prebuilt openssl for it though :(
+	echo TODO support some legacy version
 	exit /B 1
 ) else if "%CC%" == "emcc" (
 	@rem -fsanitize=null -fsanitize-minimal-runtime
