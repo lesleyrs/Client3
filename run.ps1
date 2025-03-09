@@ -28,6 +28,10 @@ $mingw_lib = "bin\SDL2-2.30.9\x86_64-w64-mingw32\lib"
 # NOTE for console subsystem SDL2main.lib and Shell32.lib are unneeded if include "SDL.h" is removed from client.c (sdl3 doesn't need it at all)
 # NOTE swapped -b bounds checking for just -g in tcc as it is extremely slow but gives better errors
 
+# gcc $src -std=c99 -fwrapv -I"$mingw_inc" -DMODERN_POSIX -DWITH_RSA_LIBTOM -DSDL=2 -Dclient -ladvapi32 -o client.exe -L"$mingw_lib" -lmingw32 -lSDL2main -lSDL2 -lws2_32 && ./client $args
+# clang -fwrapv -fsanitize=address -g -std=c99 -DMODERN_POSIX -Wall $src -I"$inc" -L"$lib" -DSDL=2 -Dclient -DMODERN_POSIX -DWITH_RSA_LIBTOM -lSDL2 -lSDL2main -lShell32 -lWs2_32 -lAdvapi32 -Xlinker -subsystem:windows -o client.exe -D_CRT_SECURE_NO_WARNINGS && ./client.exe $args
+cl -fsanitize=address -D_CRT_SECURE_NO_WARNINGS -W3 -Zi -Feclient $src -I"$inc" -Dclient -DSDL=2 -DMODERN_POSIX -DWITH_RSA_LIBTOM -I"C:\Program Files\FireDaemon OpenSSL 3\include" -link -libpath:"C:\Program Files\FireDaemon OpenSSL 3\lib" -libpath:"$lib" -nologo Advapi32.lib SDL2.lib SDL2main.lib Shell32.lib Ws2_32.lib -subsystem:console && ./client.exe $args
+
 # gcc $src -std=c99 -fwrapv -I"$mingw_inc" -DMODERN_POSIX -DWITH_RSA_OPENSSL -I"C:\Program Files\FireDaemon OpenSSL 3\include" -L"C:\Program Files\FireDaemon OpenSSL 3\lib" -lcrypto -o client.exe -L"$mingw_lib" -lmingw32 -lSDL2main -lSDL2 -lws2_32 && ./client $args
 # gcc $src -std=c99 -fwrapv -I"$mingw_inc" -o client.exe -DMODERN_POSIX -L"$mingw_lib" -lmingw32 -lSDL2main -lSDL2 -lws2_32 && ./client $args
 # tcc $src -std=c99 -Wall -Wimplicit-function-declaration -Wwrite-strings -I"$inc" -lws2_32 "-Wl,-subsystem=windows" -DMODERN_POSIX -v -g -bt -o client.exe -run SDL2.dll $args
@@ -35,8 +39,7 @@ $mingw_lib = "bin\SDL2-2.30.9\x86_64-w64-mingw32\lib"
 # tcc $src -std=c99 -Wall -Wimplicit-function-declaration -Wwrite-strings -I"$inc" -lws2_32 "-Wl,-subsystem=console" -DMODERN_POSIX -DWITH_RSA_OPENSSL -Iinclude -v -g -bt -o client.exe SDL2.dll libeay32.dll $args
 # tcc $src -std=c99 -Wall -Wimplicit-function-declaration -Wwrite-strings -I"$inc" -lws2_32 "-Wl,-subsystem=console" -DMODERN_POSIX -v -b -bt -o client.exe SDL2.dll $args
 # clang -fwrapv -fsanitize=address -g -std=c99 -Wall $src -I"$inc" -DMODERN_POSIX -DWITH_RSA_OPENSSL -I"C:\Program Files\FireDaemon OpenSSL 3\include" -L"C:\Program Files\FireDaemon OpenSSL 3\lib" -L"$lib" -llibcrypto -lSDL2 -lSDL2main -lShell32 -lWs2_32 -Xlinker -subsystem:console -o client.exe -D_CRT_SECURE_NO_WARNINGS && ./client.exe $args
-# clang -fwrapv -fsanitize=address -g -std=c99 -DMODERN_POSIX -Wall $src -I"$inc" -L"$lib" -lSDL2 -lSDL2main -lShell32 -lWs2_32 -Xlinker -subsystem:windows -o client.exe -D_CRT_SECURE_NO_WARNINGS && ./client.exe $args
-cl -fsanitize=address -D_CRT_SECURE_NO_WARNINGS -W3 -Zi -Feclient $src -I"$inc" -Dclient -DSDL=2 -DMODERN_POSIX -DWITH_RSA_OPENSSL -I"C:\Program Files\FireDaemon OpenSSL 3\include" -link -libpath:"C:\Program Files\FireDaemon OpenSSL 3\lib" -libpath:"$lib" -nologo libcrypto.lib SDL2.lib SDL2main.lib Shell32.lib Ws2_32.lib -subsystem:console && ./client.exe $args
+# cl -fsanitize=address -D_CRT_SECURE_NO_WARNINGS -W3 -Zi -Feclient $src -I"$inc" -Dclient -DSDL=2 -DMODERN_POSIX -DWITH_RSA_OPENSSL -I"C:\Program Files\FireDaemon OpenSSL 3\include" -link -libpath:"C:\Program Files\FireDaemon OpenSSL 3\lib" -libpath:"$lib" -nologo libcrypto.lib SDL2.lib SDL2main.lib Shell32.lib Ws2_32.lib -subsystem:console && ./client.exe $args
 # cl -D_CRT_SECURE_NO_WARNINGS -W3 -Zi -Feclient $src -I"$inc" -Dclient -DSDL=2 -DMODERN_POSIX -DWITH_RSA_OPENSSL -I"C:\Program Files\FireDaemon OpenSSL 3\include" -link -libpath:"C:\Program Files\FireDaemon OpenSSL 3\lib" -libpath:"$lib" -nologo libcrypto.lib SDL2.lib SDL2main.lib Shell32.lib Ws2_32.lib -subsystem:console && ./client.exe $args
 # cl -D_CRT_SECURE_NO_WARNINGS -W3 -Zi -Feclient $src -I"$inc" -link -libpath:"$lib" -nologo SDL2.lib SDL2main.lib Shell32.lib Ws2_32.lib -subsystem:console && ./client.exe $args
 

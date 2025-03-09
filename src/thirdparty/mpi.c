@@ -1,3 +1,4 @@
+#ifdef WITH_RSA_LIBTOM
 /* Start: bn_cutoffs.c */
 #include "tommath_private.h"
 #ifdef BN_CUTOFFS_C
@@ -9579,3 +9580,4 @@ LBL_ERRa0:
 
 
 /* EOF */
+#endif
