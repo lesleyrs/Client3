@@ -50,6 +50,8 @@ server cache changes would require manual cache update in client for now, it isn
 
 figure out rsaenc bug(s), i'm thinking there are multiple issues (chance of failing login), RSA_BIGINT can still fail due to wrong enc length, but the others fail due to other reasons too... Also fix connecting on desktop to servers with higher than 512 bit rsa, need bigger result array but not for web?
 
+Recompile is needed to change between different RSA key lengths, RSA_BUF_LEN needs to be set at compile time because it's needed for stack allocated arrays and BN_ARRAY_SIZE define. Can just heap allocate and leave tiny-bignum at 512 bits rsa only to fix this?
+
 emscripten wasm on firefox has memleaks related to midi, gets cleaned up by pressing GC in about:memory but why does this happen? Chromium based browsers are ok
 
 auto-generated js by emscripten is blocking default browser shortcuts why exactly
@@ -77,10 +79,6 @@ Windows Firefox "lag" is due to setTimeout being broken with wasm as using the f
 The "fix" is to use `emscripten_set_main_loop_arg` with 0 fps which calls requestAnimationFrame instead. The function to be called should be the contents of the while loop in gameshell_run (delete the while loop itself) which will get you full FPS. If it still lags close devtools and refresh page. Downsides are that if the tab goes inactive it will speed up when returning, it doesn't seem fixable the same way as in Client2 since they still use setTimeout. Also Firefox won't have the benefit of the websocket never timing out anymore.
 
 emrun causes extra batch job message on windows sigint, can swap it for `py -m http.server` or so to avoid it
-
-Recompile is needed to change between different RSA key lengths, RSA_BUF_LEN needs to be set at compile time because it's needed for stack allocated arrays and BN_ARRAY_SIZE define.
-
-instead of a clean target, try: `git clean -fXdn`, remove n to delete files for real
 
 ## game history info
 * https://github.com/2004Scape/Server/wiki/FAQ
@@ -264,8 +262,15 @@ Latest SDL1 already contains the tcc fix but they don't make new releases for it
 * [vitasdk](https://github.com/vitasdk/vdpm) | https://vitasdk.org/
 
 ## references
-* https://github.com/2003scape/rsc-c - did a lot of the dirty work in advance (finding libs, networking, input)
-* https://github.com/2004Scape/Client - renamed java client deob that the port was based on
-* https://github.com/2004Scape/Client2 | https://github.com/LostCityRS/Client-TS - typescript port
-* https://github.com/Pazaz/RS2-225
-* https://github.com/RuneWiki/rs-deob
+### new
+* https://github.com/2003scape/rscsundae - rsa encryption code (C RSC server)
+* https://github.com/2003scape/rsc-c - libraries, networking, platform code (C RSC client)
+* https://github.com/2004Scape/Client - renamed java deob that this port is based on
+* https://github.com/LostCityRS/Client-TS - typescript port that encountered some of the same issues
+* https://github.com/RuneWiki/rs-deob - unmodified java deobs
+
+### old
+* https://github.com/Pazaz/RS2-225 - old renamed java deob with builtin server
+* https://github.com/2003scape/rsc-client - bundled webworker/webrtc server idea in Client2 (old TS port)
+* https://github.com/2004Scape/Client2 - https://lesleyrs.github.io/Client2/?world=999&detail=high&method=0
+* https://github.com/galsjel/RuneScape-317 - used for partial 317 TS port https://github.com/lesleyrs/webclient317
