@@ -198,7 +198,7 @@ NOTE there's weird compile issues: highmem seems to not start due to tinysoundfo
 in suyu emulator (yuzu fork) click `file->open suyu folder` for sdmc dir
 
 ### Sony consoles
-TODO: check dnslookup for both vita and psp and maybe use -DMODERN_POSIX for it
+TODO: check dnslookup for both vita and psp
 
 #### PSP
 Install [pspdev](#tools) and run `make -f psp.mk -j$(nproc) -B`.
