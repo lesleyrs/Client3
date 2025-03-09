@@ -13,7 +13,9 @@ PROJECT_TITLEID := VSDK20225
 
 PROJECT := client
 CFLAGS += -Wl,-q -I../common
-CFLAGS += -Dclient -DSDL=2 -DWITH_RSA_OPENSSL $(shell $(VITASDK)/arm-vita-eabi/bin/sdl2-config --cflags)
+CFLAGS += -Dclient -DSDL=2 $(shell $(VITASDK)/arm-vita-eabi/bin/sdl2-config --cflags)
+# CFLAGS += -DWITH_RSA_OPENSSL
+CFLAGS += -DWITH_RSA_LIBTOM
 DEBUG := 0
 ifeq ($(DEBUG),1)
 CFLAGS += -g

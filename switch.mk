@@ -53,7 +53,7 @@ ARCH	:=	-march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE
 CFLAGS	:=	-Wno-parentheses -Wall -ffunction-sections \
 			$(ARCH) $(DEFINES)
 
-CFLAGS	+=	$(INCLUDE) -D__SWITCH__ -Dclient -DSDL=2 `sdl2-config --cflags`
+CFLAGS	+=	$(INCLUDE) -D__SWITCH__ -Dclient -DSDL=2 -DWITH_RSA_LIBTOM `sdl2-config --cflags`
 ifeq ($(DEBUG),1)
 CFLAGS += -g
 else

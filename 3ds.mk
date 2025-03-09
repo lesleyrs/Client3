@@ -51,7 +51,7 @@ CFLAGS	:=	-Wno-parentheses -Wall -mword-relocations \
 			-ffunction-sections \
 			$(ARCH)
 
-CFLAGS	+=	$(INCLUDE) -D__3DS__ -Dclient -DMODERN_POSIX
+CFLAGS	+=	$(INCLUDE) -D__3DS__ -Dclient -DMODERN_POSIX -DWITH_RSA_LIBTOM
 ifeq ($(DEBUG),1)
 CFLAGS += -g
 else

@@ -138,7 +138,7 @@ If not passing args make sure to set http_port to 8888 on linux (or whatever it'
 TODO: possibly target wasm directly with clang instead of emscripten, but then we don't have a libc at all
 
 ### Nintendo consoles (devkitPro)
-These are unfinished and need testing on real hardware so expect some issues. RSA encryption without openssl is also very slow.
+These are unfinished and need testing on real hardware so expect some issues.
 
 If you own a console and want to improve a port look at rsc-c for reference: https://github.com/2003scape/rsc-c
 TODO: 3ds/wiiu/switch currently logs in automatically due to input issues in emulators?
@@ -192,7 +192,7 @@ in cemu emulator click `file>open mlc folder`, go 1 directory up to see sdcard d
 
 TODO: Touch input not working yet, might be fixed by last wiiu-sdl2 commit.
 
-TODO: highmem seems to not start due to tinysoundfont tsf_load failing, it works on all other consoles though...
+NOTE there's weird compile issues: highmem seems to not start due to tinysoundfont tsf_load failing, and libtom encryption fails (tiny-bignum is ok)
 
 #### Switch
 in suyu emulator (yuzu fork) click `file->open suyu folder` for sdmc dir
@@ -210,7 +210,6 @@ Controls: move cursor with analog stick, O for left click, X for right click, /\
 Works on real hardware but requires at least model 2000, only lowmem fits into memory so client_psp entrypoint ignores the setting.
 
 ```
-TODO: try to get libcrypto from openssl on psp
 TODO: how to trigger clean exit in emulator so gprof writes gmon.out, right now calling exit(0) from button works but maybe crashes on HW?
 TODO: where do psp stdout/stderr go if not debug printing on screen and without sdl2?
 TODO: Model 1000 has the same CPU just less memory, might be worth trying to make it work in kernel mode for 28MB BUT is it safe to do so?

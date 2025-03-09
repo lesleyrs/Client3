@@ -26,7 +26,7 @@ DEBUG       :=  0
 # options for code generation
 #---------------------------------------------------------------------------------
 
-CFLAGS	= -Wno-parentheses -Wall $(MACHDEP) $(INCLUDE) -D__WII__ -Dclient
+CFLAGS	= -Wno-parentheses -Wall $(MACHDEP) $(INCLUDE) -D__WII__ -Dclient -DWITH_RSA_LIBTOM
 ifeq ($(DEBUG),1)
 CFLAGS += -g
 else

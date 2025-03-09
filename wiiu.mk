@@ -48,6 +48,8 @@ CFLAGS	:=	-Wno-parentheses -Wall -ffunction-sections \
 			$(MACHDEP)
 
 CFLAGS	+=	$(INCLUDE) -D__WIIU__ -D__WUT__ -Dclient -DSDL=2 -DMODERN_POSIX `sdl2-config --cflags`
+# NOTE: libtom and tsf fail on wii u
+# CFLAGS += -DWITH_RSA_LIBTOM
 ifeq ($(DEBUG),1)
 CFLAGS += -g
 else
