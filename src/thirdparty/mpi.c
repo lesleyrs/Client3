@@ -4788,7 +4788,7 @@ mp_err mp_prime_strong_lucas_selfridge(const mp_int *a, mp_bool *result)
       if (Ds < 0) {
          Dz.sign = MP_NEG;
       }
-      if ((err = mp_kronecker(&Dz, a, &J)) != MP_OKAY)            goto LBL_LS_ERR;
+      if ((err = mp_kronecker(&Dz, a, (int*)&J)) != MP_OKAY)            goto LBL_LS_ERR;
 
       if (J == -1) {
          break;
