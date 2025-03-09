@@ -273,4 +273,4 @@ Latest SDL1 already contains the tcc fix but they don't make new releases for it
 * https://github.com/Pazaz/RS2-225 - old renamed java deob with builtin server
 * https://github.com/2003scape/rsc-client - bundled webworker/webrtc server idea in Client2 (old TS port)
 * https://github.com/2004Scape/Client2 - https://lesleyrs.github.io/Client2/?world=999&detail=high&method=0
-* https://github.com/galsjel/RuneScape-317 - used for partial 317 TS port https://github.com/lesleyrs/webclient317
+* https://github.com/galsjel/RuneScape-317 - partial 317 TS port https://github.com/lesleyrs/webclient317
