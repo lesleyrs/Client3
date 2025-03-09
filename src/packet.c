@@ -407,15 +407,14 @@ void rsadec(Packet *packet, const char *mod, const char *exp) {
     }
 
     int8_t dec[RSA_BUF_LEN / 2] = {0};
-    (void)dec; // TODO
-    // int dec_len = rsa_decrypt(&rsa, enc, length, dec, sizeof(enc));
-    // if (dec_len < 0) {
-    //     rs2_error("failed to rsa_crypt\n");
-    //     return;
-    // }
+    int dec_len = rsa_crypt(&rsa, enc, length, dec, sizeof(enc));
+    if (dec_len < 0) {
+        rs2_error("failed to rsa_crypt\n");
+        return;
+    }
     free(enc);
 
     packet->pos = 0;
-    // pdata(packet, dec, dec_len, 0);
+    pdata(packet, dec, dec_len, 0);
     packet->pos = 0; // reset afterwards to read the new data
 }

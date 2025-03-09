@@ -34,6 +34,7 @@ ifeq ($(CC),x86_64-w64-mingw32-gcc)
 WITH_OPENSSL = 0
 else
 WITH_OPENSSL ?= 1
+# WITH_LIBTOM ?= 1
 endif
 
 ifeq ($(ENTRY),midi)
@@ -75,6 +76,12 @@ endif
 endif
 
 # Faster RSA encryption
+ifeq ($(WITH_LIBTOM), 1)
+CFLAGS += -DWITH_RSA_LIBTOM
+CFLAGS += $(shell pkg-config --cflags libtommath)
+LDFLAGS += $(shell pkg-config --libs libtommath)
+endif
+
 ifeq ($(WITH_JS_BIGINT), 1)
 CFLAGS += -DWITH_RSA_BIGINT
 endif

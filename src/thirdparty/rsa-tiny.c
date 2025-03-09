@@ -2,7 +2,7 @@
 #include <string.h>
 #include "rsa.h"
 
-#if !defined(WITH_RSA_BIGINT) && !defined(WITH_RSA_OPENSSL)
+#if !defined(WITH_RSA_BIGINT) && !defined(WITH_RSA_OPENSSL) && !defined(WITH_RSA_LIBTOM)
 /* from RSC Sundae. Public domain. */
 
 static void

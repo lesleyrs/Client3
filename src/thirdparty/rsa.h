@@ -18,6 +18,13 @@ struct rsa {
     BIGNUM *exponent;
     BIGNUM *modulus;
 };
+#elif defined(WITH_RSA_LIBTOM)
+#include <tommath.h>
+
+struct rsa {
+	mp_int exponent;
+	mp_int modulus;
+};
 #else
 #include "bn.h"
 
