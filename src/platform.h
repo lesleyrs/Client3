@@ -61,7 +61,6 @@ void platform_set_midi(const char *name, int crc, int len);
 void platform_stop_midi(void);
 Surface *platform_create_surface(int *pixels, int width, int height, int alpha);
 void platform_free_surface(Surface *surface);
-int *get_pixels(Surface *surface);
 void set_pixels(PixMap *pixmap, int x, int y);
 void platform_poll_events(Client *c);
 void platform_update_surface(void);

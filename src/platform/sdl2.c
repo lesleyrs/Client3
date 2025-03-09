@@ -368,10 +368,6 @@ void platform_free_surface(Surface *surface) {
     SDL_FreeSurface(surface);
 }
 
-int *get_pixels(Surface *surface) {
-    return surface->pixels;
-}
-
 void set_pixels(PixMap *pixmap, int x, int y) {
     platform_blit_surface(x, y, pixmap->width, pixmap->height, pixmap->image);
     platform_update_surface();

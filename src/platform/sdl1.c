@@ -59,10 +59,6 @@ void platform_free_surface(Surface *surface) {
     SDL_FreeSurface(surface);
 }
 
-int *get_pixels(Surface *surface) {
-    return surface->pixels;
-}
-
 void set_pixels(PixMap *pixmap, int x, int y) {
     SDL_Rect dest = {x, y, pixmap->width, pixmap->height};
     SDL_BlitSurface(pixmap->image, NULL, window_surface, &dest);

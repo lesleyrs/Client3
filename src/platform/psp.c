@@ -146,9 +146,6 @@ Surface *platform_create_surface(int *pixels, int width, int height, int alpha) 
 void platform_free_surface(Surface *surface) {
     free(surface);
 }
-int *get_pixels(Surface *surface) {
-    return surface->pixels;
-}
 void set_pixels(PixMap *pixmap, int x, int y) {
     // TODO rm temp checks for going past framebuffer
     uint16_t *fb_ptr = (uint16_t *)fb + (y * VRAM_STRIDE + x);

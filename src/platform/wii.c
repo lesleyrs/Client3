@@ -203,9 +203,6 @@ Surface *platform_create_surface(int *pixels, int width, int height, int alpha) 
 void platform_free_surface(Surface *surface) {
     free(surface);
 }
-int *get_pixels(Surface *surface) {
-    return surface->pixels;
-}
 void set_pixels(PixMap *pixmap, int x, int y) {
     for (int row = 0; row < pixmap->height; row++) {
         if (y + row >= SCREEN_HEIGHT)
