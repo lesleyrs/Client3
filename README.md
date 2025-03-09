@@ -249,6 +249,8 @@ TODO: update sce_sys assets
 
 emcc libcrypto.a from: [get-openssl-wasm.sh](get-openssl-wasm.sh)
 
+* [LibTomMath](https://github.com/libtom/libtommath)
+
 * [SDL-1.2](https://github.com/libsdl-org/SDL-1.2) | [SDL-2/SDL-3](https://github.com/libsdl-org/SDL) | https://libsdl.org/release/
 
 Using prebuilt SDL releases but removed tests dir, removed dotfiles from mingw SDL1 and fixes in VC SDL1 for tcc.
