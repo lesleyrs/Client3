@@ -1,6 +1,6 @@
 #include "rsa.h"
 
-#if !defined(WITH_RSA_BIGINT) && !defined(WITH_RSA_OPENSSL) && defined(WITH_RSA_LIBTOM)
+#if !defined(WITH_RSA_BIGINT) && defined(WITH_RSA_LIBTOM)
 /* from RSC Sundae. Public domain. */
 
 int rsa_init(struct rsa *rsa, const char *exponent, const char *modulus) {

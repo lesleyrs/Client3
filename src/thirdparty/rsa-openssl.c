@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <string.h>
 
-#if !defined(WITH_RSA_BIGINT) && defined(WITH_RSA_OPENSSL)
+#if !defined(WITH_RSA_BIGINT) && !defined(WITH_RSA_LIBTOM) && defined(WITH_RSA_OPENSSL)
 /* from RSC Sundae. Public domain. */
 
 int rsa_init(struct rsa *rsa, const char *exponent, const char *modulus) {
