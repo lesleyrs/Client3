@@ -3,7 +3,6 @@
 #if !defined(WITH_RSA_BIGINT) && !defined(WITH_RSA_OPENSSL) && defined(WITH_RSA_LIBTOM)
 /* from RSC Sundae. Public domain. */
 
-
 int rsa_init(struct rsa *rsa, const char *exponent, const char *modulus) {
     if (mp_read_radix(&rsa->exponent, (char *)exponent, 16) != MP_OKAY) {
         return -1;
