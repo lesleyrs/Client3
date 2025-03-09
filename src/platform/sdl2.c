@@ -397,6 +397,7 @@ void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
         }
         // Unlock the texture so that it may be used elsewhere
         SDL_UnlockTexture(texture);
+        SDL_RenderCopy(renderer, texture, NULL, NULL);
     }
 }
 
@@ -404,8 +405,6 @@ void platform_update_surface(void) {
     if (!_Custom.resizable) {
         SDL_UpdateWindowSurface(window);
     } else {
-        SDL_SetRenderTarget(renderer, NULL);
-        SDL_RenderCopy(renderer, texture, NULL, NULL);
         SDL_RenderPresent(renderer);
     }
 }
