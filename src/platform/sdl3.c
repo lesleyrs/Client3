@@ -29,7 +29,6 @@ static tsf *g_TinySoundFont;
 // Holds global MIDI playback state
 static double g_Msec;              // current playback time
 static tml_message *g_MidiMessage; // next message to be played
-static int g_wavevol = 128;
 
 float* midi_buffer = NULL;
 
@@ -37,9 +36,69 @@ static SDL_Window* window = NULL;
 static SDL_Texture* texture = NULL;
 static SDL_Renderer* renderer = NULL;
 static SDL_AudioStream* midi_stream = NULL;
-static SDL_AudioStream* wave_stream = NULL;
 
 static void platform_get_keycodes(const SDL_KeyboardEvent *e, int *code, char *ch);
+
+#ifdef __EMSCRIPTEN__
+#include "emscripten.h"
+
+EM_JS(void, set_wave_volume_js, (int wavevol), {
+    setWaveVolume(wavevol);
+})
+
+EM_JS(void, play_wave_js, (int8_t * src, int length), {
+    playWave(HEAP8.subarray(src, src + length));
+})
+
+void platform_set_wave_volume(int wavevol) {
+    set_wave_volume_js(wavevol);
+}
+
+void platform_play_wave(int8_t *src, int length) {
+    play_wave_js(src, length);
+}
+
+#else
+static SDL_AudioStream* wave_stream = NULL;
+static int g_wavevol = 128;
+void platform_play_wave(int8_t *src, int length) {
+    SDL_AudioSpec wave_spec = {0};
+    uint8_t* wave_buffer = NULL;
+    uint32_t wave_length = 0;
+    SDL_IOStream* sdl_iostream = SDL_IOFromMem(src, length);
+    if (!SDL_LoadWAV_IO(sdl_iostream, true, &wave_spec, &wave_buffer, &wave_length)) {
+        rs2_error("SDL3: LoadWAV_IO failed: %s\n", SDL_GetError());
+        return;
+    }
+    if (wave_buffer == NULL || wave_length == 0) {
+        rs2_error("SDL3: bad wave data\n");
+        SDL_free(wave_buffer);
+        return;
+    }
+    if (g_wavevol != 128) {
+        for (uint32_t i = 0; i < wave_length; i++) {
+            wave_buffer[i] = (wave_buffer[i] - 128) * g_wavevol / 128 + 128;
+        }
+    }
+    // Audio queue check was always returning 7 bytes after first wave played, so i left it out.
+    if (!SDL_PutAudioStreamData(wave_stream, wave_buffer, wave_length)) {
+        rs2_error("SDL3: PutAudioStreamData(Wave) failed: %s\n", SDL_GetError());
+        SDL_free(wave_buffer);
+        return;
+    }
+
+    if (!SDL_ResumeAudioStreamDevice(wave_stream)) {
+        rs2_error("SDL3: ResumeAudioStreamDevice(Wave) failed: %s\n", SDL_GetError());
+        SDL_free(wave_buffer);
+        return;
+    }
+    SDL_free(wave_buffer);
+}
+
+void platform_set_wave_volume(int wavevol) {
+    g_wavevol = wavevol;
+}
+#endif /* not EMSCRIPTEN */
 
 static void midi_callback(void* data, SDL_AudioStream* stream, int additional_amount_needed, int total_amount_requested) {
     (void)data;
@@ -176,6 +235,7 @@ void platform_new(int width, int height) {
         return;
     }
 
+#ifndef __EMSCRIPTEN__
     // Create WAVE audio stream:
     const SDL_AudioSpec wave_spec = { SDL_AUDIO_U8, 1, 22050 };
     wave_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &wave_spec, NULL, NULL);
@@ -184,14 +244,16 @@ void platform_new(int width, int height) {
         platform_free();
         return;
     }
-
+#endif
 
 }
 
 void platform_free(void) {
     if (!_Client.lowmem) {
         SDL_DestroyAudioStream(midi_stream);
+#ifndef __EMSCRIPTEN__
         SDL_DestroyAudioStream(wave_stream);
+#endif
         free(midi_buffer);
         tsf_close(g_TinySoundFont);
         tml_free(TinyMidiLoader);
@@ -200,44 +262,6 @@ void platform_free(void) {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
-}
-
-void platform_play_wave(int8_t *src, int length) {
-    SDL_AudioSpec wave_spec = {0};
-    uint8_t* wave_buffer = NULL;
-    uint32_t wave_length = 0;
-    SDL_IOStream* sdl_iostream = SDL_IOFromMem(src, length);
-    if (!SDL_LoadWAV_IO(sdl_iostream, true, &wave_spec, &wave_buffer, &wave_length)) {
-        rs2_error("SDL3: LoadWAV_IO failed: %s\n", SDL_GetError());
-        return;
-    }
-    if (wave_buffer == NULL || wave_length == 0) {
-        rs2_error("SDL3: bad wave data\n");
-        SDL_free(wave_buffer);
-        return;
-    }
-    if (g_wavevol != 128) {
-        for (uint32_t i = 0; i < wave_length; i++) {
-            wave_buffer[i] = (wave_buffer[i] - 128) * g_wavevol / 128 + 128;
-        }
-    }
-    // Audio queue check was always returning 7 bytes after first wave played, so i left it out.
-    if (!SDL_PutAudioStreamData(wave_stream, wave_buffer, wave_length)) {
-        rs2_error("SDL3: PutAudioStreamData(Wave) failed: %s\n", SDL_GetError());
-        SDL_free(wave_buffer);
-        return;
-    }
-
-    if (!SDL_ResumeAudioStreamDevice(wave_stream)) {
-        rs2_error("SDL3: ResumeAudioStreamDevice(Wave) failed: %s\n", SDL_GetError());
-        SDL_free(wave_buffer);
-        return;
-    }
-    SDL_free(wave_buffer);
-}
-
-void platform_set_wave_volume(int wavevol) {
-    g_wavevol = wavevol;
 }
 
 void platform_set_midi_volume(float midivol) {
