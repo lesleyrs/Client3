@@ -1,6 +1,6 @@
 TARGET = client
-SRCS := $(shell find src -type f -name '*.c')
-OBJS = $(patsubst %.c, %.o, $(SRCS))
+SRC := $(shell find src -type f -name '*.c')
+OBJS = $(patsubst %.c, %.o, $(SRC))
 LIBS = -lpsppower
 
 INCDIR =

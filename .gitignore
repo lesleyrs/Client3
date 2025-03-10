@@ -36,36 +36,38 @@
 /*.data
 /index.html
 
-# devkitpro
-/build
-/*.elf
+# consoles
+/client.elf
 
 # wii
-/*.dol
+/client.dol
 
 # 3ds
-/*.3dsx
-/*.smdh
+/client.3dsx
+/client.smdh
 
 # wiiu
-/*.rpx
-/*.wuhb
+/client.rpx
+/client.wuhb
 
 # switch
-/*.nacp
-/*.nro
+/client.nacp
+/client.nro
 
 # psp
-EBOOT.PBP
-PARAM.SFO
+/EBOOT.PBP
+/PARAM.SFO
 
 # vita
-eboot.bin
-param.sfo
-*.velf
-*.vpk
+/eboot.bin
+/param.sfo
+/client.velf
+/client.vpk
 
-# psp/vita
+# devkitpro
+/build
+
+# sony consoles
 /**/*.o
 
 # extra

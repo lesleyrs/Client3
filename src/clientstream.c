@@ -163,7 +163,7 @@ ClientStream *clientstream_new(GameShell *shell, int port) {
     setsockopt(stream->socket, SOL_SOCKET, SO_SNDTIMEO, (const char *)&socket_timeout, sizeof(socket_timeout));
     #endif
 
-#if defined(__PSP__) || defined(__vita__)
+#if defined(__PSP__) || defined(__vita__) || defined(__ps2sdk__)
     int flags = fcntl(stream->socket, F_GETFL, 0);
     if (flags == -1) {
         rs2_error("fcntl F_GETFL failed\n");

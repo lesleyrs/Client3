@@ -294,7 +294,7 @@ int poll_key(GameShell *shell) {
     return key;
 }
 
-int ttf_string_width(stbtt_fontinfo *font, const char *message, float scale) {
+static int ttf_string_width(stbtt_fontinfo *font, const char *message, float scale) {
     int string_width = 0;
     while (*message) {
         int advanceWidth, leftSideBearing;
