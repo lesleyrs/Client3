@@ -86,18 +86,21 @@ static void midi_callback(void* data, SDL_AudioStream* stream, int additional_am
     if (additional_amount_needed == 0) {
         return;
     }
-    int num_samples = (additional_amount_needed / (2 * sizeof(float))); // 2 output channels
-    int sample_block_size = TSF_RENDER_EFFECTSAMPLEBLOCK;
+    const float samples_per_second = 44100.0;
+    const float samples_per_millisecond = 1000.0 / samples_per_second;
+    // Number of samples per block
+    const int num_samples_per_block = TSF_RENDER_EFFECTSAMPLEBLOCK;
+    // Number of bytes per block
+    const int num_bytes_per_block = num_samples_per_block * 2 * sizeof(float);  // 2 channels F32
+    // Number of bytes that still need to be provided to the Audio Stream; decreases by num_bytes_per_block each iteration.
+    int num_bytes_remaining = additional_amount_needed;
 
-    //rs2_log("SDL3: midi_callback(%p, %p, %d, %d): num_samples=%d", data, stream, additional_amount_needed, total_amount_requested, num_samples);
-
-    for (sample_block_size = TSF_RENDER_EFFECTSAMPLEBLOCK; num_samples; num_samples -= sample_block_size) {
-        if (sample_block_size > num_samples) {
-            sample_block_size = num_samples;
-        }
+    // Continually read Midi messages until we have no more bytes needed to be sent to the Audio Stream:
+    while (num_bytes_remaining > 0) {
+        // Note: over-feeding Audio Stream is OK, keep the blocks of uniform size.
 
         // Loop through all MIDI messages which need to be played up until the current playback time
-        for (g_Msec += sample_block_size * (1000.0 / 44100.0); g_MidiMessage && g_Msec >= g_MidiMessage->time; g_MidiMessage = g_MidiMessage->next) {
+        for (g_Msec += num_samples_per_block * samples_per_millisecond; g_MidiMessage && g_Msec >= g_MidiMessage->time; g_MidiMessage = g_MidiMessage->next) {
             switch (g_MidiMessage->type) {
             case TML_PROGRAM_CHANGE: // channel program (preset) change (special handling for 10th MIDI channel with drums)
                 tsf_channel_set_presetnumber(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->program, (g_MidiMessage->channel == 9));
@@ -117,10 +120,12 @@ static void midi_callback(void* data, SDL_AudioStream* stream, int additional_am
             }
         }
 
-        tsf_render_float(g_TinySoundFont, midi_buffer, sample_block_size, 0);
-        if (!SDL_PutAudioStreamData(stream, midi_buffer, sample_block_size * 2 * sizeof(float))) {
+        // Provide one block of samples to the Audio Stream
+        tsf_render_float(g_TinySoundFont, midi_buffer, num_samples_per_block, 0);
+        if (!SDL_PutAudioStreamData(stream, midi_buffer, num_bytes_per_block)) {
             rs2_error("SDL3: PutAudioStreamData failed: %s\n", SDL_GetError());
         }
+        num_bytes_remaining -= num_bytes_per_block;
     }
 }
 
