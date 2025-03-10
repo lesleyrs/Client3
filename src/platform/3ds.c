@@ -12,16 +12,6 @@
 #include "../platform.h"
 #include "../inputtracking.h"
 
-// NOTE: if screens are swapped on 3ds you have to change screen_width/height directly
-// top screen
-// #define SCREEN_WIDTH 400
-// bottom screen
-#undef SCREEN_WIDTH
-#undef SCREEN_HEIGHT
-
-#define SCREEN_WIDTH 320
-#define SCREEN_HEIGHT 240
-
 extern ClientData _Client;
 extern InputTracking _InputTracking;
 

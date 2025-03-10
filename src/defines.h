@@ -10,10 +10,18 @@
 #define RSA_BUF_LEN 128
 #endif
 
-#ifndef SCREEN_WIDTH
+#ifdef __WII__
+#define SCREEN_WIDTH 640
+#define SCREEN_HEIGHT 480
+#elif defined(__3DS__)
+// #define SCREEN_WIDTH 400
+#define SCREEN_WIDTH 320
+#define SCREEN_HEIGHT 240
+#elif defined(__PSP__)
+#define SCREEN_WIDTH 480
+#define SCREEN_HEIGHT 272
+#else
 #define SCREEN_WIDTH 789
-#endif
-#ifndef SCREEN_HEIGHT
 #define SCREEN_HEIGHT 532
 #endif
 

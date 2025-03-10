@@ -20,12 +20,6 @@
 #include "../platform.h"
 #include "../pix2d.h"
 
-#undef SCREEN_WIDTH
-#undef SCREEN_HEIGHT
-
-#define SCREEN_WIDTH 640
-#define SCREEN_HEIGHT 480
-
 extern ClientData _Client;
 extern InputTracking _InputTracking;
 
