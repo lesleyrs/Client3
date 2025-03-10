@@ -20,7 +20,7 @@ ifeq ($(basename $(notdir $(CC))),emcc)
 WITH_JS_BIGINT ?= 1
 # getnameinfo does nothing with emscripten so use old api
 MODERN_POSIX = 0
-SDL = 2
+SDL = 3
 else ifeq ($(findstring i686-w64-mingw32-gcc,$(CC)),i686-w64-mingw32-gcc)
 # sdl1 dll is the only one guaranteed to be 32 bits, others can be found in bin
 SDL = 1
