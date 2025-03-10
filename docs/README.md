@@ -2,6 +2,26 @@
 ![3ds](3ds.png)
 ![wii](wii.png)
 ![postmarketos](postmarketos.png)
+
+## references
+* https://github.com/2003scape/rscsundae - rsa encryption code (C RSC server)
+* https://github.com/2003scape/rsc-c - libraries, networking, platform code (C RSC client)
+* https://github.com/2004Scape/Client - renamed java deob that this port is based on
+* https://github.com/LostCityRS/Client-TS - typescript port that encountered some of the same issues
+* https://github.com/RuneWiki/rs-deob - unmodified java deobs
+
+### old
+* https://github.com/Pazaz/RS2-225 - old renamed java deob with builtin server
+* https://github.com/2003scape/rsc-client - bundled webworker/webrtc server idea in Client2 (old TS port)
+* https://github.com/2004Scape/Client2 - https://lesleyrs.github.io/Client2/?world=999&detail=high&method=0
+* https://github.com/galsjel/RuneScape-317 - partial 317 TS port https://github.com/lesleyrs/webclient317
+
+## game history info
+* https://github.com/2004Scape/Server/wiki/FAQ
+* https://runescape.wiki/w/Build_number
+* https://oldschool.runescape.wiki/w/Graphical_updates_(historical)
+* https://oldschool.runescape.wiki/w/User:Hlwys
+
 ## TODO
 ```
 compare performance on consoles for floats instead of doubles (pix3d_set_gamma)

@@ -82,12 +82,6 @@ The "fix" is to use `emscripten_set_main_loop_arg` with 0 fps which calls reques
 
 emrun causes extra batch job message on windows sigint, can swap it for `py -m http.server` or so to avoid it
 
-## game history info
-* https://github.com/2004Scape/Server/wiki/FAQ
-* https://runescape.wiki/w/Build_number
-* https://oldschool.runescape.wiki/w/Graphical_updates_(historical)
-* https://oldschool.runescape.wiki/w/User:Hlwys
-
 ## Java client
 The 2004 jar is stored for comparisons, run with EG: `java -cp bin/runescape.jar client 10 0 highmem members` but:
 - there is no audio, it saves audio files for the browser to play which is no longer applicable
@@ -221,8 +215,7 @@ on vita3k emulator to avoid installing the .vpk each change just copy the eboot.
 Controls: touch as mouse, X for right click, /\ for control, Dpad as arrow keys
 
 ```
-TODO: check nonblocking socket working
-TODO: draw game at offset to center it, and offset touch input based on that. Confirm issue on real hw? maybe applies to wiiu/switch too
+TODO: draw game at offset to center it, and offset touch input based on that. Confirm issue on real hw + on resizable config option? maybe applies to wiiu/switch too
 TODO: after the vpk is unpacked on real HW can you still replace the config.ini with your own?
 TODO: what happens with touch input on the back, disable it?
 TODO: update sce_sys assets
@@ -258,17 +251,3 @@ Latest SDL1 already contains the tcc fix but they don't make new releases for it
 * [devkitpro](https://github.com/devkitPro) | https://devkitpro.org/
 * [pspdev](https://github.com/pspdev/pspdev) | https://pspdev.github.io/
 * [vitasdk](https://github.com/vitasdk/vdpm) | https://vitasdk.org/
-
-## references
-### new
-* https://github.com/2003scape/rscsundae - rsa encryption code (C RSC server)
-* https://github.com/2003scape/rsc-c - libraries, networking, platform code (C RSC client)
-* https://github.com/2004Scape/Client - renamed java deob that this port is based on
-* https://github.com/LostCityRS/Client-TS - typescript port that encountered some of the same issues
-* https://github.com/RuneWiki/rs-deob - unmodified java deobs
-
-### old
-* https://github.com/Pazaz/RS2-225 - old renamed java deob with builtin server
-* https://github.com/2003scape/rsc-client - bundled webworker/webrtc server idea in Client2 (old TS port)
-* https://github.com/2004Scape/Client2 - https://lesleyrs.github.io/Client2/?world=999&detail=high&method=0
-* https://github.com/galsjel/RuneScape-317 - partial 317 TS port https://github.com/lesleyrs/webclient317
