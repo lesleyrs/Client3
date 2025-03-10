@@ -52,7 +52,9 @@ figure out rsaenc bug(s), i'm thinking there are multiple issues (chance of fail
 
 Recompile is needed to change between different RSA key lengths, RSA_BUF_LEN needs to be set at compile time because it's needed for stack allocated arrays and BN_ARRAY_SIZE define. Can just heap allocate and leave tiny-bignum at 512 bits rsa only to fix this?
 
-emscripten wasm on firefox has memleaks related to midi, gets cleaned up by pressing GC in about:memory but why does this happen? Chromium based browsers are ok
+emscripten wasm on firefox has memleaks related to midi, gets cleaned up by pressing GC in about:memory but why does this happen? Chromium based browsers are ok. Happens on both SDL2 and SDL3.
+
+emscriptens experimental sdl3 port currently implements audio incorrectly causing delayed sounds to play for a while instead of ignore
 
 auto-generated js by emscripten is blocking default browser shortcuts why exactly
 

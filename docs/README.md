@@ -37,10 +37,10 @@ bring back worldlist loading in [shell.html](https://github.com/lesleyrs/Client3
 - some input (EG client_update_title username/password) is changed to fit C better
 - some buffer sizes used are just arbitrary due there not being a strict limit
 - try catch turned into if (!var) break in load() or goto is used for login error message
+- on windows we aren't loading system gm.dls but use a similar sf2 soundfont instead
 - init() moved to main() as that's emscriptens entrypoint
 - emscripten wasm goes out of sync on lowmem if the tab was unfocused and tinysoundfont isn't running. The typescript client uses absolute time to avoid this issue, but since tsf is making it work on highmem it's not very important.
 - dnslookup on web just shows your public ip instead of dns, this is expected and the same applies to the typescript client. If dnslookup fails to resolve and welcome screen lags you can set `hide_dns = 1` in config.ini to skip it.
-- on windows we aren't loading system gm.dls but use a similar sf2 soundfont instead
 
 - networking/midi/login flames run on the same thread
 - synchronized is unused and there's no run() function in client.c

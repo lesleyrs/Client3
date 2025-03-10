@@ -20,7 +20,7 @@ ifeq ($(basename $(notdir $(CC))),emcc)
 WITH_JS_BIGINT ?= 1
 # getnameinfo does nothing with emscripten so use old api
 MODERN_POSIX = 0
-SDL = 3
+SDL = 2
 else ifeq ($(findstring i686-w64-mingw32-gcc,$(CC)),i686-w64-mingw32-gcc)
 # sdl1 dll is the only one guaranteed to be 32 bits, others can be found in bin
 SDL = 1
@@ -136,7 +136,6 @@ endif
 endif
 
 ifeq ($(SDL),3)
-
 ifeq ($(basename $(notdir $(CC))),emcc)
 CFLAGS += --shell-file shell.html --preload-file cache/client --preload-file SCC1_Florestan.sf2 --preload-file Roboto
 # CFLAGS += -sJSPI

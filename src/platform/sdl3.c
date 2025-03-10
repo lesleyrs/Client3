@@ -30,13 +30,13 @@ static tsf *g_TinySoundFont;
 static double g_Msec;              // current playback time
 static tml_message *g_MidiMessage; // next message to be played
 
-static float* midi_buffer = NULL;
+static float* midi_buffer;
 
-static SDL_Window* window = NULL;
+static SDL_Window* window;
 static SDL_Surface *window_surface;
-static SDL_Texture* texture = NULL;
-static SDL_Renderer* renderer = NULL;
-static SDL_AudioStream* midi_stream = NULL;
+static SDL_Texture* texture;
+static SDL_Renderer* renderer;
+static SDL_AudioStream* midi_stream;
 
 static void platform_get_keycodes(const SDL_KeyboardEvent *e, int *code, char *ch);
 
@@ -232,7 +232,6 @@ void platform_new(int width, int height) {
         platform_free();
         return;
     }
-
 }
 
 void platform_free(void) {
