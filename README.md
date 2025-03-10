@@ -110,7 +110,7 @@ NOTE: currently bignum lib isn't working with tcc on windows and gives [invalid 
 
 TODO:
 ```
-confirm win9x work still, maybe add screenshot to /docs
+confirm win9x work still (with old openssl), maybe add screenshot to /docs
 do we assume windows 95 has -lws2_32, otherwise re-add -lwsock32 and remove -DMODERN_POSIX in batch file
 make win9x compatible batch file (no delayed expansion?) right now needs to build from more modern system
 clean up ps1 script so it doesn't need to be modified
