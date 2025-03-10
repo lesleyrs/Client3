@@ -344,6 +344,9 @@ void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
     } else {
         SDL_Rect dest = {x, y, w, h};
         SDL_BlitSurfaceScaled(surface, NULL, window_surface, &dest, SDL_SCALEMODE_LINEAR);
+        // SDL_BlitSurfaceScaled(surface, NULL, window_surface, &dest, SDL_SCALEMODE_NEAREST);
+        // SDL_BlitSurfaceScaled(surface, NULL, window_surface, NULL, SDL_SCALEMODE_NEAREST);
+        SDL_BlitSurface(surface, NULL, window_surface, NULL);
     }
 }
 
