@@ -61,7 +61,7 @@ void platform_play_wave(int8_t *src, int length) {
             wave_buffer[i] = (wave_buffer[i] - 128) * g_wavevol / 128 + 128;
         }
     }
-    // Audio queue check was always returning 7 bytes after first wave played, so i left it out.
+    // TODO: Audio queue check was always returning 7 bytes after first wave played, so i left it out.
     if (!SDL_PutAudioStreamData(wave_stream, wave_buffer, wave_length)) {
         rs2_error("SDL3: PutAudioStreamData(Wave) failed: %s\n", SDL_GetError());
         SDL_free(wave_buffer);
