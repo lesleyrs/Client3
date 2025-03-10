@@ -2,78 +2,316 @@
 #include "SDL3/SDL.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "../client.h"
+#include "../custom.h"
 #include "../defines.h"
 #include "../gameshell.h"
 #include "../inputtracking.h"
 #include "../pixmap.h"
 
-extern InputTracking _InputTracking;
+#include "../thirdparty/bzip.h"
+#define TSF_IMPLEMENTATION
+#include "../thirdparty/tsf.h"
 
-static SDL_Window *window;
+#define TML_IMPLEMENTATION
+#include "../thirdparty/tml.h"
+
+extern ClientData _Client;
+extern InputTracking _InputTracking;
+extern Custom _Custom;
+
+static tml_message *TinyMidiLoader;
+
+// Holds the global instance pointer
+static tsf *g_TinySoundFont;
+// Holds global MIDI playback state
+static double g_Msec;              // current playback time
+static tml_message *g_MidiMessage; // next message to be played
+
+static float* midi_buffer = NULL;
+
+static SDL_Window* window = NULL;
 static SDL_Surface *window_surface;
+static SDL_Texture* texture = NULL;
+static SDL_Renderer* renderer = NULL;
+static SDL_AudioStream* midi_stream = NULL;
+
+static void platform_get_keycodes(const SDL_KeyboardEvent *e, int *code, char *ch);
+
+static SDL_AudioStream* wave_stream = NULL;
+static int g_wavevol = 128;
+void platform_play_wave(int8_t *src, int length) {
+    SDL_AudioSpec wave_spec = {0};
+    uint8_t* wave_buffer = NULL;
+    uint32_t wave_length = 0;
+    SDL_IOStream* sdl_iostream = SDL_IOFromMem(src, length);
+    if (!SDL_LoadWAV_IO(sdl_iostream, true, &wave_spec, &wave_buffer, &wave_length)) {
+        rs2_error("SDL3: LoadWAV_IO failed: %s\n", SDL_GetError());
+        return;
+    }
+    if (wave_buffer == NULL || wave_length == 0) {
+        rs2_error("SDL3: bad wave data\n");
+        SDL_free(wave_buffer);
+        return;
+    }
+    if (g_wavevol != 128) {
+        for (uint32_t i = 0; i < wave_length; i++) {
+            wave_buffer[i] = (wave_buffer[i] - 128) * g_wavevol / 128 + 128;
+        }
+    }
+    // Audio queue check was always returning 7 bytes after first wave played, so i left it out.
+    if (!SDL_PutAudioStreamData(wave_stream, wave_buffer, wave_length)) {
+        rs2_error("SDL3: PutAudioStreamData(Wave) failed: %s\n", SDL_GetError());
+        SDL_free(wave_buffer);
+        return;
+    }
+
+    if (!SDL_ResumeAudioStreamDevice(wave_stream)) {
+        rs2_error("SDL3: ResumeAudioStreamDevice(Wave) failed: %s\n", SDL_GetError());
+        SDL_free(wave_buffer);
+        return;
+    }
+    SDL_free(wave_buffer);
+}
+
+void platform_set_wave_volume(int wavevol) {
+    g_wavevol = wavevol;
+}
+
+static void midi_callback(void* data, SDL_AudioStream* stream, int additional_amount_needed, int total_amount_requested) {
+    (void)data;
+    (void)total_amount_requested;
+    if (additional_amount_needed == 0) {
+        return;
+    }
+    int num_samples = (additional_amount_needed / (2 * sizeof(float))); // 2 output channels
+    int sample_block_size = TSF_RENDER_EFFECTSAMPLEBLOCK;
+
+    //rs2_log("SDL3: midi_callback(%p, %p, %d, %d): num_samples=%d", data, stream, additional_amount_needed, total_amount_requested, num_samples);
+
+    for (sample_block_size = TSF_RENDER_EFFECTSAMPLEBLOCK; num_samples; num_samples -= sample_block_size) {
+        if (sample_block_size > num_samples) {
+            sample_block_size = num_samples;
+        }
+
+        // Loop through all MIDI messages which need to be played up until the current playback time
+        for (g_Msec += sample_block_size * (1000.0 / 44100.0); g_MidiMessage && g_Msec >= g_MidiMessage->time; g_MidiMessage = g_MidiMessage->next) {
+            switch (g_MidiMessage->type) {
+            case TML_PROGRAM_CHANGE: // channel program (preset) change (special handling for 10th MIDI channel with drums)
+                tsf_channel_set_presetnumber(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->program, (g_MidiMessage->channel == 9));
+                break;
+            case TML_NOTE_ON: // play a note
+                tsf_channel_note_on(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->key, g_MidiMessage->velocity / 127.0f);
+                break;
+            case TML_NOTE_OFF: // stop a note
+                tsf_channel_note_off(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->key);
+                break;
+            case TML_PITCH_BEND: // pitch wheel modification
+                tsf_channel_set_pitchwheel(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->pitch_bend);
+                break;
+            case TML_CONTROL_CHANGE: // MIDI controller messages
+                tsf_channel_midi_control(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->control, g_MidiMessage->control_value);
+                break;
+            }
+        }
+
+        tsf_render_float(g_TinySoundFont, midi_buffer, sample_block_size, 0);
+        if (!SDL_PutAudioStreamData(stream, midi_buffer, sample_block_size * 2 * sizeof(float))) {
+            rs2_error("SDL3: PutAudioStreamData failed: %s\n", SDL_GetError());
+        }
+    }
+}
 
 void platform_init(void) {
 }
 
 void platform_new(int width, int height) {
-    if (!SDL_Init(SDL_INIT_VIDEO)) {
-        rs2_error("SDL_Init failed: %s\n", SDL_GetError());
+    int init = SDL_INIT_VIDEO;
+    if (!_Client.lowmem) {
+        init |= SDL_INIT_AUDIO;
+    }
+    if (!SDL_Init(init)) {
+        rs2_error("SDL3: SDL_Init failed: %s\n", SDL_GetError());
         return;
     }
-
-    window = SDL_CreateWindow("Jagex", width, height, 0);
+    int sdl_win_flags = 0;
+    if (_Custom.resizable) {
+        sdl_win_flags |= SDL_WINDOW_RESIZABLE;
+    }
+    window = SDL_CreateWindow("Jagex", width, height, sdl_win_flags);
     if (!window) {
-        rs2_error("Window creation failed: %s\n", SDL_GetError());
+        rs2_error("SDL3: window creation failed: %s\n", SDL_GetError());
         SDL_Quit();
         return;
     }
 
-    window_surface = SDL_GetWindowSurface(window);
-    if (!window_surface) {
-        rs2_error("Window surface creation failed: %s\n", SDL_GetError());
-        SDL_DestroyWindow(window);
-        SDL_Quit();
+    if (_Custom.resizable) {
+        int num_renderers = SDL_GetNumRenderDrivers();
+        if (num_renderers == 0) {
+            rs2_error("SDL3: no renderers available!\n");
+            SDL_DestroyWindow(window);
+            SDL_Quit();
+            return;
+        }
+
+        renderer = SDL_CreateRenderer(window, NULL);
+        if (!renderer) {
+            rs2_error("SDL3: renderer creation failed: %s\n", SDL_GetError());
+            SDL_DestroyWindow(window);
+            SDL_Quit();
+            return;
+        }
+
+        char renderers[1024] = {0};
+        const char* r_name = SDL_GetRendererName(renderer);
+        for (int i = 0; i < num_renderers; i++) {
+            const char* name = SDL_GetRenderDriver(i);
+            if (i > 0) {
+                strcat(renderers, ", ");
+            }
+            strcat(renderers, name);
+            if (!strcmp(name, r_name)) {
+                strcat(renderers, "*");
+            }
+        }
+        rs2_log("SDL renderers: [%s]\n", renderers);
+
+        texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_XRGB8888, SDL_TEXTUREACCESS_STREAMING, width, height);
+        if (!texture) {
+            rs2_error("SDL3: texture creation failed: %s\n", SDL_GetError());
+            SDL_DestroyWindow(window);
+            SDL_Quit();
+            return;
+        }
+
+        SDL_SetRenderLogicalPresentation(renderer, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+    } else {  // !_Custom.resizable
+        window_surface = SDL_GetWindowSurface(window);
+        if (!window_surface) {
+            rs2_error("SDL3: window surface creation failed: %s\n", SDL_GetError());
+            SDL_DestroyWindow(window);
+            SDL_Quit();
+            return;
+        }
+    }
+    // audio
+    if (_Client.lowmem) {
+        return;
+    }
+    // Create MIDI audio stream:
+    const SDL_AudioSpec midi_spec = { SDL_AUDIO_F32, 2, 44100 };
+
+    g_TinySoundFont = tsf_load_filename("SCC1_Florestan.sf2");
+    if (!g_TinySoundFont) {
+        rs2_error("Could not load SoundFont\n");
+        platform_free();
+        return;
+    }
+    tsf_set_output(g_TinySoundFont, TSF_STEREO_INTERLEAVED, midi_spec.freq, 0.0f);
+
+    midi_buffer = malloc(TSF_RENDER_EFFECTSAMPLEBLOCK * 2 * sizeof(float));
+    midi_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &midi_spec, midi_callback, NULL);
+    if (!midi_stream) {
+        rs2_error("SDL3: OpenAudioDeviceStream(Midi) failed: %s\n", SDL_GetError());
+        platform_free();
+        return;
+    }
+    if (!SDL_ResumeAudioStreamDevice(midi_stream)) {
+        rs2_error("SDL3: ResumeAudioStreamDevice failed: %s\n", SDL_GetError());
+        platform_free();
         return;
     }
 
-    // SDL_Surface renderer = SDL_CreateSoftwareRenderer()
-    // SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    // if (!renderer) {
-    //     rs2_error("Renderer creation failed: %s\n", SDL_GetError());
-    //     SDL_DestroyWindow(window);
-    //     SDL_Quit();
-    //     return;
-    // }
+    // Create WAVE audio stream:
+    const SDL_AudioSpec wave_spec = { SDL_AUDIO_U8, 1, 22050 };
+    wave_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &wave_spec, NULL, NULL);
+    if (!wave_stream) {
+        rs2_error("SDL3: OpenAudioDeviceStream(Wave) failed: %s\n", SDL_GetError());
+        platform_free();
+        return;
+    }
+
 }
 
 void platform_free(void) {
-    // SDL_DestroyRenderer(renderer);
+    if (!_Client.lowmem) {
+        SDL_DestroyAudioStream(midi_stream);
+        SDL_DestroyAudioStream(wave_stream);
+        free(midi_buffer);
+        tsf_close(g_TinySoundFont);
+        tml_free(TinyMidiLoader);
+    }
+    SDL_DestroyTexture(texture);
+    SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
 
-void platform_play_wave(int8_t *src, int length) {
-}
-
-void platform_set_wave_volume(int wavevol) {
-}
-
 void platform_set_midi_volume(float midivol) {
+    if (_Client.lowmem) {
+        return;
+    }
+    tsf_set_volume(g_TinySoundFont, midivol);
 }
 
 void platform_set_jingle(int8_t *src, int len) {
+    TinyMidiLoader = tml_load_memory(src, len);
+    platform_stop_midi();
+    g_MidiMessage = TinyMidiLoader;
+    free(src);
 }
 
 void platform_set_midi(const char *name, int crc, int len) {
+    char filename[PATH_MAX];
+    snprintf(filename, sizeof(filename), "cache/client/songs/%s.mid", name);
+    FILE *file = fopen(filename, "rb");
+    if (!file) {
+        rs2_error("Error loading midi file %s: %s (NOTE: authentic if empty?)\n", filename, strerror(errno));
+        return;
+    }
+
+    int8_t *data = malloc(len);
+    const size_t data_len = fread(data, 1, len, file);
+    if (data && crc != 12345678) {
+        int data_crc = rs_crc32(data, len);
+        if (data_crc != crc) {
+            free(data);
+            data = NULL;
+        }
+    }
+
+    Packet *packet = packet_new(data, 4);
+    const int uncompressed_length = g4(packet);
+    int8_t *uncompressed = malloc(uncompressed_length);
+    bzip_decompress(uncompressed, data, (int)data_len - 4, 4);
+    // tml_free(TinyMidiLoader);
+    TinyMidiLoader = tml_load_memory(uncompressed, uncompressed_length);
+    platform_stop_midi();
+    g_MidiMessage = TinyMidiLoader;
+    packet_free(packet);
+    free(uncompressed);
+    fclose(file);
 }
 
 void platform_stop_midi(void) {
+    if (_Client.lowmem) {
+        return;
+    }
+    g_MidiMessage = NULL;
+    g_Msec = 0;
+    tsf_reset(g_TinySoundFont);
+    // Initialize preset on special 10th MIDI channel to use percussion sound bank (128) if available
+    tsf_channel_set_bank_preset(g_TinySoundFont, 9, 128, 0);
 }
 
 Surface *platform_create_surface(int *pixels, int width, int height, int alpha) {
-    return SDL_CreateSurfaceFrom(width, height, SDL_GetPixelFormatForMasks(32, 0xff0000, 0x00ff00, 0x0000ff, alpha), pixels, width * sizeof(int));
+    Surface* surf = SDL_CreateSurfaceFrom(width, height, SDL_GetPixelFormatForMasks(32, 0xff0000, 0x00ff00, 0x0000ff, alpha), pixels, width * sizeof(int));
+    if (!surf) {
+        rs2_error("SDL3: SDL_CreateSurfaceFrom failed: %s", SDL_GetError());
+    }
+    return surf;
 }
 
 void platform_free_surface(Surface *surface) {
@@ -81,30 +319,306 @@ void platform_free_surface(Surface *surface) {
 }
 
 void set_pixels(PixMap *pixmap, int x, int y) {
-    SDL_Rect dest = {x, y, pixmap->width, pixmap->height};
-    SDL_BlitSurfaceScaled(pixmap->image, NULL, window_surface, &dest, SDL_SCALEMODE_NEAREST);
-    // SDL_BlitSurfaceScaled(pixmap->image, NULL, window_surface, NULL, SDL_SCALEMODE_NEAREST);
-    // SDL_BlitSurface(pixmap->image, NULL, window_surface, NULL);
-    SDL_UpdateWindowSurface(window);
+    platform_blit_surface(x, y, pixmap->width, pixmap->height, pixmap->image);
+    platform_update_surface();
 }
 
 void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
-    SDL_Rect rect = {x, y, w, h};
-    SDL_BlitSurfaceScaled(surface, NULL, window_surface, &rect, SDL_SCALEMODE_NEAREST);
-    // SDL_BlitSurface(surface, NULL, window_surface, &rect);
+    if (_Custom.resizable) {
+        int* pix_write = NULL;
+        int _pitch_unused = 0;
+        if (!SDL_LockTexture(texture, NULL, (void**)&pix_write, &_pitch_unused) || pix_write == NULL) {
+            rs2_error("SDL3: SDL_LockTexture failed: %s\n", SDL_GetError());
+            return;
+        }
+        int row_size = w * sizeof(int);
+        int *src_pixels = (int *)surface->pixels;
+        for (int src_y = y; src_y < (y + h); src_y++) {
+            // Compute the starting index for the destination row
+            int* dest_row = &pix_write[(src_y * SCREEN_WIDTH) + x];
+
+            // Copy a row of pixels
+            memcpy(dest_row, &src_pixels[(src_y - y) * w], row_size);
+        }
+        SDL_UnlockTexture(texture);
+        SDL_RenderTexture(renderer, texture, NULL, NULL);
+    } else {
+        SDL_Rect dest = {x, y, w, h};
+        SDL_BlitSurfaceScaled(surface, NULL, window_surface, &dest, SDL_SCALEMODE_LINEAR);
+    }
 }
 
 void platform_update_surface(void) {
-    SDL_UpdateWindowSurface(window);
+    if (_Custom.resizable) {
+        SDL_RenderPresent(renderer);
+    } else {
+        SDL_UpdateWindowSurface(window);
+    }
 }
 
 void platform_fill_rect(int x, int y, int w, int h, int color) {
-    if (color != BLACK) { // TODO other grayscale?
-        color = SDL_MapRGB(SDL_GetPixelFormatDetails(window_surface->format), SDL_GetSurfacePalette(window_surface), color >> 16 & 0xff, color >> 8 & 0xff, color & 0xff);
-    }
+    if (_Custom.resizable) {
+        SDL_SetRenderDrawColor(renderer, (color >> 16) & 0xff, (color >> 8) & 0xff, color & 0xff, 0xff);
+        SDL_FRect rect = {x, y, w, h};
+        SDL_RenderFillRect(renderer, &rect);
+    } else {
+        if (color != BLACK) { // TODO other grayscale?
+            const SDL_PixelFormatDetails* details = SDL_GetPixelFormatDetails(window_surface->format);
+            if (details) {
+                color = SDL_MapRGB(details, NULL, color >> 16 & 0xff, color >> 8 & 0xff, color & 0xff);
+            }
+        }
 
-    SDL_Rect rect = {x, y, w, h};
-    SDL_FillSurfaceRect(window_surface, &rect, color);
+        SDL_Rect rect = {x, y, w, h};
+        SDL_FillSurfaceRect(window_surface, &rect, color);
+    }
+}
+
+
+static void platform_get_keycodes(const SDL_KeyboardEvent* e, int *code, char *ch) {
+    *ch = -1;
+
+    switch (e->scancode) {
+    case SDL_SCANCODE_LEFT:
+        *code = K_LEFT;
+        break;
+    case SDL_SCANCODE_RIGHT:
+        *code = K_RIGHT;
+        break;
+    case SDL_SCANCODE_UP:
+        *code = K_UP;
+        break;
+    case SDL_SCANCODE_DOWN:
+        *code = K_DOWN;
+        break;
+    case SDL_SCANCODE_LCTRL:
+    case SDL_SCANCODE_RCTRL:
+        *code = K_CONTROL;
+        break;
+    case SDL_SCANCODE_PAGEUP:
+        *code = K_PAGE_UP;
+        break;
+    case SDL_SCANCODE_PAGEDOWN:
+        *code = K_PAGE_DOWN;
+        break;
+    case SDL_SCANCODE_HOME:
+        *code = K_HOME;
+        break;
+    case SDL_SCANCODE_F1:
+        *code = K_F1;
+        break;
+    case SDL_SCANCODE_F2:
+        *code = K_F2;
+        break;
+    case SDL_SCANCODE_F3:
+        *code = K_F3;
+        break;
+    case SDL_SCANCODE_F4:
+        *code = K_F4;
+        break;
+    case SDL_SCANCODE_F5:
+        *code = K_F5;
+        break;
+    case SDL_SCANCODE_F6:
+        *code = K_F6;
+        break;
+    case SDL_SCANCODE_F7:
+        *code = K_F7;
+        break;
+    case SDL_SCANCODE_F8:
+        *code = K_F8;
+        break;
+    case SDL_SCANCODE_F9:
+        *code = K_F9;
+        break;
+    case SDL_SCANCODE_F10:
+        *code = K_F10;
+        break;
+    case SDL_SCANCODE_F11:
+        *code = K_F11;
+        break;
+    case SDL_SCANCODE_F12:
+        *code = K_F12;
+        break;
+    case SDL_SCANCODE_ESCAPE:
+        *code = K_ESCAPE;
+        break;
+    /*case SDL_SCANCODE_RETURN:
+        *code = K_ENTER;
+        break;*/
+    // TODO: Swallow "bad inputs" by default? ie. numlock, capslock
+    case SDL_SCANCODE_NUMLOCKCLEAR:
+        *code = -1;
+        *ch = 1;
+        break;
+    case SDL_SCANCODE_CAPSLOCK:
+        *code = -1;
+        *ch = 1;
+        break;
+    case SDL_SCANCODE_KP_DIVIDE:
+        *code = K_FWD_SLASH;
+        *ch = K_FWD_SLASH;
+        break;
+    case SDL_SCANCODE_KP_MULTIPLY:
+        *code = K_ASTERISK;
+        *ch = K_ASTERISK;
+        break;
+    case SDL_SCANCODE_KP_MINUS:
+        *code = K_MINUS;
+        *ch = K_MINUS;
+        break;
+    case SDL_SCANCODE_KP_PLUS:
+        *code = K_PLUS;
+        *ch = K_PLUS;
+        break;
+    case SDL_SCANCODE_KP_PERIOD:
+        *code = K_PERIOD;
+        *ch = K_PERIOD;
+        break;
+    case SDL_SCANCODE_KP_ENTER:
+        *code = K_ENTER;
+        *ch = K_ENTER;
+        break;
+    case SDL_SCANCODE_KP_0:
+        *code = K_0;
+        *ch = K_0;
+        break;
+    case SDL_SCANCODE_KP_1:
+        *code = K_1;
+        *ch = K_1;
+        break;
+    case SDL_SCANCODE_KP_2:
+        *code = K_2;
+        *ch = K_2;
+        break;
+    case SDL_SCANCODE_KP_3:
+        *code = K_3;
+        *ch = K_3;
+        break;
+    case SDL_SCANCODE_KP_4:
+        *code = K_4;
+        *ch = K_4;
+        break;
+    case SDL_SCANCODE_KP_5:
+        *code = K_5;
+        *ch = K_5;
+        break;
+    case SDL_SCANCODE_KP_6:
+        *code = K_6;
+        *ch = K_6;
+        break;
+    case SDL_SCANCODE_KP_7:
+        *code = K_7;
+        *ch = K_7;
+        break;
+    case SDL_SCANCODE_KP_8:
+        *code = K_8;
+        *ch = K_8;
+        break;
+    case SDL_SCANCODE_KP_9:
+        *code = K_9;
+        *ch = K_9;
+        break;
+    default:
+        *ch = e->key;
+
+        switch (e->scancode) {
+        case SDL_SCANCODE_TAB:
+            *code = K_TAB;
+            break;
+        case SDL_SCANCODE_1:
+            *code = K_1;
+            break;
+        case SDL_SCANCODE_2:
+            *code = K_2;
+            break;
+        case SDL_SCANCODE_3:
+            *code = K_3;
+            break;
+        case SDL_SCANCODE_4:
+            *code = K_4;
+            break;
+        case SDL_SCANCODE_5:
+            *code = K_5;
+            break;
+        default:
+            // TODO
+            // rs2_log("code %i %i %i\n", keysym->scancode, 'w', 's');
+            *code = *ch;
+            break;
+        }
+
+        if (e->mod & SDL_KMOD_SHIFT) {
+            if (*ch >= 'a' && *ch <= 'z') {
+                *ch -= 32;
+            } else {
+                switch (*ch) {
+                case ';':
+                    *ch = ':';
+                    break;
+                case '`':
+                    *ch = '~';
+                    break;
+                case '1':
+                    *ch = '!';
+                    break;
+                case '2':
+                    *ch = '@';
+                    break;
+                case '3':
+                    *ch = '#';
+                    break;
+                case '4':
+                    *ch = '$';
+                    break;
+                case '5':
+                    *ch = '%';
+                    break;
+                case '6':
+                    *ch = '^';
+                    break;
+                case '7':
+                    *ch = '&';
+                    break;
+                case '8':
+                    *ch = '*';
+                    break;
+                case '9':
+                    *ch = '(';
+                    break;
+                case '0':
+                    *ch = ')';
+                    break;
+                case '-':
+                    *ch = '_';
+                    break;
+                case '=':
+                    *ch = '+';
+                    break;
+                case '[':
+                    *ch = '{';
+                    break;
+                case ']':
+                    *ch = '}';
+                    break;
+                case '\\':
+                    *ch = '|';
+                    break;
+                case ',':
+                    *ch = '<';
+                    break;
+                case '.':
+                    *ch = '>';
+                    break;
+                case '/':
+                    *ch = '?';
+                    break;
+                }
+            }
+        }
+
+        break;
+    }
 }
 
 void platform_poll_events(Client *c) {
@@ -116,20 +630,26 @@ void platform_poll_events(Client *c) {
             break;
             break;
         case SDL_EVENT_KEY_DOWN: {
-            // char ch;
-            // int code;
-            // platform_get_keycodes(&e.key.keysym, &code, &ch);
-            // key_pressed(c->shell, code, ch);
+            char ch;
+            int code;
+            platform_get_keycodes((SDL_KeyboardEvent*)&e, &code, &ch);
+            key_pressed(c->shell, code, ch);
             break;
         }
         case SDL_EVENT_KEY_UP: {
-            // char ch;
-            // int code;
-            // platform_get_keycodes(&e.key.keysym, &code, &ch);
-            // key_released(c->shell, code, ch);
+            char ch;
+            int code;
+            platform_get_keycodes((SDL_KeyboardEvent*)&e, &code, &ch);
+            key_released(c->shell, code, ch);
             break;
         }
         case SDL_EVENT_MOUSE_MOTION: {
+            if (_Custom.resizable) {
+                if (!SDL_ConvertEventToRenderCoordinates(renderer, &e)) {
+                    rs2_error("SDL3: failed to translate mouse event: %s", SDL_GetError());
+                    break;
+                }
+            }
             int x = e.motion.x;
             int y = e.motion.y;
 
@@ -142,6 +662,12 @@ void platform_poll_events(Client *c) {
             }
         } break;
         case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+            if (_Custom.resizable) {
+                if (!SDL_ConvertEventToRenderCoordinates(renderer, &e)) {
+                    rs2_error("SDL3: failed to translate mouse event: %s", SDL_GetError());
+                    break;
+                }
+            }
             int x = e.button.x;
             int y = e.button.y;
 
@@ -170,12 +696,17 @@ void platform_poll_events(Client *c) {
             }
             break;
         case SDL_EVENT_WINDOW_RESIZED:
-            window_surface = SDL_GetWindowSurface(window);
-            if (!window_surface) {
-                rs2_error("Window surface creation failed: %s\n", SDL_GetError());
-                SDL_DestroyWindow(window);
-                SDL_Quit();
-                return;
+            if (_Custom.resizable) {
+                SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xff);
+                SDL_RenderClear(renderer);
+            } else {
+                window_surface = SDL_GetWindowSurface(window);
+                if (!window_surface) {
+                    rs2_error("SDL3: failed to get window surface: %s\n", SDL_GetError());
+                    SDL_DestroyWindow(window);
+                    SDL_Quit();
+                    return;
+                }
             }
             c->redraw_background = true;
             break;
