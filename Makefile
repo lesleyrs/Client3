@@ -20,8 +20,7 @@ ifeq ($(basename $(notdir $(CC))),emcc)
 WITH_JS_BIGINT ?= 1
 # getnameinfo does nothing with emscripten so use old api
 MODERN_POSIX = 0
-# NOTE waiting for sdl3 emscripten
-SDL = 2
+SDL = 3
 else ifeq ($(findstring i686-w64-mingw32-gcc,$(CC)),i686-w64-mingw32-gcc)
 # sdl1 dll is the only one guaranteed to be 32 bits, others can be found in bin
 SDL = 1
@@ -137,7 +136,17 @@ endif
 endif
 
 ifeq ($(SDL),3)
-ifeq ($(findstring -w64-mingw32-gcc,$(CC)),-w64-mingw32-gcc)
+
+ifeq ($(basename $(notdir $(CC))),emcc)
+CFLAGS += --shell-file shell.html --preload-file cache/client --preload-file SCC1_Florestan.sf2 --preload-file Roboto
+# CFLAGS += -sJSPI
+CFLAGS += -sASYNCIFY
+CFLAGS += -sSTACK_SIZE=1048576 -sINITIAL_HEAP=50MB
+CFLAGS += -sALLOW_MEMORY_GROWTH -sASSERTIONS=2
+CFLAGS += -sDEFAULT_TO_CXX=0
+CFLAGS += -sWEBSOCKET_URL=ws://
+LDFLAGS += --use-port=sdl3
+else ifeq ($(findstring -w64-mingw32-gcc,$(CC)),-w64-mingw32-gcc)
 CFLAGS += $(shell pkg-config bin/SDL3-3.1.6/$(word 1, $(subst -, ,$(CC)))-w64-mingw32/lib/pkgconfig/sdl3.pc --cflags)
 LDFLAGS += $(shell pkg-config bin/SDL3-3.1.6/$(word 1, $(subst -, ,$(CC)))-w64-mingw32/lib/pkgconfig/sdl3.pc --libs)
 else
