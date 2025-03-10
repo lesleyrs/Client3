@@ -54,7 +54,7 @@ Recompile is needed to change between different RSA key lengths, RSA_BUF_LEN nee
 
 emscripten wasm on firefox has memleaks related to midi, gets cleaned up by pressing GC in about:memory but why does this happen? Chromium based browsers are ok. Happens on both SDL2 and SDL3.
 
-emscriptens experimental sdl3 port currently implements audio incorrectly causing delayed sounds to play for a while instead of ignore
+sdl3 currently has an audio issue causing sounds to be queued endlessly
 
 auto-generated js by emscripten is blocking default browser shortcuts why exactly
 
