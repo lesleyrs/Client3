@@ -30,35 +30,16 @@ static tsf *g_TinySoundFont;
 static double g_Msec;              // current playback time
 static tml_message *g_MidiMessage; // next message to be played
 
-float* midi_buffer = NULL;
+static float* midi_buffer = NULL;
 
 static SDL_Window* window = NULL;
+static SDL_Surface *window_surface;
 static SDL_Texture* texture = NULL;
 static SDL_Renderer* renderer = NULL;
 static SDL_AudioStream* midi_stream = NULL;
 
 static void platform_get_keycodes(const SDL_KeyboardEvent *e, int *code, char *ch);
 
-#ifdef __EMSCRIPTEN__
-#include "emscripten.h"
-
-EM_JS(void, set_wave_volume_js, (int wavevol), {
-    setWaveVolume(wavevol);
-})
-
-EM_JS(void, play_wave_js, (int8_t * src, int length), {
-    playWave(HEAP8.subarray(src, src + length));
-})
-
-void platform_set_wave_volume(int wavevol) {
-    set_wave_volume_js(wavevol);
-}
-
-void platform_play_wave(int8_t *src, int length) {
-    play_wave_js(src, length);
-}
-
-#else
 static SDL_AudioStream* wave_stream = NULL;
 static int g_wavevol = 128;
 void platform_play_wave(int8_t *src, int length) {
@@ -98,7 +79,6 @@ void platform_play_wave(int8_t *src, int length) {
 void platform_set_wave_volume(int wavevol) {
     g_wavevol = wavevol;
 }
-#endif /* not EMSCRIPTEN */
 
 static void midi_callback(void* data, SDL_AudioStream* stream, int additional_amount_needed, int total_amount_requested) {
     (void)data;
@@ -167,46 +147,55 @@ void platform_new(int width, int height) {
         return;
     }
 
-    int num_renderers = SDL_GetNumRenderDrivers();
-    if (num_renderers == 0) {
-        rs2_error("SDL3: no renderers available!\n");
-        SDL_DestroyWindow(window);
-        SDL_Quit();
-        return;
-    }
-
-    renderer = SDL_CreateRenderer(window, NULL);
-    if (!renderer) {
-        rs2_error("SDL3: renderer creation failed: %s\n", SDL_GetError());
-        SDL_DestroyWindow(window);
-        SDL_Quit();
-        return;
-    }
-
-    char renderers[1024] = {0};
-    const char* r_name = SDL_GetRendererName(renderer);
-    for (int i = 0; i < num_renderers; i++) {
-        const char* name = SDL_GetRenderDriver(i);
-        if (i > 0) {
-            strcat(renderers, ", ");
+    if (_Custom.resizable) {
+        int num_renderers = SDL_GetNumRenderDrivers();
+        if (num_renderers == 0) {
+            rs2_error("SDL3: no renderers available!\n");
+            SDL_DestroyWindow(window);
+            SDL_Quit();
+            return;
         }
-        strcat(renderers, name);
-        if (!strcmp(name, r_name)) {
-            strcat(renderers, "*");
+
+        renderer = SDL_CreateRenderer(window, NULL);
+        if (!renderer) {
+            rs2_error("SDL3: renderer creation failed: %s\n", SDL_GetError());
+            SDL_DestroyWindow(window);
+            SDL_Quit();
+            return;
+        }
+
+        char renderers[1024] = {0};
+        const char* r_name = SDL_GetRendererName(renderer);
+        for (int i = 0; i < num_renderers; i++) {
+            const char* name = SDL_GetRenderDriver(i);
+            if (i > 0) {
+                strcat(renderers, ", ");
+            }
+            strcat(renderers, name);
+            if (!strcmp(name, r_name)) {
+                strcat(renderers, "*");
+            }
+        }
+        rs2_log("SDL renderers: [%s]\n", renderers);
+
+        texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_XRGB8888, SDL_TEXTUREACCESS_STREAMING, width, height);
+        if (!texture) {
+            rs2_error("SDL3: texture creation failed: %s\n", SDL_GetError());
+            SDL_DestroyWindow(window);
+            SDL_Quit();
+            return;
+        }
+
+        SDL_SetRenderLogicalPresentation(renderer, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+    } else {  // !_Custom.resizable
+        window_surface = SDL_GetWindowSurface(window);
+        if (!window_surface) {
+            rs2_error("SDL3: window surface creation failed: %s\n", SDL_GetError());
+            SDL_DestroyWindow(window);
+            SDL_Quit();
+            return;
         }
     }
-    rs2_log("SDL renderers: [%s]\n", renderers);
-
-    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_XRGB8888, SDL_TEXTUREACCESS_STREAMING, width, height);
-    if (!texture) {
-        rs2_error("SDL3: texture creation failed: %s\n", SDL_GetError());
-        SDL_DestroyWindow(window);
-        SDL_Quit();
-        return;
-    }
-
-    SDL_SetRenderLogicalPresentation(renderer, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_LOGICAL_PRESENTATION_LETTERBOX);
-
     // audio
     if (_Client.lowmem) {
         return;
@@ -235,7 +224,6 @@ void platform_new(int width, int height) {
         return;
     }
 
-#ifndef __EMSCRIPTEN__
     // Create WAVE audio stream:
     const SDL_AudioSpec wave_spec = { SDL_AUDIO_U8, 1, 22050 };
     wave_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &wave_spec, NULL, NULL);
@@ -244,16 +232,13 @@ void platform_new(int width, int height) {
         platform_free();
         return;
     }
-#endif
 
 }
 
 void platform_free(void) {
     if (!_Client.lowmem) {
         SDL_DestroyAudioStream(midi_stream);
-#ifndef __EMSCRIPTEN__
         SDL_DestroyAudioStream(wave_stream);
-#endif
         free(midi_buffer);
         tsf_close(g_TinySoundFont);
         tml_free(TinyMidiLoader);
@@ -339,33 +324,54 @@ void set_pixels(PixMap *pixmap, int x, int y) {
 }
 
 void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
-    int* pix_write = NULL;
-    int _pitch_unused = 0;
-    if (!SDL_LockTexture(texture, NULL, (void**)&pix_write, &_pitch_unused) || pix_write == NULL) {
-        rs2_error("SDL3: SDL_LockTexture failed: %s\n", SDL_GetError());
-        return;
-    }
-    int row_size = w * sizeof(int);
-    int *src_pixels = (int *)surface->pixels;
-    for (int src_y = y; src_y < (y + h); src_y++) {
-        // Compute the starting index for the destination row
-        int* dest_row = &pix_write[(src_y * SCREEN_WIDTH) + x];
+    if (_Custom.resizable) {
+        int* pix_write = NULL;
+        int _pitch_unused = 0;
+        if (!SDL_LockTexture(texture, NULL, (void**)&pix_write, &_pitch_unused) || pix_write == NULL) {
+            rs2_error("SDL3: SDL_LockTexture failed: %s\n", SDL_GetError());
+            return;
+        }
+        int row_size = w * sizeof(int);
+        int *src_pixels = (int *)surface->pixels;
+        for (int src_y = y; src_y < (y + h); src_y++) {
+            // Compute the starting index for the destination row
+            int* dest_row = &pix_write[(src_y * SCREEN_WIDTH) + x];
 
-        // Copy a row of pixels
-        memcpy(dest_row, &src_pixels[(src_y - y) * w], row_size);
+            // Copy a row of pixels
+            memcpy(dest_row, &src_pixels[(src_y - y) * w], row_size);
+        }
+        SDL_UnlockTexture(texture);
+        SDL_RenderTexture(renderer, texture, NULL, NULL);
+    } else {
+        SDL_Rect dest = {x, y, w, h};
+        SDL_BlitSurfaceScaled(surface, NULL, window_surface, &dest, SDL_SCALEMODE_LINEAR);
     }
-    SDL_UnlockTexture(texture);
-    SDL_RenderTexture(renderer, texture, NULL, NULL);
 }
 
 void platform_update_surface(void) {
-    SDL_RenderPresent(renderer);
+    if (_Custom.resizable) {
+        SDL_RenderPresent(renderer);
+    } else {
+        SDL_UpdateWindowSurface(window);
+    }
 }
 
 void platform_fill_rect(int x, int y, int w, int h, int color) {
-    SDL_SetRenderDrawColor(renderer, (color >> 16) & 0xff, (color >> 8) & 0xff, color & 0xff, 0xff);
-    SDL_FRect rect = {x, y, w, h};
-    SDL_RenderFillRect(renderer, &rect);
+    if (_Custom.resizable) {
+        SDL_SetRenderDrawColor(renderer, (color >> 16) & 0xff, (color >> 8) & 0xff, color & 0xff, 0xff);
+        SDL_FRect rect = {x, y, w, h};
+        SDL_RenderFillRect(renderer, &rect);
+    } else {
+        if (color != BLACK) { // TODO other grayscale?
+            const SDL_PixelFormatDetails* details = SDL_GetPixelFormatDetails(window_surface->format);
+            if (details) {
+                color = SDL_MapRGB(details, NULL, color >> 16 & 0xff, color >> 8 & 0xff, color & 0xff);
+            }
+        }
+
+        SDL_Rect rect = {x, y, w, h};
+        SDL_FillSurfaceRect(window_surface, &rect, color);
+    }
 }
 
 
@@ -638,9 +644,11 @@ void platform_poll_events(Client *c) {
             break;
         }
         case SDL_EVENT_MOUSE_MOTION: {
-            if (!SDL_ConvertEventToRenderCoordinates(renderer, &e)) {
-                rs2_error("SDL3: failed to translate mouse event: %s", SDL_GetError());
-                break;
+            if (_Custom.resizable) {
+                if (!SDL_ConvertEventToRenderCoordinates(renderer, &e)) {
+                    rs2_error("SDL3: failed to translate mouse event: %s", SDL_GetError());
+                    break;
+                }
             }
             int x = e.motion.x;
             int y = e.motion.y;
@@ -654,9 +662,11 @@ void platform_poll_events(Client *c) {
             }
         } break;
         case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-            if (!SDL_ConvertEventToRenderCoordinates(renderer, &e)) {
-                rs2_error("SDL3: failed to translate mouse event: %s", SDL_GetError());
-                break;
+            if (_Custom.resizable) {
+                if (!SDL_ConvertEventToRenderCoordinates(renderer, &e)) {
+                    rs2_error("SDL3: failed to translate mouse event: %s", SDL_GetError());
+                    break;
+                }
             }
             int x = e.button.x;
             int y = e.button.y;
@@ -686,6 +696,18 @@ void platform_poll_events(Client *c) {
             }
             break;
         case SDL_EVENT_WINDOW_RESIZED:
+            if (_Custom.resizable) {
+                SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xff);
+                SDL_RenderClear(renderer);
+            } else {
+                window_surface = SDL_GetWindowSurface(window);
+                if (!window_surface) {
+                    rs2_error("SDL3: failed to get window surface: %s\n", SDL_GetError());
+                    SDL_DestroyWindow(window);
+                    SDL_Quit();
+                    return;
+                }
+            }
             c->redraw_background = true;
             break;
         case SDL_EVENT_WINDOW_MOUSE_ENTER:
