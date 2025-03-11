@@ -146,6 +146,7 @@ CFLAGS += -sDEFAULT_TO_CXX=0
 CFLAGS += -sWEBSOCKET_URL=ws://
 LDFLAGS += --use-port=sdl3
 else ifeq ($(findstring -w64-mingw32-gcc,$(CC)),-w64-mingw32-gcc)
+# NOTE: removed this for now to have a lighter repo
 CFLAGS += $(shell pkg-config bin/SDL3-3.1.6/$(word 1, $(subst -, ,$(CC)))-w64-mingw32/lib/pkgconfig/sdl3.pc --cflags)
 LDFLAGS += $(shell pkg-config bin/SDL3-3.1.6/$(word 1, $(subst -, ,$(CC)))-w64-mingw32/lib/pkgconfig/sdl3.pc --libs)
 else

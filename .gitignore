@@ -74,5 +74,4 @@
 /SDL2.dll
 /SDL3.dll
 /config.ini
-/openssl
 /**/*.rdi
