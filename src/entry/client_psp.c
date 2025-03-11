@@ -10215,6 +10215,8 @@ int main(int argc, char **argv) {
         if (load_ini_args()) {
             goto init;
         }
+        rs2_error("Usage: node-id, port-offset, [lowmem/highmem], [free/members]\n");
+        return 0;
     }
 
     get_host_js(_Client.socketip, MAX_STR - 1, &_Custom.http_port);

@@ -7,8 +7,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef _WIN32
-// #include <fileapi.h>
+#ifdef NXDK
+#include <winapi/fileapi.h>
+#elif defined(_WIN32)
 #include <io.h>
 #else
 #include <unistd.h>

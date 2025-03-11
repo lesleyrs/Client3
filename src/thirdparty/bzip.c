@@ -52,8 +52,9 @@ static uint32_t get_bits(bunzip_data *bd, uint8_t bits_wanted) {
     while (bd->inbufBitCount < bits_wanted) {
         /* If we need to read more data from file into byte buffer, do so */
         if (bd->inbufPos == bd->inbufCount) {
-            #ifdef _WIN32
-            // if (!ReadFile((HANDLE)bd->in_fd, bd->inbuf, IOBUF_SIZE, (LPDWORD)&bd->inbufCount, NULL) || bd->inbufCount == 0) {
+            #ifdef NXDK
+            if (!ReadFile((HANDLE)bd->in_fd, bd->inbuf, IOBUF_SIZE, (LPDWORD)&bd->inbufCount, NULL) || bd->inbufCount == 0) {
+            #elif defined(_WIN32)
             if ((bd->inbufCount = _read(bd->in_fd, bd->inbuf, IOBUF_SIZE)) <= 0) {
             #else
             if ((bd->inbufCount = read(bd->in_fd, bd->inbuf, IOBUF_SIZE)) <= 0) {

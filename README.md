@@ -198,6 +198,8 @@ Controls: move cursor with analog stick, O for left click, X for right click, /\
 
 Works on real hardware but requires at least model 2000, only lowmem fits into memory so client_psp entrypoint ignores the setting.
 
+run `diff src/entry/client.c src/entry/client_psp.c` to see changes, looking for a better way still.
+
 ```
 TODO: how to trigger clean exit in emulator so gprof writes gmon.out, right now calling exit(0) from button works but maybe crashes on HW?
 TODO: where do psp stdout/stderr go if not debug printing on screen and without sdl2?
@@ -213,6 +215,7 @@ on vita3k emulator to avoid installing the .vpk each change just copy the eboot.
 Controls: touch as mouse, X for right click, /\ for control, Dpad as arrow keys
 
 ```
+TODO: holding touch down spams left clicks repeatedly, 3ds has workaround but has issue where it clicks last touch position. See what was changed for client-ts to work on mobile.
 TODO: draw game at offset to center it, and offset touch input based on that. Confirm issue on real hw + on resizable config option? maybe applies to wiiu/switch too
 TODO: after the vpk is unpacked on real HW can you still replace the config.ini with your own?
 TODO: what happens with touch input on the back, disable it?
