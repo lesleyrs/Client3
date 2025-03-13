@@ -6,7 +6,7 @@ Compatible with [2004Scape](https://github.com/2004Scape/Server), the most accur
 Features:
 - should work on any 32 bit system with 64 MB of RAM on lowmem, networking and a (read-only) filesystem.
 - webassembly build to avoid javascript code being optimized out by the browser.
-- WIP ports for many game consoles, mostly from the 2000s.
+- WIP ports for most game consoles from 1998 until 2013! Ones with incomplete input are set up to auto-connect.
 - optional [config.ini](config.ini.example) file to change client behaviour. Create an empty config.ini to avoid passing cli args.
 
 See [docs](/docs) for more info and media.
@@ -132,10 +132,7 @@ If not passing args make sure to set http_port to 8888 on linux (or whatever it'
 TODO: possibly target wasm directly with clang instead of emscripten, but then we don't have a libc at all
 
 ### Nintendo consoles (devkitPro)
-These are unfinished and need testing on real hardware so expect some issues.
-
 If you own a console and want to improve a port look at rsc-c for reference: https://github.com/2003scape/rsc-c
-TODO: 3ds/wiiu/switch currently logs in automatically due to input issues in emulators?
 
 TODO: add different client entrypoints based on screen resolution?
 
@@ -146,8 +143,6 @@ Wii U and Switch also need the (wiiu/switch)-sdl2 package.
 For all consoles besides NDS you have to move the `cache/` `Roboto/`, `SCC1_Florestan.sf2`, and `config.ini` to sdcard (config needed as we can't pass cli args, but can be empty).
 
 TODO: nds/3ds/wiiu/switch have an option to build with romfs (read-only memory file system) which won't require an sdcard. Would have to build the config into the binary or load from sd card still.
-
-TODO: on wii use the remaining wiimote buttons for switching views due to the entire game not fitting in 640x480 and same for 3ds at 320x240
 
 #### NDS
 ```
@@ -186,7 +181,7 @@ NOTE there's weird compile issues: highmem seems to not start due to tinysoundfo
 #### Switch
 in suyu emulator (yuzu fork) click `file->open suyu folder` for sdmc dir
 
-#### Sony PSP
+### Sony PSP
 Install [pspdev](#tools) and run `make -f psp.mk -j$(nproc) -B`.
 
 ppsspp emulator loads relative dir as memstick, so the filesystem works automatically. Also you should probably enable printf logging with `settings>tools>developer tools>logging channels>printf` to EG verbose
@@ -202,7 +197,7 @@ TODO: Model 1000 has the same CPU just less memory, might be worth trying to mak
 TODO: Could enable audio in lowmem for 2000+ models if there's enough memory remaining?
 ```
 
-#### Sony PS Vita
+### Sony PS Vita
 Install [vitasdk](#tools) and run `make -f vita.mk -j$(nproc) -B`.
 
 on vita3k emulator to avoid installing the .vpk each change just copy the eboot.bin, and non-blocking networking causes connect fail on windows same as 3ds.
@@ -217,7 +212,7 @@ TODO: update sce_sys assets, maybe don't bother with vpks they're slow to decomp
 
 TODO: check dnslookup for both vita and psp
 
-#### Sega Dreamcast
+### Sega Dreamcast
 Install [kallistios and mkdcdisk](#tools) and run `make -f dreamcast.mk -j$(nproc) -B`.
 
 To try on real hardware you'd need the 32 MB ram expansion mod, which seems involved and maybe less compatible with some other games
