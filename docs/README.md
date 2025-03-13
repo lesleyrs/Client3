@@ -26,6 +26,8 @@
 
 ## TODO
 ```
+add a define for mobile to set mouse_x and mouse_y, however we have to make sure that on both android and postmarketos it's using finger events not emulated mouse.
+Mobile isn't playable for now without mouse/keyboard (no right clicking, rotating camera, onscreen keyboard)
 compare performance on consoles for floats instead of doubles (pix3d_set_gamma)
 all consoles without touch need to be able to redraw entire screen (even parts it normally doesn't) due to not having a builtin pointer/cursor to show where your virtual pointer is. This means it will never redraw that part of the screen and will just accumulate those images.
 ts Client2/java Client (lastmain/webclient branch) repo have extra funcs (pix2d etc?)

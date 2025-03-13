@@ -56,8 +56,6 @@ emscripten wasm on firefox has memleaks related to midi, gets cleaned up by pres
 
 auto-generated js by emscripten is blocking default browser shortcuts why exactly
 
-Any touchscreen input has an issue where the first click can still use it's last touch position. Mobile isn't playable for now without mouse/keyboard (no right clicking, rotating camera, onscreen keyboard)
-
 no midi fading, old js code for IE: https://github.com/2004Scape/Server/blob/61bf21fb3755c14b5cf6d47c9d974dee5783beda/view/javaclient.ejs new ts code: https://github.com/2004Scape/Client2/commit/92e74f1f134ea82e48dd608dcca3422777a7a986 (client-ts has more some fade fixes)
 
 locs like fires have no animations as pushLocs is disabled for now, it constantly allocates memory due to always calling model_copy_faces in loctype which requires a different approach. The leaks get worse if the dynamic model cache can't fit all sequences (animations) of the models in an area, disable the allocator to see origins.
