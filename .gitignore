@@ -57,6 +57,8 @@
 # psp
 /EBOOT.PBP
 /PARAM.SFO
+/client.elf
+/client.prx
 
 # vita
 /eboot.bin
