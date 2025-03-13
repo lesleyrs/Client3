@@ -1,3 +1,4 @@
+![vita](vita.png)
 ![psp](psp.jpg)
 ![3ds](3ds.png)
 ![wii](wii.png)
