@@ -7,7 +7,9 @@ INCDIR =
 CFLAGS = -Wno-parentheses -Wall -Dclient -DWITH_RSA_LIBTOM
 DEBUG := 0
 ifeq ($(DEBUG),1)
-CFLAGS += -g -pg -O2 -ffast-math -flto=$(shell nproc)
+BUILD_PRX = 1
+# NOTE: libs out of order warning with flto?
+CFLAGS += -g -pg -O2 -ffast-math
 else
 CFLAGS += -s -O2 -ffast-math -flto=$(shell nproc)
 endif

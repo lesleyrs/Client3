@@ -17,11 +17,11 @@ KOS_INIT_FLAGS(INIT_DEFAULT | INIT_NET);
 #endif
 
 #ifdef __PSP__
+#include <pspdebug.h>
 #include <pspnet.h>
 #include <pspnet_apctl.h>
 #include <pspnet_inet.h>
 #include <pspnet_resolver.h>
-#include <pspdebug.h>
 #include <psputility.h>
 #endif
 
@@ -121,20 +121,38 @@ static int clientstream_init(void) {
         return false;
     }
 
-    // TODO: check possible issue with multiple saved access points
-    int apctl_status = 0;
-    int last_status = -1;
-    while (apctl_status != PSP_NET_APCTL_STATE_GOT_IP) {
-        sceNetApctlGetState(&apctl_status);
+    // TODO: handle multiple saved access points
+    int apctl_state = 0;
+    int apctl_last_state = -1;
+    bool apctl_connected = false;
+    while (!apctl_connected) {
+        if (apctl_state != apctl_last_state) {
+            pspDebugScreenPrintf("[WLAN] Connection state %d of 4\n", apctl_state);
+            apctl_last_state = apctl_state;
+        }
+
+        if (apctl_state == PSP_NET_APCTL_STATE_GOT_IP) {
+            pspDebugScreenPrintf("[WLAN] Connected!\n");
+            apctl_connected = true;
+        }
+
+        err = sceNetApctlGetState(&apctl_state);
         if (err) {
             pspDebugScreenPrintf("Error 0x%08X in sceNetApctlGetState\n", err);
             return false;
         }
-        if (apctl_status != last_status) {
-            pspDebugScreenPrintf("connection state %d of 4\n", apctl_status);
-            last_status = apctl_status;
+
+        if (apctl_state == 0 && apctl_last_state > 0) {
+            pspDebugScreenPrintf("[WLAN] Retrying...\n");
+            apctl_last_state = -1;
+            err = sceNetApctlConnect(1);
+            if (err) {
+                pspDebugScreenPrintf("Error 0x%08X in sceNetApctlConnect\n", err);
+                return false;
+            }
         }
-        delay_ticks(50); // Needs to have a delay. Otherwise fails.
+
+        delay_ticks(50);
     }
 #endif
     net_init = 1;
