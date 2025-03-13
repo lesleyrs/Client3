@@ -8796,6 +8796,9 @@ void client_draw_scene(Client *c) {
     drawTileHint(c);
     updateTextures(c, jitter);
     draw3DEntityElements(c);
+#ifdef __PSP__
+    pix2d_fill_circle(get_cursor_x() - 8, get_cursor_y() - 12, 8, WHITE, 96);
+#endif
     pixmap_draw(c->area_viewport, 8, 11);
     c->cameraX = cameraX;
     c->cameraY = cameraY;
@@ -10217,27 +10220,18 @@ EM_JS(void, get_host_js, (char *socketip, size_t len, int *http_port), {
 #endif
 
 int main(int argc, char **argv) {
-    srand(0);
-    client_init_global();
-    model_init_global();
-    packet_init_global();
-    pix3d_init_global();
-    pixfont_init_global();
-    playerentity_init_global();
-    world_init_global();
-    world3d_init_global();
+    Client *c = client_new();
 
     // NOTE: init screens before logging for some platforms
     if (!platform_init()) {
-        // NOTE: temp
-        _Client.started = true;
+        c->error_loading = true;
         goto init;
     }
     // NOTE: to print argv on emscripten you need to print index to flush instead of just \n?
     rs2_log("RS2 user client - release #%d\n", _Client.clientversion);
 
 #ifdef __EMSCRIPTEN__
-    // we don't preload config.ini to avoid leaking account details
+    // we fetch instead of preload config.ini to avoid leaking account details
     emscripten_wget("config.ini", "config.ini");
 
     if (argc != 5) {
@@ -10293,9 +10287,18 @@ int main(int argc, char **argv) {
     }
 #endif
 
-init:;
-    Client *c = client_new();
-    c->error_loading = _Client.started; _Client.started = false; // NOTE: temp
+init:
+    srand(0);
+    client_init_global();
+    model_init_global();
+    packet_init_global();
+    pix3d_init_global();
+    pixfont_init_global();
+    playerentity_init_global();
+    world_init_global();
+    world3d_init_global();
+
+    // NOTE client_new supposed to be here, but moved to top for now to simplify error checking
     load_ini_config(c);
     gameshell_init_application(c, SCREEN_WIDTH, SCREEN_HEIGHT);
     return 0;

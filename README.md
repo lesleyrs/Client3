@@ -106,7 +106,7 @@ NOTE: currently bignum lib isn't working with tcc on windows and gives [invalid 
 
 TODO:
 ```
-confirm win9x work still (with old openssl), maybe add screenshot to /docs
+confirm win9x work still (with old openssl or mingw-gcc with libtom), maybe add screenshot to /docs
 do we assume windows 95 has -lws2_32, otherwise re-add -lwsock32 and remove -DMODERN_POSIX in batch file
 make win9x compatible batch file (no delayed expansion?) right now needs to build from more modern system
 clean up ps1 script so it doesn't need to be modified
@@ -186,9 +186,7 @@ ppsspp emulator loads relative dir as memstick, so the filesystem works automati
 
 Controls: move cursor with analog stick, O for left click, X for right click, /\ for control, Dpad as arrow keys
 
-Works on real hardware but requires at least model 2000, only lowmem fits into memory so client_psp entrypoint ignores the setting.
-
-run `diff src/entry/client.c src/entry/client_psp.c` to see changes, looking for a better way still.
+Works on real hardware but requires at least model 2000 due to the full 32 MB not being accessible, only lowmem fits into memory so we force lowmem in custom.c
 
 ```
 TODO: Model 1000 has the same CPU just less memory, might be worth trying to make it work in kernel mode for 28MB BUT is it safe to do so?
@@ -225,6 +223,7 @@ Controls: TODO
 TODO: fopen path was changed due to the mkdcdisc tool adding dots to files without extension https://gitlab.com/simulant/mkdcdisc/-/issues/14
 TODO: can't seem to connect to localhost only live servers, might be an emulator issue
 TODO: check if it's making use of vram currently, dreamcast vram is quite big (8mb)
+TODO: instead of INIT_DEFAULT choose the flags we want to use
 ```
 
 ## libraries

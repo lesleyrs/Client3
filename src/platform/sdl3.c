@@ -213,22 +213,17 @@ void platform_new(int width, int height) {
     g_TinySoundFont = tsf_load_filename("SCC1_Florestan.sf2");
     if (!g_TinySoundFont) {
         rs2_error("Could not load SoundFont\n");
-        platform_free();
-        return;
-    }
-    tsf_set_output(g_TinySoundFont, TSF_STEREO_INTERLEAVED, midi_spec.freq, 0.0f);
+    } else {
+        tsf_set_output(g_TinySoundFont, TSF_STEREO_INTERLEAVED, midi_spec.freq, 0.0f);
 
-    midi_buffer = malloc(TSF_RENDER_EFFECTSAMPLEBLOCK * 2 * sizeof(float));
-    midi_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &midi_spec, midi_callback, NULL);
-    if (!midi_stream) {
-        rs2_error("SDL3: OpenAudioDeviceStream(Midi) failed: %s\n", SDL_GetError());
-        platform_free();
-        return;
-    }
-    if (!SDL_ResumeAudioStreamDevice(midi_stream)) {
-        rs2_error("SDL3: ResumeAudioStreamDevice failed: %s\n", SDL_GetError());
-        platform_free();
-        return;
+        midi_buffer = malloc(TSF_RENDER_EFFECTSAMPLEBLOCK * 2 * sizeof(float));
+        midi_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &midi_spec, midi_callback, NULL);
+        if (!midi_stream) {
+            rs2_error("SDL3: OpenAudioDeviceStream(Midi) failed: %s\n", SDL_GetError());
+        }
+        if (!SDL_ResumeAudioStreamDevice(midi_stream)) {
+            rs2_error("SDL3: ResumeAudioStreamDevice failed: %s\n", SDL_GetError());
+        }
     }
 
     // Create WAVE audio stream:
@@ -236,8 +231,6 @@ void platform_new(int width, int height) {
     wave_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &wave_spec, NULL, NULL);
     if (!wave_stream) {
         rs2_error("SDL3: OpenAudioDeviceStream(Wave) failed: %s\n", SDL_GetError());
-        platform_free();
-        return;
     }
 }
 
@@ -259,7 +252,9 @@ void platform_set_midi_volume(float midivol) {
     if (_Client.lowmem) {
         return;
     }
-    tsf_set_volume(g_TinySoundFont, midivol);
+    if (midi_stream) {
+        tsf_set_volume(g_TinySoundFont, midivol);
+    }
 }
 
 void platform_set_jingle(int8_t *src, int len) {
@@ -305,11 +300,13 @@ void platform_stop_midi(void) {
     if (_Client.lowmem) {
         return;
     }
-    g_MidiMessage = NULL;
-    g_Msec = 0;
-    tsf_reset(g_TinySoundFont);
-    // Initialize preset on special 10th MIDI channel to use percussion sound bank (128) if available
-    tsf_channel_set_bank_preset(g_TinySoundFont, 9, 128, 0);
+    if (midi_stream) {
+        g_MidiMessage = NULL;
+        g_Msec = 0;
+        tsf_reset(g_TinySoundFont);
+        // Initialize preset on special 10th MIDI channel to use percussion sound bank (128) if available
+        tsf_channel_set_bank_preset(g_TinySoundFont, 9, 128, 0);
+    }
 }
 
 Surface *platform_create_surface(int *pixels, int width, int height, int alpha) {

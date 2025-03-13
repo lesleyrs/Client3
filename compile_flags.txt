@@ -10,19 +10,20 @@
 // -DWITH_RSA_OPENSSL
 -DWITH_RSA_LIBTOM
 
+// -DSDL=3
+// -Ibin/SDL3-devel-3.1.6-VC/SDL3-3.1.6/include
+
 // -Dplayground
 // -Dmidi
 -Dclient
 
--DSDL=3
--I/usr/local/include/
 
 // -DSDL=1
 // -Ibin/SDL-devel-1.2.15-VC/SDL-1.2.15/include
-// -DSDL=2
-// -Ibin/SDL2-devel-2.30.9-VC/SDL2-2.30.9/include
+-DSDL=2
+-Ibin/SDL2-devel-2.30.9-VC/SDL2-2.30.9/include
 // -DSDL=3
-// -Ibin/SDL3-devel-3.1.6-VC/SDL3-3.1.6/include
+// -I/usr/local/include/
 // -D__WII__
 // -I/opt/devkitpro/libogc/include/
 // -D__3DS__
@@ -31,10 +32,7 @@
 // -I/opt/devkitpro/wut/include/
 // -D__SWITCH__
 // -I/opt/devkitpro/libnx/include/
-
-// -Dclient_psp
 // -D__PSP__
 // -I/usr/local/pspdev/psp/sdk/include/
-
-// -D__vita__
-// -I/usr/local/vitasdk/arm-vita-eabi/include/
+-D__vita__
+-I/usr/local/vitasdk/arm-vita-eabi/include/

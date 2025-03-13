@@ -4,7 +4,7 @@ OBJS = $(patsubst %.c, %.o, $(SRC))
 LIBS = -lpsppower
 
 INCDIR =
-CFLAGS = -Wno-parentheses -Wall -Dclient_psp -DWITH_RSA_LIBTOM
+CFLAGS = -Wno-parentheses -Wall -Dclient -DWITH_RSA_LIBTOM
 DEBUG := 0
 ifeq ($(DEBUG),1)
 CFLAGS += -g -pg -O2 -ffast-math -flto=$(shell nproc)

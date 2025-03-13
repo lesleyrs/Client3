@@ -5,23 +5,23 @@
 #include <stdlib.h>
 
 #include <pspctrl.h>
-#include <pspdebug.h>
 #include <pspdisplay.h>
 #include <pspkernel.h>
+#include <psppower.h>
+#include <psprtc.h>
+#include <psputility.h>
 #include <pspnet.h>
 #include <pspnet_apctl.h>
 #include <pspnet_inet.h>
 #include <pspnet_resolver.h>
-#include <psppower.h>
-#include <psprtc.h>
-#include <psputility.h>
+#include <pspsdk.h>
 
 #include "../client.h"
+#include "../custom.h"
 #include "../gameshell.h"
 #include "../inputtracking.h"
 #include "../pixmap.h"
 #include "../platform.h"
-#include "../custom.h"
 
 extern ClientData _Client;
 extern InputTracking _InputTracking;
@@ -38,7 +38,6 @@ static SceCtrlData pad, last_pad;
 static int cursor_x = SCREEN_WIDTH / 2;
 static int cursor_y = SCREEN_HEIGHT / 2;
 
-#include <pspsdk.h>
 int get_free_mem(void) {
     return pspSdkTotalFreeUserMemSize();
 }
@@ -50,7 +49,11 @@ int get_cursor_y(void) {
 }
 
 int exit_callback(int arg1, int arg2, void *common) {
+#if DEBUG
+    exit(0);
+#else
     sceKernelExitGame();
+#endif
     return 0;
 }
 
@@ -73,7 +76,6 @@ int SetupCallbacks(void) {
 }
 
 int platform_init(void) {
-    // NOTE maybe re-add throwError code from sample? look where stdout/stderr goes in emulator
     pspDebugScreenInit();
     SetupCallbacks();
     scePowerSetClockFrequency(333, 333, 166);
@@ -83,34 +85,8 @@ int platform_init(void) {
 void platform_new(int width, int height) {
     (void)width, (void)height;
     sceDisplaySetFrameBuf(fb, VRAM_STRIDE, PSP_DISPLAY_PIXEL_FORMAT_565, PSP_DISPLAY_SETBUF_NEXTFRAME);
-    // TODO rm
-    rs2_log("%d\n", sceCtrlGetSamplingCycle);
-
     sceCtrlSetSamplingCycle(0);
     sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
-
-    sceUtilityLoadNetModule(PSP_NET_MODULE_COMMON);
-    sceUtilityLoadNetModule(PSP_NET_MODULE_INET);
-
-    int res;
-    res = sceNetInit(64 * 1024, 32, 2 * 1024, 32, 2 * 1024);
-    res = sceNetInetInit();
-    res = sceNetResolverInit();
-
-    sceNetApctlInit(0x2000, 20);
-    sceNetApctlConnect(1);
-
-    // TODO: check possible issue with multiple saved access points
-    int apctl_status = 0;
-    int last_status = -1;
-    while (apctl_status != PSP_NET_APCTL_STATE_GOT_IP) {
-        sceNetApctlGetState(&apctl_status);
-        if (apctl_status != last_status) {
-            pspDebugScreenPrintf("connection state %d of 4\n", apctl_status);
-            last_status = apctl_status;
-        }
-        delay_ticks(50); // Needs to have a delay. Otherwise fails.
-    }
 }
 
 void platform_free(void) {

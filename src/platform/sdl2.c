@@ -174,48 +174,6 @@ void platform_new(int width, int height) {
     joystick = SDL_JoystickOpen(0);
 #endif
 
-    if (!_Client.lowmem) {
-        SDL_AudioSpec midiSpec;
-        midiSpec.freq = 44100;
-// TODO separate midi and rm from sdl2
-#if SDL == 1
-        midiSpec.format = AUDIO_S16SYS;
-#else
-        midiSpec.format = AUDIO_F32;
-#endif
-        midiSpec.channels = 2;
-        midiSpec.samples = 4096;
-        midiSpec.callback = midi_callback;
-
-        g_TinySoundFont = tsf_load_filename("SCC1_Florestan.sf2");
-        if (!g_TinySoundFont) {
-            rs2_error("Could not load SoundFont\n");
-            exit(1);
-        }
-
-        // Set the SoundFont rendering output mode
-        tsf_set_output(g_TinySoundFont, TSF_STEREO_INTERLEAVED, midiSpec.freq, 0.0f);
-
-        if (SDL_OpenAudio(&midiSpec, NULL) < 0) {
-            rs2_error("Could not open the audio hardware or the desired audio output format\n");
-        }
-        SDL_PauseAudio(0);
-
-#ifndef __EMSCRIPTEN__
-        SDL_AudioSpec wavSpec;
-        wavSpec.freq = 22050;
-        wavSpec.format = AUDIO_U8;
-        wavSpec.channels = 1;
-        wavSpec.samples = 4096;
-        wavSpec.callback = NULL;
-
-        device = SDL_OpenAudioDevice(NULL, 0, &wavSpec, NULL, 0);
-        if (!device) {
-            rs2_error("SDL_OpenAudioDevice(): %s\n", SDL_GetError());
-        }
-#endif
-    }
-
     int window_flags = SDL_WINDOW_SHOWN;
     if (_Custom.resizable) {
         window_flags |= SDL_WINDOW_RESIZABLE;
@@ -282,6 +240,49 @@ void platform_new(int width, int height) {
 
         SDL_RenderSetLogicalSize(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
     }
+
+    if (_Client.lowmem) {
+        return;
+    }
+
+    SDL_AudioSpec midiSpec;
+    midiSpec.freq = 44100;
+// TODO separate midi and rm from sdl2
+#if SDL == 1
+    midiSpec.format = AUDIO_S16SYS;
+#else
+    midiSpec.format = AUDIO_F32;
+#endif
+    midiSpec.channels = 2;
+    midiSpec.samples = 4096;
+    midiSpec.callback = midi_callback;
+
+    g_TinySoundFont = tsf_load_filename("SCC1_Florestan.sf2");
+    if (!g_TinySoundFont) {
+        rs2_error("Could not load SoundFont\n");
+    } else {
+        // Set the SoundFont rendering output mode
+        tsf_set_output(g_TinySoundFont, TSF_STEREO_INTERLEAVED, midiSpec.freq, 0.0f);
+
+        if (SDL_OpenAudio(&midiSpec, NULL) < 0) {
+            rs2_error("Could not open the audio hardware or the desired audio output format\n");
+        }
+        SDL_PauseAudio(0);
+    }
+
+#ifndef __EMSCRIPTEN__
+    SDL_AudioSpec wavSpec;
+    wavSpec.freq = 22050;
+    wavSpec.format = AUDIO_U8;
+    wavSpec.channels = 1;
+    wavSpec.samples = 4096;
+    wavSpec.callback = NULL;
+
+    device = SDL_OpenAudioDevice(NULL, 0, &wavSpec, NULL, 0);
+    if (!device) {
+        rs2_error("SDL_OpenAudioDevice(): %s\n", SDL_GetError());
+    }
+#endif
 }
 
 void platform_free(void) {
@@ -302,7 +303,9 @@ void platform_set_midi_volume(float midivol) {
     if (_Client.lowmem) {
         return;
     }
-    tsf_set_volume(g_TinySoundFont, midivol);
+    if (SDL_GetAudioStatus() != SDL_AUDIO_STOPPED) {
+        tsf_set_volume(g_TinySoundFont, midivol);
+    }
 }
 
 void platform_set_jingle(int8_t *src, int len) {
@@ -350,11 +353,13 @@ void platform_stop_midi(void) {
     if (_Client.lowmem) {
         return;
     }
-    g_MidiMessage = NULL;
-    g_Msec = 0;
-    tsf_reset(g_TinySoundFont);
-    // Initialize preset on special 10th MIDI channel to use percussion sound bank (128) if available
-    tsf_channel_set_bank_preset(g_TinySoundFont, 9, 128, 0);
+    if (SDL_GetAudioStatus() != SDL_AUDIO_STOPPED) {
+        g_MidiMessage = NULL;
+        g_Msec = 0;
+        tsf_reset(g_TinySoundFont);
+        // Initialize preset on special 10th MIDI channel to use percussion sound bank (128) if available
+        tsf_channel_set_bank_preset(g_TinySoundFont, 9, 128, 0);
+    }
 }
 
 Surface *platform_create_surface(int *pixels, int width, int height, int alpha) {

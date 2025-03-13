@@ -16,6 +16,15 @@
 KOS_INIT_FLAGS(INIT_DEFAULT | INIT_NET);
 #endif
 
+#ifdef __PSP__
+#include <pspnet.h>
+#include <pspnet_apctl.h>
+#include <pspnet_inet.h>
+#include <pspnet_resolver.h>
+#include <pspdebug.h>
+#include <psputility.h>
+#endif
+
 #if _WIN32
 #define close closesocket
 #define ioctl ioctlsocket
@@ -36,11 +45,11 @@ KOS_INIT_FLAGS(INIT_DEFAULT | INIT_NET);
 
 extern ClientData _Client;
 
-// NOTE: initing networking here before login instead of in platform_init (for http reqs) as it disables fast-forward in emulators
+// NOTE: network init happens here after game loads instead of in platform_init because being connected disables fast-forward in emulators
 static int clientstream_init(void) {
     static int net_init = 0;
     (void)net_init;
-#if defined(_WIN32) || defined(__DREAMCAST__)
+#if defined(_WIN32) || defined(__DREAMCAST__) || defined(__PSP__)
     if (net_init) {
         return true;
     }
@@ -76,6 +85,56 @@ static int clientstream_init(void) {
     if (err != 0) {
         rs2_error("Couldn't establish PPP link (%d)\n", err);
         return false;
+    }
+#endif
+#ifdef __PSP__
+    sceUtilityLoadNetModule(PSP_NET_MODULE_COMMON);
+    sceUtilityLoadNetModule(PSP_NET_MODULE_INET);
+
+    // pspDebugScreenClear();
+    pspDebugScreenEnableBackColor(0); // NOTE: hides glitchy bg
+
+    int err = sceNetInit(64 * 1024, 32, 2 * 1024, 32, 2 * 1024);
+    if (err) {
+        pspDebugScreenPrintf("Error 0x%08X in sceNetInit\n", err);
+        return false;
+    }
+    err = sceNetInetInit();
+    if (err) {
+        pspDebugScreenPrintf("Error 0x%08X in sceNetInetInit\n", err);
+        return false;
+    }
+    err = sceNetResolverInit();
+    if (err) {
+        pspDebugScreenPrintf("Error 0x%08X in sceNetResolverInit\n", err);
+        return false;
+    }
+
+    err = sceNetApctlInit(0x2000, 20);
+    if (err) {
+        pspDebugScreenPrintf("Error 0x%08X in sceNetApctlInit\n", err);
+        return false;
+    }
+    err = sceNetApctlConnect(1);
+    if (err) {
+        pspDebugScreenPrintf("Error 0x%08X in sceNetApctlConnect\n", err);
+        return false;
+    }
+
+    // TODO: check possible issue with multiple saved access points
+    int apctl_status = 0;
+    int last_status = -1;
+    while (apctl_status != PSP_NET_APCTL_STATE_GOT_IP) {
+        sceNetApctlGetState(&apctl_status);
+        if (err) {
+            pspDebugScreenPrintf("Error 0x%08X in sceNetApctlGetState\n", err);
+            return false;
+        }
+        if (apctl_status != last_status) {
+            pspDebugScreenPrintf("connection state %d of 4\n", apctl_status);
+            last_status = apctl_status;
+        }
+        delay_ticks(50); // Needs to have a delay. Otherwise fails.
     }
 #endif
     net_init = 1;

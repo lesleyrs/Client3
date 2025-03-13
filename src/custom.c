@@ -19,7 +19,7 @@ Custom _Custom = {.chat_era = 2, .http_port = 80, .showPerformance = true};
 Custom _Custom = {.chat_era = 2, .http_port = 80};
 #endif
 
-#if defined(client) || defined(client_psp)
+#if defined(client)
 // macro assumes ini setting has the same name as the member variable
 // works with pointers and non-pointers, no bounds checks for ints
 #define INI_STR(dst, member)                                    \
