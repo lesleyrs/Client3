@@ -49,11 +49,7 @@ int get_cursor_y(void) {
 }
 
 int exit_callback(int arg1, int arg2, void *common) {
-#if DEBUG
-    exit(0);
-#else
     sceKernelExitGame();
-#endif
     return 0;
 }
 
