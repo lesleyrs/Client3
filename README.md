@@ -213,7 +213,7 @@ TODO: update sce_sys assets, maybe don't bother with vpks they're slow to decomp
 TODO: check dnslookup for both vita and psp
 
 ### Sega Dreamcast
-Install [kallistios and mkdcdisk](#tools) and run `make -f dreamcast.mk -j$(nproc) -B`.
+Install [kallistios and mkdcdisc](#tools) and run `make -f dreamcast.mk -j$(nproc) -B`.
 
 To try on real hardware you'd need the 32 MB ram expansion mod, which seems involved and maybe less compatible with some other games
 
@@ -224,7 +224,7 @@ Not fully playable due to limited RAM, you can only load areas that use 2 MB of 
 Controls: TODO
 
 ```
-TODO: fopen path was changed due to the mkdcdisk tool adding dots to files without extension https://gitlab.com/simulant/mkdcdisc/-/issues/14
+TODO: fopen path was changed due to the mkdcdisc tool adding dots to files without extension https://gitlab.com/simulant/mkdcdisc/-/issues/14
 TODO: can't seem to connect to localhost only live servers, might be an emulator issue
 TODO: check if it's making use of vram currently, dreamcast vram is quite big (8mb)
 ```
@@ -259,4 +259,4 @@ Latest SDL1 already contains the tcc fix but they don't make new releases for it
 * [devkitpro](https://github.com/devkitPro) | https://devkitpro.org/
 * [pspdev](https://github.com/pspdev/pspdev) | https://pspdev.github.io/
 * [vitasdk](https://github.com/vitasdk/vdpm) | https://vitasdk.org/
-* [kallistios](https://github.com/KallistiOS/KallistiOS) | https://gitlab.com/simulant/mkdcdisc
+* [kallistios](https://github.com/KallistiOS/KallistiOS) | [mkdcdisc](https://gitlab.com/simulant/mkdcdisc)
