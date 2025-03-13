@@ -50,6 +50,8 @@ int get_cursor_y(void) {
 }
 
 int exit_callback(int arg1, int arg2, void *common) {
+    exit(0);
+    delay_ticks(50);
     sceKernelExitGame();
     return 0;
 }
@@ -92,24 +94,37 @@ void platform_new(int width, int height) {
     sceUtilityLoadNetModule(PSP_NET_MODULE_COMMON);
     sceUtilityLoadNetModule(PSP_NET_MODULE_INET);
 
-    int res;
-    res = sceNetInit(64 * 1024, 32, 2 * 1024, 32, 2 * 1024);
-    res = sceNetInetInit();
-    res = sceNetResolverInit();
+    sceNetInit(0x20000, 0x20, 0x1000, 0x20, 0x1000);    // 128KB, 32, 4KB, 32, 4KB
+    sceNetInetInit();
+    sceNetResolverInit();
 
-    sceNetApctlInit(0x2000, 20);
-    sceNetApctlConnect(1);
+    sceNetApctlInit(0x8000, 0x20);                      // 32KB, 32
+    sceNetApctlConnect(1);                              // First access point.
 
-    // TODO: check possible issue with multiple saved access points
-    int apctl_status = 0;
-    int last_status = -1;
-    while (apctl_status != PSP_NET_APCTL_STATE_GOT_IP) {
-        sceNetApctlGetState(&apctl_status);
-        if (apctl_status != last_status) {
-            pspDebugScreenPrintf("connection state %d of 4\n", apctl_status);
-            last_status = apctl_status;
+    // TODO: Solution to find for handling multiple saved access points. 
+    int apctl_state = 0;
+    int apctl_last_state = -1;
+    bool apctl_connected = false;
+    while(!apctl_connected){
+        if(apctl_state != apctl_last_state){
+            pspDebugScreenPrintf("[WLAN] Connection state %d of 4\n", apctl_state);
+            apctl_last_state = apctl_state;
         }
-        delay_ticks(50); // Needs to have a delay. Otherwise fails.
+
+        if(apctl_state == PSP_NET_APCTL_STATE_GOT_IP){
+            pspDebugScreenPrintf("[WLAN] Connected!\n");
+            apctl_connected = true;
+        }
+
+        sceNetApctlGetState(&apctl_state);
+
+        if(apctl_state == 0 && apctl_last_state > 0){
+            pspDebugScreenPrintf("[WLAN] Retrying...\n");
+            apctl_last_state = -1;
+            sceNetApctlConnect(1);
+        }
+        
+        delay_ticks(50);
     }
 }
 
