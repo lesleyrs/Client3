@@ -263,7 +263,7 @@ ClientStream *clientstream_new(GameShell *shell, int port) {
                     rs2_error("getsockopt() error:  %s (%d)\n", strerror(errno),
                               errno);
 
-                    exit(1);
+                    return NULL;
                 }
 #endif
 

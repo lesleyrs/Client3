@@ -198,7 +198,6 @@ Works on real hardware but requires at least model 2000, only lowmem fits into m
 run `diff src/entry/client.c src/entry/client_psp.c` to see changes, looking for a better way still.
 
 ```
-TODO: how to trigger clean exit in emulator so gprof writes gmon.out, right now calling exit(0) from button works but maybe crashes on HW?
 TODO: Model 1000 has the same CPU just less memory, might be worth trying to make it work in kernel mode for 28MB BUT is it safe to do so?
 TODO: Could enable audio in lowmem for 2000+ models if there's enough memory remaining?
 ```
