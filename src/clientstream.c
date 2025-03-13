@@ -9,11 +9,16 @@
 #include <switch.h>
 #endif
 
+#ifdef __DREAMCAST__
+#include <kos.h>
+#include <kos/net.h>
+#include <ppp/ppp.h>
+KOS_INIT_FLAGS(INIT_DEFAULT | INIT_NET);
+#endif
+
 #if _WIN32
 #define close closesocket
 #define ioctl ioctlsocket
-
-static int winsock_init = 0;
 #endif
 
 #ifdef __WII__
@@ -31,19 +36,56 @@ static int winsock_init = 0;
 
 extern ClientData _Client;
 
-ClientStream *clientstream_new(GameShell *shell, int port) {
-#ifdef _WIN32
-    if (!winsock_init) {
-        WSADATA wsa_data = {0};
-        int ret = WSAStartup(MAKEWORD(2, 2), &wsa_data);
-
-        if (ret < 0) {
-            rs2_error("WSAStartup() error: %d\n", WSAGetLastError());
-            exit(1);
-        }
-        winsock_init = 1;
+// NOTE: initing networking here before login instead of in platform_init (for http reqs) as it disables fast-forward in emulators
+static int clientstream_init(void) {
+    static int net_init = 0;
+    (void)net_init;
+#if defined(_WIN32) || defined(__DREAMCAST__)
+    if (net_init) {
+        return true;
     }
 #endif
+#ifdef _WIN32
+    WSADATA wsa_data = {0};
+    int ret = WSAStartup(MAKEWORD(2, 2), &wsa_data);
+
+    if (ret < 0) {
+        rs2_error("WSAStartup() error: %d\n", WSAGetLastError());
+        return false;
+    }
+#endif
+#ifdef __DREAMCAST__
+    if (!modem_init()) {
+        rs2_error("modem_init failed!\n");
+        return false;
+    }
+
+    ppp_init();
+
+    rs2_log("Dialing connection\n");
+    int err = ppp_modem_init("555", 0, NULL);
+    if (err != 0) {
+        rs2_error("Couldn't dial a connection (%d)\n", err);
+        return false;
+    }
+
+    rs2_log("Establishing PPP link\n");
+    ppp_set_login("dream", "cast");
+
+    err = ppp_connect();
+    if (err != 0) {
+        rs2_error("Couldn't establish PPP link (%d)\n", err);
+        return false;
+    }
+#endif
+    net_init = 1;
+    return true;
+}
+
+ClientStream *clientstream_new(GameShell *shell, int port) {
+    if (!clientstream_init()) {
+        return NULL;
+    }
     ClientStream *stream = calloc(1, sizeof(ClientStream));
     stream->shell = shell;
     stream->closed = false;
@@ -62,7 +104,7 @@ ClientStream *clientstream_new(GameShell *shell, int port) {
 
     if (ret < 0) {
         rs2_error("if_config(): %d\n", ret);
-        // exit(1);
+        // return NULL;
     }
 #endif
 
@@ -157,13 +199,13 @@ ClientStream *clientstream_new(GameShell *shell, int port) {
 #endif
     // NOTE: cast for windows
     setsockopt(stream->socket, IPPROTO_TCP, TCP_NODELAY, (const char *)&set, sizeof(set));
-    #if !defined(__3DS__) && !defined(__WIIU__)
+#if !defined(__3DS__) && !defined(__WIIU__)
     struct timeval socket_timeout = {30, 0};
     setsockopt(stream->socket, SOL_SOCKET, SO_RCVTIMEO, (const char *)&socket_timeout, sizeof(socket_timeout));
     setsockopt(stream->socket, SOL_SOCKET, SO_SNDTIMEO, (const char *)&socket_timeout, sizeof(socket_timeout));
-    #endif
+#endif
 
-#if defined(__PSP__) || defined(__vita__) || defined(__ps2sdk__)
+#if defined(__PSP__) || defined(__vita__) || defined(__ps2sdk__) || defined(__DREAMCAST__)
     int flags = fcntl(stream->socket, F_GETFL, 0);
     if (flags == -1) {
         rs2_error("fcntl F_GETFL failed\n");
@@ -216,14 +258,14 @@ ClientStream *clientstream_new(GameShell *shell, int port) {
                 socklen_t lon = sizeof(int);
                 int valopt = 0;
 
-                #ifndef __WII__
+#ifndef __WII__
                 if (getsockopt(stream->socket, SOL_SOCKET, SO_ERROR, (void *)(&valopt), &lon) < 0) {
                     rs2_error("getsockopt() error:  %s (%d)\n", strerror(errno),
                               errno);
 
                     exit(1);
                 }
-                #endif
+#endif
 
                 if (valopt > 0) {
                     ret = -1;
@@ -376,19 +418,20 @@ const char *dnslookup(const char *hostname) {
         return "unknown";
     }
     return ip_str;
+#elif defined(__DREAMCAST__)
+    return "unknown";
 #elif defined(MODERN_POSIX)
     struct sockaddr_in client_addr = {0};
     client_addr.sin_family = AF_INET;
 
     inet_pton(AF_INET, hostname, &client_addr.sin_addr);
-
-    #ifndef __WIIU__
+#ifndef __WIIU__
     char host[MAX_STR];
     int result = getnameinfo((struct sockaddr *)&client_addr, sizeof(client_addr), host, sizeof(host), NULL, 0, NI_NAMEREQD);
     if (result == 0) {
         return platform_strdup(host);
     }
-    #endif
+#endif
     return "unknown";
 #else
     struct in_addr addr = {.s_addr = inet_addr(hostname)};

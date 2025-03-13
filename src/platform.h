@@ -50,7 +50,7 @@ int indexof(const char *str, const char *str2);
 char *substring(const char *src, size_t start, size_t length);
 double jrand(void);
 
-void platform_init(void);
+int platform_init(void);
 void platform_new(int width, int height);
 void platform_free(void);
 void platform_set_wave_volume(int wavevol);

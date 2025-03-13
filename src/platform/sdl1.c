@@ -1,5 +1,9 @@
 #if SDL == 1
+#ifdef __DREAMCAST__
+#include "SDL/SDL.h"
+#else
 #include "SDL.h"
+#endif
 #include <stdio.h>
 #include <string.h>
 
@@ -15,7 +19,37 @@ static SDL_Surface *window_surface;
 
 static void platform_get_keycodes(SDL_keysym *keysym, int *code, char *ch);
 
-void platform_init(void) {
+int platform_init(void) {
+    #ifdef __DREAMCAST__
+    chdir("/cd");
+
+    // TODO rm, waiting for path dot extension fix
+    file_t d;
+    dirent_t *de;
+
+    rs2_log("Reading directory from CD-Rom:\r\n");
+
+    /* Read and print the root directory */
+    d = fs_open("/cd/cache/client", O_RDONLY | O_DIR);
+
+    if(d == 0) {
+        rs2_error("Can't open root!\r\n");
+        return false;
+    }
+
+    while((de = fs_readdir(d))) {
+        rs2_log("%s  /  ", de->name);
+
+        if(de->size >= 0) {
+            rs2_log("%d\r\n", de->size);
+        }
+        else {
+            rs2_log("DIR\r\n");
+        }
+    }
+
+    #endif
+    return true;
 }
 
 void platform_new(int width, int height) {

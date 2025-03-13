@@ -64,6 +64,9 @@
 /client.velf
 /client.vpk
 
+# dreamcast
+/client.cdi
+
 # devkitpro
 /build
 

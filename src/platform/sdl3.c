@@ -130,7 +130,8 @@ static void midi_callback(void* data, SDL_AudioStream* stream, int additional_am
     }
 }
 
-void platform_init(void) {
+int platform_init(void) {
+    return true;
 }
 
 void platform_new(int width, int height) {

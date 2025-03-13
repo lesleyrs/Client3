@@ -147,7 +147,8 @@ static void midi_callback(void *data, uint8_t *stream, int len) {
     }
 }
 
-void platform_init(void) {
+int platform_init(void) {
+    return true;
 }
 
 void platform_new(int width, int height) {

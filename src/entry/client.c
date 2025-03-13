@@ -184,6 +184,10 @@ void client_load(Client *c) {
     }
 
     c->archive_title = load_archive(c, "title", c->archive_checksum[1], "title screen", 10);
+    if (!c->archive_title) {
+        c->error_loading = true;
+        return;
+    }
     c->font_plain11 = pixfont_from_archive(c->archive_title, "p11");
     c->font_plain12 = pixfont_from_archive(c->archive_title, "p12");
     c->font_bold12 = pixfont_from_archive(c->archive_title, "b12");
@@ -198,6 +202,11 @@ void client_load(Client *c) {
     Jagfile *textures = load_archive(c, "textures", c->archive_checksum[6], "textures", 60);
     Jagfile *wordenc = load_archive(c, "wordenc", c->archive_checksum[7], "chat system", 65);
     Jagfile *sounds = load_archive(c, "sounds", c->archive_checksum[8], "sound effects", 70);
+
+    if (!config || !inter || !media || !models || !textures || !wordenc || !sounds) {
+        c->error_loading = true;
+        return;
+    }
 
     c->levelTileFlags = calloc(COLLISIONMAP_LEVELS, sizeof(*c->levelTileFlags));
     c->levelHeightmap = calloc(COLLISIONMAP_LEVELS, sizeof(*c->levelHeightmap));
@@ -409,10 +418,6 @@ void client_load(Client *c) {
     free(distance);
     // TODO wordfilter
     // wordfilter_unpack(wordenc);
-    // } catch (Exception ex) {
-    // 	ex.printStackTrace();
-    // 	this.errorLoading = true;
-    // }
 
     pix24_free(backleft1);
     pix24_free(backleft2);
@@ -432,9 +437,17 @@ void client_load(Client *c) {
     jagfile_free(textures);
     jagfile_free(wordenc);
     jagfile_free(sounds);
+    // } catch (Exception ex) {
+    // 	ex.printStackTrace();
+    // 	this.errorLoading = true;
+    // }
 
-    // NOTE: we can't grow it so it needs to fit the max usage, left value is shifted to MiB (arbitrary value)
+// NOTE: we can't grow it so it needs to fit the max usage, left value is shifted to MiB (arbitrary value)
+#ifdef __DREAMCAST__
+    _Client.lowmem ? bump_allocator_init(2 << 20) : bump_allocator_init(32 << 20);
+#else
     _Client.lowmem ? bump_allocator_init(16 << 20) : bump_allocator_init(32 << 20);
+#endif
 }
 
 void client_load_title_background(Client *c) {
@@ -4730,7 +4743,11 @@ bool client_read(Client *c) {
                 // data = signlink.cacheload("m" + mapsquareX + "_" + mapsquareZ);
                 // custom NOTE move these
                 char filename[PATH_MAX];
+#ifdef __DREAMCAST__
+                snprintf(filename, sizeof(filename), "cache/client/maps/m%d_%d.", mapsquareX, mapsquareZ);
+#else
                 snprintf(filename, sizeof(filename), "cache/client/maps/m%d_%d", mapsquareX, mapsquareZ);
+#endif
 
                 FILE *file = fopen(filename, "rb");
                 if (!file) {
@@ -4769,7 +4786,12 @@ bool client_read(Client *c) {
                 // data = signlink.cacheload("l" + mapsquareX + "_" + mapsquareZ);
                 // custom NOTE move this
                 char filename[PATH_MAX];
+#ifdef __DREAMCAST__
+                snprintf(filename, sizeof(filename), "cache/client/maps/l%d_%d.", mapsquareX, mapsquareZ);
+#else
                 snprintf(filename, sizeof(filename), "cache/client/maps/l%d_%d", mapsquareX, mapsquareZ);
+#endif
+
                 FILE *file = fopen(filename, "rb");
                 if (!file) {
                     rs2_error("%s: %s\n", filename, strerror(errno));
@@ -4781,7 +4803,7 @@ bool client_read(Client *c) {
 
                 data = malloc(size);
                 if (fread(data, 1, size, file) != size) {
-                    rs2_error("Failed to read file %s\n", strerror(errno));
+                    rs2_error("Failed to read file: %s\n", strerror(errno));
                 }
                 fclose(file);
 
@@ -10195,7 +10217,22 @@ EM_JS(void, get_host_js, (char *socketip, size_t len, int *http_port), {
 #endif
 
 int main(int argc, char **argv) {
-    platform_init();
+    srand(0);
+    client_init_global();
+    model_init_global();
+    packet_init_global();
+    pix3d_init_global();
+    pixfont_init_global();
+    playerentity_init_global();
+    world_init_global();
+    world3d_init_global();
+
+    // NOTE: init screens before logging for some platforms
+    if (!platform_init()) {
+        // NOTE: temp
+        _Client.started = true;
+        goto init;
+    }
     // NOTE: to print argv on emscripten you need to print index to flush instead of just \n?
     rs2_log("RS2 user client - release #%d\n", _Client.clientversion);
 
@@ -10256,18 +10293,9 @@ int main(int argc, char **argv) {
     }
 #endif
 
-init:
-    srand(0);
-    client_init_global();
-    model_init_global();
-    packet_init_global();
-    pix3d_init_global();
-    pixfont_init_global();
-    playerentity_init_global();
-    world_init_global();
-    world3d_init_global();
-
+init:;
     Client *c = client_new();
+    c->error_loading = _Client.started; _Client.started = false; // NOTE: temp
     load_ini_config(c);
     gameshell_init_application(c, SCREEN_WIDTH, SCREEN_HEIGHT);
     return 0;
@@ -10612,7 +10640,11 @@ Jagfile *load_archive(Client *c, const char *name, int crc, const char *display_
     int8_t *data;
     int8_t *header = malloc(6);
     char filename[PATH_MAX];
+#ifdef __DREAMCAST__
+    snprintf(filename, sizeof(filename), "cache/client/%s.", name);
+#else
     snprintf(filename, sizeof(filename), "cache/client/%s", name);
+#endif
     // rs2_log("Loading %s\n", filename);
     // TODO: add load messages?
     (void)c;

@@ -28,13 +28,14 @@ static void soc_shutdown() {
     // _3ds_toggle_top_screen(1);
 }
 
-void platform_init(void) {
+int platform_init(void) {
     osSetSpeedupEnable(true);
 
     // gfxInit(GSP_BGR8_OES, GSP_BGR8_OES, 0);
     gfxInitDefault();
     /* uncomment and disable draw_top_background to see stdout */
     consoleInit(GFX_TOP, NULL);
+    return true;
 }
 
 void platform_new(int width, int height) {

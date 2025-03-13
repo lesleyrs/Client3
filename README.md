@@ -186,13 +186,10 @@ NOTE there's weird compile issues: highmem seems to not start due to tinysoundfo
 #### Switch
 in suyu emulator (yuzu fork) click `file->open suyu folder` for sdmc dir
 
-### Sony consoles
-TODO: check dnslookup for both vita and psp
-
-#### PSP
+#### Sony PSP
 Install [pspdev](#tools) and run `make -f psp.mk -j$(nproc) -B`.
 
-ppsspp emulator loads relative dir as memstick, so the filesystem works automatically.
+ppsspp emulator loads relative dir as memstick, so the filesystem works automatically. Also you should probably enable printf logging with `settings>tools>developer tools>logging channels>printf` to EG verbose
 
 Controls: move cursor with analog stick, O for left click, X for right click, /\ for control, Dpad as arrow keys
 
@@ -202,12 +199,11 @@ run `diff src/entry/client.c src/entry/client_psp.c` to see changes, looking for
 
 ```
 TODO: how to trigger clean exit in emulator so gprof writes gmon.out, right now calling exit(0) from button works but maybe crashes on HW?
-TODO: where do psp stdout/stderr go if not debug printing on screen and without sdl2?
 TODO: Model 1000 has the same CPU just less memory, might be worth trying to make it work in kernel mode for 28MB BUT is it safe to do so?
 TODO: Could enable audio in lowmem for 2000+ models if there's enough memory remaining?
 ```
 
-#### Vita
+#### Sony PS Vita
 Install [vitasdk](#tools) and run `make -f vita.mk -j$(nproc) -B`.
 
 on vita3k emulator to avoid installing the .vpk each change just copy the eboot.bin, and non-blocking networking causes connect fail on windows same as 3ds.
@@ -215,11 +211,28 @@ on vita3k emulator to avoid installing the .vpk each change just copy the eboot.
 Controls: touch as mouse, X for right click, /\ for control, Dpad as arrow keys
 
 ```
-TODO: holding touch down spams left clicks repeatedly, 3ds has workaround but has issue where it clicks last touch position. See what was changed for client-ts to work on mobile.
-TODO: draw game at offset to center it, and offset touch input based on that. Confirm issue on real hw + on resizable config option? maybe applies to wiiu/switch too
-TODO: after the vpk is unpacked on real HW can you still replace the config.ini with your own?
-TODO: what happens with touch input on the back, disable it?
-TODO: update sce_sys assets
+TODO: draw game at offset to center it, and offset touch input based on that.
+TODO: touch input on the back, confirm touch works correctly
+TODO: update sce_sys assets, maybe don't bother with vpks they're slow to decompress?
+```
+
+TODO: check dnslookup for both vita and psp
+
+#### Sega Dreamcast
+Install [kallistios and mkdcdisk](#tools) and run `make -f dreamcast.mk -j$(nproc) -B`.
+
+To try on real hardware you'd need the 32 MB ram expansion mod, which seems involved and maybe less compatible with some other games
+
+Flycast seems to be the best emulator, supports ram expansion and networking
+
+Not fully playable due to limited RAM, you can only load areas that use 2 MB of space in lrucaches (wildy etc)
+
+Controls: TODO
+
+```
+TODO: fopen path was changed due to the mkdcdisk tool adding dots to files without extension https://gitlab.com/simulant/mkdcdisc/-/issues/14
+TODO: can't seem to connect to localhost only live servers, might be an emulator issue
+TODO: check if it's making use of vram currently, dreamcast vram is quite big (8mb)
 ```
 
 ## libraries
@@ -252,3 +265,4 @@ Latest SDL1 already contains the tcc fix but they don't make new releases for it
 * [devkitpro](https://github.com/devkitPro) | https://devkitpro.org/
 * [pspdev](https://github.com/pspdev/pspdev) | https://pspdev.github.io/
 * [vitasdk](https://github.com/vitasdk/vdpm) | https://vitasdk.org/
+* [kallistios](https://github.com/KallistiOS/KallistiOS) | https://gitlab.com/simulant/mkdcdisc

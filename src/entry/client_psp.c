@@ -4776,6 +4776,7 @@ bool client_read(Client *c) {
                 // custom NOTE move this
                 char filename[PATH_MAX];
                 snprintf(filename, sizeof(filename), "cache/client/maps/l%d_%d", mapsquareX, mapsquareZ);
+
                 FILE *file = fopen(filename, "rb");
                 if (!file) {
                     rs2_error("%s: %s\n", filename, strerror(errno));
@@ -4787,7 +4788,7 @@ bool client_read(Client *c) {
 
                 data = malloc(size);
                 if (fread(data, 1, size, file) != size) {
-                    rs2_error("Failed to read file %s\n", strerror(errno));
+                    rs2_error("Failed to read file: %s\n", strerror(errno));
                 }
                 fclose(file);
 
