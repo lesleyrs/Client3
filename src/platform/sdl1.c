@@ -1,9 +1,5 @@
 #if SDL == 1
-#ifdef __DREAMCAST__
-#include "SDL/SDL.h"
-#else
 #include "SDL.h"
-#endif
 #include <stdio.h>
 #include <string.h>
 
