@@ -361,7 +361,7 @@ ClientStream *clientstream_new(GameShell *shell, int port) {
 
     if (ret < 0 && errno != 0) {
         rs2_error("connect() error: %s (%d)\n", strerror(errno), errno);
-#ifdef __vita__
+#ifndef __vita__
         clientstream_close(stream);
         return NULL;
 #endif
