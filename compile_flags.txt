@@ -20,8 +20,8 @@
 
 // -DSDL=1
 // -Ibin/SDL-devel-1.2.15-VC/SDL-1.2.15/include
--DSDL=2
--Ibin/SDL2-devel-2.30.9-VC/SDL2-2.30.9/include
+// -DSDL=2
+// -Ibin/SDL2-devel-2.30.9-VC/SDL2-2.30.9/include
 // -DSDL=3
 // -I/usr/local/include/
 // -D__WII__
