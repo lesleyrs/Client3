@@ -448,6 +448,20 @@ void client_load(Client *c) {
 #else
     _Client.lowmem ? bump_allocator_init(16 << 20) : bump_allocator_init(32 << 20);
 #endif
+
+    // NOTE: network init happens here after game loads instead of in platform_init because being connected disables fast-forward in emulators
+    if (!clientstream_init()) {
+        c->error_loading = true;
+    }
+
+    // TODO temp
+    #if defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__PSP__) || defined(__DREAMCAST__)
+    static bool loggedin;
+    if (!loggedin) {
+        client_login(c, c->username, c->password, false);
+        loggedin = true;
+    }
+    #endif
 }
 
 void client_load_title_background(Client *c) {

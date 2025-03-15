@@ -129,20 +129,22 @@ If not passing args make sure to set http_port to 8888 on linux (or whatever it'
 
 TODO: possibly target wasm directly with clang instead of emscripten, but then we don't have a libc at all
 
+### Consoles
+If files aren't built into rom, you have to move the `cache/`, `config.ini` and optionally `SCC1_Florestan.sf2` to sdcard.
+
+TODO: add different client entrypoints based on screen resolution? or move coordinates to defines.h (error prone) needs experimenting to see what works.
+
+TODO: check dnslookup for consoles: vita, psp, dreamcast, nds
+
 ### Nintendo consoles (devkitPro)
-If you own a console and want to improve a port look at rsc-c for reference: https://github.com/2003scape/rsc-c
-
-TODO: add different client entrypoints based on screen resolution?
-
 Install [devkitpro](#tools) with (wii/3ds/wiiu/switch)-dev package and run `make -f (wii/3ds/wiiu/switch).mk -j$(nproc) -B`.
 
 Wii U and Switch also need the (wiiu/switch)-sdl2 package.
 
-For all consoles besides NDS you have to move the `cache/` `Roboto/`, `SCC1_Florestan.sf2`, and `config.ini` to sdcard (config needed as we can't pass cli args, but can be empty).
-
-TODO: nds/3ds/wiiu/switch have an option to build with romfs (read-only memory file system) which won't require an sdcard. Would have to build the config into the binary or load from sd card still.
+If you own a console and want to improve a port look at rsc-c for reference: https://github.com/2003scape/rsc-c
 
 #### NDS
+Necessary files are built into rom.
 ```
 with 32 mb ram gba expansion pak? + 4MB system ram
 original game will probably run at 1 fps if it works at all
@@ -192,7 +194,7 @@ TODO: Could enable audio in lowmem for 2000+ models if there's enough memory rem
 ```
 
 ### Sony PS Vita
-Install [vitasdk](#tools) and run `make -f vita.mk -j$(nproc) -B`. Add `SDL=0` to use vita.c instead of sdl (TODO unfinished)
+Install [vitasdk](#tools) and run `make -f vita.mk -j$(nproc) -B`. Add `SDL=0` to use vita.c
 
 on vita3k emulator to avoid installing the .vpk each change just copy the eboot.bin, and non-blocking networking causes connect fail on windows same as 3ds.
 
@@ -203,13 +205,11 @@ TODO: draw game at offset to center it, and offset touch input based on that.
 TODO: touch input on the back, confirm touch works correctly
 TODO: update sce_sys assets
 TODO: allow setting sdl version to 3 in makefile when it works
-TODO: check if vita.c native touch fixes minimap offset
+TODO: check if vita.c native touch fixes minimap offset, and make it playable
 ```
 
-TODO: check dnslookup for both vita and psp
-
 ### Sega Dreamcast
-Install [kallistios and mkdcdisc](#tools) and run `make -f dreamcast.mk -j$(nproc) -B`.
+Install [kallistios and mkdcdisc](#tools) and run `make -f dreamcast.mk -j$(nproc) -B`. Necessary files are built into rom.
 
 To try on real hardware you'd need the 32 MB ram expansion mod, which seems involved and maybe less compatible with some other games
 

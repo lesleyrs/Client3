@@ -44,6 +44,7 @@ struct ClientStream {
     int bufPos;
 };
 
+int clientstream_init(void);
 ClientStream *clientstream_new(GameShell *shell, int port);
 void clientstream_close(ClientStream *stream);
 int clientstream_available(ClientStream *stream, int length);

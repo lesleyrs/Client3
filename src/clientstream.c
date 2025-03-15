@@ -45,15 +45,7 @@ KOS_INIT_FLAGS(INIT_DEFAULT | INIT_NET);
 
 extern ClientData _Client;
 
-// NOTE: network init happens here after game loads instead of in platform_init because being connected disables fast-forward in emulators
-static int clientstream_init(void) {
-    static int net_init = 0;
-    (void)net_init;
-#if defined(_WIN32) || defined(__DREAMCAST__) || defined(__PSP__)
-    if (net_init) {
-        return true;
-    }
-#endif
+int clientstream_init(void) {
 #ifdef _WIN32
     WSADATA wsa_data = {0};
     int ret = WSAStartup(MAKEWORD(2, 2), &wsa_data);
@@ -155,14 +147,13 @@ static int clientstream_init(void) {
         delay_ticks(50);
     }
 #endif
-    net_init = 1;
+#ifdef __SWITCH__
+    socketInitializeDefault();
+#endif
     return true;
 }
 
 ClientStream *clientstream_new(GameShell *shell, int port) {
-    if (!clientstream_init()) {
-        return NULL;
-    }
     ClientStream *stream = calloc(1, sizeof(ClientStream));
     stream->shell = shell;
     stream->closed = false;
@@ -229,10 +220,6 @@ ClientStream *clientstream_new(GameShell *shell, int port) {
         memcpy(&server_addr.sin_addr, host_addr->h_addr_list[0],
                sizeof(struct in_addr));
     }
-#endif
-
-#ifdef __SWITCH__
-    socketInitializeDefault();
 #endif
 
     stream->socket = socket(AF_INET, SOCK_STREAM, 0);
