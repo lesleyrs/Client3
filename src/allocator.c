@@ -22,14 +22,15 @@ int bump_allocator_capacity(void) {
     return alloc.capacity;
 }
 
-void bump_allocator_init(int capacity) {
+bool bump_allocator_init(int capacity) {
     alloc.data = calloc(capacity, sizeof(int8_t));
     if (!alloc.data) {
         rs2_error("Failed to init allocator with size of: %d", capacity);
-        exit(1);
+        return false;
     }
     alloc.capacity = capacity;
     alloc.used = 0;
+    return true;
 }
 
 void bump_allocator_free(void) {

@@ -71,7 +71,7 @@ int SetupCallbacks(void) {
     return thid;
 }
 
-int platform_init(void) {
+bool platform_init(void) {
     pspDebugScreenInit();
     SetupCallbacks();
     scePowerSetClockFrequency(333, 333, 166);

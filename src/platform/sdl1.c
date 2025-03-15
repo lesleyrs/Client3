@@ -15,7 +15,7 @@ static SDL_Surface *window_surface;
 
 static void platform_get_keycodes(SDL_keysym *keysym, int *code, char *ch);
 
-int platform_init(void) {
+bool platform_init(void) {
     #ifdef __DREAMCAST__
     chdir("/cd");
 

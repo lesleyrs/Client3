@@ -24,7 +24,7 @@ static SceUID displayblock;
 static void *base; // pointer to frame buffer
 static int mutex;
 
-int platform_init(void) {
+bool platform_init(void) {
     return true;
 }
 

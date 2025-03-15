@@ -118,7 +118,7 @@ int get_cursor_y(void) {
     return cursor_y;
 }
 
-int platform_init(void) {
+bool platform_init(void) {
     if (!fatInitDefault()) {
         rs2_error("FAT init failed\n");
         return false;

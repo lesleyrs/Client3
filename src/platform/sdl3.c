@@ -130,7 +130,7 @@ static void midi_callback(void* data, SDL_AudioStream* stream, int additional_am
     }
 }
 
-int platform_init(void) {
+bool platform_init(void) {
     return true;
 }
 

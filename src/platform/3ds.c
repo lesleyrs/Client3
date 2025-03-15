@@ -28,7 +28,7 @@ static void soc_shutdown() {
     // _3ds_toggle_top_screen(1);
 }
 
-int platform_init(void) {
+bool platform_init(void) {
     osSetSpeedupEnable(true);
 
     // gfxInit(GSP_BGR8_OES, GSP_BGR8_OES, 0);

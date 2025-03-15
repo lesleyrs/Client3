@@ -444,10 +444,12 @@ void client_load(Client *c) {
 
 // NOTE: we can't grow it so it needs to fit the max usage, left value is shifted to MiB (arbitrary value)
 #ifdef __DREAMCAST__
-    _Client.lowmem ? bump_allocator_init(2 << 20) : bump_allocator_init(32 << 20);
+    if (!bump_allocator_init(2 << 20)) {
 #else
-    _Client.lowmem ? bump_allocator_init(16 << 20) : bump_allocator_init(32 << 20);
+    if (!(_Client.lowmem ? bump_allocator_init(16 << 20) : bump_allocator_init(32 << 20))) {
 #endif
+        c->error_loading = true;
+    }
 
     // NOTE: network init happens here after game loads instead of in platform_init because being connected disables fast-forward in emulators
     if (!clientstream_init()) {
