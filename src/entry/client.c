@@ -456,14 +456,10 @@ void client_load(Client *c) {
         c->error_loading = true;
     }
 
-    // TODO temp
-    #if defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__PSP__) || defined(__DREAMCAST__)
-    static bool loggedin;
-    if (!loggedin) {
-        client_login(c, c->username, c->password, false);
-        loggedin = true;
-    }
-    #endif
+// TODO temp
+#if defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__PSP__) || defined(__DREAMCAST__)
+    client_login(c, c->username, c->password, false);
+#endif
 }
 
 void client_load_title_background(Client *c) {

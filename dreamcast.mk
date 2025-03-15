@@ -2,6 +2,12 @@ TARGET = client.elf
 SRC := $(shell find src -type f -name '*.c')
 OBJS = $(patsubst %.c, %.o, $(SRC))
 CFLAGS += -Dclient -DWITH_RSA_LIBTOM -Wno-parentheses -Wall -DSDL=1 -I$(KOS_PORTS)/SDL/inst/include/
+DEBUG = 0
+ifeq ($(DEBUG),1)
+CFLAGS += -g
+else
+CFLAGS += -s -O2 -ffast-math -flto=$(shell nproc)
+endif
 MKDCDISC = /opt/toolchains/dc/mkdcdisc/builddir/mkdcdisc
 
 all: rm-elf $(TARGET)
