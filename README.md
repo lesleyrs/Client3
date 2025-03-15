@@ -52,10 +52,6 @@ figure out rsaenc bug(s), i'm thinking there are multiple issues (chance of fail
 
 Recompile is needed to change between different RSA key lengths, RSA_BUF_LEN needs to be set at compile time because it's needed for stack allocated arrays and BN_ARRAY_SIZE define. Can just heap allocate and leave tiny-bignum at 512 bits rsa only to fix this?
 
-emscripten wasm on firefox has memleaks related to midi, gets cleaned up by pressing GC in about:memory but why does this happen? Chromium based browsers are ok. Happens on both SDL2 and SDL3.
-
-auto-generated js by emscripten is blocking default browser shortcuts why exactly
-
 no midi fading, old js code for IE: https://github.com/2004Scape/Server/blob/61bf21fb3755c14b5cf6d47c9d974dee5783beda/view/javaclient.ejs new ts code: https://github.com/2004Scape/Client2/commit/92e74f1f134ea82e48dd608dcca3422777a7a986 (client-ts has more some fade fixes)
 
 locs like fires have no animations as pushLocs is disabled for now, it constantly allocates memory due to always calling model_copy_faces in loctype which requires a different approach. The leaks get worse if the dynamic model cache can't fit all sequences (animations) of the models in an area, disable the allocator to see origins.
@@ -127,14 +123,19 @@ If you pass args in the html file the ip address and http port are from the URL 
 
 If not passing args make sure to set http_port to 8888 on linux (or whatever it's configured as in server).
 
+```
 TODO: possibly target wasm directly with clang instead of emscripten, but then we don't have a libc at all
+TODO: emscripten wasm on firefox has memleaks related to midi, gets cleaned up by pressing GC in about:memory but why does this happen? Chromium based browsers are ok. Happens on both SDL2 and SDL3.
+TODO: auto-generated js by emscripten is blocking default browser shortcuts why exactly
+```
 
 ### Consoles
 If files aren't built into rom, you have to move the `cache/`, `config.ini` and optionally `SCC1_Florestan.sf2` to sdcard.
 
+```
 TODO: add different client entrypoints based on screen resolution? or move coordinates to defines.h (error prone) needs experimenting to see what works.
-
 TODO: check dnslookup for consoles: vita, psp, dreamcast, nds
+```
 
 ### Nintendo consoles (devkitPro)
 Install [devkitpro](#tools) with (wii/3ds/wiiu/switch)-dev package and run `make -f (wii/3ds/wiiu/switch).mk -j$(nproc) -B`.
@@ -156,11 +157,11 @@ in dolphin emulator you can find the sdcard path in `options>configuration>wii>s
 
 Controls: wiimote IR pointer works as mouse, A for left click, B for right click, Dpad works as arrow keys, 1 for control, home button to exit.
 
+```
 TODO: need 2 framebuffers to a show cursor on screen without flickering or you won't see where you are aiming (dolphin mouse is slightly offset)
-
 TODO: lowmem is recommended, highmem only barely fits in wii's memory and crashes quite fast. Might become better if the last small leaks are fixed.
-
 TODO: virtual keyboard to type, for now set user and pass in config.ini, audio, add game offset on real HW?, support usb keyboard and mouse on wii
+```
 
 #### 3DS
 in citra emulator click `file>open citra folder` for sdmc dir https://citra-emulator.com/wiki/user-directory/
@@ -172,9 +173,10 @@ The "New" 3ds/2ds line for higher cpu clock rate does not seem to make much diff
 #### Wii U
 in cemu emulator click `file>open mlc folder`, go 1 directory up to see sdcard dir
 
+```
 TODO: Touch input not working yet, might be fixed by last wiiu-sdl2 commit.
-
-NOTE there's weird issues: highmem seems to not start due to tinysoundfont tsf_load failing, and libtom encryption fails (tiny-bignum is ok)
+NOTE: there's weird issues: highmem seems to not start due to tinysoundfont tsf_load failing, and libtom encryption fails (tiny-bignum is ok)
+```
 
 #### Switch
 in suyu emulator (yuzu fork) click `file->open suyu folder` for sdmc dir
