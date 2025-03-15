@@ -167,14 +167,12 @@ Controls: Touch to left click, L + touch to right click, Dpad for arrow keys, X 
 
 The "New" 3ds/2ds line for higher cpu clock rate does not seem to make much difference in citra?
 
-Citra on windows gets an error trying to connect?
-
 #### Wii U
 in cemu emulator click `file>open mlc folder`, go 1 directory up to see sdcard dir
 
 TODO: Touch input not working yet, might be fixed by last wiiu-sdl2 commit.
 
-NOTE there's weird compile issues: highmem seems to not start due to tinysoundfont tsf_load failing, and libtom encryption fails (tiny-bignum is ok)
+NOTE there's weird issues: highmem seems to not start due to tinysoundfont tsf_load failing, and libtom encryption fails (tiny-bignum is ok)
 
 #### Switch
 in suyu emulator (yuzu fork) click `file->open suyu folder` for sdmc dir
@@ -194,7 +192,7 @@ TODO: Could enable audio in lowmem for 2000+ models if there's enough memory rem
 ```
 
 ### Sony PS Vita
-Install [vitasdk](#tools) and run `make -f vita.mk -j$(nproc) -B`.
+Install [vitasdk](#tools) and run `make -f vita.mk -j$(nproc) -B`. Add `SDL=0` to use vita.c instead of sdl (TODO unfinished)
 
 on vita3k emulator to avoid installing the .vpk each change just copy the eboot.bin, and non-blocking networking causes connect fail on windows same as 3ds.
 
@@ -203,7 +201,9 @@ Controls: touch as mouse, X for right click, /\ for control, Dpad as arrow keys
 ```
 TODO: draw game at offset to center it, and offset touch input based on that.
 TODO: touch input on the back, confirm touch works correctly
-TODO: update sce_sys assets, maybe don't bother with vpks they're slow to decompress?
+TODO: update sce_sys assets
+TODO: allow setting sdl version to 3 in makefile when it works
+TODO: check if vita.c native touch fixes minimap offset
 ```
 
 TODO: check dnslookup for both vita and psp

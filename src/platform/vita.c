@@ -1,8 +1,10 @@
-#ifdef __vita__
+#if defined(__vita__) && (!defined(SDL) || SDL == 0)
 #include <malloc.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
+
+#include <psp2/display.h>
+#include <psp2/kernel/processmgr.h>
+#include <psp2/kernel/sysmem.h>
+#include <psp2/kernel/threadmgr.h>
 
 #include "../client.h"
 #include "../custom.h"
@@ -11,19 +13,15 @@
 #include "../pixmap.h"
 #include "../platform.h"
 
-#include <psp2/display.h>
-#include <psp2/kernel/processmgr.h>
-#include <psp2/kernel/sysmem.h>
-#include <psp2/kernel/threadmgr.h>
-
 extern ClientData _Client;
 extern InputTracking _InputTracking;
 extern Custom _Custom;
 
-#define SCREEN_FB_WIDTH (960)            // frame buffer aligned width for accessing vram
+#define SCREEN_FB_HEIGHT 544
+#define SCREEN_FB_WIDTH 960              // frame buffer aligned width for accessing vram
 #define SCREEN_FB_SIZE (2 * 1024 * 1024) // Must be 256KB aligned
 static SceUID displayblock;
-static char base[SCREEN_FB_WIDTH * (SCREEN_HEIGHT) * 4];
+static void *base; // pointer to frame buffer
 static int mutex;
 
 int platform_init(void) {
@@ -31,16 +29,20 @@ int platform_init(void) {
 }
 
 void platform_new(int width, int height) {
-    mutex = sceKernelCreateMutex("log_mutex", 0, 0, NULL);
-    displayblock = sceKernelAllocMemBlock("display", SCE_KERNEL_MEMBLOCK_TYPE_USER_CDRAM_RW, (SCREEN_FB_SIZE), NULL);
+    (void)width, (void)height;
+    mutex = sceKernelCreateMutex("fb_mutex", 0, 0, NULL);
+    displayblock = sceKernelAllocMemBlock("display", SCE_KERNEL_MEMBLOCK_TYPE_USER_CDRAM_RW, SCREEN_FB_SIZE, NULL);
     if (displayblock < 0)
         return;
     sceKernelGetMemBlockBase(displayblock, (void **)&base);
-    SceDisplayFrameBuf frame = {sizeof(frame), base, (SCREEN_FB_WIDTH), 0, width, height};
+    SceDisplayFrameBuf frame = {sizeof(frame), base, (SCREEN_FB_WIDTH), 0, SCREEN_FB_WIDTH, SCREEN_FB_HEIGHT};
     sceDisplaySetFrameBuf(&frame, SCE_DISPLAY_SETBUF_NEXTFRAME);
 }
 
 void platform_free(void) {
+    sceKernelDeleteMutex(mutex);
+    sceDisplaySetFrameBuf(NULL, SCE_DISPLAY_SETBUF_IMMEDIATE);
+    sceKernelFreeMemBlock(displayblock);
 }
 void platform_set_wave_volume(int wavevol) {
 }
@@ -86,10 +88,6 @@ uint64_t get_ticks(void) {
     return sceKernelGetSystemTimeWide() / 1000;
 }
 void delay_ticks(int ticks) {
-    sceKernelDelayThread(ticks * 1000);
-    /* uint64_t end = get_ticks() + ticks;
-
-    while (get_ticks() != end)
-        ; */
+    sceKernelDelayThreadCB(ticks * 1000);
 }
 #endif

@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#ifdef SDL
+#if defined(SDL) && SDL > 0
 typedef struct SDL_Surface Surface;
 #else
 typedef struct Surface {

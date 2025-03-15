@@ -51,8 +51,8 @@
 /client.wuhb
 
 # switch
-/client.nacp
 /client.nro
+/client.nacp
 
 # psp
 /EBOOT.PBP
