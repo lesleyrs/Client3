@@ -168,7 +168,10 @@ in citra emulator click `file>open citra folder` for sdmc dir https://citra-emul
 
 Controls: Touch to left click, L + touch to right click, Dpad for arrow keys, X for control
 
-The "New" 3ds/2ds line for higher cpu clock rate does not seem to make much difference in citra?
+```
+TODO: undo touch changes in 3ds.c depending how it works on real hardware (vita seems to work fine on hw)
+TODO: The "New" 3ds/2ds line for higher cpu clock rate does not seem to make much difference in citra?
+```
 
 #### Wii U
 in cemu emulator click `file>open mlc folder`, go 1 directory up to see sdcard dir
