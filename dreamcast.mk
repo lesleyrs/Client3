@@ -6,7 +6,7 @@ DEBUG = 0
 ifeq ($(DEBUG),1)
 CFLAGS += -g
 else
-CFLAGS += -s -O2 -ffast-math -flto=$(shell nproc)
+CFLAGS += -s -O3 -ffast-math -flto=$(shell nproc)
 endif
 MKDCDISC = /opt/toolchains/dc/mkdcdisc/builddir/mkdcdisc
 
