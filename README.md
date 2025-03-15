@@ -130,7 +130,7 @@ TODO: auto-generated js by emscripten is blocking default browser shortcuts why 
 ```
 
 ### Consoles
-If files aren't built into rom, you have to move the `cache/`, `config.ini` and optionally `SCC1_Florestan.sf2` to sdcard.
+If files aren't built into rom, you have to move the `cache/`, `Roboto/`, `config.ini` and optionally `SCC1_Florestan.sf2` to sdcard.
 
 ```
 TODO: add different client entrypoints based on screen resolution? or move coordinates to defines.h (error prone) needs experimenting to see what works.

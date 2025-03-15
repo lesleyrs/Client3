@@ -312,8 +312,6 @@ void gameshell_draw_string(Client *c, const char *str, int x, int y, int color, 
 // /system/library/fonts/ - helvetica neue
 #elif defined(__FreeBSD__)
 // /usr/local/share/fonts/
-#else
-    file = fopen("Roboto/Roboto-Bold.ttf", "rb");
 #endif
 
     if (!file) {
