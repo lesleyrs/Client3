@@ -36,3 +36,8 @@
 // -I/usr/local/pspdev/psp/sdk/include/
 -D__vita__
 -I/usr/local/vitasdk/arm-vita-eabi/include/
+
+-DSDL=1
+-D__DREAMCAST__
+-I/opt/toolchains/dc/kos/include
+-I/opt/toolchains/dc/kos/kernel/arch/dreamcast/include

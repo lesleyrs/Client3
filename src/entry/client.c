@@ -444,6 +444,8 @@ void client_load(Client *c) {
 
 // NOTE: we can't grow it so it needs to fit the max usage, left value is shifted to MiB (arbitrary value)
 #ifdef __DREAMCAST__
+    #include <malloc.h>
+    malloc_stats();
     if (!bump_allocator_init(2 << 20)) {
 #else
     if (!(_Client.lowmem ? bump_allocator_init(16 << 20) : bump_allocator_init(32 << 20))) {
@@ -10232,12 +10234,11 @@ EM_JS(void, get_host_js, (char *socketip, size_t len, int *http_port), {
 #endif
 
 int main(int argc, char **argv) {
-    Client *c = client_new();
-
     // NOTE: init screens before logging for some platforms
     if (!platform_init()) {
-        c->error_loading = true;
-        goto init;
+        rs2_error("Failed to init platform!\n");
+        delay_ticks(5000);
+        return 1;
     }
     // NOTE: to print argv on emscripten you need to print index to flush instead of just \n?
     rs2_log("RS2 user client - release #%d\n", _Client.clientversion);
@@ -10310,7 +10311,7 @@ init:
     world_init_global();
     world3d_init_global();
 
-    // NOTE client_new supposed to be here, but moved to top for now to simplify error checking
+    Client *c = client_new();
     load_ini_config(c);
     gameshell_init_application(c, SCREEN_WIDTH, SCREEN_HEIGHT);
     return 0;

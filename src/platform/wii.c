@@ -119,6 +119,7 @@ int get_cursor_y(void) {
 }
 
 bool platform_init(void) {
+    // TODO draw on screen?
     if (!fatInitDefault()) {
         rs2_error("FAT init failed\n");
         return false;

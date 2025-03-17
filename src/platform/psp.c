@@ -7,14 +7,14 @@
 #include <pspctrl.h>
 #include <pspdisplay.h>
 #include <pspkernel.h>
-#include <psppower.h>
-#include <psprtc.h>
-#include <psputility.h>
 #include <pspnet.h>
 #include <pspnet_apctl.h>
 #include <pspnet_inet.h>
 #include <pspnet_resolver.h>
+#include <psppower.h>
+#include <psprtc.h>
 #include <pspsdk.h>
+#include <psputility.h>
 
 #include "../client.h"
 #include "../custom.h"
@@ -73,6 +73,11 @@ int SetupCallbacks(void) {
 
 bool platform_init(void) {
     pspDebugScreenInit();
+    // TODO is it ok to use kernel mode to use sceKernelGetModel?
+    // if (sceKernelGetModel() == 0) {
+    //     pspDebugScreenPrintf("Unsupported: PSP-1000 model detected, need 2000+ for extra RAM");
+    //     return false;
+    // }
     SetupCallbacks();
     scePowerSetClockFrequency(333, 333, 166);
     return true;
