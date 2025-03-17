@@ -234,6 +234,8 @@ TODO: instead of INIT_DEFAULT choose the flags we want to use
 ### Microsoft Xbox
 Install [nxdk](#tools) and run `make -f xbox.mk -j$(nproc) -B`. Necessary files are built into rom.
 
+To run with xemu use `-dvd_path client.iso` as args.
+
 Controls: TODO none yet, it just automatically logs in
 
 ```
