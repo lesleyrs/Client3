@@ -74,6 +74,12 @@
 # sony consoles
 /**/*.o
 
+# nxdk xbox
+/client.iso
+/rom/default.xbe
+/**/*.d
+/**/*.obj
+
 # extra
 /SDL2.dll
 /SDL3.dll

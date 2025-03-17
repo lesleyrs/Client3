@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #ifdef NXDK
-#include <winapi/fileapi.h>
+#include <fileapi.h>
 #elif defined(_WIN32)
 #include <io.h>
 #else

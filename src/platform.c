@@ -104,8 +104,8 @@ bool strendswith(const char *str, const char *suffix) {
 
 // Java equalsIgnoreCase
 int platform_strcasecmp(const char *str1, const char *str2) {
-// NOTE make non platform specific one?
-#ifdef _WIN32
+// NOTE make non platform specific one? we undef _WIN32 in makefile if xbox
+#if defined(_WIN32) || defined(NXDK)
     return _stricmp(str1, str2);
 #else
     return strcasecmp(str1, str2);

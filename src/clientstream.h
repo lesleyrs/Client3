@@ -5,12 +5,16 @@
 #include <stdio.h>
 
 #include <errno.h>
+#ifndef NXDK
 #include <fcntl.h>
+#endif
 
 #ifdef __WII__
 #include <network.h>
-#else
-#ifdef _WIN32
+#elif defined(NXDK)
+#include <lwip/netdb.h>
+#include <nxdk/net.h>
+#elif defined(_WIN32)
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #else
@@ -25,7 +29,6 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
-#endif
 #endif
 
 typedef struct ClientStream ClientStream;

@@ -225,10 +225,21 @@ Not fully playable due to limited RAM, you can only load areas that use 2 MB of 
 Controls: Mouse/arrow keys. The SDL1 mouse seems to be overly sensitive and the mouse in samples is offset, maybe change to controller
 
 ```
+NOTE: local servers don't work on emulator? only live works
 TODO: fopen path was changed due to the mkdcdisc tool adding dots to files without extension https://gitlab.com/simulant/mkdcdisc/-/issues/14
-TODO: can't seem to connect to localhost only live servers, might be an emulator issue
 TODO: check if it's making use of vram currently, dreamcast vram is quite big (8mb)
 TODO: instead of INIT_DEFAULT choose the flags we want to use
+```
+
+### Microsoft Xbox
+Install [nxdk](#tools) and run `make -f xbox.mk -j$(nproc) -B`. Necessary files are built into rom.
+
+Controls: TODO none yet, it just automatically logs in
+
+```
+NOTE: local servers don't work on emulator? only live works
+NOTE: default.xbe stays around in rom dir when it's junk for other consoles that embed that directory. Can remove it after building.
+TODO: fopen had to be separated due to the need for backwards slashes, also there's no chdir equivalent?
 ```
 
 ## libraries
@@ -262,3 +273,4 @@ Latest SDL1 already contains the tcc fix but they don't make new releases for it
 * [pspdev](https://github.com/pspdev/pspdev) | https://pspdev.github.io/
 * [vitasdk](https://github.com/vitasdk/vdpm) | https://vitasdk.org/
 * [kallistios](https://github.com/KallistiOS/KallistiOS) | [mkdcdisc](https://gitlab.com/simulant/mkdcdisc)
+* [nxdk](https://github.com/XboxDev/nxdk)

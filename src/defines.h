@@ -10,7 +10,7 @@
 #define RSA_BUF_LEN 128
 #endif
 
-#if defined(__WII__) || defined(__DREAMCAST__)
+#if defined(__WII__) || defined(__DREAMCAST__) || defined(NXDK)
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
 #elif defined(__3DS__)

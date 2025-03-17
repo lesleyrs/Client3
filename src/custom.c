@@ -3,17 +3,17 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "custom.h"
+#include "allocator.h"
 #include "client.h"
+#include "custom.h"
+#include "datastruct/jstring.h"
 #include "inputtracking.h"
 #include "thirdparty/ini.h"
-#include "allocator.h"
-#include "datastruct/jstring.h"
 
 extern ClientData _Client;
 extern InputTracking _InputTracking;
 
-#if defined(__WII__) || defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__PSP__) || defined(__vita__) || defined(__DREAMCAST__)
+#if defined(__WII__) || defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__PSP__) || defined(__vita__) || defined(__DREAMCAST__) || defined(NXDK)
 Custom _Custom = {.chat_era = 2, .http_port = 80, .showPerformance = true};
 #else
 Custom _Custom = {.chat_era = 2, .http_port = 80};
@@ -51,7 +51,11 @@ Custom _Custom = {.chat_era = 2, .http_port = 80};
     }
 
 bool load_ini_args(void) {
+#ifdef NXDK
+    ini_t *config = ini_load("D:\\config.ini");
+#else
     ini_t *config = ini_load("config.ini");
+#endif
     if (!config) {
         return false;
     }
@@ -62,12 +66,12 @@ bool load_ini_args(void) {
     // world nodeid 1 = 10 (default)
     INI_INT_LOG(&(&_Client), nodeid, _Client.nodeid = 10 + _Client.nodeid - 1);
     INI_INT_LOG(&(&_Client), portoff, );
-    #if defined(__PSP__) || defined(__DREAMCAST__) || defined(__NDS__)
+#if defined(__PSP__) || defined(__DREAMCAST__) || defined(__NDS__) || defined(NXDK)
     // NOTE: implicitly ignore highmem, avoids confusion as there's no way it'll load
     _Client.lowmem = true;
-    #else
+#else
     INI_INT_LOG(&(&_Client), lowmem, );
-    #endif
+#endif
     _Client.lowmem ? client_set_lowmem() : client_set_highmem();
     INI_INT_LOG(&(&_Client), members, _Client.members = !_Client.members);
 
@@ -77,7 +81,11 @@ bool load_ini_args(void) {
 }
 
 void load_ini_config(Client *c) {
+#ifdef NXDK
+    ini_t *config = ini_load("D:\\config.ini");
+#else
     ini_t *config = ini_load("config.ini");
+#endif
     if (!config) {
         return;
     }

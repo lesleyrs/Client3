@@ -315,7 +315,11 @@ void gameshell_draw_string(Client *c, const char *str, int x, int y, int color, 
 #endif
 
     if (!file) {
+#ifdef NXDK
+        file = fopen("D:\\Roboto\\Roboto-Bold.ttf", "rb");
+#else
         file = fopen("Roboto/Roboto-Bold.ttf", "rb");
+#endif
         if (!file) {
             rs2_error("Failed to open font file\n");
             return;

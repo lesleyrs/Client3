@@ -34,10 +34,15 @@
 // -I/opt/devkitpro/libnx/include/
 // -D__PSP__
 // -I/usr/local/pspdev/psp/sdk/include/
--D__vita__
--I/usr/local/vitasdk/arm-vita-eabi/include/
+// -D__vita__
+// -I/usr/local/vitasdk/arm-vita-eabi/include/
 
--DSDL=1
--D__DREAMCAST__
--I/opt/toolchains/dc/kos/include
--I/opt/toolchains/dc/kos/kernel/arch/dreamcast/include
+// -DSDL=1
+// -D__DREAMCAST__
+// -I/opt/toolchains/dc/kos/include
+// -I/opt/toolchains/dc/kos/kernel/arch/dreamcast/include
+
+-DNXDK
+-I/home/lesley/dev/c/nxdk/lib
+-I/home/lesley/dev/c/nxdk/lib/winapi
+-I/home/lesley/dev/c/nxdk/lib/net/lwip/src/include

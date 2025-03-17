@@ -1,3 +1,4 @@
+![xbox](xbox.png)
 ![dreamcast](dreamcast.png)
 ![vita](vita.png)
 ![psp](psp.jpg)

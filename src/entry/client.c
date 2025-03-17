@@ -459,7 +459,7 @@ void client_load(Client *c) {
     }
 
 // TODO temp
-#if defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__PSP__) || defined(__DREAMCAST__)
+#if defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__PSP__) || defined(__DREAMCAST__) || defined(NXDK)
     client_login(c, c->username, c->password, false);
 #endif
 }
@@ -4759,6 +4759,8 @@ bool client_read(Client *c) {
                 char filename[PATH_MAX];
 #ifdef __DREAMCAST__
                 snprintf(filename, sizeof(filename), "cache/client/maps/m%d_%d.", mapsquareX, mapsquareZ);
+#elif defined(NXDK)
+                snprintf(filename, sizeof(filename), "D:\\cache\\client\\maps\\m%d_%d", mapsquareX, mapsquareZ);
 #else
                 snprintf(filename, sizeof(filename), "cache/client/maps/m%d_%d", mapsquareX, mapsquareZ);
 #endif
@@ -4802,6 +4804,8 @@ bool client_read(Client *c) {
                 char filename[PATH_MAX];
 #ifdef __DREAMCAST__
                 snprintf(filename, sizeof(filename), "cache/client/maps/l%d_%d.", mapsquareX, mapsquareZ);
+#elif defined(NXDK)
+                snprintf(filename, sizeof(filename), "D:\\cache\\client\\maps\\l%d_%d", mapsquareX, mapsquareZ);
 #else
                 snprintf(filename, sizeof(filename), "cache/client/maps/l%d_%d", mapsquareX, mapsquareZ);
 #endif
@@ -10658,6 +10662,8 @@ Jagfile *load_archive(Client *c, const char *name, int crc, const char *display_
     char filename[PATH_MAX];
 #ifdef __DREAMCAST__
     snprintf(filename, sizeof(filename), "cache/client/%s.", name);
+#elif defined(NXDK)
+    snprintf(filename, sizeof(filename), "D:\\cache\\client\\%s", name);
 #else
     snprintf(filename, sizeof(filename), "cache/client/%s", name);
 #endif

@@ -147,6 +147,11 @@ int clientstream_init(void) {
         delay_ticks(50);
     }
 #endif
+#ifdef NXDK
+    if (nxNetInit(NULL) < 0) {
+        return false;
+    }
+#endif
 #ifdef __SWITCH__
     socketInitializeDefault();
 #endif
@@ -213,7 +218,7 @@ ClientStream *clientstream_new(GameShell *shell, int port) {
 
     freeaddrinfo(result);
 #else
-    // used by old windows, wii, psp, nds, etc
+    // used by old windows, xbox, wii, psp, nds, etc
     struct hostent *host_addr = gethostbyname(_Client.socketip);
 
     if (host_addr) {
@@ -484,7 +489,7 @@ const char *dnslookup(const char *hostname) {
         return "unknown";
     }
     return ip_str;
-#elif defined(__DREAMCAST__)
+#elif defined(__DREAMCAST__) || defined(NXDK)
     return "unknown";
 #elif defined(MODERN_POSIX)
     struct sockaddr_in client_addr = {0};
