@@ -18,6 +18,9 @@
 #define STBI_NO_SIMD
 // TODO enable?
 // #define STBI_NO_FAILURE_STRINGS
+#ifdef NXDK
+#undef _MSC_VER
+#endif
 #include "thirdparty/stb_image.h"
 
 extern Pix2D _Pix2D;
