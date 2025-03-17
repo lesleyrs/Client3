@@ -144,14 +144,6 @@ Wii U and Switch also need the (wiiu/switch)-sdl2 package.
 
 If you own a console and want to improve a port look at rsc-c for reference: https://github.com/2003scape/rsc-c
 
-#### NDS
-Necessary files are built into rom.
-```
-with 32 mb ram gba expansion pak? + 4MB system ram
-original game will probably run at 1 fps if it works at all
-would need major changes to run smoothly, need separate client entrypoint for it
-```
-
 #### Wii
 in dolphin emulator you can find the sdcard path in `options>configuration>wii>sd card` settings and after moving the files there you have to click `Convert Folder to File Now` to format it.
 

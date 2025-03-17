@@ -66,7 +66,7 @@ bool load_ini_args(void) {
     // world nodeid 1 = 10 (default)
     INI_INT_LOG(&(&_Client), nodeid, _Client.nodeid = 10 + _Client.nodeid - 1);
     INI_INT_LOG(&(&_Client), portoff, );
-#if defined(__PSP__) || defined(__DREAMCAST__) || defined(__NDS__) || defined(NXDK)
+#if defined(__PSP__) || defined(__DREAMCAST__) || defined(NXDK)
     // NOTE: implicitly ignore highmem, avoids confusion as there's no way it'll load
     _Client.lowmem = true;
 #else
