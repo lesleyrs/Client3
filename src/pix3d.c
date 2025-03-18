@@ -308,7 +308,7 @@ void pix3d_set_brightness(double brightness) {
 
 // NOTE: avoid doubles on consoles with only single precision floats
 // TODO add other consoles
-#ifdef __PSP__
+#if defined(__PSP__) || defined(__NDS__)
 int pix3d_set_gamma(int rgb, double gamma) {
     float r = (float)(rgb >> 16) / 256.0f;
     float g = (float)(rgb >> 8 & 0xff) / 256.0f;
