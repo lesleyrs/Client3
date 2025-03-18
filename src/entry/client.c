@@ -444,7 +444,7 @@ void client_load(Client *c) {
 
 // NOTE: we can't grow it so it needs to fit the max usage, left value is shifted to MiB (arbitrary value)
 #ifdef __DREAMCAST__
-    #include <malloc.h>
+#include <malloc.h>
     malloc_stats();
     if (!bump_allocator_init(2 << 20)) {
 #else
@@ -4455,11 +4455,12 @@ void client_update_game(Client *c) {
         }
 
         if (c->scene_state == 2) {
-            if (_Custom.cameraEditor) {
-                update_camera_editor(c);
-            } else {
-                client_update_orbit_camera(c);
-            }
+            // NOTE unused
+            // if (_Custom.cameraEditor) {
+            //     update_camera_editor(c);
+            // } else {
+            client_update_orbit_camera(c);
+            // }
         }
         if (c->scene_state == 2 && c->cutscene) {
             applyCutscene(c);
@@ -10274,6 +10275,11 @@ int main(int argc, char **argv) {
     _Client.members = !_free || strcmp(_free, "1") != 0;
 #else
     if (load_ini_args()) {
+#if defined(__PSP__) || defined(__DREAMCAST__) || defined(NXDK) || defined(__NDS__)
+        // NOTE: implicitly ignore highmem, avoids confusion as there's no way it'll load
+        _Client.lowmem = true;
+#endif
+        _Client.lowmem ? client_set_lowmem() : client_set_highmem();
         goto init;
     }
 

@@ -43,9 +43,7 @@ void gameshell_init_application(Client *c, int width, int height) {
     c->shell->screen_width = width;
     c->shell->screen_height = height;
     platform_new(c->shell->screen_width, c->shell->screen_height);
-#ifdef client
-    c->shell->draw_area = NULL;
-#else
+#if defined(playground) || defined(mapview)
     c->shell->draw_area = pixmap_new(c->shell->screen_width, c->shell->screen_height);
 #endif
     gameshell_run(c);

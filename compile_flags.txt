@@ -42,7 +42,13 @@
 // -I/opt/toolchains/dc/kos/include
 // -I/opt/toolchains/dc/kos/kernel/arch/dreamcast/include
 
--DNXDK
--I/home/lesley/dev/c/nxdk/lib
--I/home/lesley/dev/c/nxdk/lib/winapi
--I/home/lesley/dev/c/nxdk/lib/net/lwip/src/include
+// -DNXDK
+// -I/home/lesley/dev/c/nxdk/lib
+// -I/home/lesley/dev/c/nxdk/lib/winapi
+// -I/home/lesley/dev/c/nxdk/lib/net/lwip/src/include
+
+-D__NDS__
+-DARM9
+-DARM7
+-I/opt/devkitpro/libnds/include/
+-I/opt/devkitpro/calico/include/

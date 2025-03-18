@@ -20,6 +20,8 @@
 #elif defined(__PSP__)
 #define SCREEN_WIDTH 480
 #define SCREEN_HEIGHT 272
+#elif defined(__NDS__)
+// do nothing, libnds defines it
 #else
 #define SCREEN_WIDTH 789
 #define SCREEN_HEIGHT 532

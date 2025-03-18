@@ -19,7 +19,8 @@ Custom _Custom = {.chat_era = 2, .http_port = 80, .showPerformance = true};
 Custom _Custom = {.chat_era = 2, .http_port = 80};
 #endif
 
-#if defined(client)
+// NOTE: it's nice to have this file separate from client but easily creates conflicts if other non-client entrypoints compile all c files
+
 // macro assumes ini setting has the same name as the member variable
 // works with pointers and non-pointers, no bounds checks for ints
 #define INI_STR(dst, member)                                    \
@@ -66,13 +67,7 @@ bool load_ini_args(void) {
     // world nodeid 1 = 10 (default)
     INI_INT_LOG(&(&_Client), nodeid, _Client.nodeid = 10 + _Client.nodeid - 1);
     INI_INT_LOG(&(&_Client), portoff, );
-#if defined(__PSP__) || defined(__DREAMCAST__) || defined(NXDK)
-    // NOTE: implicitly ignore highmem, avoids confusion as there's no way it'll load
-    _Client.lowmem = true;
-#else
     INI_INT_LOG(&(&_Client), lowmem, );
-#endif
-    _Client.lowmem ? client_set_lowmem() : client_set_highmem();
     INI_INT_LOG(&(&_Client), members, _Client.members = !_Client.members);
 
     rs2_log("\n");
@@ -111,7 +106,7 @@ void load_ini_config(Client *c) {
     ini_free(config);
 }
 
-void update_camera_editor(Client *c) {
+/* void update_camera_editor(Client *c) {
     // holding ctrl
     int modifier = c->shell->action_key[5] == 1 ? 2 : 1;
 
@@ -215,7 +210,7 @@ void update_camera_editor(Client *c) {
     if (c->cameraPitch > 383) {
         c->cameraPitch = 383;
     }
-}
+} */
 
 void draw_info_overlay(Client *c) {
     int x = 507;
@@ -293,4 +288,3 @@ void draw_info_overlay(Client *c) {
         y += 13;
     }
 }
-#endif

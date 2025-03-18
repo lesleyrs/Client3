@@ -266,8 +266,10 @@ ClientStream *clientstream_new(GameShell *shell, int port) {
 #else
     int set = true;
 #endif
+#ifndef __NDS__
     // NOTE: cast for windows
     setsockopt(stream->socket, IPPROTO_TCP, TCP_NODELAY, (const char *)&set, sizeof(set));
+#endif
 #if !defined(__3DS__) && !defined(__WIIU__)
     struct timeval socket_timeout = {30, 0};
     setsockopt(stream->socket, SOL_SOCKET, SO_RCVTIMEO, (const char *)&socket_timeout, sizeof(socket_timeout));
@@ -464,7 +466,7 @@ int clientstream_read_bytes(ClientStream *stream, int8_t *dst, int off, int len)
 
 int clientstream_write(ClientStream *stream, int8_t *src, int len, int off) {
     if (!stream->closed) {
-#if defined(_WIN32) || defined(__SWITCH__)
+#if defined(_WIN32) || defined(__SWITCH__) || defined(__NDS__)
         // NOTE: cast for windows
         return send(stream->socket, (const char *)src + off, len, 0);
 #else
@@ -489,7 +491,7 @@ const char *dnslookup(const char *hostname) {
         return "unknown";
     }
     return ip_str;
-#elif defined(__DREAMCAST__) || defined(NXDK)
+#elif defined(__DREAMCAST__) || defined(NXDK) || defined(__NDS__)
     return "unknown";
 #elif defined(MODERN_POSIX)
     struct sockaddr_in client_addr = {0};

@@ -80,6 +80,9 @@
 /**/*.d
 /**/*.obj
 
+# nds
+/client.nds
+
 # extra
 /SDL2.dll
 /SDL3.dll
