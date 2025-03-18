@@ -133,7 +133,8 @@ TODO: auto-generated js by emscripten is blocking default browser shortcuts why 
 If files aren't built into rom, you have to move the `cache/`, `Roboto/`, `config.ini` and optionally `SCC1_Florestan.sf2` to sdcard.
 
 ```
-TODO: add diff entrypoints based on screen res, 640x480(wii,dc,xbox) can be shared. Or move coordinates to defines.h (error prone) needs experimenting to see what works.
+TODO: add diff entrypoints based on screen res. Or move coordinates to defines.h (error prone) needs experimenting to see what works.
+TODO: 640x480 res (wii,dc,xbox, etc) can be shared, they need a visual cursor though so need double buffering to avoid having to refresh entire screen
 TODO: check dnslookup for consoles: vita, psp, dreamcast, nds
 ```
 
@@ -159,6 +160,8 @@ TODO: virtual keyboard to type, for now set user and pass in config.ini, audio, 
 in citra emulator click `file>open citra folder` for sdmc dir https://citra-emulator.com/wiki/user-directory/
 
 Controls: Touch to left click, L + touch to right click, Dpad for arrow keys, X for control
+
+There's also an untested NDS target that only works with 3DS DSI emulation as it should have 32MB RAM there (melonDS doesn't emulate extra ram yet).
 
 ```
 TODO: undo touch changes in 3ds.c depending how it works on real hardware (vita seems to work fine on hw)
