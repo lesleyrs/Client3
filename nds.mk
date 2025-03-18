@@ -32,6 +32,7 @@ DATA     := data
 GRAPHICS :=
 AUDIO    :=
 ICON     :=
+DEBUG    := 0
 
 # specify a directory which contains the nitro filesystem
 # this is relative to the Makefile
@@ -42,8 +43,13 @@ NITRO    := rom
 #---------------------------------------------------------------------------------
 ARCH := -march=armv5te -mtune=arm946e-s
 
-CFLAGS   := -g -Wno-parentheses -Wall -O2 -ffunction-sections -fdata-sections\
+CFLAGS   := -Wno-parentheses -Wall -ffunction-sections -fdata-sections\
             $(ARCH) $(INCLUDE) -DARM9 -D__NDS__ -DWITH_RSA_LIBTOM -Dclient
+ifeq ($(DEBUG),1)
+CFLAGS += -g
+else
+CFLAGS += -s -O2 -ffast-math -flto=$(shell nproc)
+endif
 CXXFLAGS := $(CFLAGS) -fno-rtti -fno-exceptions
 ASFLAGS  := -g $(ARCH)
 LDFLAGS   = -specs=ds_arm9.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
