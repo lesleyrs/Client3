@@ -21,7 +21,8 @@
 #define SCREEN_WIDTH 480
 #define SCREEN_HEIGHT 272
 #elif defined(__NDS__)
-// do nothing, libnds defines it
+#define SCREEN_WIDTH 256
+#define SCREEN_HEIGHT 192
 #else
 #define SCREEN_WIDTH 789
 #define SCREEN_HEIGHT 532

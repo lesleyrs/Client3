@@ -44,7 +44,7 @@ NITRO    := rom
 ARCH := -march=armv5te -mtune=arm946e-s
 
 CFLAGS   := -Wno-parentheses -Wall -ffunction-sections -fdata-sections\
-            $(ARCH) $(INCLUDE) -DARM9 -D__NDS__ -DWITH_RSA_LIBTOM -Dclient
+            $(ARCH) $(INCLUDE) -DARM9 -DWITH_RSA_LIBTOM -Dclient
 ifeq ($(DEBUG),1)
 CFLAGS += -g
 else
@@ -214,10 +214,12 @@ $(SOUNDBANK) : $(MODFILES)
 #---------------------------------------------------------------------------------
 # Convert non-GRF game icon to GRF if needed
 #---------------------------------------------------------------------------------
+ifneq ($(ICON),)
 $(GAME_ICON): $(notdir $(ICON))
 #---------------------------------------------------------------------------------
 	@echo convert $(notdir $<)
 	@grit $< -g -gt -gB4 -gT FF00FF -m! -p -pe 16 -fh! -ftr
+endif
 
 -include $(DEPSDIR)/*.d
 

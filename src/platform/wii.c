@@ -1,24 +1,24 @@
 #ifdef __WII__
-#include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <asndlib.h>
+#include <fat.h>
 #include <gccore.h>
+#include <ogc/lwp_watchdog.h>
 #include <ogc/usbmouse.h>
+#include <ogcsys.h>
 #include <wiikeyboard/keyboard.h>
 #include <wiiuse/wpad.h>
-#include <fat.h>
-#include <ogc/lwp_watchdog.h>
-#include <ogcsys.h>
 
 #include "../client.h"
 #include "../gameshell.h"
 #include "../inputtracking.h"
+#include "../pix2d.h"
 #include "../pixmap.h"
 #include "../platform.h"
-#include "../pix2d.h"
 
 extern ClientData _Client;
 extern InputTracking _InputTracking;
@@ -85,7 +85,7 @@ static void draw_arrow(void) {
 
         int arrow_width = arrow_yuv_lines[y] * 2;
 
-        memcpy((u8*)xfb + fb_index + (arrow_yuv_offsets[y] * 2), arrow_yuv + arrow_offset, arrow_width);
+        memcpy((u8 *)xfb + fb_index + (arrow_yuv_offsets[y] * 2), arrow_yuv + arrow_offset, arrow_width);
     }
 }
 
@@ -305,7 +305,6 @@ void platform_poll_events(Client *c) {
         key_released(c->shell, K_DOWN, -1);
     }
 
-
     if (data->btns_d & WPAD_BUTTON_1) {
         key_pressed(c->shell, K_CONTROL, -1);
     }
@@ -325,9 +324,16 @@ uint64_t get_ticks(void) {
     return (uint64_t)(ticks / TB_TIMER_CLOCK);
 }
 void delay_ticks(int ticks) {
-    uint64_t end = get_ticks() + ticks;
+    struct timespec elapsed, tv;
+    elapsed.tv_sec = ticks / 1000;
+    elapsed.tv_nsec = (ticks % 1000) * 1000000;
+    tv.tv_sec = elapsed.tv_sec;
+    tv.tv_nsec = elapsed.tv_nsec;
+    nanosleep(&tv, &elapsed);
+
+    /* uint64_t end = get_ticks() + ticks;
 
     while (get_ticks() != end)
-        ;
+        ; */
 }
 #endif

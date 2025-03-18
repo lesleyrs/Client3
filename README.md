@@ -133,7 +133,7 @@ TODO: auto-generated js by emscripten is blocking default browser shortcuts why 
 If files aren't built into rom, you have to move the `cache/`, `Roboto/`, `config.ini` and optionally `SCC1_Florestan.sf2` to sdcard.
 
 ```
-TODO: add different client entrypoints based on screen resolution? or move coordinates to defines.h (error prone) needs experimenting to see what works.
+TODO: add diff entrypoints based on screen res, 640x480(wii,dc,xbox) can be shared. Or move coordinates to defines.h (error prone) needs experimenting to see what works.
 TODO: check dnslookup for consoles: vita, psp, dreamcast, nds
 ```
 

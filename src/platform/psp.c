@@ -273,9 +273,5 @@ uint64_t get_ticks(void) {
 }
 void delay_ticks(int ticks) {
     sceKernelDelayThreadCB(ticks * 1000);
-    /* uint64_t end = get_ticks() + ticks;
-
-    while (get_ticks() != end)
-        ; */
 }
 #endif

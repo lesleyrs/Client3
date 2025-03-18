@@ -443,7 +443,7 @@ void client_load(Client *c) {
     // }
 
 // NOTE: we can't grow it so it needs to fit the max usage, left value is shifted to MiB (arbitrary value)
-#ifdef __DREAMCAST__
+#if defined(__DREAMCAST__) || defined(__NDS__)
 #include <malloc.h>
     malloc_stats();
     if (!bump_allocator_init(2 << 20)) {
@@ -459,7 +459,7 @@ void client_load(Client *c) {
     }
 
 // TODO temp
-#if defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__PSP__) || defined(__DREAMCAST__) || defined(NXDK)
+#if defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__PSP__) || defined(__DREAMCAST__) || defined(NXDK) || defined(__NDS__)
     client_login(c, c->username, c->password, false);
 #endif
 }

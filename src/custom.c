@@ -13,7 +13,7 @@
 extern ClientData _Client;
 extern InputTracking _InputTracking;
 
-#if defined(__WII__) || defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__PSP__) || defined(__vita__) || defined(__DREAMCAST__) || defined(NXDK)
+#if defined(__WII__) || defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__PSP__) || defined(__vita__) || defined(__DREAMCAST__) || defined(NXDK) || defined(__NDS__)
 Custom _Custom = {.chat_era = 2, .http_port = 80, .showPerformance = true};
 #else
 Custom _Custom = {.chat_era = 2, .http_port = 80};
@@ -231,7 +231,7 @@ void draw_info_overlay(Client *c) {
         drawString(c->font_plain11, 8, y, buf, YELLOW);
         y += 13;
 #endif
-#if defined(__3DS__) || defined(__PSP__)
+#if defined(__3DS__) || defined(__PSP__) || defined(__NDS__)
         sprintf(buf, "LRU: %dK / %dK", bump_allocator_used() >> 10, bump_allocator_capacity() >> 10);
         drawString(c->font_plain11, 8, y, buf, YELLOW);
         y += 13;
