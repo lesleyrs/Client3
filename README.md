@@ -143,7 +143,7 @@ If you own a console and want to improve a port look at rsc-c for reference: htt
 #### Wii
 in dolphin emulator you can find the sdcard path in `options>configuration>wii>sd card` settings and after moving the files there you have to click `Convert Folder to File Now` to format it.
 
-Controls: wiimote IR pointer works as mouse, A for left click, B for right click, Dpad works as arrow keys, minus for control, plus to pan by moving your wiimote to a side of the screen, 1 to center screen, home button to exit. Button 2 and nunchuck are unused right now.
+Controls: wiimote IR pointer works as mouse, A for left click, B for right click, Dpad works as arrow keys, minus for control, plus to pan by moving your wiimote to a side of the screen, 1 to center screen, home button to exit. The nunchuck joystick can also be used as arrow keys.
 
 ```
 TODO: need double framebuffers to flip at end of client_draw to a show cursor on screen without flickering or you won't see where you are aiming (dolphin mouse is slightly offset too)

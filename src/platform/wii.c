@@ -148,10 +148,10 @@ bool platform_init(void) {
         VIDEO_WaitVSync();
 
     // Initialise the console, required for printf
-    console_init(xfb, 20, 20, rmode->fbWidth, rmode->xfbHeight, rmode->fbWidth * VI_DISPLAY_PIX_SZ);
-    // NOTE enable for debugging
-    // SYS_STDIO_Report(true);
+    SYS_STDIO_Report(true);
+
     if (!fatInitDefault()) {
+        console_init(xfb, 20, 20, rmode->fbWidth, rmode->xfbHeight, rmode->fbWidth * VI_DISPLAY_PIX_SZ);
         rs2_error("FAT init failed\n");
         VIDEO_Flush();
         return false;
@@ -278,6 +278,60 @@ void platform_poll_events(Client *c) {
             }
         }
     }
+
+    if (data->exp.type == WPAD_EXP_NUNCHUK) {
+        float stick_x = data->exp.nunchuk.js.pos.x;
+        float stick_y = data->exp.nunchuk.js.pos.y;
+        static bool ldown, rdown, udown, ddown;
+        #define DEADZONE 10
+        #define CENTER 128
+        if (stick_x < CENTER - DEADZONE) {
+            if (!ldown) {
+                key_pressed(c->shell, K_LEFT, -1);
+                ldown = true;
+            }
+        } else {
+            if (ldown) {
+                key_released(c->shell, K_LEFT, -1);
+                ldown = false;
+            }
+        }
+        if (stick_x > CENTER + DEADZONE) {
+            if (!rdown) {
+                key_pressed(c->shell, K_RIGHT, -1);
+                rdown = true;
+            }
+        } else {
+            if (rdown) {
+                key_released(c->shell, K_RIGHT, -1);
+                rdown = false;
+            }
+        }
+
+        if (stick_y > CENTER + DEADZONE) {
+            if (!udown) {
+                key_pressed(c->shell, K_UP, -1);
+                udown = true;
+            }
+        } else {
+            if (udown) {
+                key_released(c->shell, K_UP, -1);
+                udown = false;
+            }
+        }
+        if (stick_y < CENTER - DEADZONE) {
+            if (!ddown) {
+                key_pressed(c->shell, K_DOWN, -1);
+                ddown = true;
+            }
+        } else {
+            if (ddown) {
+                key_released(c->shell, K_DOWN, -1);
+                ddown = false;
+            }
+        }
+    }
+
     if (data->btns_d & WPAD_BUTTON_LEFT) {
         key_pressed(c->shell, K_LEFT, -1);
     }
@@ -304,27 +358,32 @@ void platform_poll_events(Client *c) {
         key_released(c->shell, K_DOWN, -1);
     }
 
-    if (data->btns_d & WPAD_BUTTON_MINUS) {
-        key_pressed(c->shell, K_CONTROL, -1);
-    }
+    // TODO: why do nunchuck btn releases only show up some of the time?!
+    // if (data->btns_d & WPAD_BUTTON_MINUS || (data->exp.type == WPAD_EXP_NUNCHUK && (data->exp.nunchuk.btns << 16) & WPAD_NUNCHUK_BUTTON_C)) {
+    //     key_pressed(c->shell, K_CONTROL, -1);
+    // }
 
-    if (data->btns_u & WPAD_BUTTON_MINUS) {
-        key_released(c->shell, K_CONTROL, -1);
-    }
+    // if (data->btns_u & WPAD_BUTTON_MINUS || (data->exp.type == WPAD_EXP_NUNCHUK && (data->exp.nunchuk.btns_released << 16) & WPAD_NUNCHUK_BUTTON_C)) {
+    //     key_released(c->shell, K_CONTROL, -1);
+    // }
 
-    static bool pan = false;
-    if (data->btns_d & WPAD_BUTTON_PLUS) {
-        pan = true;
-    }
+    // static bool pan = false;
+    // if (data->btns_d & WPAD_BUTTON_PLUS || (data->exp.type == WPAD_EXP_NUNCHUK && (data->exp.nunchuk.btns << 16) & WPAD_NUNCHUK_BUTTON_Z)) {
+    //     pan = true;
+    // }
 
-    if (data->btns_u & WPAD_BUTTON_PLUS) {
-        pan = false;
-    }
+    // if (data->btns_u & WPAD_BUTTON_PLUS || (data->exp.type == WPAD_EXP_NUNCHUK && (data->exp.nunchuk.btns_released << 16) & WPAD_NUNCHUK_BUTTON_Z)) {
+    //     pan = false;
+    // }
 
     if (data->btns_d & WPAD_BUTTON_1) {
         screen_offset_x = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2;
         screen_offset_y = (SCREEN_FB_HEIGHT - SCREEN_HEIGHT) / 2;
         c->redraw_background = true;
+    }
+
+    // unused, maybe open up a keyboard?
+    if (data->btns_d & WPAD_BUTTON_2) {
     }
 
     if (pan) {

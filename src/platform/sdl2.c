@@ -23,8 +23,6 @@ extern InputTracking _InputTracking;
 extern Custom _Custom;
 
 #ifdef __vita__
-#define FRAMEBUFFER_WIDTH 960
-#define FRAMEBUFFER_HEIGHT 544
 static SDL_Joystick *joystick;
 static bool right_touch = false;
 #endif
@@ -697,7 +695,7 @@ void platform_poll_events(Client *c) {
             key_released(c->shell, code, ch);
             break;
         }
-// TODO: apply touch to other consoles/mobile if needed + test on real hw, can't login on vita emu
+// TODO: apply touch to other consoles/mobile if needed
 #ifdef __vita__
         case SDL_JOYAXISMOTION: {
             // rs2_log("axis %d value %d\n", e.jaxis.axis, e.jaxis.value);
@@ -791,8 +789,8 @@ void platform_poll_events(Client *c) {
             break;
         } break;
         case SDL_FINGERMOTION: {
-            float x = e.tfinger.x * FRAMEBUFFER_WIDTH;
-            float y = e.tfinger.y * FRAMEBUFFER_HEIGHT;
+            float x = e.tfinger.x * SCREEN_FB_WIDTH;
+            float y = e.tfinger.y * SCREEN_FB_HEIGHT;
 
             c->shell->idle_cycles = 0;
             c->shell->mouse_x = x;
@@ -803,8 +801,8 @@ void platform_poll_events(Client *c) {
             }
         } break;
         case SDL_FINGERDOWN: {
-            float x = e.tfinger.x * FRAMEBUFFER_WIDTH;
-            float y = e.tfinger.y * FRAMEBUFFER_HEIGHT;
+            float x = e.tfinger.x * SCREEN_FB_WIDTH;
+            float y = e.tfinger.y * SCREEN_FB_HEIGHT;
 
             c->shell->idle_cycles = 0;
             // NOTE: set mouse pos here again due to no mouse movement
