@@ -48,7 +48,7 @@ $(PROJECT).vpk: eboot.bin param.sfo
 		--add cache=cache \
 		--add Roboto=Roboto \
 		--add SCC1_Florestan.sf2=SCC1_Florestan.sf2 \
-		--add config.ini=config.ini \
+		--add config.ini=rom/config.ini \
 	$(PROJECT).vpk
 
 eboot.bin: $(PROJECT).velf
