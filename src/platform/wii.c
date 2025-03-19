@@ -359,22 +359,22 @@ void platform_poll_events(Client *c) {
     }
 
     // TODO: why do nunchuck btn releases only show up some of the time?!
-    // if (data->btns_d & WPAD_BUTTON_MINUS || (data->exp.type == WPAD_EXP_NUNCHUK && (data->exp.nunchuk.btns << 16) & WPAD_NUNCHUK_BUTTON_C)) {
-    //     key_pressed(c->shell, K_CONTROL, -1);
-    // }
+    if (data->btns_d & WPAD_BUTTON_MINUS /* || (data->exp.type == WPAD_EXP_NUNCHUK && (data->exp.nunchuk.btns << 16) & WPAD_NUNCHUK_BUTTON_C) */) {
+        key_pressed(c->shell, K_CONTROL, -1);
+    }
 
-    // if (data->btns_u & WPAD_BUTTON_MINUS || (data->exp.type == WPAD_EXP_NUNCHUK && (data->exp.nunchuk.btns_released << 16) & WPAD_NUNCHUK_BUTTON_C)) {
-    //     key_released(c->shell, K_CONTROL, -1);
-    // }
+    if (data->btns_u & WPAD_BUTTON_MINUS /* || (data->exp.type == WPAD_EXP_NUNCHUK && (data->exp.nunchuk.btns_released << 16) & WPAD_NUNCHUK_BUTTON_C) */) {
+        key_released(c->shell, K_CONTROL, -1);
+    }
 
-    // static bool pan = false;
-    // if (data->btns_d & WPAD_BUTTON_PLUS || (data->exp.type == WPAD_EXP_NUNCHUK && (data->exp.nunchuk.btns << 16) & WPAD_NUNCHUK_BUTTON_Z)) {
-    //     pan = true;
-    // }
+    static bool pan = false;
+    if (data->btns_d & WPAD_BUTTON_PLUS /* || (data->exp.type == WPAD_EXP_NUNCHUK && (data->exp.nunchuk.btns << 16) & WPAD_NUNCHUK_BUTTON_Z) */) {
+        pan = true;
+    }
 
-    // if (data->btns_u & WPAD_BUTTON_PLUS || (data->exp.type == WPAD_EXP_NUNCHUK && (data->exp.nunchuk.btns_released << 16) & WPAD_NUNCHUK_BUTTON_Z)) {
-    //     pan = false;
-    // }
+    if (data->btns_u & WPAD_BUTTON_PLUS /* || (data->exp.type == WPAD_EXP_NUNCHUK && (data->exp.nunchuk.btns_released << 16) & WPAD_NUNCHUK_BUTTON_Z) */) {
+        pan = false;
+    }
 
     if (data->btns_d & WPAD_BUTTON_1) {
         screen_offset_x = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2;
