@@ -85,6 +85,8 @@ The 2004 jar is stored for comparisons, run with EG: `java -cp bin/runescape.jar
 - TODO confirm: to connect to local java servers on WSL from Windows you might need to add `-Djava.net.preferIPv6Addresses=true` when running client
 
 ## Platforms and Compilers
+To move the executable you have to take the `cache/`, `Roboto/`, `config.ini` and optionally `SCC1_Florestan.sf2` along with it. The consoles will load it from sdcard if they don't embed the files already.
+
 TODO:
 ```
 macos, bsds, android https://wiki.libsdl.org/SDL2/Android
@@ -129,17 +131,10 @@ TODO: emscripten wasm on firefox has memleaks related to midi, gets cleaned up b
 TODO: auto-generated js by emscripten is blocking default browser shortcuts why exactly
 ```
 
-### Consoles
-If files aren't built into rom, you have to move the `cache/`, `Roboto/`, `config.ini` and optionally `SCC1_Florestan.sf2` to sdcard.
-
-```
-TODO: add diff entrypoints based on screen res. Or move coordinates to defines.h (error prone) needs experimenting to see what works.
-TODO: 640x480 res (wii,dc,xbox, etc) can be shared, they need a visual cursor though so need double buffering to avoid having to refresh entire screen
-TODO: check dnslookup for consoles: vita, psp, dreamcast, nds
-```
-
 ### Nintendo consoles (devkitPro)
-Install [devkitpro](#tools) with (wii/3ds/wiiu/switch)-dev package and run `make -f (wii/3ds/wiiu/switch).mk -j$(nproc) -B`.
+Install [devkitpro](#tools) with (nds/wii/3ds/wiiu/switch)-dev package and run `make -f (nds/wii/3ds/wiiu/switch).mk -j$(nproc) -B`.
+
+The NDS target only works on 3DS with DSI emulation as it should have 32MB RAM there (untested, melonDS doesn't emulate extra ram yet).
 
 Wii U and Switch also need the (wiiu/switch)-sdl2 package.
 
@@ -148,20 +143,20 @@ If you own a console and want to improve a port look at rsc-c for reference: htt
 #### Wii
 in dolphin emulator you can find the sdcard path in `options>configuration>wii>sd card` settings and after moving the files there you have to click `Convert Folder to File Now` to format it.
 
-Controls: wiimote IR pointer works as mouse, A for left click, B for right click, Dpad works as arrow keys, 1 for control, home button to exit.
+Controls: wiimote IR pointer works as mouse, A for left click, B for right click, Dpad works as arrow keys, minus for control, plus to pan by moving your wiimote to a side of the screen, 1 to center screen, home button to exit. Button 2 and nunchuck are unused right now.
 
 ```
-TODO: need 2 framebuffers to a show cursor on screen without flickering or you won't see where you are aiming (dolphin mouse is slightly offset)
-TODO: lowmem is recommended, highmem only barely fits in wii's memory and crashes quite fast. Might become better if the last small leaks are fixed.
-TODO: virtual keyboard to type, for now set user and pass in config.ini, audio, add game offset on real HW?, support usb keyboard and mouse on wii
+TODO: need double framebuffers to flip at end of client_draw to a show cursor on screen without flickering or you won't see where you are aiming (dolphin mouse is slightly offset too)
+TODO: add game offset on real HW?
+TODO: support usb keyboard and mouse on wii
+TODO: virtual keyboard to type, for now set user and pass in config.ini
+TODO: audio
 ```
 
 #### 3DS
 in citra emulator click `file>open citra folder` for sdmc dir https://citra-emulator.com/wiki/user-directory/
 
 Controls: Touch to left click, L + touch to right click, Dpad for arrow keys, X for control
-
-There's also an untested NDS target that only works with 3DS DSI emulation as it should have 32MB RAM there (melonDS doesn't emulate extra ram yet).
 
 ```
 TODO: undo touch changes in 3ds.c depending how it works on real hardware (vita seems to work fine on hw)
@@ -194,9 +189,9 @@ TODO: Could enable audio in lowmem for 2000+ models if there's enough memory rem
 ```
 
 ### Sony PS Vita
-Install [vitasdk](#tools) and run `make -f vita.mk -j$(nproc) -B`. Add `SDL=0` to use vita.c
+Install [vitasdk](#tools) and run `make -f vita.mk -j$(nproc) -B`. Add `SDL=0` to use vita.c.
 
-on vita3k emulator to avoid installing the .vpk each change just copy the eboot.bin, and non-blocking networking causes connect fail on windows same as 3ds.
+can test with Vita3K, and to avoid waiting for the vpk to decompress all files you can just copy them manually
 
 Controls: touch as mouse, X for right click, /\ for control, Dpad as arrow keys
 
@@ -209,7 +204,7 @@ TODO: check if vita.c native touch fixes minimap offset, and make it playable
 ```
 
 ### Sega Dreamcast
-Install [kallistios and mkdcdisc](#tools) and run `make -f dreamcast.mk -j$(nproc) -B`. Necessary files are built into rom.
+Install [kallistios and mkdcdisc](#tools) and run `make -f dreamcast.mk -j$(nproc) -B`. Necessary files are built into the cdi.
 
 To try on real hardware you'd need the 32 MB ram expansion mod, which seems involved and maybe less compatible with some other games
 
@@ -227,7 +222,7 @@ TODO: instead of INIT_DEFAULT choose the flags we want to use
 ```
 
 ### Microsoft Xbox
-Install [nxdk](#tools) and run `make -f xbox.mk -j$(nproc) -B`. Necessary files are built into rom.
+Install [nxdk](#tools) and run `make -f xbox.mk -j$(nproc) -B`. Necessary files are built into the iso.
 
 To run with xemu use `-dvd_path client.iso` as args.
 

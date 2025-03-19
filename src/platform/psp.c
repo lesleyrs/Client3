@@ -35,17 +35,11 @@ PSP_MAIN_THREAD_ATTR(PSP_THREAD_ATTR_USER);
 
 static uint16_t *fb = (uint16_t *)0x04000000; // vram start
 static SceCtrlData pad, last_pad;
-static int cursor_x = SCREEN_WIDTH / 2;
-static int cursor_y = SCREEN_HEIGHT / 2;
+static int cursor_x = SCREEN_FB_WIDTH / 2;
+static int cursor_y = SCREEN_FB_HEIGHT / 2;
 
 int get_free_mem(void) {
     return pspSdkTotalFreeUserMemSize();
-}
-int get_cursor_x(void) {
-    return cursor_x;
-}
-int get_cursor_y(void) {
-    return cursor_y;
 }
 
 int exit_callback(int arg1, int arg2, void *common) {
@@ -122,11 +116,11 @@ void set_pixels(PixMap *pixmap, int x, int y) {
     // TODO rm temp checks for going past framebuffer
     uint16_t *fb_ptr = (uint16_t *)fb + (y * VRAM_STRIDE + x);
     for (int row = 0; row < pixmap->height; row++) {
-        if (y + row >= SCREEN_HEIGHT)
+        if (y + row >= SCREEN_FB_HEIGHT)
             break;
 
         for (int col = 0; col < pixmap->width; col++) {
-            if (x + col >= SCREEN_WIDTH)
+            if (x + col >= SCREEN_FB_WIDTH)
                 break;
 
             int src_offset = row * pixmap->width + col;
@@ -205,11 +199,11 @@ void platform_poll_events(Client *c) {
         cursor_x += (pad.Lx - 128) / 20;
         cursor_y += (pad.Ly - 128) / 20;
 
-        if (cursor_x < 0 || cursor_x > SCREEN_WIDTH) {
-            cursor_x = MAX(0, MIN(cursor_x, SCREEN_WIDTH));
+        if (cursor_x < 0 || cursor_x > SCREEN_FB_WIDTH) {
+            cursor_x = MAX(0, MIN(cursor_x, SCREEN_FB_WIDTH));
         }
-        if (cursor_y < 0 || cursor_y > SCREEN_HEIGHT) {
-            cursor_y = MAX(0, MIN(cursor_y, SCREEN_HEIGHT));
+        if (cursor_y < 0 || cursor_y > SCREEN_FB_HEIGHT) {
+            cursor_y = MAX(0, MIN(cursor_y, SCREEN_FB_HEIGHT));
         }
 
         int x = cursor_x;

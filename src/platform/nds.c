@@ -329,18 +329,18 @@ void platform_free_surface(Surface *surface) {
 }
 void set_pixels(PixMap *pixmap, int x, int y) {
     for (int row = 0; row < pixmap->height; row++) {
-        if (row + y >= SCREEN_HEIGHT)
+        if (row + y >= SCREEN_FB_HEIGHT)
             break;
 
         for (int col = 0; col < pixmap->width; col++) {
-            if (col + x >= SCREEN_WIDTH)
+            if (col + x >= SCREEN_FB_WIDTH)
                 break;
 
             int pixel = pixmap->pixels[row * pixmap->width + col];
             uint8_t r = (pixel >> 16) & 0xff;
             uint8_t g = (pixel >> 8) & 0xff;
             uint8_t b = pixel & 0xff;
-            fb[(row + y) * SCREEN_WIDTH + (col + x)] = RGB8(r, g, b);
+            fb[(row + y) * SCREEN_FB_WIDTH + (col + x)] = RGB8(r, g, b);
         }
     }
 }

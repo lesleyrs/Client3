@@ -25,8 +25,11 @@ extern InputTracking _InputTracking;
 
 static void *xfb = NULL;
 static GXRModeObj *rmode = NULL;
-static int cursor_x = SCREEN_WIDTH / 2;
-static int cursor_y = SCREEN_HEIGHT / 2;
+static int cursor_x = SCREEN_FB_WIDTH / 2;
+static int cursor_y = SCREEN_FB_HEIGHT / 2;
+// center screen initially
+static int screen_offset_x = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2;
+static int screen_offset_y = (SCREEN_FB_HEIGHT - SCREEN_HEIGHT) / 2;
 
 static int arrow_yuv_width = 12;
 static int arrow_yuv_height = 20;
@@ -74,12 +77,15 @@ static uint8_t arrow_yuv[] = {
     0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80,
     0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80, 0x10, 0x80};
 static void draw_arrow(void) {
-    if (cursor_x >= SCREEN_WIDTH || cursor_y >= SCREEN_HEIGHT - 20 /* NOTE ? */) {
+    int relative_x = cursor_x + screen_offset_x;
+    int relative_y = cursor_y + screen_offset_y;
+    // NOTE on emu the cursor won't reach the right or bottom, and the top shows the bottom part of a cursor?
+    if (relative_x < 0 || relative_y < 0 || relative_x >= SCREEN_FB_WIDTH || relative_y >= SCREEN_FB_HEIGHT - 20 /* NOTE why rsc-c does -20? */) {
         return;
     }
 
     for (int y = 0; y < arrow_yuv_height; y++) {
-        int fb_index = (SCREEN_WIDTH * 2 * (y + cursor_y)) + (cursor_x * 2);
+        int fb_index = (SCREEN_FB_WIDTH * 2 * (y + relative_y)) + (relative_x * 2);
 
         int arrow_offset = (arrow_yuv_offsets[y] * 2) + (arrow_yuv_width * 2 * y);
 
@@ -111,36 +117,10 @@ static u32 rgb2yuv(u8 r1, u8 g1, u8 b1, u8 r2, u8 g2, u8 b2) {
 int get_free_mem(void) {
     return SYS_GetArena1Hi() - SYS_GetArena1Lo() + SYS_GetArena2Hi() - SYS_GetArena2Lo();
 }
-int get_cursor_x(void) {
-    return cursor_x;
-}
-int get_cursor_y(void) {
-    return cursor_y;
-}
 
 bool platform_init(void) {
-    // TODO draw on screen?
-    if (!fatInitDefault()) {
-        rs2_error("FAT init failed\n");
-        return false;
-    }
-    return true;
-}
-
-void platform_new(int width, int height) {
-    (void)width, (void)height;
     // Initialise the video system
     VIDEO_Init();
-
-    // This function initialises the attached controllers
-    WPAD_Init();
-
-    if (!_Client.lowmem) {
-        AUDIO_Init(NULL);
-        ASND_Init();
-        ASND_Pause(0); // TODO move
-    }
-
     // Obtain the preferred video mode from the system
     // This will correspond to the settings in the Wii menu
     rmode = VIDEO_GetPreferredMode(NULL);
@@ -149,10 +129,6 @@ void platform_new(int width, int height) {
     // xfb = MEM_K0_TO_K1(SYS_AllocateFramebuffer(rmode)); // NOTE: causes green glitchy cursor
     xfb = SYS_AllocateFramebuffer(rmode);
     // VIDEO_ClearFrameBuffer(rmode, xfb, COLOR_BLACK); // NOTE: why is this needed to avoid garbage fb on boot when rsc-c doesn't
-
-    // Initialise the console, required for printf
-    // console_init(xfb, 20, 20, rmode->fbWidth, rmode->xfbHeight, rmode->fbWidth * VI_DISPLAY_PIX_SZ);
-    SYS_STDIO_Report(true);
 
     // Set up the video registers with the chosen mode
     VIDEO_Configure(rmode);
@@ -171,12 +147,35 @@ void platform_new(int width, int height) {
     if (rmode->viTVMode & VI_NON_INTERLACE)
         VIDEO_WaitVSync();
 
+    // Initialise the console, required for printf
+    console_init(xfb, 20, 20, rmode->fbWidth, rmode->xfbHeight, rmode->fbWidth * VI_DISPLAY_PIX_SZ);
+    // NOTE enable for debugging
+    // SYS_STDIO_Report(true);
+    if (!fatInitDefault()) {
+        rs2_error("FAT init failed\n");
+        VIDEO_Flush();
+        return false;
+    }
+    return true;
+}
+
+void platform_new(int width, int height) {
+    (void)width, (void)height;
+    // This function initialises the attached controllers
+    WPAD_Init();
+
     WPAD_SetDataFormat(0, WPAD_FMT_BTNS_ACC_IR);
     WPAD_SetVRes(0, rmode->fbWidth, rmode->xfbHeight);
 
     KEYBOARD_Init(NULL);
     MOUSE_Init();
     // settime(0); // would start gettime at 0, but why does this break on login?
+
+    if (!_Client.lowmem) {
+        AUDIO_Init(NULL);
+        ASND_Init();
+        ASND_Pause(0); // TODO move
+    }
 }
 void platform_free(void) {
 }
@@ -202,33 +201,33 @@ void platform_free_surface(Surface *surface) {
 }
 void set_pixels(PixMap *pixmap, int x, int y) {
     for (int row = 0; row < pixmap->height; row++) {
-        if (y + row >= SCREEN_HEIGHT)
-            break;
+        int screen_y = y + row + screen_offset_y;
+        if (screen_y < 0 || screen_y >= SCREEN_FB_HEIGHT)
+            continue;
 
         for (int col = 0; col < pixmap->width; col += 2) {
-            if (x + col >= SCREEN_WIDTH)
-                break;
+            int screen_x = x + col + screen_offset_x;
+            if (screen_x < 0 || screen_x + 1 >= SCREEN_FB_WIDTH)
+                continue;
 
+            int dest_offset = screen_y * (rmode->fbWidth / 2) + (screen_x / 2);
             int src_offset = row * pixmap->width + col;
-            int dest_offset = (y + row) * (rmode->fbWidth / 2) + (x + col) / 2;
 
             int pixel1 = pixmap->pixels[src_offset];
             uint8_t r1 = (pixel1 >> 16) & 0xff;
             uint8_t g1 = (pixel1 >> 8) & 0xff;
             uint8_t b1 = pixel1 & 0xff;
 
-            int pixel2 = pixmap->pixels[src_offset + 1];
+            int pixel2 = (col + 1 < pixmap->width) ? pixmap->pixels[src_offset + 1] : pixel1;
             uint8_t r2 = (pixel2 >> 16) & 0xff;
             uint8_t g2 = (pixel2 >> 8) & 0xff;
             uint8_t b2 = pixel2 & 0xff;
 
-            // TODO is this conversion ok? some pixels seem off on left side of the inventory
             ((uint32_t *)xfb)[dest_offset] = rgb2yuv(r1, g1, b1, r2, g2, b2);
         }
     }
 
-    // TODO
-    // draw_arrow();
+    draw_arrow();
 
     // VIDEO_Flush();
     // VIDEO_WaitVSync();
@@ -305,12 +304,57 @@ void platform_poll_events(Client *c) {
         key_released(c->shell, K_DOWN, -1);
     }
 
-    if (data->btns_d & WPAD_BUTTON_1) {
+    if (data->btns_d & WPAD_BUTTON_MINUS) {
         key_pressed(c->shell, K_CONTROL, -1);
     }
 
-    if (data->btns_u & WPAD_BUTTON_1) {
+    if (data->btns_u & WPAD_BUTTON_MINUS) {
         key_released(c->shell, K_CONTROL, -1);
+    }
+
+    static bool pan = false;
+    if (data->btns_d & WPAD_BUTTON_PLUS) {
+        pan = true;
+    }
+
+    if (data->btns_u & WPAD_BUTTON_PLUS) {
+        pan = false;
+    }
+
+    if (data->btns_d & WPAD_BUTTON_1) {
+        screen_offset_x = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2;
+        screen_offset_y = (SCREEN_FB_HEIGHT - SCREEN_HEIGHT) / 2;
+        c->redraw_background = true;
+    }
+
+    if (pan) {
+        if (cursor_x < PAN_DISTANCE) {
+            if (screen_offset_x < 0) {
+                screen_offset_x = MIN(0, screen_offset_x + PAN_SPEED);
+                c->redraw_background = true;
+            }
+        }
+
+        if (cursor_x > SCREEN_FB_WIDTH - PAN_DISTANCE) {
+            if (screen_offset_x > SCREEN_FB_WIDTH - SCREEN_WIDTH) {
+                screen_offset_x = MAX(SCREEN_FB_WIDTH - SCREEN_WIDTH, screen_offset_x - PAN_SPEED);
+                c->redraw_background = true;
+            }
+        }
+
+        if (cursor_y < PAN_DISTANCE) {
+            if (screen_offset_y < 0) {
+                screen_offset_y = MIN(0, screen_offset_y + PAN_SPEED);
+                c->redraw_background = true;
+            }
+        }
+
+        if (cursor_y > SCREEN_FB_HEIGHT - PAN_DISTANCE) {
+            if (screen_offset_y > SCREEN_FB_HEIGHT - SCREEN_HEIGHT) {
+                screen_offset_y = MAX(SCREEN_FB_HEIGHT - SCREEN_HEIGHT, screen_offset_y - PAN_SPEED);
+                c->redraw_background = true;
+            }
+        }
     }
 }
 void platform_update_surface(void) {

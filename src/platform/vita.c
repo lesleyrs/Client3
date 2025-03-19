@@ -17,8 +17,6 @@ extern ClientData _Client;
 extern InputTracking _InputTracking;
 extern Custom _Custom;
 
-#define SCREEN_FB_HEIGHT 544
-#define SCREEN_FB_WIDTH 960              // frame buffer aligned width for accessing vram
 #define SCREEN_FB_SIZE (2 * 1024 * 1024) // Must be 256KB aligned
 static SceUID displayblock;
 static void *base; // pointer to frame buffer

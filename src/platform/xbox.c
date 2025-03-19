@@ -96,12 +96,12 @@ void platform_free_surface(Surface *surface) {
 }
 void set_pixels(PixMap *pixmap, int x, int y) {
     for (int h = 0; h < pixmap->height; h++) {
-        if (y + h >= SCREEN_HEIGHT)
+        if (y + h >= SCREEN_FB_HEIGHT)
             break;
         for (int w = 0; w < pixmap->width; w++) {
-            if (x + w >= SCREEN_WIDTH)
+            if (x + w >= SCREEN_FB_WIDTH)
                 break;
-            rgbx[(y + h) * SCREEN_WIDTH + (x + w)] = pixmap->pixels[h * pixmap->width + w];
+            rgbx[(y + h) * SCREEN_FB_WIDTH + (x + w)] = pixmap->pixels[h * pixmap->width + w];
         }
     }
 }

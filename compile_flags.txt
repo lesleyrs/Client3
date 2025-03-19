@@ -24,8 +24,8 @@
 // -Ibin/SDL2-devel-2.30.9-VC/SDL2-2.30.9/include
 // -DSDL=3
 // -I/usr/local/include/
-// -D__WII__
-// -I/opt/devkitpro/libogc/include/
+-D__WII__
+-I/opt/devkitpro/libogc/include/
 // -D__3DS__
 // -I/opt/devkitpro/libctru/include/
 // -D__WIIU__
@@ -37,18 +37,17 @@
 // -D__vita__
 // -I/usr/local/vitasdk/arm-vita-eabi/include/
 
-// -DSDL=1
-// -D__DREAMCAST__
-// -I/opt/toolchains/dc/kos/include
-// -I/opt/toolchains/dc/kos/kernel/arch/dreamcast/include
+-D__DREAMCAST__
+-I/opt/toolchains/dc/kos/include
+-I/opt/toolchains/dc/kos/kernel/arch/dreamcast/include
 
 // -DNXDK
 // -I/home/lesley/dev/c/nxdk/lib
 // -I/home/lesley/dev/c/nxdk/lib/winapi
 // -I/home/lesley/dev/c/nxdk/lib/net/lwip/src/include
 
--D__NDS__
--DARM9
--DARM7
--I/opt/devkitpro/libnds/include/
--I/opt/devkitpro/calico/include/
+// -D__NDS__
+// -DARM9
+// -DARM7
+// -I/opt/devkitpro/libnds/include/
+// -I/opt/devkitpro/calico/include/

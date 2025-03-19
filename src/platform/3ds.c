@@ -125,15 +125,15 @@ void platform_free_surface(Surface *surface) {
 void set_pixels(PixMap *pixmap, int x, int y) {
     // TODO rm temp checks for going past framebuffer
     for (int row = 0; row < pixmap->height; row++) {
-        if (y + row >= SCREEN_HEIGHT) break;
+        if (y + row >= SCREEN_FB_HEIGHT) break;
 
         for (int col = 0; col < pixmap->width; col++) {
-            if (x + col >= SCREEN_WIDTH) break;
+            if (x + col >= SCREEN_FB_WIDTH) break;
 
             int src_offset = row * pixmap->width + col;
 
-            int pixel_offset = (x + col) * SCREEN_HEIGHT * 3 + (SCREEN_HEIGHT - 1 - (y + row)) * 3;
-            // int pixel_offset = (y + row) * SCREEN_HEIGHT * 3 + (x + col) * 3;
+            int pixel_offset = (x + col) * SCREEN_FB_HEIGHT * 3 + (SCREEN_FB_HEIGHT - 1 - (y + row)) * 3;
+            // int pixel_offset = (y + row) * SCREEN_FB_HEIGHT * 3 + (x + col) * 3;
 
             int pixel = pixmap->pixels[src_offset];
             uint8_t b = pixel & 0xff;

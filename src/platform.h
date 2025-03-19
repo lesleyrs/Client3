@@ -31,8 +31,6 @@ typedef struct PixMap PixMap;
 
 // TODO rm temp func
 #if defined(__WII__) || defined(__PSP__)
-int get_cursor_x(void);
-int get_cursor_y(void);
 int get_free_mem(void);
 #endif
 

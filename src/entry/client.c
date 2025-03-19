@@ -8815,9 +8815,6 @@ void client_draw_scene(Client *c) {
     drawTileHint(c);
     updateTextures(c, jitter);
     draw3DEntityElements(c);
-#ifdef __PSP__
-    pix2d_fill_circle(get_cursor_x() - 8, get_cursor_y() - 12, 8, WHITE, 96);
-#endif
     pixmap_draw(c->area_viewport, 8, 11);
     c->cameraX = cameraX;
     c->cameraY = cameraY;

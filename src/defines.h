@@ -10,23 +10,31 @@
 #define RSA_BUF_LEN 128
 #endif
 
+// used for panning the game if the screen is too small
+#define PAN_DISTANCE 100
+#define PAN_SPEED 10
+
+// used for avoiding overdraw, scaling touch, and width is used for aligned access in vram too
 #if defined(__WII__) || defined(__DREAMCAST__) || defined(NXDK)
-#define SCREEN_WIDTH 640
-#define SCREEN_HEIGHT 480
+#define SCREEN_FB_WIDTH 640
+#define SCREEN_FB_HEIGHT 480
+#elif defined(__vita__)
+#define SCREEN_FB_WIDTH 960
+#define SCREEN_FB_HEIGHT 544
 #elif defined(__3DS__)
-// #define SCREEN_WIDTH 400
-#define SCREEN_WIDTH 320
-#define SCREEN_HEIGHT 240
+// #define SCREEN_FB_WIDTH 400
+#define SCREEN_FB_WIDTH 320
+#define SCREEN_FB_HEIGHT 240
 #elif defined(__PSP__)
-#define SCREEN_WIDTH 480
-#define SCREEN_HEIGHT 272
+#define SCREEN_FB_WIDTH 480
+#define SCREEN_FB_HEIGHT 272
 #elif defined(__NDS__)
-#define SCREEN_WIDTH 256
-#define SCREEN_HEIGHT 192
-#else
+#define SCREEN_FB_WIDTH 256
+#define SCREEN_FB_HEIGHT 192
+#endif
+
 #define SCREEN_WIDTH 789
 #define SCREEN_HEIGHT 532
-#endif
 
 // arbitrary to fix -Wall possible overflow warnings
 // NOTE maybe change the ones using half_str to use strncpy but yolo
