@@ -256,7 +256,7 @@ ClientStream *clientstream_new(int port) {
     }
 #endif
 
-    stream->socket = socket(AF_INET, SOCK_STREAM, 0);
+    stream->socket = (int)socket(AF_INET, SOCK_STREAM, 0);
     if (stream->socket < 0) {
         rs2_error("socket error: %s (%d)\n", strerror(errno), errno);
         clientstream_close(stream);

@@ -81,7 +81,7 @@ bring back worldlist loading in [shell.html](https://github.com/lesleyrs/Client3
 - signed integer underflow/overflow is undefined (-fwrapv doesn't exist for cl/tcc, but there's no known issue) loopcycle should be ok
 
 - msvc doesn't support VLAs (variable length arrays), use heap allocations
-- all the casts to char* in clientstream are just to stop windows warnings
+- all the casts to char* and int in clientstream are just to stop windows warnings
 - changed camelCase into snake_case, lowercase hex values
 - no code width limit as virtual text wrapping is superior for selecting complete lines
 - only moved files to dirs with little includes to avoid complicating builds with -I
