@@ -1,8 +1,8 @@
 #ifdef client
+#include <errno.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
 
 #include "../allocator.h"
 #include "../animbase.h"
@@ -845,11 +845,11 @@ void client_run_flames(Client *c) {
 }
 
 void client_update(Client *c) {
+    platform_poll_events(c);
     if (c->error_started || c->error_loading || c->error_host) {
         return;
     }
 
-    platform_poll_events(c);
     _Client.loop_cycle++;
     if (c->ingame) {
         client_update_game(c);
