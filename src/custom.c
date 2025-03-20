@@ -70,6 +70,10 @@ bool load_ini_args(void) {
     INI_INT_LOG(&(&_Client), nodeid, _Client.nodeid = 10 + _Client.nodeid - 1);
     INI_INT_LOG(&(&_Client), portoff, );
     INI_INT_LOG(&(&_Client), lowmem, );
+#if defined(__PSP__) || defined(__DREAMCAST__) || defined(NXDK) || defined(__NDS__)
+    // NOTE: implicitly ignore highmem, avoids confusion as there's no way it'll load
+    _Client.lowmem = true;
+#endif
     INI_INT_LOG(&(&_Client), members, _Client.members = !_Client.members);
 
     rs2_log("\n");

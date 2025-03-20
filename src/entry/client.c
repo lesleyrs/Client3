@@ -10273,10 +10273,6 @@ int main(int argc, char **argv) {
     _Client.members = !_free || strcmp(_free, "1") != 0;
 #else
     if (load_ini_args()) {
-#if defined(__PSP__) || defined(__DREAMCAST__) || defined(NXDK) || defined(__NDS__)
-        // NOTE: implicitly ignore highmem, avoids confusion as there's no way it'll load
-        _Client.lowmem = true;
-#endif
         _Client.lowmem ? client_set_lowmem() : client_set_highmem();
         goto init;
     }
