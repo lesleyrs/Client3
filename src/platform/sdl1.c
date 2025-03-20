@@ -2,12 +2,14 @@
 #include "SDL.h"
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 
 #include "../client.h"
 #include "../defines.h"
 #include "../gameshell.h"
 #include "../inputtracking.h"
 #include "../pixmap.h"
+#include "../custom.h"
 
 #ifdef __DREAMCAST__
 #include <arch/arch.h>
@@ -15,11 +17,69 @@
 #include <dc/video.h>
 #endif
 
+extern ClientData _Client;
 extern InputTracking _InputTracking;
+extern Custom _Custom;
 
 static SDL_Surface *window_surface;
 
 static void platform_get_keycodes(SDL_keysym *keysym, int *code, char *ch);
+
+#include "../thirdparty/bzip.h"
+#define TSF_IMPLEMENTATION
+#include "../thirdparty/tsf.h"
+
+#define TML_IMPLEMENTATION
+#include "../thirdparty/tml.h"
+
+static tml_message *TinyMidiLoader;
+
+// Holds the global instance pointer
+static tsf *g_TinySoundFont;
+// Holds global MIDI playback state
+static double g_Msec;              // current playback time
+static tml_message *g_MidiMessage; // next message to be played
+
+static void midi_callback(void *data, Uint8 *stream, int len) {
+    (void)data;
+    memset(stream, 0, len); // SDL1 requires clearing the buffer manually
+
+    // Number of samples to process (SDL1 only supports 16-bit audio)
+    int SampleBlock, SampleCount = len / (2 * sizeof(int16_t)); // 2 output channels
+
+    for (SampleBlock = TSF_RENDER_EFFECTSAMPLEBLOCK; SampleCount;
+         SampleCount -= SampleBlock, stream += (SampleBlock * 2 * sizeof(int16_t))) {
+
+        if (SampleBlock > SampleCount)
+            SampleBlock = SampleCount;
+
+        // Process MIDI messages
+        for (g_Msec += SampleBlock * (1000.0 / 44100.0);
+             g_MidiMessage && g_Msec >= g_MidiMessage->time;
+             g_MidiMessage = g_MidiMessage->next) {
+            switch (g_MidiMessage->type) {
+            case TML_PROGRAM_CHANGE:
+                tsf_channel_set_presetnumber(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->program, (g_MidiMessage->channel == 9));
+                break;
+            case TML_NOTE_ON:
+                tsf_channel_note_on(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->key, g_MidiMessage->velocity / 127.0f);
+                break;
+            case TML_NOTE_OFF:
+                tsf_channel_note_off(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->key);
+                break;
+            case TML_PITCH_BEND:
+                tsf_channel_set_pitchwheel(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->pitch_bend);
+                break;
+            case TML_CONTROL_CHANGE:
+                tsf_channel_midi_control(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->control, g_MidiMessage->control_value);
+                break;
+            }
+        }
+
+        // Render in 16-bit PCM format (SDL1 does not support float)
+        tsf_render_short(g_TinySoundFont, (int16_t *)stream, SampleBlock, 0);
+    }
+}
 
 bool platform_init(void) {
 #ifdef __DREAMCAST__
@@ -59,7 +119,11 @@ bool platform_init(void) {
 }
 
 void platform_new(int width, int height) {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    int init = SDL_INIT_VIDEO;
+    if (!_Client.lowmem) {
+        init |= SDL_INIT_AUDIO;
+    }
+    if (SDL_Init(init) < 0) {
         rs2_error("SDL_Init failed: %s\n", SDL_GetError());
         return;
     }
@@ -70,10 +134,49 @@ void platform_new(int width, int height) {
     SDL_WM_SetCaption("Jagex", NULL);
     // window_surface = SDL_SetVideoMode(width, height, 32, SDL_HWSURFACE | SDL_RESIZABLE);
     window_surface = SDL_SetVideoMode(width, height, 32, SDL_SWSURFACE);
+
+    if (_Client.lowmem) {
+        return;
+    }
+
+    SDL_AudioSpec midiSpec;
+    midiSpec.freq = 44100;
+// TODO separate midi and rm from sdl2
+#if SDL == 1
+    midiSpec.format = AUDIO_S16SYS;
+#else
+    midiSpec.format = AUDIO_F32;
+#endif
+    midiSpec.channels = 2;
+    midiSpec.samples = 4096;
+    midiSpec.callback = midi_callback;
+
+    g_TinySoundFont = tsf_load_filename("SCC1_Florestan.sf2");
+    if (!g_TinySoundFont) {
+        rs2_error("Could not load SoundFont\n");
+    } else {
+        // Set the SoundFont rendering output mode
+        tsf_set_output(g_TinySoundFont, TSF_STEREO_INTERLEAVED, midiSpec.freq, 0.0f);
+
+        if (SDL_OpenAudio(&midiSpec, NULL) < 0) {
+            rs2_error("Could not open the audio hardware or the desired audio output format\n");
+        }
+        SDL_PauseAudio(0);
+    }
+
+    // TODO wavs (sdl1 only has 1 device)
+    // SDL_AudioSpec wavSpec;
+    // wavSpec.freq = 22050;
+    // wavSpec.format = AUDIO_U8;
+    // wavSpec.channels = 1;
+    // wavSpec.samples = 4096;
+    // wavSpec.callback = NULL;
 }
 
 void platform_free(void) {
     SDL_Quit();
+    tsf_close(g_TinySoundFont);
+    tml_free(TinyMidiLoader);
 }
 
 void platform_play_wave(int8_t *src, int length) {
@@ -81,16 +184,69 @@ void platform_play_wave(int8_t *src, int length) {
 
 void platform_set_wave_volume(int wavevol) {
 }
+
 void platform_set_midi_volume(float midivol) {
+    if (_Client.lowmem) {
+        return;
+    }
+    if (SDL_GetAudioStatus() != SDL_AUDIO_STOPPED) {
+        tsf_set_volume(g_TinySoundFont, midivol);
+    }
 }
 
 void platform_set_jingle(int8_t *src, int len) {
-}
-void platform_set_midi(const char *name, int crc, int len) {
-}
-void platform_stop_midi(void) {
+    // tml_free(TinyMidiLoader);
+    TinyMidiLoader = tml_load_memory(src, len);
+    platform_stop_midi();
+    g_MidiMessage = TinyMidiLoader;
+    free(src);
 }
 
+// TODO add fade (always, not jingles)
+void platform_set_midi(const char *name, int crc, int len) {
+    char filename[PATH_MAX];
+    snprintf(filename, sizeof(filename), "cache/client/songs/%s.mid", name);
+    FILE *file = fopen(filename, "rb");
+    if (!file) {
+        rs2_error("Error loading midi file %s: %s (NOTE: authentic if empty?)\n", filename, strerror(errno));
+        return;
+    }
+
+    int8_t *data = malloc(len);
+    const size_t data_len = fread(data, 1, len, file);
+    if (data && crc != 12345678) {
+        int data_crc = rs_crc32(data, len);
+        if (data_crc != crc) {
+            free(data);
+            data = NULL;
+        }
+    }
+
+    Packet *packet = packet_new(data, 4);
+    const int uncompressed_length = g4(packet);
+    int8_t *uncompressed = malloc(uncompressed_length);
+    bzip_decompress(uncompressed, data, (int)data_len - 4, 4);
+    // tml_free(TinyMidiLoader);
+    TinyMidiLoader = tml_load_memory(uncompressed, uncompressed_length);
+    platform_stop_midi();
+    g_MidiMessage = TinyMidiLoader;
+    packet_free(packet);
+    free(uncompressed);
+    fclose(file);
+}
+
+void platform_stop_midi(void) {
+    if (_Client.lowmem) {
+        return;
+    }
+    if (SDL_GetAudioStatus() != SDL_AUDIO_STOPPED) {
+        g_MidiMessage = NULL;
+        g_Msec = 0;
+        tsf_reset(g_TinySoundFont);
+        // Initialize preset on special 10th MIDI channel to use percussion sound bank (128) if available
+        tsf_channel_set_bank_preset(g_TinySoundFont, 9, 128, 0);
+    }
+}
 Surface *platform_create_surface(int *pixels, int width, int height, int alpha) {
     return SDL_CreateRGBSurfaceFrom(pixels, width, height, 32, width * sizeof(int), 0xff0000, 0x00ff00, 0x0000ff, alpha);
 }
