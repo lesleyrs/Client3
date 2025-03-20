@@ -320,6 +320,7 @@ void gameshell_draw_string(Client *c, const char *str, int x, int y, int color, 
         file = fopen("Roboto/Roboto-Bold.ttf", "rb");
 #endif
         if (!file) {
+            // NOTE: if no font it won't show errors on screen if files are missing (some consoles embed though)
             rs2_error("Failed to open font file\n");
             return;
         }
