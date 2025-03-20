@@ -1,9 +1,39 @@
+#include <errno.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "client.h"
 #include "clientstream.h"
 #include "platform.h"
+
+#ifndef NXDK
+#include <fcntl.h>
+#endif
+
+#ifdef __WII__
+#include <network.h>
+#elif defined(NXDK)
+#include <lwip/netdb.h>
+#include <nxdk/net.h>
+#elif defined(_WIN32)
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#else
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#ifndef __vita__
+#include <sys/ioctl.h>
+#endif
+#include <sys/select.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
+#endif
 
 #ifdef __SWITCH__
 #include <switch.h>
@@ -45,7 +75,7 @@ KOS_INIT_FLAGS(INIT_DEFAULT | INIT_NET);
 
 extern ClientData _Client;
 
-int clientstream_init(void) {
+bool clientstream_init(void) {
 #ifdef _WIN32
     WSADATA wsa_data = {0};
     int ret = WSAStartup(MAKEWORD(2, 2), &wsa_data);
@@ -158,9 +188,8 @@ int clientstream_init(void) {
     return true;
 }
 
-ClientStream *clientstream_new(GameShell *shell, int port) {
+ClientStream *clientstream_new(int port) {
     ClientStream *stream = calloc(1, sizeof(ClientStream));
-    stream->shell = shell;
     stream->closed = false;
 
     int ret = 0;
@@ -228,11 +257,7 @@ ClientStream *clientstream_new(GameShell *shell, int port) {
 #endif
 
     stream->socket = socket(AF_INET, SOCK_STREAM, 0);
-#ifdef _WIN32
-    if (stream->socket == INVALID_SOCKET) {
-#else
     if (stream->socket < 0) {
-#endif
         rs2_error("socket error: %s (%d)\n", strerror(errno), errno);
         clientstream_close(stream);
         return NULL;
@@ -267,7 +292,6 @@ ClientStream *clientstream_new(GameShell *shell, int port) {
     int set = true;
 #endif
 #ifndef __NDS__
-    // NOTE: cast for windows
     setsockopt(stream->socket, IPPROTO_TCP, TCP_NODELAY, (const char *)&set, sizeof(set));
 #endif
 #if !defined(__3DS__) && !defined(__WIIU__)
@@ -365,11 +389,7 @@ ClientStream *clientstream_new(GameShell *shell, int port) {
 }
 
 void clientstream_close(ClientStream *stream) {
-#ifdef _WIN32
-    if (stream->socket > (SOCKET)-1) {
-#else
     if (stream->socket > -1) {
-#endif
         close(stream->socket);
         stream->socket = -1;
     }
@@ -382,7 +402,6 @@ int clientstream_available(ClientStream *stream, int len) {
         return 1;
     }
 
-    // NOTE: cast for windows to stop clang warning
     int bytes = recv(stream->socket, (char *)stream->buf + stream->bufPos + stream->bufLen, len - stream->bufLen, 0);
 
     if (bytes < 0) {
@@ -441,7 +460,6 @@ int clientstream_read_bytes(ClientStream *stream, int8_t *dst, int off, int len)
     int read_duration = 0;
 
     while (len > 0) {
-        // NOTE: cast for windows to stop clang warning
         int bytes = recv(stream->socket, (char *)dst + off, len, 0);
         if (bytes > 0) {
             off += bytes;
@@ -464,10 +482,9 @@ int clientstream_read_bytes(ClientStream *stream, int8_t *dst, int off, int len)
     return 0;
 }
 
-int clientstream_write(ClientStream *stream, int8_t *src, int len, int off) {
+int clientstream_write(ClientStream *stream, const int8_t *src, int len, int off) {
     if (!stream->closed) {
 #if defined(_WIN32) || defined(__SWITCH__) || defined(__NDS__)
-        // NOTE: cast for windows
         return send(stream->socket, (const char *)src + off, len, 0);
 #else
         return write(stream->socket, src + off, len);

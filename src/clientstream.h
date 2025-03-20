@@ -2,56 +2,22 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <stdio.h>
-
-#include <errno.h>
-#ifndef NXDK
-#include <fcntl.h>
-#endif
-
-#ifdef __WII__
-#include <network.h>
-#elif defined(NXDK)
-#include <lwip/netdb.h>
-#include <nxdk/net.h>
-#elif defined(_WIN32)
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#else
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#ifndef __vita__
-#include <sys/ioctl.h>
-#endif
-#include <sys/select.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
-#endif
 
 typedef struct ClientStream ClientStream;
-#include "gameshell.h"
 
 struct ClientStream {
-#ifdef _WIN32
-    SOCKET socket;
-#else
     int socket;
-#endif
     bool closed;
-    GameShell *shell;
     int8_t buf[5000];
     int bufLen;
     int bufPos;
 };
 
-int clientstream_init(void);
-ClientStream *clientstream_new(GameShell *shell, int port);
+bool clientstream_init(void);
+ClientStream *clientstream_new(int port);
 void clientstream_close(ClientStream *stream);
 int clientstream_available(ClientStream *stream, int length);
 int clientstream_read_byte(ClientStream *stream);
 int clientstream_read_bytes(ClientStream *stream, int8_t *dst, int off, int len);
-int clientstream_write(ClientStream *stream, int8_t *src, int len, int off);
+int clientstream_write(ClientStream *stream, const int8_t *src, int len, int off);
 const char *dnslookup(const char *hostname);

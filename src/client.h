@@ -14,6 +14,7 @@
 #include "pixfont.h"
 #include "playerentity.h"
 #include "world3d.h"
+#include "pixmap.h"
 
 typedef struct {
     // from signlink

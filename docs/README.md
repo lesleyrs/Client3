@@ -29,14 +29,11 @@
 ```
 add a define for mobile to set mouse_x and mouse_y, however we have to make sure that on both android and postmarketos it's using finger events not emulated mouse.
 Mobile isn't playable for now without mouse/keyboard (no right clicking, rotating camera, onscreen keyboard)
-compare performance on consoles for floats instead of doubles (pix3d_set_gamma)
 all consoles without touch need to be able to redraw entire screen (even parts it normally doesn't) due to not having a builtin pointer/cursor to show where your virtual pointer is. This means it will never redraw that part of the screen and will just accumulate those images.
 ts Client2/java Client (lastmain/webclient branch) repo have extra funcs (pix2d etc?)
 remove original cache at bin/archives when the cache matches exactly
 add diskstore/gzip just for later cache loading
-SDL3 is not officially released yet, need updated binaries when it is.
 icon/metadata/title etc for the different platforms: title+taskbar+desktop
-http requests for checksums/cache (not done as they aren't supposed to change and saving files on consoles depends on if sdcard or romfs was used)
 change a bunch of functions and function prototypes to static
 clientstream and keycodes are based off rsc-c (but both have some tweaks), double check them for accuracy
 the following are (partially) based on RS2-225 by accident, some funcs might take args in diff order to Client repo: animbase, animframe, pix2d, pix3d, gameshell, jagfile, model, packet, pix8, pixfont, pixmap. Rewrite maybe?
@@ -65,6 +62,7 @@ bring back worldlist loading in [shell.html](https://github.com/lesleyrs/Client3
 - init() moved to main() as that's emscriptens entrypoint
 - emscripten wasm goes out of sync on lowmem if the tab was unfocused and tinysoundfont isn't running. The typescript client uses absolute time to avoid this issue, but since tsf is making it work on highmem it's not very important.
 - dnslookup on web just shows your public ip instead of dns, this is expected and the same applies to the typescript client. If dnslookup fails to resolve and welcome screen lags you can set `hide_dns = 1` in config.ini to skip it.
+- http requests for checksums/cache (not done as they aren't supposed to change and saving files on consoles depends on if sdcard or romfs was used) another downside is that being "connected" in emulators generally stops you from being able to fast forward so load times will be slow.
 
 - networking/midi/login flames run on the same thread
 - synchronized is unused and there's no run() function in client.c
@@ -83,6 +81,7 @@ bring back worldlist loading in [shell.html](https://github.com/lesleyrs/Client3
 - signed integer underflow/overflow is undefined (-fwrapv doesn't exist for cl/tcc, but there's no known issue) loopcycle should be ok
 
 - msvc doesn't support VLAs (variable length arrays), use heap allocations
+- all the casts to char* in clientstream are just to stop windows warnings
 - changed camelCase into snake_case, lowercase hex values
 - no code width limit as virtual text wrapping is superior for selecting complete lines
 - only moved files to dirs with little includes to avoid complicating builds with -I

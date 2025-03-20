@@ -2,6 +2,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #include "../allocator.h"
 #include "../animbase.h"
@@ -7343,9 +7344,9 @@ void client_login(Client *c, const char *username, const char *password, bool re
 
     free(c->stream);
 #ifdef __EMSCRIPTEN__
-    c->stream = clientstream_new(c->shell, _Custom.http_port);
+    c->stream = clientstream_new(_Custom.http_port);
 #else
-    c->stream = clientstream_new(c->shell, _Client.portoff + 43594);
+    c->stream = clientstream_new(_Client.portoff + 43594);
 #endif
     if (!c->stream) {
         goto login_fail;

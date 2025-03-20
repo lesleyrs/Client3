@@ -1,5 +1,6 @@
 #include <math.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -7,6 +8,7 @@
 #include "client.h"
 #include "custom.h"
 #include "datastruct/jstring.h"
+#include "gameshell.h"
 #include "inputtracking.h"
 #include "thirdparty/ini.h"
 

@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 
 #include "../client.h"
 #include "../custom.h"
