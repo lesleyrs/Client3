@@ -11,12 +11,6 @@
 #include "../pixmap.h"
 #include "../custom.h"
 
-#ifdef __DREAMCAST__
-#include <arch/arch.h>
-#include <dc/biosfont.h>
-#include <dc/video.h>
-#endif
-
 extern ClientData _Client;
 extern InputTracking _InputTracking;
 extern Custom _Custom;
@@ -82,39 +76,6 @@ static void midi_callback(void *data, Uint8 *stream, int len) {
 }
 
 bool platform_init(void) {
-#ifdef __DREAMCAST__
-    chdir("/cd");
-    if (!DBL_MEM) {
-        int off = (640 * BFONT_HEIGHT) + BFONT_THIN_WIDTH;
-        bfont_draw_str(vram_s + off, 640, 1, "Unsupported: 16MB RAM detected, need 32MB expansion\n");
-        return false;
-    }
-
-    // TODO rm, waiting for path dot extension fix
-    file_t d;
-    dirent_t *de;
-
-    rs2_log("Reading directory from CD-Rom:\r\n");
-
-    /* Read and print the root directory */
-    d = fs_open("/cd/cache/client", O_RDONLY | O_DIR);
-
-    if (d == 0) {
-        rs2_error("Can't open root!\r\n");
-        return false;
-    }
-
-    while ((de = fs_readdir(d))) {
-        rs2_log("%s  /  ", de->name);
-
-        if (de->size >= 0) {
-            rs2_log("%d\r\n", de->size);
-        } else {
-            rs2_log("DIR\r\n");
-        }
-    }
-
-#endif
     return true;
 }
 

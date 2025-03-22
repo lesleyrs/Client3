@@ -10,12 +10,8 @@
 #define RSA_BUF_LEN 128
 #endif
 
-// used for panning the game if the screen is too small
-#define PAN_DISTANCE 100
-#define PAN_SPEED 10
-
 // used for avoiding overdraw, scaling touch, and width is used for aligned access in vram too
-#if defined(__WII__) || defined(__DREAMCAST__) || defined(NXDK)
+#if defined(__WII__) || defined(_arch_dreamcast) || defined(NXDK)
 #define SCREEN_FB_WIDTH 640
 #define SCREEN_FB_HEIGHT 480
 #elif defined(__vita__)

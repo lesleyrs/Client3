@@ -444,7 +444,7 @@ void client_load(Client *c) {
     // }
 
 // NOTE: we can't grow it so it needs to fit the max usage, left value is shifted to MiB (arbitrary value)
-#if defined(__DREAMCAST__) || defined(__NDS__)
+#if defined(_arch_dreamcast) || defined(__NDS__)
 #include <malloc.h>
     malloc_stats();
     if (!bump_allocator_init(2 << 20)) {
@@ -460,7 +460,7 @@ void client_load(Client *c) {
     }
 
 // TODO temp
-#if defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__PSP__) || defined(__DREAMCAST__) || defined(NXDK) || defined(__NDS__)
+#if defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__PSP__) || defined(__WII__) || defined(_arch_dreamcast) || defined(NXDK) || defined(__NDS__)
     client_login(c, c->username, c->password, false);
 #endif
 }
@@ -4759,7 +4759,7 @@ bool client_read(Client *c) {
                 // data = signlink.cacheload("m" + mapsquareX + "_" + mapsquareZ);
                 // custom NOTE move these
                 char filename[PATH_MAX];
-#ifdef __DREAMCAST__
+#ifdef _arch_dreamcast
                 snprintf(filename, sizeof(filename), "cache/client/maps/m%d_%d.", mapsquareX, mapsquareZ);
 #elif defined(NXDK)
                 snprintf(filename, sizeof(filename), "D:\\cache\\client\\maps\\m%d_%d", mapsquareX, mapsquareZ);
@@ -4804,7 +4804,7 @@ bool client_read(Client *c) {
                 // data = signlink.cacheload("l" + mapsquareX + "_" + mapsquareZ);
                 // custom NOTE move this
                 char filename[PATH_MAX];
-#ifdef __DREAMCAST__
+#ifdef _arch_dreamcast
                 snprintf(filename, sizeof(filename), "cache/client/maps/l%d_%d.", mapsquareX, mapsquareZ);
 #elif defined(NXDK)
                 snprintf(filename, sizeof(filename), "D:\\cache\\client\\maps\\l%d_%d", mapsquareX, mapsquareZ);
@@ -10660,7 +10660,7 @@ Jagfile *load_archive(Client *c, const char *name, int crc, const char *display_
     int8_t *data;
     int8_t *header = malloc(6);
     char filename[PATH_MAX];
-#ifdef __DREAMCAST__
+#ifdef _arch_dreamcast
     snprintf(filename, sizeof(filename), "cache/client/%s.", name);
 #elif defined(NXDK)
     snprintf(filename, sizeof(filename), "D:\\cache\\client\\%s", name);

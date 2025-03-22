@@ -21,6 +21,11 @@ extern Custom _Custom;
 
 volatile static uint32_t *rgbx;
 
+static int cursor_x = SCREEN_FB_WIDTH / 2;
+static int cursor_y = SCREEN_FB_HEIGHT / 2;
+static int screen_offset_x = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2;
+static int screen_offset_y = (SCREEN_FB_HEIGHT - SCREEN_HEIGHT) / 2;
+
 bool platform_init(void) {
     XVideoSetMode(640, 480, 32, REFRESH_DEFAULT);
     rgbx = (uint32_t *)XVideoGetFB();
@@ -96,12 +101,14 @@ void platform_free_surface(Surface *surface) {
 }
 void set_pixels(PixMap *pixmap, int x, int y) {
     for (int h = 0; h < pixmap->height; h++) {
-        if (y + h >= SCREEN_FB_HEIGHT)
-            break;
+        int screen_y = y + h + screen_offset_y;
+        if (screen_y < 0 || screen_y >= SCREEN_FB_HEIGHT)
+            continue;
         for (int w = 0; w < pixmap->width; w++) {
-            if (x + w >= SCREEN_FB_WIDTH)
-                break;
-            rgbx[(y + h) * SCREEN_FB_WIDTH + (x + w)] = pixmap->pixels[h * pixmap->width + w];
+            int screen_x = x + w + screen_offset_x;
+            if (screen_x < 0 || screen_x >= SCREEN_FB_WIDTH)
+                continue;
+            rgbx[(screen_y) * SCREEN_FB_WIDTH + (screen_x)] = pixmap->pixels[h * pixmap->width + w];
         }
     }
 }

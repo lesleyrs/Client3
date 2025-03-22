@@ -15,7 +15,7 @@
 extern ClientData _Client;
 extern InputTracking _InputTracking;
 
-#if defined(__WII__) || defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__PSP__) || defined(__vita__) || defined(__DREAMCAST__) || defined(NXDK) || defined(__NDS__)
+#if defined(__WII__) || defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__PSP__) || defined(__vita__) || defined(_arch_dreamcast) || defined(NXDK) || defined(__NDS__)
 Custom _Custom = {.chat_era = 2, .http_port = 80, .showPerformance = true};
 #else
 Custom _Custom = {.chat_era = 2, .http_port = 80};
@@ -70,7 +70,7 @@ bool load_ini_args(void) {
     INI_INT_LOG(&(&_Client), nodeid, _Client.nodeid = 10 + _Client.nodeid - 1);
     INI_INT_LOG(&(&_Client), portoff, );
     INI_INT_LOG(&(&_Client), lowmem, );
-#if defined(__PSP__) || defined(__DREAMCAST__) || defined(NXDK) || defined(__NDS__)
+#if defined(__PSP__) || defined(_arch_dreamcast) || defined(NXDK) || defined(__NDS__)
     // NOTE: implicitly ignore highmem, avoids confusion as there's no way it'll load
     _Client.lowmem = true;
 #endif

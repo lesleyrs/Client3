@@ -27,7 +27,6 @@ static void *xfb = NULL;
 static GXRModeObj *rmode = NULL;
 static int cursor_x = SCREEN_FB_WIDTH / 2;
 static int cursor_y = SCREEN_FB_HEIGHT / 2;
-// center screen initially
 static int screen_offset_x = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2;
 static int screen_offset_y = (SCREEN_FB_HEIGHT - SCREEN_HEIGHT) / 2;
 
@@ -232,6 +231,11 @@ void set_pixels(PixMap *pixmap, int x, int y) {
     // VIDEO_Flush();
     // VIDEO_WaitVSync();
 }
+#define PAN_EDGE_DISTANCE 100
+#define PAN_SPEED 10
+#define DEADZONE 10
+#define CENTER 128
+
 void platform_poll_events(Client *c) {
     WPAD_ScanPads();
     WPADData *data = WPAD_Data(0);
@@ -283,8 +287,6 @@ void platform_poll_events(Client *c) {
         float stick_x = data->exp.nunchuk.js.pos.x;
         float stick_y = data->exp.nunchuk.js.pos.y;
         static bool ldown, rdown, udown, ddown;
-        #define DEADZONE 10
-        #define CENTER 128
         if (stick_x < CENTER - DEADZONE) {
             if (!ldown) {
                 key_pressed(c->shell, K_LEFT, -1);
@@ -387,28 +389,28 @@ void platform_poll_events(Client *c) {
     }
 
     if (pan) {
-        if (cursor_x < PAN_DISTANCE) {
+        if (cursor_x < PAN_EDGE_DISTANCE) {
             if (screen_offset_x < 0) {
                 screen_offset_x = MIN(0, screen_offset_x + PAN_SPEED);
                 c->redraw_background = true;
             }
         }
 
-        if (cursor_x > SCREEN_FB_WIDTH - PAN_DISTANCE) {
+        if (cursor_x > SCREEN_FB_WIDTH - PAN_EDGE_DISTANCE) {
             if (screen_offset_x > SCREEN_FB_WIDTH - SCREEN_WIDTH) {
                 screen_offset_x = MAX(SCREEN_FB_WIDTH - SCREEN_WIDTH, screen_offset_x - PAN_SPEED);
                 c->redraw_background = true;
             }
         }
 
-        if (cursor_y < PAN_DISTANCE) {
+        if (cursor_y < PAN_EDGE_DISTANCE) {
             if (screen_offset_y < 0) {
                 screen_offset_y = MIN(0, screen_offset_y + PAN_SPEED);
                 c->redraw_background = true;
             }
         }
 
-        if (cursor_y > SCREEN_FB_HEIGHT - PAN_DISTANCE) {
+        if (cursor_y > SCREEN_FB_HEIGHT - PAN_EDGE_DISTANCE) {
             if (screen_offset_y > SCREEN_FB_HEIGHT - SCREEN_HEIGHT) {
                 screen_offset_y = MAX(SCREEN_FB_HEIGHT - SCREEN_HEIGHT, screen_offset_y - PAN_SPEED);
                 c->redraw_background = true;

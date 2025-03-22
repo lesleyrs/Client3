@@ -212,13 +212,13 @@ Flycast seems to be the best emulator, supports ram expansion and networking. Fo
 
 Not fully playable due to limited RAM, you can only load areas that use 2 MB of space in lrucaches (wildy etc)
 
-Controls: Mouse/arrow keys. The SDL1 mouse seems to be overly sensitive and the mouse in samples is offset, maybe change to controller
+Controls: joystick = move cursor, Dpad = arrow keys, B = left click, A = right click, Y = control, Ltrig = center screen, Rtrig+joystick = pan screen
 
 ```
 NOTE: local servers don't work on emulator? only live works
 TODO: fopen path was changed due to the mkdcdisc tool adding dots to files without extension https://gitlab.com/simulant/mkdcdisc/-/issues/14
 TODO: check if it's making use of vram currently, dreamcast vram is quite big (8mb)
-TODO: instead of INIT_DEFAULT choose the flags we want to use
+TODO: instead of INIT_DEFAULT choose the flags we want to use, maybe allow mouse/keyboard still?
 ```
 
 ### Microsoft Xbox

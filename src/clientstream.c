@@ -39,7 +39,7 @@
 #include <switch.h>
 #endif
 
-#ifdef __DREAMCAST__
+#ifdef _arch_dreamcast
 #include <kos.h>
 #include <kos/net.h>
 #include <ppp/ppp.h>
@@ -85,7 +85,7 @@ bool clientstream_init(void) {
         return false;
     }
 #endif
-#ifdef __DREAMCAST__
+#ifdef _arch_dreamcast
     if (!modem_init()) {
         rs2_error("modem_init failed!\n");
         return false;
@@ -300,7 +300,7 @@ ClientStream *clientstream_new(int port) {
     setsockopt(stream->socket, SOL_SOCKET, SO_SNDTIMEO, (const char *)&socket_timeout, sizeof(socket_timeout));
 #endif
 
-#if defined(__PSP__) || defined(__vita__) || defined(__ps2sdk__) || defined(__DREAMCAST__)
+#if defined(__PSP__) || defined(__vita__) || defined(__ps2sdk__) || defined(_arch_dreamcast)
     int flags = fcntl(stream->socket, F_GETFL, 0);
     if (flags == -1) {
         rs2_error("fcntl F_GETFL failed\n");
@@ -508,7 +508,7 @@ const char *dnslookup(const char *hostname) {
         return "unknown";
     }
     return ip_str;
-#elif defined(__DREAMCAST__) || defined(NXDK) || defined(__NDS__)
+#elif defined(_arch_dreamcast) || defined(NXDK) || defined(__NDS__)
     return "unknown";
 #elif defined(MODERN_POSIX)
     struct sockaddr_in client_addr = {0};
