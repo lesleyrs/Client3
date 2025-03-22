@@ -37,6 +37,8 @@ static uint16_t *fb = (uint16_t *)0x04000000; // vram start
 static SceCtrlData pad, last_pad;
 static int cursor_x = SCREEN_FB_WIDTH / 2;
 static int cursor_y = SCREEN_FB_HEIGHT / 2;
+static int screen_offset_x = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2;
+static int screen_offset_y = -20;
 
 int get_free_mem(void) {
     return pspSdkTotalFreeUserMemSize();
@@ -113,14 +115,18 @@ void platform_free_surface(Surface *surface) {
     free(surface);
 }
 void set_pixels(PixMap *pixmap, int x, int y) {
-    // TODO rm temp checks for going past framebuffer
     uint16_t *fb_ptr = (uint16_t *)fb + (y * VRAM_STRIDE + x);
     for (int row = 0; row < pixmap->height; row++) {
-        if (y + row >= SCREEN_FB_HEIGHT)
+        int screen_y = y + row + screen_offset_y;
+        if (screen_y < 0)
+            continue;
+        if (screen_y >= SCREEN_FB_HEIGHT)
             break;
-
         for (int col = 0; col < pixmap->width; col++) {
-            if (x + col >= SCREEN_FB_WIDTH)
+            int screen_x = x + col + screen_offset_x;
+            if (screen_x < 0)
+                continue;
+            if (screen_x >= SCREEN_FB_WIDTH)
                 break;
 
             int src_offset = row * pixmap->width + col;
@@ -132,7 +138,7 @@ void set_pixels(PixMap *pixmap, int x, int y) {
 
             uint16_t rgb565 = ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3);
 
-            fb_ptr[row * VRAM_STRIDE + col] = rgb565;
+            fb_ptr[(row + screen_offset_y) * VRAM_STRIDE + (col + screen_offset_x)] = rgb565;
         }
     }
     // sceDisplayWaitVblankStart();
@@ -195,16 +201,16 @@ void platform_poll_events(Client *c) {
     }
 
     if (pad.Lx != 128 || pad.Ly != 128) {
+        #define CURSOR_SENSITIVITY 20
         // TODO allow changing cursor sensitivity
-        cursor_x += (pad.Lx - 128) / 20;
-        cursor_y += (pad.Ly - 128) / 20;
+        if (pad.Buttons & PSP_CTRL_RTRIGGER) {
+            screen_offset_x = MAX(SCREEN_FB_WIDTH - SCREEN_WIDTH, MIN(screen_offset_x - (pad.Lx - 128) / CURSOR_SENSITIVITY, 0));
+            screen_offset_y = MAX(SCREEN_FB_HEIGHT - SCREEN_HEIGHT, MIN(screen_offset_y - (pad.Ly - 128) / CURSOR_SENSITIVITY, 0));
+            c->redraw_background = true;
+        }
 
-        if (cursor_x < 0 || cursor_x > SCREEN_FB_WIDTH) {
-            cursor_x = MAX(0, MIN(cursor_x, SCREEN_FB_WIDTH));
-        }
-        if (cursor_y < 0 || cursor_y > SCREEN_FB_HEIGHT) {
-            cursor_y = MAX(0, MIN(cursor_y, SCREEN_FB_HEIGHT));
-        }
+        cursor_x = MAX(0, MIN(cursor_x + (pad.Lx - 128) / CURSOR_SENSITIVITY, SCREEN_WIDTH - 1));
+        cursor_y = MAX(0, MIN(cursor_y + (pad.Ly - 128) / CURSOR_SENSITIVITY, SCREEN_HEIGHT - 1));
 
         int x = cursor_x;
         int y = cursor_y;

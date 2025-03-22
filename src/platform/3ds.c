@@ -22,6 +22,9 @@ static u32 *SOC_buffer = NULL;
 static uint8_t *fb_top = NULL;
 static uint8_t *fb_bottom = NULL;
 
+static int screen_offset_x = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2;
+static int screen_offset_y = -50;
+
 static void soc_shutdown() {
     socExit();
 
@@ -123,17 +126,23 @@ void platform_free_surface(Surface *surface) {
     free(surface);
 }
 void set_pixels(PixMap *pixmap, int x, int y) {
-    // TODO rm temp checks for going past framebuffer
     for (int row = 0; row < pixmap->height; row++) {
-        if (y + row >= SCREEN_FB_HEIGHT) break;
+        int screen_y = y + row + screen_offset_y;
+        if (screen_y < 0)
+            continue;
+        if (screen_y >= SCREEN_FB_HEIGHT)
+            break;
 
         for (int col = 0; col < pixmap->width; col++) {
-            if (x + col >= SCREEN_FB_WIDTH) break;
+            int screen_x = x + col + screen_offset_x;
+            if (screen_x < 0)
+                continue;
+            if (screen_x >= SCREEN_FB_WIDTH)
+                break;
 
             int src_offset = row * pixmap->width + col;
 
-            int pixel_offset = (x + col) * SCREEN_FB_HEIGHT * 3 + (SCREEN_FB_HEIGHT - 1 - (y + row)) * 3;
-            // int pixel_offset = (y + row) * SCREEN_FB_HEIGHT * 3 + (x + col) * 3;
+            int pixel_offset = screen_x * SCREEN_FB_HEIGHT * 3 + (SCREEN_FB_HEIGHT - 1 - screen_y) * 3;
 
             int pixel = pixmap->pixels[src_offset];
             uint8_t b = pixel & 0xff;

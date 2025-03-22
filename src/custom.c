@@ -229,21 +229,12 @@ void draw_info_overlay(Client *c) {
         // skip 2 possible spots of "Close Window"
         y += 13;
         y += 13;
-#if defined(__3DS__) || defined(__PSP__) || defined(__NDS__)
-        sprintf(buf, "LRU: %dK / %dK", bump_allocator_used() >> 10, bump_allocator_capacity() >> 10);
-        drawString(c->font_plain11, 8, y, buf, YELLOW);
-        y += 13;
-        sprintf(buf, "FPS: %d", c->shell->fps);
-        drawString(c->font_plain11, 8, y, buf, YELLOW);
-        y += 13;
-#else
         sprintf(buf, "LRU: %dK / %dK", bump_allocator_used() >> 10, bump_allocator_capacity() >> 10);
         drawStringRight(c->font_plain11, x, y, buf, YELLOW, true);
         y += 13;
         sprintf(buf, "FPS: %d", c->shell->fps);
         drawStringRight(c->font_plain11, x, y, buf, YELLOW, true);
         y += 13;
-#endif
 #if defined(__WII__) || defined(__PSP__)
         sprintf(buf, "Free: %dK", get_free_mem() >> 10);
         drawStringRight(c->font_plain11, x, y, buf, YELLOW, true);

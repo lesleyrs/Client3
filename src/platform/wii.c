@@ -201,13 +201,16 @@ void platform_free_surface(Surface *surface) {
 void set_pixels(PixMap *pixmap, int x, int y) {
     for (int row = 0; row < pixmap->height; row++) {
         int screen_y = y + row + screen_offset_y;
-        if (screen_y < 0 || screen_y >= SCREEN_FB_HEIGHT)
+        if (screen_y < 0)
             continue;
-
+        if (screen_y >= SCREEN_FB_HEIGHT)
+            break;
         for (int col = 0; col < pixmap->width; col += 2) {
             int screen_x = x + col + screen_offset_x;
-            if (screen_x < 0 || screen_x + 1 >= SCREEN_FB_WIDTH)
+            if (screen_x < 0)
                 continue;
+            if (screen_x >= SCREEN_FB_WIDTH)
+                break;
 
             int dest_offset = screen_y * (rmode->fbWidth / 2) + (screen_x / 2);
             int src_offset = row * pixmap->width + col;

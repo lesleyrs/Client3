@@ -87,12 +87,16 @@ void platform_free_surface(Surface *surface) {
 void set_pixels(PixMap *pixmap, int x, int y) {
     for (int h = 0; h < pixmap->height; h++) {
         int screen_y = y + h + screen_offset_y;
-        if (screen_y < 0 || screen_y >= SCREEN_FB_HEIGHT)
+        if (screen_y < 0)
             continue;
+        if (screen_y >= SCREEN_FB_HEIGHT)
+            break;
         for (int w = 0; w < pixmap->width; w++) {
             int screen_x = x + w + screen_offset_x;
-            if (screen_x < 0 || screen_x >= SCREEN_FB_WIDTH)
+            if (screen_x < 0)
                 continue;
+            if (screen_x >= SCREEN_FB_WIDTH)
+                break;
             vram_l[(screen_y)*SCREEN_FB_WIDTH + (screen_x)] = pixmap->pixels[h * pixmap->width + w];
         }
     }

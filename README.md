@@ -161,6 +161,7 @@ Controls: Touch to left click, L + touch to right click, Dpad for arrow keys, X 
 ```
 TODO: undo touch changes in 3ds.c depending how it works on real hardware (vita seems to work fine on hw)
 TODO: The "New" 3ds/2ds line for higher cpu clock rate does not seem to make much difference in citra?
+TODO: add panning for both 3ds and nds, also allow toggling what's on top screen (maybe a separately panned view)
 ```
 
 #### Wii U
