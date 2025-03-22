@@ -27,7 +27,6 @@
 
 ## TODO
 ```
-all consoles without touch need to be able to redraw entire screen (even parts it normally doesn't) due to not having a builtin pointer/cursor to show where your virtual pointer is. This means it will never redraw that part of the screen and will just accumulate those images.
 all home consoles (wii, dreamcast, xbox) should be able to run the game at higher res or even full res on PAL TVs so you don't have to pan and simplifies set_pixels, but this isn't set up right now and emulators don't seem to support many video modes.
 add a define for mobile to set mouse_x and mouse_y, however we have to make sure that on both android and postmarketos it's using finger events not emulated mouse.
 Mobile isn't playable for now without mouse/keyboard (no right clicking, rotating camera, onscreen keyboard)

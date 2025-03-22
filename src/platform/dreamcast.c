@@ -156,7 +156,6 @@ void platform_poll_events(Client *c) {
         key_released(c->shell, K_CONTROL, -1);
     }
 
-    // TODO X downscale?
     if (pressed & CONT_X) {
     }
 

@@ -146,7 +146,7 @@ in dolphin emulator you can find the sdcard path in `options>configuration>wii>s
 Controls: wiimote IR pointer works as mouse, A for left click, B for right click, Dpad works as arrow keys, minus for control, plus to pan by moving your wiimote to a side of the screen, 1 to center screen, home button to exit. The nunchuck joystick can also be used as arrow keys.
 
 ```
-TODO: need double framebuffers to flip at end of client_draw to a show cursor on screen without flickering or you won't see where you are aiming (dolphin mouse is slightly offset too)
+TODO: virtual cursor icon
 TODO: add game offset on real HW?
 TODO: support usb keyboard and mouse on wii
 TODO: virtual keyboard to type, for now set user and pass in config.ini
@@ -186,6 +186,7 @@ Works on real hardware but requires at least model 2000 due to the full 32 MB no
 ```
 TODO: Model 1000 has the same CPU just less memory, might be worth trying to make it work in kernel mode for 28MB BUT is it safe to do so?
 TODO: Could enable audio in lowmem for 2000+ models if there's enough memory remaining?
+TODO: virtual cursor icon
 ```
 
 ### Sony PS Vita
@@ -218,7 +219,8 @@ Controls: joystick = move cursor, Dpad = arrow keys, B = left click, A = right c
 NOTE: local servers don't work on emulator? only live works
 TODO: fopen path was changed due to the mkdcdisc tool adding dots to files without extension https://gitlab.com/simulant/mkdcdisc/-/issues/14
 TODO: check if it's making use of vram currently, dreamcast vram is quite big (8mb)
-TODO: instead of INIT_DEFAULT choose the flags we want to use, maybe allow mouse/keyboard still?
+TODO: instead of INIT_DEFAULT choose the flags we want to use, maybe allow mouse/keyboard still? Mouse could be used in flycast too if they hide system cursor.
+TODO: virtual cursor icon
 ```
 
 ### Microsoft Xbox
@@ -226,12 +228,14 @@ Install [nxdk](#tools) and run `make -f xbox.mk -j$(nproc) -B`. Necessary files 
 
 To run with xemu use `-dvd_path client.iso` as args.
 
-Controls: TODO none yet, it just automatically logs in
+Controls: none yet, it just automatically logs in
 
 ```
 NOTE: local servers don't work on emulator? only live works
 NOTE: default.xbe stays around in rom dir when it's junk for other consoles that embed that directory. Can remove it after building.
 TODO: fopen had to be separated due to the need for backwards slashes, also there's no chdir equivalent?
+TODO: virtual cursor icon
+TODO: controls
 ```
 
 ## libraries
