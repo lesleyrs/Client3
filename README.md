@@ -180,7 +180,7 @@ Install [pspdev](#tools) and run `make -f psp.mk -j$(nproc) -B`.
 
 ppsspp emulator loads relative dir as memstick, so the filesystem works automatically. Also you should probably enable printf logging with `settings>tools>developer tools>logging channels>printf` to EG verbose
 
-Controls: move cursor with analog stick, O for left click, X for right click, /\ for control, Dpad as arrow keys
+Controls: move cursor with analog stick, O for left click, X for right click, /\ for control, Dpad as arrow keys, Rtrigger + analog stick to pan, Ltrigger to reset screen position
 
 Works on real hardware but requires at least model 2000 due to the full 32 MB not being accessible, only lowmem fits into memory so we force lowmem in custom.c
 

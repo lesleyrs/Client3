@@ -32,13 +32,15 @@ PSP_MODULE_INFO("client", 0, 2, 225);
 PSP_MAIN_THREAD_ATTR(PSP_THREAD_ATTR_USER);
 
 #define VRAM_STRIDE 512
+#define INITIAL_X_OFFSET (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2
+#define INITIAL_Y_OFFSET -20
 
 static uint16_t *fb = (uint16_t *)0x04000000; // vram start
 static SceCtrlData pad, last_pad;
 static int cursor_x = SCREEN_FB_WIDTH / 2;
 static int cursor_y = SCREEN_FB_HEIGHT / 2;
-static int screen_offset_x = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2;
-static int screen_offset_y = -20;
+static int screen_offset_x = INITIAL_X_OFFSET;
+static int screen_offset_y = INITIAL_Y_OFFSET;
 
 int get_free_mem(void) {
     return pspSdkTotalFreeUserMemSize();
@@ -198,6 +200,12 @@ void platform_poll_events(Client *c) {
         if (!c->ingame) {
             client_login(c, c->username, c->password, false);
         }
+    }
+
+    if (pad.Buttons & PSP_CTRL_LTRIGGER) {
+        screen_offset_x = INITIAL_X_OFFSET;
+        screen_offset_y = INITIAL_Y_OFFSET;
+        c->redraw_background = true;
     }
 
     if (pad.Lx != 128 || pad.Ly != 128) {

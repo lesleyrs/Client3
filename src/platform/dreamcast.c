@@ -18,8 +18,10 @@ extern Custom _Custom;
 static uint32_t prev_btns = 0;
 static int cursor_x = SCREEN_FB_WIDTH / 2;
 static int cursor_y = SCREEN_FB_HEIGHT / 2;
-static int screen_offset_x = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2;
-static int screen_offset_y = (SCREEN_FB_HEIGHT - SCREEN_HEIGHT) / 2;
+#define INITIAL_SCREEN_X (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2
+#define INITIAL_SCREEN_Y (SCREEN_FB_HEIGHT - SCREEN_HEIGHT) / 2
+static int screen_offset_x = INITIAL_SCREEN_X;
+static int screen_offset_y = INITIAL_SCREEN_Y;
 
 bool platform_init(void) {
     vid_set_mode(DM_640x480, PM_RGB888);
@@ -168,8 +170,8 @@ void platform_poll_events(Client *c) {
     cursor_y = MAX(0, MIN(cursor_y + (state->joyy >> 4), SCREEN_HEIGHT - 1));
 
     if (state->ltrig) {
-        screen_offset_x = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2;
-        screen_offset_y = (SCREEN_FB_HEIGHT - SCREEN_HEIGHT) / 2;
+        screen_offset_x = INITIAL_SCREEN_X;
+        screen_offset_y = INITIAL_SCREEN_Y;
         c->redraw_background = true;
     }
     if (state->rtrig) {

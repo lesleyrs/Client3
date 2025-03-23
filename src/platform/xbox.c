@@ -23,8 +23,10 @@ volatile static uint32_t *rgbx;
 
 static int cursor_x = SCREEN_FB_WIDTH / 2;
 static int cursor_y = SCREEN_FB_HEIGHT / 2;
-static int screen_offset_x = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2;
-static int screen_offset_y = (SCREEN_FB_HEIGHT - SCREEN_HEIGHT) / 2;
+#define INITIAL_SCREEN_X (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2
+#define INITIAL_SCREEN_Y (SCREEN_FB_HEIGHT - SCREEN_HEIGHT) / 2
+static int screen_offset_x = INITIAL_SCREEN_X;
+static int screen_offset_y = INITIAL_SCREEN_Y;
 
 bool platform_init(void) {
     XVideoSetMode(640, 480, 32, REFRESH_DEFAULT);

@@ -27,8 +27,10 @@ static void *xfb = NULL;
 static GXRModeObj *rmode = NULL;
 static int cursor_x = SCREEN_FB_WIDTH / 2;
 static int cursor_y = SCREEN_FB_HEIGHT / 2;
-static int screen_offset_x = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2;
-static int screen_offset_y = (SCREEN_FB_HEIGHT - SCREEN_HEIGHT) / 2;
+#define INITIAL_SCREEN_X (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2
+#define INITIAL_SCREEN_Y (SCREEN_FB_HEIGHT - SCREEN_HEIGHT) / 2
+static int screen_offset_x = INITIAL_SCREEN_X;
+static int screen_offset_y = INITIAL_SCREEN_Y;
 
 static int arrow_yuv_width = 12;
 static int arrow_yuv_height = 20;
@@ -382,8 +384,8 @@ void platform_poll_events(Client *c) {
     }
 
     if (data->btns_d & WPAD_BUTTON_1) {
-        screen_offset_x = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2;
-        screen_offset_y = (SCREEN_FB_HEIGHT - SCREEN_HEIGHT) / 2;
+        screen_offset_x = INITIAL_SCREEN_X;
+        screen_offset_y = INITIAL_SCREEN_Y;
         c->redraw_background = true;
     }
 
