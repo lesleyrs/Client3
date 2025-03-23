@@ -164,8 +164,8 @@ void platform_poll_events(Client *c) {
     }
 
     // TODO allow setting "cursor" sensitivity
-    cursor_x = MAX(0, MIN(cursor_x + (state->joyx >> 4), SCREEN_FB_WIDTH - 1));
-    cursor_y = MAX(0, MIN(cursor_y + (state->joyy >> 4), SCREEN_FB_HEIGHT - 1));
+    cursor_x = MAX(0, MIN(cursor_x + (state->joyx >> 4), SCREEN_WIDTH - 1));
+    cursor_y = MAX(0, MIN(cursor_y + (state->joyy >> 4), SCREEN_HEIGHT - 1));
 
     if (state->ltrig) {
         screen_offset_x = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2;
