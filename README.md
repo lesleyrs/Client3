@@ -210,7 +210,7 @@ Install [kallistios and mkdcdisc](#tools) and run `make -f dreamcast.mk -j$(npro
 
 To try on real hardware you'd need the 32 MB ram expansion mod, which seems involved and maybe less compatible with some other games
 
-Flycast seems to be the best emulator, supports ram expansion and networking. For mouse and keyboard you have to set the physical device ports to dreamcast device port.
+Flycast seems to be the best emulator, supports ram expansion and networking.
 
 Not fully playable due to limited RAM, you can only load areas that use 2 MB of space in lrucaches (wildy etc)
 
@@ -220,7 +220,7 @@ Controls: joystick = move cursor, Dpad = arrow keys, B = left click, A = right c
 NOTE: local servers don't work on emulator? only live works
 TODO: fopen path was changed due to the mkdcdisc tool adding dots to files without extension https://gitlab.com/simulant/mkdcdisc/-/issues/14
 TODO: check if it's making use of vram currently, dreamcast vram is quite big (8mb)
-TODO: instead of INIT_DEFAULT choose the flags we want to use, maybe allow mouse/keyboard still? Mouse could be used in flycast too if they hide system cursor.
+TODO: instead of INIT_DEFAULT choose the flags we want to use, Mouse could be used in flycast too if they hide system cursor. For mouse and keyboard in flycast you have to set the physical device ports to dreamcast device port.
 TODO: virtual cursor icon
 ```
 
