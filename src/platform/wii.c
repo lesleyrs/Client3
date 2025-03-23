@@ -246,8 +246,8 @@ void platform_poll_events(Client *c) {
         exit(0);
     }
     if (data->ir.valid) {
-        cursor_x = data->ir.x;
-        cursor_y = data->ir.y;
+        cursor_x = data->ir.x - screen_offset_x;
+        cursor_y = data->ir.y - screen_offset_y;
 
         c->shell->idle_cycles = 0;
         c->shell->mouse_x = cursor_x;
@@ -392,28 +392,28 @@ void platform_poll_events(Client *c) {
     }
 
     if (pan) {
-        if (cursor_x < PAN_EDGE_DISTANCE) {
+        if (cursor_x < PAN_EDGE_DISTANCE - screen_offset_x) {
             if (screen_offset_x < 0) {
                 screen_offset_x = MIN(0, screen_offset_x + PAN_SPEED);
                 c->redraw_background = true;
             }
         }
 
-        if (cursor_x > SCREEN_FB_WIDTH - PAN_EDGE_DISTANCE) {
+        if (cursor_x > SCREEN_FB_WIDTH - (PAN_EDGE_DISTANCE - screen_offset_x)) {
             if (screen_offset_x > SCREEN_FB_WIDTH - SCREEN_WIDTH) {
                 screen_offset_x = MAX(SCREEN_FB_WIDTH - SCREEN_WIDTH, screen_offset_x - PAN_SPEED);
                 c->redraw_background = true;
             }
         }
 
-        if (cursor_y < PAN_EDGE_DISTANCE) {
+        if (cursor_y < PAN_EDGE_DISTANCE - screen_offset_y) {
             if (screen_offset_y < 0) {
                 screen_offset_y = MIN(0, screen_offset_y + PAN_SPEED);
                 c->redraw_background = true;
             }
         }
 
-        if (cursor_y > SCREEN_FB_HEIGHT - PAN_EDGE_DISTANCE) {
+        if (cursor_y > SCREEN_FB_HEIGHT - (PAN_EDGE_DISTANCE - screen_offset_y)) {
             if (screen_offset_y > SCREEN_FB_HEIGHT - SCREEN_HEIGHT) {
                 screen_offset_y = MAX(SCREEN_FB_HEIGHT - SCREEN_HEIGHT, screen_offset_y - PAN_SPEED);
                 c->redraw_background = true;
