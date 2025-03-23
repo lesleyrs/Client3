@@ -7366,9 +7366,7 @@ void client_login(Client *c, const char *username, const char *password, bool re
     p4(c->out, _Client.uid);
     pjstr(c->out, username);
     pjstr(c->out, password);
-    if (!_Custom.disable_rsa) {
-        rsaenc(c->out, _Client.rsa_modulus, _Client.rsa_exponent);
-    }
+    rsaenc(c->out, _Client.rsa_modulus, _Client.rsa_exponent);
 
     c->login->pos = 0;
     if (reconnect) {

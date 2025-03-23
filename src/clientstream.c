@@ -379,6 +379,7 @@ ClientStream *clientstream_new(int port) {
 
     if (ret < 0 && errno != 0) {
         rs2_error("connect() error: %s (%d)\n", strerror(errno), errno);
+        // fixes emulators
 #if !defined(__vita__) && !defined(__3DS__)
         clientstream_close(stream);
         return NULL;

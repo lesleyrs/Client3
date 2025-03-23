@@ -1,9 +1,6 @@
 # use hardware acceleration to allow resizing the window and draw the game at any scale (sdl2, sdl3 and sdl1 with compat layer)
 # resizable = 1
 
-# for faster development when openssl is not available (consoles etc) comment out rsadec in the server
-# disable_rsa = 1
-
 # 1 for low detail: disables audio, ground decor, some animations, less textures, and only builds scene for current height lvl
 # lowmem = 1
 

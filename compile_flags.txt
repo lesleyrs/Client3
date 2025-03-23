@@ -24,10 +24,10 @@
 // -Ibin/SDL2-devel-2.30.9-VC/SDL2-2.30.9/include
 // -DSDL=3
 // -I/usr/local/include/
-// -D__WII__
-// -I/opt/devkitpro/libogc/include/
--D__3DS__
--I/opt/devkitpro/libctru/include/
+-D__WII__
+-I/opt/devkitpro/libogc/include/
+// -D__3DS__
+// -I/opt/devkitpro/libctru/include/
 // -D__WIIU__
 // -I/opt/devkitpro/wut/include/
 // -D__SWITCH__
