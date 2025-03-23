@@ -112,7 +112,7 @@ void set_pixels(PixMap *pixmap, int x, int y) {
                 continue;
             if (screen_x >= SCREEN_FB_WIDTH)
                 break;
-            rgbx[(screen_y)*SCREEN_FB_WIDTH + (screen_x)] = pixmap->pixels[h * pixmap->width + w];
+            rgbx[screen_y * SCREEN_FB_WIDTH + screen_x] = pixmap->pixels[h * pixmap->width + w];
         }
     }
 }

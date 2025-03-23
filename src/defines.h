@@ -18,7 +18,6 @@
 #define SCREEN_FB_WIDTH 960
 #define SCREEN_FB_HEIGHT 544
 #elif defined(__3DS__)
-// #define SCREEN_FB_WIDTH 400
 #define SCREEN_FB_WIDTH 320
 #define SCREEN_FB_HEIGHT 240
 #elif defined(__PSP__)

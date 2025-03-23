@@ -1,16 +1,16 @@
 #ifdef __3DS__
-#include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <3ds.h>
 #include <malloc.h>
 
 #include "../client.h"
 #include "../gameshell.h"
+#include "../inputtracking.h"
 #include "../pixmap.h"
 #include "../platform.h"
-#include "../inputtracking.h"
 
 extern ClientData _Client;
 extern InputTracking _InputTracking;
@@ -22,8 +22,12 @@ static u32 *SOC_buffer = NULL;
 static uint8_t *fb_top = NULL;
 static uint8_t *fb_bottom = NULL;
 
+#define SCREEN_FB_WIDTH_TOP 400
+static int screen_offset_x_top = (SCREEN_FB_WIDTH_TOP - SCREEN_WIDTH) / 2;
+static int screen_offset_y_top = 0;
+
 static int screen_offset_x = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2;
-static int screen_offset_y = -50;
+static int screen_offset_y = -SCREEN_FB_HEIGHT;
 
 static void soc_shutdown() {
     socExit();
@@ -34,10 +38,10 @@ static void soc_shutdown() {
 bool platform_init(void) {
     osSetSpeedupEnable(true);
 
-    // gfxInit(GSP_BGR8_OES, GSP_BGR8_OES, 0);
-    gfxInitDefault();
+    gfxInit(GSP_RGBA8_OES, GSP_RGBA8_OES, 0);
+    // gfxInitDefault();
     /* uncomment and disable draw_top_background to see stdout */
-    consoleInit(GFX_TOP, NULL);
+    // consoleInit(GFX_TOP, NULL);
     return true;
 }
 
@@ -45,7 +49,7 @@ void platform_new(int width, int height) {
     (void)width, (void)height;
     atexit(soc_shutdown);
 
-    // NOTE we could use romfs, but we need sdcard to store the 3dsx anyway
+    // NOTE we could use romfs, but we need sdcard to store the 3dsx anyway?
     /* Result romfs_res = romfsInit();
 
     if (romfs_res) {
@@ -56,8 +60,7 @@ void platform_new(int width, int height) {
     gfxSetDoubleBuffering(GFX_BOTTOM, 0);
     gfxSetDoubleBuffering(GFX_TOP, 0);
 
-    // mud->_3ds_framebuffer_top = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
-
+    fb_top = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
     fb_bottom = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
 
     /* allocate buffer for SOC service (networking) */
@@ -126,6 +129,9 @@ void platform_free_surface(Surface *surface) {
     free(surface);
 }
 void set_pixels(PixMap *pixmap, int x, int y) {
+    uint32_t *fb32_top = (uint32_t *)fb_top;
+    uint32_t *fb32_bottom = (uint32_t *)fb_bottom;
+
     for (int row = 0; row < pixmap->height; row++) {
         int screen_y = y + row + screen_offset_y;
         if (screen_y < 0)
@@ -140,21 +146,35 @@ void set_pixels(PixMap *pixmap, int x, int y) {
             if (screen_x >= SCREEN_FB_WIDTH)
                 break;
 
-            int src_offset = row * pixmap->width + col;
+            int pixel = pixmap->pixels[row * pixmap->width + col];
+            int dst = screen_x * SCREEN_FB_HEIGHT + (SCREEN_FB_HEIGHT - 1 - screen_y);
 
-            int pixel_offset = screen_x * SCREEN_FB_HEIGHT * 3 + (SCREEN_FB_HEIGHT - 1 - screen_y) * 3;
-
-            int pixel = pixmap->pixels[src_offset];
-            uint8_t b = pixel & 0xff;
-            uint8_t g = (pixel >> 8) & 0xff;
-            uint8_t r = (pixel >> 16) & 0xff;
-
-            fb_bottom[pixel_offset] = b;
-            fb_bottom[pixel_offset + 1] = g;
-            fb_bottom[pixel_offset + 2] = r;
+            fb32_bottom[dst] = pixel << 8;
         }
     }
 
+    if (fb_top) {
+        for (int row = 0; row < pixmap->height; row++) {
+            int screen_y = y + row + screen_offset_y_top;
+            if (screen_y < 0)
+                continue;
+            if (screen_y >= SCREEN_FB_HEIGHT)
+                break;
+
+            for (int col = 0; col < pixmap->width; col++) {
+                int screen_x = x + col + screen_offset_x_top;
+                if (screen_x < 0)
+                    continue;
+                if (screen_x >= SCREEN_FB_WIDTH_TOP)
+                    break;
+
+                int pixel = pixmap->pixels[row * pixmap->width + col];
+                int dst = screen_x * SCREEN_FB_HEIGHT + (SCREEN_FB_HEIGHT - 1 - screen_y);
+
+                fb32_top[dst] = pixel << 8;
+            }
+        }
+    }
     // gfxFlushBuffers();
     // gfxSwapBuffers();
     // gspWaitForVBlank();
@@ -199,7 +219,6 @@ void platform_poll_events(Client *c) {
         key_released(c->shell, K_DOWN, -1);
     }
 
-
     if (keys_down & KEY_X) {
         key_pressed(c->shell, K_CONTROL, -1);
     }
@@ -233,8 +252,8 @@ void platform_poll_events(Client *c) {
             touch_down = false;
         }
     } else {
-        int x = touch.px;
-        int y = touch.py;
+        int x = touch.px - screen_offset_x;
+        int y = touch.py - screen_offset_y;
 
         // TODO: custom but has issue where it sometimes doesn't click or uses last pos
         c->shell->idle_cycles = 0;
