@@ -31,8 +31,7 @@
 # remember_username = 1
 # remember_password = 1
 
-# currently you have to recompile to change RSA length with -DRSA_BUF_LEN=(bits/4)
-# prefix the exponent with a 0 if the number isn't even
+# tiny-bignum might require you to prefix a 0 for an even amount of digits
 # rsa_exponent = 
 # rsa_modulus = 
 

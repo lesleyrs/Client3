@@ -4,11 +4,11 @@
 #include <string.h>
 
 #include "datastruct/doublylinkable.h"
+#include "defines.h"
 #include "packet.h"
 #include "platform.h"
 #include "thirdparty/isaac.h"
 #include "thirdparty/rsa.h"
-#include "defines.h"
 
 static int crctable[256];
 static const int BITMASK[] = {
@@ -357,14 +357,13 @@ void rsaenc(Packet *packet, const char *mod, const char *exp) {
     int8_t *temp = malloc(length);
     gdata(packet, length, 0, temp);
 
-    // NOTE: keeping init here instead of packet_init_global so it's easy to disable rsa
     struct rsa rsa = {0};
     if (rsa_init(&rsa, exp, mod) < 0) {
         rs2_error("rsa_init failed\n");
         exit(1);
     }
 
-    int8_t enc[RSA_BUF_LEN / 2] = {0};
+    int8_t enc[128] = {0};
     int enc_len = rsa_crypt(&rsa, temp, length, enc, sizeof(enc));
     if (enc_len < 0) {
         rs2_error("failed to rsa_crypt\n");
@@ -373,23 +372,13 @@ void rsaenc(Packet *packet, const char *mod, const char *exp) {
     free(temp);
 
     packet->pos = 0;
-    p1(packet, enc_len);
-
     /* in java's BigInteger byte array array, zeros at the beginning are
      * ignored unless they're being used to indicate the MSB for sign. since
      * the byte array lengths range from 63-65 and we always want a positive
      * integer, we can make result_length 65 and begin with up to two 0 bytes */
-    // TODO: what's wrong here? this applies to all crypto libs
-    if (sizeof(enc) != enc_len) {
-        if ((size_t)enc_len < sizeof(enc)) {
-            // without check this turns into infinite loop when enc_len is 65
-            for (size_t i = 0; i < sizeof(enc) - enc_len; i++) {
-                rs2_error("buffer %zu enc len %d\n", sizeof(enc), enc_len);
-                p1(packet, 0);
-            }
-        }
-        rs2_error("buffer %zu enc len %d\n", sizeof(enc), enc_len);
-    }
+    // NOTE: enc_len+1 to prefix 0 avoids login fail if first byte is negative
+    p1(packet, enc_len + 1);
+    p1(packet, 0);
 
     pdata(packet, enc, enc_len, 0);
 }
@@ -399,14 +388,13 @@ void rsadec(Packet *packet, const char *mod, const char *exp) {
     int8_t *enc = malloc(length);
     gdata(packet, length, 0, enc);
 
-    // NOTE: keeping init here instead of packet_init_global so it's easy to disable rsa
     struct rsa rsa = {0};
     if (rsa_init(&rsa, exp, mod) < 0) {
         rs2_error("rsa_init failed\n");
         exit(1);
     }
 
-    int8_t dec[RSA_BUF_LEN / 2] = {0};
+    int8_t dec[128] = {0};
     int dec_len = rsa_crypt(&rsa, enc, length, dec, sizeof(enc));
     if (dec_len < 0) {
         rs2_error("failed to rsa_crypt\n");

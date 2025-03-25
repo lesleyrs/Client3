@@ -6,10 +6,6 @@
 #define PATH_MAX 260
 #endif
 
-#ifndef RSA_BUF_LEN
-#define RSA_BUF_LEN 128
-#endif
-
 // used for avoiding overdraw, scaling touch, and width is used for aligned access in vram too
 #if defined(__WII__) || defined(_arch_dreamcast) || defined(NXDK)
 #define SCREEN_FB_WIDTH 640

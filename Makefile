@@ -53,7 +53,6 @@ CFLAGS += -DSDL=$(SDL)
 endif
 CFLAGS += -fwrapv -std=c99 -Wall -Wpedantic -Wvla -Wshadow -Wmissing-prototypes -Wstrict-prototypes -Wmissing-declarations -Wredundant-decls
 CFLAGS += -Wextra
-CFLAGS += -DRSA_BUF_LEN=$(RSA_LENGTH)
 
 ifeq ($(findstring gcc,$(CC)),gcc)
 # removed (mingw)-gcc warning as clangd doesn't autocomplete them due to being less strict

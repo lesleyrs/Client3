@@ -46,11 +46,7 @@ type `::perf` command ingame to see fps and lrucache size
 
 ## known issues
 ```
-server cache changes would require manual cache update in client for now, it isn't supposed to change but as of right now there's an issue with client map crcs being changed when server maps get updated (also the cache has some interface changes rn for quest tab and another one) enable crc again after fixes, search "wait authentic cache". Maybe also use emscripten indexeddb api to store data file?
-
-figure out rsaenc bug(s), i'm thinking there are multiple issues (chance of failing login), RSA_BIGINT can still fail due to wrong enc length, but the others fail due to other reasons too... Also fix connecting on desktop to servers with higher than 512 bit rsa, need bigger result array but not for web?
-
-Recompile is needed to change between different RSA key lengths, RSA_BUF_LEN needs to be set at compile time because it's needed for stack allocated arrays and BN_ARRAY_SIZE define. Can just heap allocate and leave tiny-bignum at 512 bits rsa only to fix this?
+server cache changes would require manual cache+checksums update in client for now, the server has an issue with client map crcs being changed when server maps get updated (also the cache has some interface changes rn for quest tab and another one) enable crc again after fixes, search "wait authentic cache".
 
 no midi fading, old js code for IE: https://github.com/2004Scape/Server/blob/61bf21fb3755c14b5cf6d47c9d974dee5783beda/view/javaclient.ejs new ts code: https://github.com/2004Scape/Client2/commit/92e74f1f134ea82e48dd608dcca3422777a7a986 (client-ts has more some fade fixes)
 
@@ -58,13 +54,11 @@ locs like fires have no animations as pushLocs is disabled for now, it constantl
 
 wordfilter isn't ported yet, so you will see your own swear words but others don't as it gets filtered by the server still.
 
-the game uses 3 titles: "RuneScape - the massive online adventure game by Jagex Ltd" (website), "RuneScape Game" (html) and "Jagex" (jar), maybe show the first as it was most commonly seen
-
 some bits from signlink missing (uid, reporterror, findcachedir, openurl, opensocket etc, move map loading to cacheload?
 
 remove the refcounting from model/pix24/lrucache for components and do smth else (kept to avoid leak spam rn) as components get assigned models from packets which are put into lrucaches, so global component doesn't own the memory anymore
 
-there are a few more memleaks to work out, also make sure playground doesn't leak anymore after attempting to fix this. Examples: inputtracking (when flagged), model_calculate_normals (on interfaces too like newcomer map)
+there are a few more memleaks to work out, also make sure playground doesn't leak anymore after attempting to fix this. Examples: inputtracking (when flagged which happens on report now lol), model_calculate_normals (on interfaces too like newcomer map)
 ```
 
 ## non issues (expected or unfixable)
@@ -89,7 +83,7 @@ To move the executable you have to take the `cache/`, `Roboto/`, `config.ini` an
 
 TODO:
 ```
-macos, bsds, android https://wiki.libsdl.org/SDL2/Android
+macos, bsds
 + add default helvetica-like system ttf font in gameshell_draw_string for each
 ```
 
@@ -242,9 +236,9 @@ TODO: controls
 ## libraries
 * [micro-bunzip](https://landley.net/code/) | https://landley.net/code/bunzip-4.1.c
 * [isaac](https://burtleburtle.net/bob/rand/isaacafa.html) | https://burtleburtle.net/bob/c/readable.c
-* [tiny-bignum-c](https://github.com/kokke/tiny-bignum-c)
-* [ini](https://github.com/rxi/ini)
 * [TinySoundFont](https://github.com/schellingb/TinySoundFont) - with fix for attack1.mid by skipping RIFF header
+* [tiny-bignum-c](https://github.com/kokke/tiny-bignum-c) - prefer libtom/openssl/bigint, but works fine with smaller exponent
+* [ini](https://github.com/rxi/ini)
 * [stb_image and stb_truetype](https://github.com/nothings/stb)
 
 ## optional libraries

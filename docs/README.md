@@ -42,7 +42,9 @@ COLLISIONMAP_LEVELS should probably be added in some more places
 global search TODO and NOTE and all console __defines__
 add CI: check both highmem/lowmem, members/free, all entrypoints, run make check/scan/san and clang-format
 maybe take webworker server compat from Client2: https://emscripten.org/docs/api_reference/wasm_workers.html
+maybe use emscriptens indexeddb api to store data files
 bring back worldlist loading in [shell.html](https://github.com/lesleyrs/Client3/commit/5da924b9f766005e82163d899e52a5df2f771584#diff-c878553ed816480a5e85ff602ff3c5d38788ca1d21095cd8f8ebc36a4dbc07ee) if it gets re-added for live servers
+the game uses 3 titles: "RuneScape - the massive online adventure game by Jagex Ltd" (website), "RuneScape Game" (html) and "Jagex" (jar), maybe show the first as it was most commonly seen
 ```
 ## Java and C differences + codestyle
 ```
