@@ -10250,6 +10250,7 @@ int main(int argc, char **argv) {
 
     if (argc != 5) {
         if (load_ini_args()) {
+            _Client.lowmem ? client_set_lowmem() : client_set_highmem();
             goto init;
         }
         rs2_error("Usage: node-id, port-offset, [lowmem/highmem], [free/members]\n");
