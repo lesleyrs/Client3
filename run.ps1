@@ -51,11 +51,11 @@ cl -fsanitize=address -D_CRT_SECURE_NO_WARNINGS -W3 -Zi -Feclient $src -I"$inc" 
 
 $src = (Get-ChildItem -Path "src" -Filter "*.c" -Recurse | ForEach-Object { $_.FullName })
 # TODO make a release build
-# emcc -fwrapv -gsource-map --shell-file shell.html --preload-file cache/client --preload-file SCC1_Florestan.sf2 --preload-file Roboto @src -DWITH_RSA_BIGINT -Dclient -DSDL=2 --use-port=sdl2 -sALLOW_MEMORY_GROWTH -sINITIAL_HEAP=50MB -sSTACK_SIZE=1048576 -o index.html -sASYNCIFY -fsanitize=null -fsanitize-minimal-runtime -sSTRICT_JS -sDEFAULT_TO_CXX=0 && emrun --no-browser --hostname localhost .
+# emcc -fwrapv -gsource-map --shell-file shell.html --preload-file cache/client --preload-file SCC1_Florestan.sf2 --preload-file Roboto @src -DWITH_RSA_BIGINT -Dclient -DSDL=2 --use-port=sdl2 -sALLOW_MEMORY_GROWTH -sINITIAL_HEAP=50MB -sSTACK_SIZE=1048576 -o index.html -sASYNCIFY -fsanitize=null -fsanitize-minimal-runtime -sSTRICT_JS -sDEFAULT_TO_CXX=0 && emrun --no-browser --hostname 0.0.0.0 .
 
 $sslinc = "bin/openssl-web/include"
 $ssllib = "bin/openssl-web"
-# emcc -fwrapv -gsource-map --shell-file shell.html --preload-file cache/client --preload-file SCC1_Florestan.sf2 --preload-file Roboto @src -I"$sslinc" -L"$ssllib" -lcrypto -DWITH_RSA_OPENSSL -Dclient -DSDL=2 --use-port=sdl2 -sALLOW_MEMORY_GROWTH -sINITIAL_HEAP=50MB -sSTACK_SIZE=1048576 -o index.html -sASYNCIFY -fsanitize=null -fsanitize-minimal-runtime -sSTRICT_JS -sDEFAULT_TO_CXX=0 && emrun --no-browser --hostname localhost .
+# emcc -fwrapv -gsource-map --shell-file shell.html --preload-file cache/client --preload-file SCC1_Florestan.sf2 --preload-file Roboto @src -I"$sslinc" -L"$ssllib" -lcrypto -DWITH_RSA_OPENSSL -Dclient -DSDL=2 --use-port=sdl2 -sALLOW_MEMORY_GROWTH -sINITIAL_HEAP=50MB -sSTACK_SIZE=1048576 -o index.html -sASYNCIFY -fsanitize=null -fsanitize-minimal-runtime -sSTRICT_JS -sDEFAULT_TO_CXX=0 && emrun --no-browser --hostname 0.0.0.0 .
 
 # windows 98 need to link sdlmain instead of -DSDL_main=main?
 $sdl12_inc = "bin\SDL-devel-1.2.15-VC\SDL-1.2.15\include"

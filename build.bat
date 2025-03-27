@@ -11,8 +11,6 @@ set SDL2="bin\SDL2-devel-2.30.9-VC\SDL2-2.30.9\include"
 set SDL3="bin\SDL3-devel-3.1.6-VC\SDL3-3.1.6\include"
 set SSLINC="bin\openssl-0.9.8h-1-lib\include"
 set SSLLIB="bin\openssl-0.9.8h-1-lib\lib"
-set SSLWEBINC="bin\openssl-web\include"
-set SSLWEBLIB="bin\openssl-web"
 set RELEASE=-Wl,-subsystem=windows
 set DEBUG=-Wl,-subsystem=console -g
 
@@ -78,7 +76,7 @@ if "%CC%" == "cl" (
 	exit /B 1
 ) else if "%CC%" == "emcc" (
 	REM -fsanitize=null -fsanitize-minimal-runtime
-	%CC% %SRC% -fwrapv -gsource-map --shell-file shell.html --preload-file cache\client --preload-file SCC1_Florestan.sf2 --preload-file Roboto -s -Oz -ffast-math -flto -std=c99 -DWITH_RSA_BIGINT -D%ENTRY% -I%SSLWEBINC% -L%SSLWEBLIB% -lcrypto -DSDL=2 --use-port=sdl2 -sALLOW_MEMORY_GROWTH -sINITIAL_HEAP=50MB -sSTACK_SIZE=1048576 -o index.html -sASYNCIFY -sSTRICT_JS -sDEFAULT_TO_CXX=0 && emrun --no-browser --hostname localhost .
+	%CC% %SRC% -fwrapv -gsource-map --shell-file shell.html --preload-file cache\client --preload-file SCC1_Florestan.sf2 --preload-file Roboto -s -Oz -ffast-math -flto -std=c99 -DWITH_RSA_BIGINT -D%ENTRY% -DSDL=2 --use-port=sdl2 -sALLOW_MEMORY_GROWTH -sINITIAL_HEAP=50MB -sSTACK_SIZE=1048576 -o index.html -sASYNCIFY -sSTRICT_JS -sDEFAULT_TO_CXX=0 && emrun --no-browser --hostname 0.0.0.0 .
 ) else if "%CC%" == "gcc" (
 	::%CC% %SRC% -s -O3 -ffast-math -std=c99 -DSDL_main=main -DWITH_RSA_OPENSSL -D%ENTRY% %SDL% -I%SSLINC% -lws2_32 %OPT% -o %ENTRY%.exe SDL%VER%.dll libeay32.dll
 	REM added static linking for openssl, so linux mingw builds don't need the dll in same dir as well
