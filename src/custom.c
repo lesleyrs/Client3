@@ -15,7 +15,7 @@
 extern ClientData _Client;
 extern InputTracking _InputTracking;
 
-#if defined(__WII__) || defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__PSP__) || defined(__vita__) || defined(_arch_dreamcast) || defined(NXDK) || defined(__NDS__)
+#if defined(__WII__) || defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__PSP__) || defined(__vita__) || defined(_arch_dreamcast) || defined(NXDK) || defined(__NDS__) || defined(ANDROID)
 Custom _Custom = {.chat_era = 2, .http_port = 80, .showPerformance = true};
 #else
 Custom _Custom = {.chat_era = 2, .http_port = 80};
@@ -106,6 +106,9 @@ void load_ini_config(Client *c) {
     INI_INT_LOG(&(&_Custom), remember_username, );
     INI_INT_LOG(&(&_Custom), remember_password, );
     INI_INT_LOG(&(&_Custom), resizable, );
+#ifdef ANDROID
+    _Custom.resizable = true;
+#endif
 
     rs2_log("\n");
     ini_free(config);

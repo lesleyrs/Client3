@@ -1,9 +1,9 @@
 #if SDL == 2
 #include "SDL.h"
 
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
-#include <errno.h>
 
 #include "../client.h"
 #include "../custom.h"
@@ -25,8 +25,8 @@ extern Custom _Custom;
 
 #ifdef __vita__
 static SDL_Joystick *joystick;
-static bool right_touch = false;
 #endif
+static bool right_touch = false;
 
 static tml_message *TinyMidiLoader;
 
@@ -155,6 +155,12 @@ void platform_new(int width, int height) {
     if (_Custom.resizable) {
         SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"); // Linear scaling
     }
+#ifdef ANDROID
+    SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft");
+    // SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight"); NOTE: maybe use this instead based on feedback
+#endif
+    SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
+    SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
     // SDL_SetHint(SDL_HINT_WINDOWS_NO_CLOSE_ON_ALT_F4, "1"); // OSRS desktop client always had this, not sure about before?
 
     int init = SDL_INIT_VIDEO;
@@ -183,6 +189,10 @@ void platform_new(int width, int height) {
         SDL_Quit();
         return;
     }
+
+#ifdef ANDROID
+    SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+#endif
 
     if (!_Custom.resizable) {
         window_surface = SDL_GetWindowSurface(window);
@@ -319,14 +329,22 @@ void platform_set_jingle(int8_t *src, int len) {
 void platform_set_midi(const char *name, int crc, int len) {
     char filename[PATH_MAX];
     snprintf(filename, sizeof(filename), "cache/client/songs/%s.mid", name);
+#ifdef ANDROID
+    SDL_RWops *file = SDL_RWFromFile(filename, "rb");
+#else
     FILE *file = fopen(filename, "rb");
+#endif
     if (!file) {
         rs2_error("Error loading midi file %s: %s (NOTE: authentic if empty?)\n", filename, strerror(errno));
         return;
     }
 
     int8_t *data = malloc(len);
+#ifdef ANDROID
+    const size_t data_len = SDL_RWread(file, data, 1, len);
+#else
     const size_t data_len = fread(data, 1, len, file);
+#endif
     if (data && crc != 12345678) {
         int data_crc = rs_crc32(data, len);
         if (data_crc != crc) {
@@ -345,7 +363,11 @@ void platform_set_midi(const char *name, int crc, int len) {
     g_MidiMessage = TinyMidiLoader;
     packet_free(packet);
     free(uncompressed);
+#ifdef ANDROID
+    SDL_RWclose(file);
+#else
     fclose(file);
+#endif
 }
 
 void platform_stop_midi(void) {
@@ -789,6 +811,7 @@ void platform_poll_events(Client *c) {
             }
             break;
         } break;
+#endif
         case SDL_FINGERMOTION: {
             float x = e.tfinger.x * SCREEN_FB_WIDTH;
             float y = e.tfinger.y * SCREEN_FB_HEIGHT;
@@ -809,6 +832,7 @@ void platform_poll_events(Client *c) {
             // NOTE: set mouse pos here again due to no mouse movement
             c->shell->mouse_x = x;
             c->shell->mouse_y = y;
+
             c->shell->mouse_click_x = x;
             c->shell->mouse_click_y = y;
 
@@ -833,7 +857,6 @@ void platform_poll_events(Client *c) {
             }
             break;
         } break;
-#endif
         case SDL_MOUSEMOTION: {
             int x = e.motion.x;
             int y = e.motion.y;

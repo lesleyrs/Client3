@@ -4767,20 +4767,37 @@ bool client_read(Client *c) {
                 snprintf(filename, sizeof(filename), "cache/client/maps/m%d_%d", mapsquareX, mapsquareZ);
 #endif
 
+#if ANDROID
+                SDL_RWops *file = SDL_RWFromFile(filename, "rb");
+#else
                 FILE *file = fopen(filename, "rb");
+#endif
                 if (!file) {
                     rs2_error("%s: %s\n", filename, strerror(errno));
                 }
 
+#ifdef ANDROID
+                size_t size = SDL_RWseek(file, 0, RW_SEEK_END);
+                SDL_RWseek(file, 0, RW_SEEK_SET);
+#else
                 fseek(file, 0, SEEK_END);
                 size_t size = ftell(file);
                 fseek(file, 0, SEEK_SET);
+#endif
 
                 data = malloc(size);
+#ifdef ANDROID
+                if (SDL_RWread(file, data, 1, size) != size) {
+#else
                 if (fread(data, 1, size, file) != size) {
+#endif
                     rs2_error("Failed to read file: %s\n", strerror(errno));
                 }
+#ifdef ANDROID
+                SDL_RWclose(file);
+#else
                 fclose(file);
+#endif
 
                 if (data) {
                     if (rs_crc32(data, size) != landCrc) {
@@ -4812,20 +4829,37 @@ bool client_read(Client *c) {
                 snprintf(filename, sizeof(filename), "cache/client/maps/l%d_%d", mapsquareX, mapsquareZ);
 #endif
 
+#if ANDROID
+                SDL_RWops *file = SDL_RWFromFile(filename, "rb");
+#else
                 FILE *file = fopen(filename, "rb");
+#endif
                 if (!file) {
                     rs2_error("%s: %s\n", filename, strerror(errno));
                 }
 
+#ifdef ANDROID
+                size_t size = SDL_RWseek(file, 0, RW_SEEK_END);
+                SDL_RWseek(file, 0, RW_SEEK_SET);
+#else
                 fseek(file, 0, SEEK_END);
                 size_t size = ftell(file);
                 fseek(file, 0, SEEK_SET);
+#endif
 
                 data = malloc(size);
+#ifdef ANDROID
+                if (SDL_RWread(file, data, 1, size) != size) {
+#else
                 if (fread(data, 1, size, file) != size) {
+#endif
                     rs2_error("Failed to read file: %s\n", strerror(errno));
                 }
+#ifdef ANDROID
+                SDL_RWclose(file);
+#else
                 fclose(file);
+#endif
 
                 if (data) {
                     if (rs_crc32(data, size) != locCrc) {
@@ -10671,14 +10705,22 @@ Jagfile *load_archive(Client *c, const char *name, int crc, const char *display_
     (void)c;
     // platform_update_surface(c->shell);
 
+#ifdef ANDROID
+    SDL_RWops *file = SDL_RWFromFile(filename, "rb");
+#else
     FILE *file = fopen(filename, "rb");
+#endif
     if (!file) {
         rs2_error("Failed to open file\n", strerror(errno));
         free(header);
         return NULL;
     }
 
+#ifdef ANDROID
+    if (SDL_RWread(file, header, 1, 6) != 6) {
+#else
     if (fread(header, 1, 6, file) != 6) {
+#endif
         rs2_error("Failed to read header\n", strerror(errno));
     }
     Packet *packet = packet_new(header, 6);
@@ -10688,10 +10730,18 @@ Jagfile *load_archive(Client *c, const char *name, int crc, const char *display_
     data = malloc(file_size);
     memcpy(data, header, total_read); // or packet->data instead of header
     size_t remaining = file_size - total_read;
+#ifdef ANDROID
+    if (SDL_RWread(file, data + total_read, 1, remaining) != remaining) {
+#else
     if (fread(data + total_read, 1, remaining, file) != remaining) {
+#endif
         rs2_error("Failed to read file\n", strerror(errno));
     }
+#ifdef ANDROID
+    SDL_RWclose(file);
+#else
     fclose(file);
+#endif
     packet_free(packet);
 
     int crc_value = rs_crc32(data, file_size);

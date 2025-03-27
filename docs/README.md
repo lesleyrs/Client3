@@ -28,8 +28,6 @@
 ## TODO
 ```
 all home consoles (wii, dreamcast, xbox) should be able to run the game at higher res or even full res on PAL TVs so you don't have to pan and simplifies set_pixels, but this isn't set up right now and emulators don't seem to support many video modes.
-add a define for mobile to set mouse_x and mouse_y, however we have to make sure that on both android and postmarketos it's using finger events not emulated mouse.
-Mobile isn't playable for now without mouse/keyboard (no right clicking, rotating camera, onscreen keyboard)
 ts Client2/java Client (lastmain/webclient branch) repo have extra funcs (pix2d etc?)
 remove original cache at bin/archives when the cache matches exactly
 add diskstore/gzip just for later cache loading

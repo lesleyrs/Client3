@@ -6,5 +6,6 @@
 /bin
 /rom
 /sce_sys
+/android-project
 *.png
 *.jpg

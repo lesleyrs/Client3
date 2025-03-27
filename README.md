@@ -125,6 +125,33 @@ TODO: emscripten wasm on firefox has memleaks related to midi, gets cleaned up b
 TODO: auto-generated js by emscripten is blocking default browser shortcuts why exactly
 ```
 
+### Android
+https://github.com/libsdl-org/SDL/blob/SDL2/docs/README-android.md - Useful info starts at "For more complex projects"
+
+`mkdir ~/android && cd ~/android` and download [android command line tools](#tools) to it
+accept licenses whenever it asks
+enable developer options by tapping build number and connect `$HOME/android/platform-tools/adb connect IP:PORT`
+In Client3/android-project run `ANDROID_HOME="$HOME/android/" ./gradlew installDebug`
+The APK will be in android-project/app/build/outputs/apk/debug/ and installed on the device
+
+you can also start it remotely:
+$HOME/android/platform-tools/adb shell am start -n org.libsdl.app/.SDLActivity
+show error/fatal logging with:
+$HOME/android/platform-tools/adb logcat *:E | grep 'org.libsdl.app'
+
+Steps to update/reproduce the current android setup:
+in Client3/android-project/app/jni run `mkdir SDL`
+git clone SDL, git checkout SDL2 branch and run `cp -r Android.mk include src SDL`
+symlink src and rom directories:
+`cd android-project/app/jni/src && ln -s ../../../../src src`
+`cd android-project/app/src/main && ln -s ../../../../rom assets`
+set Client LOCAL_CFLAGS and LOCAL_SRC_FILES app/jni/src/Android.mk
+enable networking in app/src/main/AndroidManifest.xml `<uses-permission android:name="android.permission.INTERNET" />`
+
+```
+TODO: onscreen keyboard SDL_StartTextInput?
+TODO: long press right click? click on touch release? hold in viewport to rotate? share code with postmarketos/vita
+```
 ### Nintendo consoles (devkitPro)
 Install [devkitpro](#tools) with (nds/wii/3ds/wiiu/switch)-dev package and run `make -f (nds/wii/3ds/wiiu/switch).mk -j$(nproc) -B`.
 
@@ -236,7 +263,7 @@ TODO: controls
 ## libraries
 * [micro-bunzip](https://landley.net/code/) | https://landley.net/code/bunzip-4.1.c
 * [isaac](https://burtleburtle.net/bob/rand/isaacafa.html) | https://burtleburtle.net/bob/c/readable.c
-* [TinySoundFont](https://github.com/schellingb/TinySoundFont) - with fix for attack1.mid by skipping RIFF header
+* [TinySoundFont](https://github.com/schellingb/TinySoundFont) - with fix for attack1.mid by skipping RIFF header and android support
 * [tiny-bignum-c](https://github.com/kokke/tiny-bignum-c) - prefer libtom/openssl/bigint, but works fine with smaller exponent
 * [ini](https://github.com/rxi/ini)
 * [stb_image and stb_truetype](https://github.com/nothings/stb)
@@ -265,3 +292,4 @@ Latest SDL1 already contains the tcc fix but they don't make new releases for it
 * [vitasdk](https://github.com/vitasdk/vdpm) | https://vitasdk.org/
 * [kallistios](https://github.com/KallistiOS/KallistiOS) | [mkdcdisc](https://gitlab.com/simulant/mkdcdisc)
 * [nxdk](https://github.com/XboxDev/nxdk)
+* [android sdk tools](https://developer.android.com/studio)

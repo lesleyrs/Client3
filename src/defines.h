@@ -6,7 +6,7 @@
 #define PATH_MAX 260
 #endif
 
-// used for avoiding overdraw, scaling touch, and width is used for aligned access in vram too
+// used for avoiding overdraw, scaling touch, and width is sometimes used for aligned access in vram too
 #if defined(__WII__) || defined(_arch_dreamcast) || defined(NXDK)
 #define SCREEN_FB_WIDTH 640
 #define SCREEN_FB_HEIGHT 480
@@ -22,6 +22,9 @@
 #elif defined(__NDS__)
 #define SCREEN_FB_WIDTH 256
 #define SCREEN_FB_HEIGHT 192
+#else
+#define SCREEN_FB_WIDTH SCREEN_WIDTH
+#define SCREEN_FB_HEIGHT SCREEN_HEIGHT
 #endif
 
 #define SCREEN_WIDTH 789

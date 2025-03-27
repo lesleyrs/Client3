@@ -299,11 +299,15 @@ void gameshell_draw_string(Client *c, const char *str, int x, int y, int color, 
     (void)font_name, (void)font_bold;
     // TODO: abstract this
     // TODO: fontname and bold ignored rn it's always bold
+#ifdef ANDROID
+    SDL_RWops *file = NULL;
+#else
     FILE *file = NULL;
+#endif
 #if defined(_WIN32) || defined(_WIN64)
     // c:/windows/fonts/ - arialbd
     file = fopen("c:/windows/fonts/arialbd.ttf", "rb");
-#elif defined(__linux__)
+#elif defined(__linux__) && !defined(ANDROID)
     // /usr/share/fonts - dejavu/liberation sans
     // FILE *file = fopen("/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf", "rb");
     file = fopen("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", "rb");
@@ -316,6 +320,8 @@ void gameshell_draw_string(Client *c, const char *str, int x, int y, int color, 
     if (!file) {
 #ifdef NXDK
         file = fopen("D:\\Roboto\\Roboto-Bold.ttf", "rb");
+#elif ANDROID
+        file = SDL_RWFromFile("Roboto/Roboto-Bold.ttf", "rb");
 #else
         file = fopen("Roboto/Roboto-Bold.ttf", "rb");
 #endif
@@ -326,15 +332,28 @@ void gameshell_draw_string(Client *c, const char *str, int x, int y, int color, 
         }
     }
 
+#ifdef ANDROID
+    size_t size = SDL_RWseek(file, 0, RW_SEEK_END);
+    SDL_RWseek(file, 0, RW_SEEK_SET);
+#else
     fseek(file, 0, SEEK_END);
     size_t size = ftell(file);
     fseek(file, 0, SEEK_SET);
+#endif
 
     uint8_t *buffer = malloc(size);
+#ifdef ANDROID
+    if (SDL_RWread(file, buffer, 1, size) != size) {
+#else
     if (fread(buffer, 1, size, file) != size) {
+#endif
         rs2_error("Failed to read file\n", strerror(errno));
     }
+#ifdef ANDROID
+    SDL_RWclose(file);
+#else
     fclose(file);
+#endif
 
     stbtt_fontinfo font;
     stbtt_InitFont(&font, buffer, stbtt_GetFontOffsetForIndex(buffer, 0));

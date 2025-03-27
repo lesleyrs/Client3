@@ -344,16 +344,26 @@ struct tsf
 };
 
 #ifndef TSF_NO_STDIO
+#ifdef ANDROID
+#include <SDL.h>
+static int tsf_stream_stdio_read(SDL_RWops* f, void* ptr, unsigned int size) { return (int)SDL_RWread(f, ptr, 1, size); }
+static int tsf_stream_stdio_skip(SDL_RWops* f, unsigned int count) { return SDL_RWseek(f, count, SEEK_CUR) != -1; }
+#else
 static int tsf_stream_stdio_read(FILE* f, void* ptr, unsigned int size) { return (int)fread(ptr, 1, size, f); }
 static int tsf_stream_stdio_skip(FILE* f, unsigned int count) { return !fseek(f, count, SEEK_CUR); }
+#endif
 TSFDEF tsf* tsf_load_filename(const char* filename)
 {
 	tsf* res;
 	struct tsf_stream stream = { TSF_NULL, (int(*)(void*,void*,unsigned int))&tsf_stream_stdio_read, (int(*)(void*,unsigned int))&tsf_stream_stdio_skip };
+	#ifdef ANDROID
+	SDL_RWops *f = SDL_RWFromFile(filename, "rb");
+	#else
 	#if __STDC_WANT_SECURE_LIB__
 	FILE* f = TSF_NULL; fopen_s(&f, filename, "rb");
 	#else
 	FILE* f = fopen(filename, "rb");
+	#endif
 	#endif
 	if (!f)
 	{
@@ -362,7 +372,11 @@ TSFDEF tsf* tsf_load_filename(const char* filename)
 	}
 	stream.data = f;
 	res = tsf_load(&stream);
+	#ifdef ANDROID
+	SDL_RWclose(f);
+	#else
 	fclose(f);
+	#endif
 	return res;
 }
 #endif
