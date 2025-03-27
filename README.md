@@ -126,30 +126,27 @@ TODO: auto-generated js by emscripten is blocking default browser shortcuts why 
 ```
 
 ### Android
-https://github.com/libsdl-org/SDL/blob/SDL2/docs/README-android.md - Useful info starts at "For more complex projects"
+https://github.com/libsdl-org/SDL/blob/SDL2/docs/README-android.md - from "For more complex projects"
 
-`mkdir ~/android && cd ~/android` and download [android command line tools](#tools) to it + accept licenses whenever it asks
+1. `mkdir ~/android && cd ~/android` and download [android command line tools](#tools) to it + accept licenses whenever it asks
+2. enable developer options by tapping build number and connect `$HOME/android/platform-tools/adb connect IP:PORT`
+3. In Client3/android-project run `ANDROID_HOME="$HOME/android/" ./gradlew installDebug`
+4. The APK will be in android-project/app/build/outputs/apk/debug/ and installed on the device
 
-enable developer options by tapping build number and connect `$HOME/android/platform-tools/adb connect IP:PORT`
+you can also start it remotely: `$HOME/android/platform-tools/adb shell am start -n org.libsdl.app/.SDLActivity`
 
-In Client3/android-project run `ANDROID_HOME="$HOME/android/" ./gradlew installDebug`
-
-The APK will be in android-project/app/build/outputs/apk/debug/ and installed on the device
-
-you can also start it remotely: $HOME/android/platform-tools/adb shell am start -n org.libsdl.app/.SDLActivity
-
-show error/fatal logging with: $HOME/android/platform-tools/adb logcat *:E | grep 'org.libsdl.app'
+show error/fatal logging with: `$HOME/android/platform-tools/adb logcat *:E | grep 'org.libsdl.app'`
 
 Steps to update/reproduce the current android setup:
+1. in Client3/android-project/app/jni run `mkdir SDL`
+2. git clone SDL, git checkout SDL2 branch and run `cp -r Android.mk include src SDL`
+3. symlink src and rom directories:
 ```
-in Client3/android-project/app/jni run `mkdir SDL`
-git clone SDL, git checkout SDL2 branch and run `cp -r Android.mk include src SDL`
-symlink src and rom directories:
-`cd android-project/app/jni/src && ln -s ../../../../src src`
-`cd android-project/app/src/main && ln -s ../../../../rom assets`
-set Client LOCAL_CFLAGS and LOCAL_SRC_FILES app/jni/src/Android.mk
-enable networking in app/src/main/AndroidManifest.xml `<uses-permission android:name="android.permission.INTERNET" />`
+cd android-project/app/jni/src && ln -s ../../../../src src
+cd android-project/app/src/main && ln -s ../../../../rom assets
 ```
+5. set Client LOCAL_CFLAGS and LOCAL_SRC_FILES app/jni/src/Android.mk
+6. enable networking in app/src/main/AndroidManifest.xml `<uses-permission android:name="android.permission.INTERNET" />`
 
 ```
 TODO: onscreen keyboard SDL_StartTextInput?
