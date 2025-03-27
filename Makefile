@@ -20,7 +20,7 @@ ifeq ($(basename $(notdir $(CC))),emcc)
 WITH_JS_BIGINT ?= 1
 # getnameinfo does nothing with emscripten so use old api
 MODERN_POSIX = 0
-SDL = 3
+SDL = 2
 else ifeq ($(findstring i686-w64-mingw32-gcc,$(CC)),i686-w64-mingw32-gcc)
 # sdl1 dll is the only one guaranteed to be 32 bits, others can be found in bin
 SDL = 1
@@ -76,9 +76,7 @@ endif
 # Faster RSA encryption
 ifeq ($(WITH_JS_BIGINT), 1)
 CFLAGS += -DWITH_RSA_BIGINT
-endif
-
-ifeq ($(WITH_LIBTOM), 1)
+else ifeq ($(WITH_LIBTOM), 1)
 CFLAGS += -DWITH_RSA_LIBTOM
 # CFLAGS += $(shell pkg-config --cflags libtommath)
 # LDFLAGS += $(shell pkg-config --libs libtommath)

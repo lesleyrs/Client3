@@ -64,7 +64,7 @@ there are a few more memleaks to work out, also make sure playground doesn't lea
 ## non issues (expected or unfixable)
 Windows Firefox "lag" is due to setTimeout being broken with wasm as using the firefox profiler increases fps. Asyncify is not the problem here I've had it happen in wasm without emscripten, https://github.com/lesleyrs/web-gbc?tab=readme-ov-file#limitations
 
-The "fix" is to use `emscripten_set_main_loop_arg` with 0 fps which calls requestAnimationFrame instead. The function to be called should be the contents of the while loop in gameshell_run (delete the while loop itself) which will get you full FPS. If it still lags close devtools and refresh page. Downsides are that if the tab goes inactive it will speed up when returning, it doesn't seem fixable the same way as in Client2 since they still use setTimeout. Also Firefox won't have the benefit of the websocket never timing out anymore.
+The "fix" is to use `emscripten_set_main_loop_arg` with 0 fps which calls requestAnimationFrame instead. The function to be called should be the contents of the while loop in gameshell_run (delete the while loop itself) which will get you full FPS. If it still lags close devtools and refresh page. Downsides are that if the tab goes inactive the game will speed up when returning, it doesn't seem fixable the same way as in Client2 since they still use setTimeout. Also Firefox won't have the benefit of the websocket never timing out anymore.
 
 emrun causes extra batch job message on windows sigint, can swap it for `py -m http.server` or so to avoid it
 
@@ -81,10 +81,9 @@ The 2004 jar is stored for comparisons, run with EG: `java -cp bin/runescape.jar
 ## Platforms and Compilers
 To move the executable you have to take the `cache/`, `Roboto/`, `config.ini` and optionally `SCC1_Florestan.sf2` along with it. The consoles will load it from sdcard if they don't embed the files already.
 
-TODO:
 ```
-macos, bsds
-+ add default helvetica-like system ttf font in gameshell_draw_string for each
+TODO: macos, bsds
+TODO: add default helvetica-like system ttf font in gameshell_draw_string when available to avoid Roboto dependency
 ```
 
 ### Windows 95 to Windows 11
@@ -94,14 +93,11 @@ run.ps1: cl, clang, tcc, mingw-gcc, emcc
 
 You might want the updated [PowerShell](https://github.com/PowerShell/PowerShell) for run.ps1
 
-NOTE: currently bignum lib isn't working with tcc on windows and gives [invalid memory access](https://lists.nongnu.org/archive/html/tinycc-devel/2024-12/msg00020.html) so we use openssl
-
-TODO:
 ```
-confirm win9x work still (with old openssl or mingw-gcc with libtom), maybe add screenshot to /docs
-do we assume windows 95 has -lws2_32, otherwise re-add -lwsock32 and remove -DMODERN_POSIX in batch file
-make win9x compatible batch file (no delayed expansion?) right now needs to build from more modern system
-clean up ps1 script so it doesn't need to be modified
+TODO: confirm win9x work still (with old openssl or mingw-gcc with libtom), maybe add screenshot to /docs
+TODO: do we assume windows 95 has -lws2_32, otherwise re-add -lwsock32 and remove -DMODERN_POSIX in batch file
+TODO: make win9x compatible batch file (no delayed expansion?) right now needs to build from more modern system
+TODO: clean up ps1 script so it doesn't need to be modified
 ```
 
 ### Linux GNU or musl
@@ -113,9 +109,9 @@ If tcc from your package manager isn't working you should build latest [tcc](htt
 install [emsdk](#tools)
 run `emmake make`/`make CC=emcc` or `build.bat -c emcc` for windows
 
-Linux wasm/js output seems to be quite a bit smaller than on Windows
+Linux wasm/js output seems to be quite a bit smaller than on Windows, and same goes for SDL=2 being smaller than SDL=3.
 
-If you pass args in the html file the ip address and http port are from the URL itself.
+If 4 args are passed in shell.html the ip + port will be from the URL instead of config
 
 If not passing args make sure to set http_port to 8888 on linux (or whatever it's configured as in server).
 
@@ -133,11 +129,10 @@ https://github.com/libsdl-org/SDL/blob/SDL2/docs/README-android.md - from "For m
 3. In Client3/android-project run `ANDROID_HOME="$HOME/android/" ./gradlew installDebug`
 4. The APK will be in android-project/app/build/outputs/apk/debug/ and installed on the device
 
-you can also start it remotely: `$HOME/android/platform-tools/adb shell am start -n org.libsdl.app/.SDLActivity`
+- you can also start it remotely: `$HOME/android/platform-tools/adb shell am start -n org.libsdl.app/.SDLActivity`
+- show error/fatal logging with:  `$HOME/android/platform-tools/adb logcat *:E | grep 'org.libsdl.app'`
 
-show error/fatal logging with: `$HOME/android/platform-tools/adb logcat *:E | grep 'org.libsdl.app'`
-
-Steps to update/reproduce the current android setup:
+#### Steps to update/reproduce the current android setup:
 1. in Client3/android-project/app/jni run `mkdir SDL`
 2. git clone SDL, git checkout SDL2 branch and run `cp -r Android.mk include src SDL`
 3. symlink src and rom directories:
@@ -257,7 +252,7 @@ NOTE: local servers don't work on emulator? only live works
 NOTE: default.xbe stays around in rom dir when it's junk for other consoles that embed that directory. Can remove it after building.
 TODO: fopen had to be separated due to the need for backwards slashes, also there's no chdir equivalent?
 TODO: virtual cursor icon
-TODO: controls
+TODO: controls (nxdk devs said they would refactor get_ticks name to resolve conflict)
 ```
 
 ## libraries
@@ -292,4 +287,4 @@ Latest SDL1 already contains the tcc fix but they don't make new releases for it
 * [vitasdk](https://github.com/vitasdk/vdpm) | https://vitasdk.org/
 * [kallistios](https://github.com/KallistiOS/KallistiOS) | [mkdcdisc](https://gitlab.com/simulant/mkdcdisc)
 * [nxdk](https://github.com/XboxDev/nxdk)
-* [android sdk tools](https://developer.android.com/studio)
+* [android command line tools](https://developer.android.com/studio)
