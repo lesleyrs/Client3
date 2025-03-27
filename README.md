@@ -119,6 +119,7 @@ If not passing args make sure to set http_port to 8888 on linux (or whatever it'
 TODO: possibly target wasm directly with clang instead of emscripten, but then we don't have a libc at all
 TODO: emscripten wasm on firefox has memleaks related to midi, gets cleaned up by pressing GC in about:memory but why does this happen? Chromium based browsers are ok. Happens on both SDL2 and SDL3.
 TODO: auto-generated js by emscripten is blocking default browser shortcuts why exactly
+TODO: ability to set secured websocket at runtime instead of compile
 ```
 
 ### Android
