@@ -11,6 +11,8 @@ set SDL2="bin\SDL2-devel-2.30.9-VC\SDL2-2.30.9\include"
 set SDL3="bin\SDL3-devel-3.1.6-VC\SDL3-3.1.6\include"
 set SSLINC="bin\openssl-0.9.8h-1-lib\include"
 set SSLLIB="bin\openssl-0.9.8h-1-lib\lib"
+::set SSLWEBINC="bin\openssl-web\include"
+::set SSLWEBLIB="bin\openssl-web"
 set RELEASE=-Wl,-subsystem=windows
 set DEBUG=-Wl,-subsystem=console -g
 
