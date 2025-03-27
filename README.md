@@ -141,7 +141,7 @@ Steps to update/reproduce the current android setup:
 1. in Client3/android-project/app/jni run `mkdir SDL`
 2. git clone SDL, git checkout SDL2 branch and run `cp -r Android.mk include src SDL`
 3. symlink src and rom directories:
-```
+```sh
 cd android-project/app/jni/src && ln -s ../../../../src src
 cd android-project/app/src/main && ln -s ../../../../rom assets
 ```
