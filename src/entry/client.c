@@ -110,18 +110,21 @@ void client_init_global(void) {
 }
 
 void client_load(Client *c) {
-    // TODO missing bits
-    // String vendor = System.getProperties().getProperty("java.vendor");
-    // if (vendor.toLowerCase().indexOf("sun") != -1 || vendor.toLowerCase().indexOf("apple") != -1) {
-    // 	signlink.sunjava = true;
-    // }
-    // if (signlink.sunjava) {
-    // 	super.mindel = 5;
-    // }
+// TODO missing bits
+// String vendor = System.getProperties().getProperty("java.vendor");
+// if (vendor.toLowerCase().indexOf("sun") != -1 || vendor.toLowerCase().indexOf("apple") != -1) {
+// 	signlink.sunjava = true;
+// }
+// if (signlink.sunjava) {
+// 	super.mindel = 5;
+// }
 
+// NOTE: avoid blocking midi for emscripten due to slow loading on web
+#ifndef __EMSCRIPTEN__
     if (!_Client.lowmem) {
         platform_set_midi("scape_main", 12345678, 40000);
     }
+#endif
 
     if (_Client.started) {
         c->error_started = true;
@@ -458,6 +461,12 @@ void client_load(Client *c) {
     if (!clientstream_init()) {
         c->error_loading = true;
     }
+
+#ifdef __EMSCRIPTEN__
+    if (!_Client.lowmem) {
+        platform_set_midi("scape_main", 12345678, 40000);
+    }
+#endif
 
 // TODO temp
 #if defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__PSP__) || defined(__WII__) || defined(_arch_dreamcast) || defined(NXDK) || defined(__NDS__)
@@ -4826,7 +4835,7 @@ bool client_read(Client *c) {
 #elif defined(NXDK)
                 snprintf(filename, sizeof(filename), "D:\\cache\\client\\maps\\l%d_%d", mapsquareX, mapsquareZ);
 #else
-                snprintf(filename, sizeof(filename), "cache/client/maps/l%d_%d", mapsquareX, mapsquareZ);
+            snprintf(filename, sizeof(filename), "cache/client/maps/l%d_%d", mapsquareX, mapsquareZ);
 #endif
 
 #if ANDROID
