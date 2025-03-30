@@ -78,15 +78,6 @@ void platform_set_midi(const char *name, int crc, int len) {
 }
 void platform_stop_midi(void) {
 }
-Surface *platform_create_surface(int *pixels, int width, int height, int alpha) {
-    (void)width, (void)height, (void)alpha;
-    Surface *surface = calloc(1, sizeof(Surface));
-    surface->pixels = pixels;
-    return surface;
-}
-void platform_free_surface(Surface *surface) {
-    free(surface);
-}
 void set_pixels(PixMap *pixmap, int x, int y) {
     for (int h = 0; h < pixmap->height; h++) {
         int screen_y = y + h + screen_offset_y;

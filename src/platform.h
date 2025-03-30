@@ -34,6 +34,10 @@ typedef struct PixMap PixMap;
 int get_free_mem(void);
 #endif
 
+Surface *platform_create_surface(int *pixels, int width, int height, int alpha);
+void platform_free_surface(Surface *surface);
+void rs2_log(const char *format, ...);
+void rs2_error(const char *format, ...);
 char *platform_strndup(const char *s, size_t len);
 char *platform_strdup(const char *s);
 // int platform_asprintf(char **str, const char *fmt, ...);
@@ -57,8 +61,6 @@ void platform_set_midi_volume(float midivol);
 void platform_set_jingle(int8_t *src, int len);
 void platform_set_midi(const char *name, int crc, int len);
 void platform_stop_midi(void);
-Surface *platform_create_surface(int *pixels, int width, int height, int alpha);
-void platform_free_surface(Surface *surface);
 void set_pixels(PixMap *pixmap, int x, int y);
 void platform_poll_events(Client *c);
 void platform_update_surface(void);
@@ -66,5 +68,3 @@ void platform_fill_rect(int x, int y, int w, int h, int color);
 void platform_blit_surface(int x, int y, int w, int h, Surface *surface);
 uint64_t get_ticks(void);
 void delay_ticks(int ticks);
-void rs2_log(const char *format, ...);
-void rs2_error(const char *format, ...);

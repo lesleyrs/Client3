@@ -208,14 +208,6 @@ void platform_stop_midi(void) {
         tsf_channel_set_bank_preset(g_TinySoundFont, 9, 128, 0);
     }
 }
-Surface *platform_create_surface(int *pixels, int width, int height, int alpha) {
-    return SDL_CreateRGBSurfaceFrom(pixels, width, height, 32, width * sizeof(int), 0xff0000, 0x00ff00, 0x0000ff, alpha);
-}
-
-void platform_free_surface(Surface *surface) {
-    SDL_FreeSurface(surface);
-}
-
 void set_pixels(PixMap *pixmap, int x, int y) {
     SDL_Rect dest = {x, y, pixmap->width, pixmap->height};
     SDL_BlitSurface(pixmap->image, NULL, window_surface, &dest);

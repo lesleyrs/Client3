@@ -69,15 +69,6 @@ void platform_set_midi(const char *name, int crc, int len) {
 }
 void platform_stop_midi(void) {
 }
-Surface *platform_create_surface(int *pixels, int width, int height, int alpha) {
-    (void)width, (void)height, (void)alpha;
-    Surface *surface = calloc(1, sizeof(Surface));
-    surface->pixels = pixels;
-    return surface;
-}
-void platform_free_surface(Surface *surface) {
-    free(surface);
-}
 void set_pixels(PixMap *pixmap, int x, int y) {
     set_pixels_js(x, y, pixmap->width, pixmap->height, pixmap->pixels);
 }

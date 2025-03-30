@@ -310,18 +310,6 @@ void platform_stop_midi(void) {
     }
 }
 
-Surface *platform_create_surface(int *pixels, int width, int height, int alpha) {
-    Surface* surf = SDL_CreateSurfaceFrom(width, height, SDL_GetPixelFormatForMasks(32, 0xff0000, 0x00ff00, 0x0000ff, alpha), pixels, width * sizeof(int));
-    if (!surf) {
-        rs2_error("SDL3: SDL_CreateSurfaceFrom failed: %s", SDL_GetError());
-    }
-    return surf;
-}
-
-void platform_free_surface(Surface *surface) {
-    SDL_DestroySurface(surface);
-}
-
 void set_pixels(PixMap *pixmap, int x, int y) {
     platform_blit_surface(x, y, pixmap->width, pixmap->height, pixmap->image);
     platform_update_surface();

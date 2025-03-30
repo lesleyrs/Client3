@@ -383,18 +383,6 @@ void platform_stop_midi(void) {
     }
 }
 
-Surface *platform_create_surface(int *pixels, int width, int height, int alpha) {
-    Surface *new_surface = SDL_CreateRGBSurfaceFrom(pixels, width, height, 32, width * sizeof(int), 0xff0000, 0x00ff00, 0x0000ff, alpha);
-    if (!new_surface) {
-        rs2_error("SDL2: SDL_CreateRGBSurfaceFrom failed\n");
-    }
-    return new_surface;
-}
-
-void platform_free_surface(Surface *surface) {
-    SDL_FreeSurface(surface);
-}
-
 void set_pixels(PixMap *pixmap, int x, int y) {
     platform_blit_surface(x, y, pixmap->width, pixmap->height, pixmap->image);
     platform_update_surface();

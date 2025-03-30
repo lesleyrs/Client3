@@ -13,9 +13,32 @@
 #if SDL == 3
 #include "SDL3/SDL.h"
 #endif
-#if SDL == 2
+#if SDL == 2 || SDL == 1
 #include "SDL.h"
 #endif
+
+Surface *platform_create_surface(int *pixels, int width, int height, int alpha) {
+#if SDL == 3
+    return SDL_CreateSurfaceFrom(width, height, SDL_GetPixelFormatForMasks(32, 0xff0000, 0x00ff00, 0x0000ff, alpha), pixels, width * sizeof(int));
+#elif SDL == 2 || SDL == 1
+    return SDL_CreateRGBSurfaceFrom(pixels, width, height, 32, width * sizeof(int), 0xff0000, 0x00ff00, 0x0000ff, alpha);
+#else
+    (void)width, (void)height, (void)alpha;
+    Surface *surface = calloc(1, sizeof(Surface));
+    surface->pixels = pixels;
+    return surface;
+#endif
+}
+
+void platform_free_surface(Surface *surface) {
+#if SDL == 3
+    SDL_DestroySurface(surface);
+#elif SDL == 2 || SDL == 1
+    SDL_FreeSurface(surface);
+#else
+    free(surface);
+#endif
+}
 
 void rs2_log(const char *format, ...) {
     va_list args;
