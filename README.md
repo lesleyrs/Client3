@@ -61,13 +61,6 @@ remove the refcounting from model/pix24/lrucache for components and do smth else
 there are a few more memleaks to work out, also make sure playground doesn't leak anymore after attempting to fix this. Examples: inputtracking (when flagged which happens on report now lol), model_calculate_normals (on interfaces too like newcomer map)
 ```
 
-## non issues (expected or unfixable)
-Windows Firefox "lag" is due to setTimeout being broken with wasm as using the firefox profiler increases fps. Asyncify is not the problem here I've had it happen in wasm without emscripten, https://github.com/lesleyrs/web-gbc?tab=readme-ov-file#limitations
-
-The "fix" is to use `emscripten_set_main_loop_arg` with 0 fps which calls requestAnimationFrame instead. The function to be called should be the contents of the while loop in gameshell_run (delete the while loop itself) which will get you full FPS. If it still lags close devtools and refresh page. Downsides are that if the tab goes inactive the game will speed up when returning, it doesn't seem fixable the same way as in Client2 since they still use setTimeout. Also Firefox won't have the benefit of the websocket never timing out anymore.
-
-emrun causes extra batch job message on windows sigint, can swap it for `py -m http.server` or so to avoid it
-
 ## Java client
 The 2004 jar is stored for comparisons, run with EG: `java -cp bin/runescape.jar client 10 0 highmem members` but:
 - there is no audio, it saves audio files for the browser to play which is no longer applicable
@@ -109,17 +102,20 @@ If tcc from your package manager isn't working you should build latest [tcc](htt
 install [emsdk](#tools)
 run `emmake make`/`make CC=emcc` or `build.bat -c emcc` for windows
 
-Linux wasm/js output seems to be quite a bit smaller than on Windows, and same goes for SDL=2 being smaller than SDL=3.
+emrun causes extra batch job message on windows sigint, can swap it for `py -m http.server` or so to avoid it
+
+SDL ports aren't used by default to avoid lag issues on Firefox, reduce output size, and prevent browser shortcuts being disabled. It's fixable by switching between requestAnimationFrame and setTimeout based on if the tab is focused, but using emscripten directly requires no client changes.
+
+Linux wasm/js output seems to be quite a bit smaller than on Windows
 
 If 4 args are passed in shell.html the ip + port will be from the URL instead of config
 
 If not passing args make sure to set http_port to 8888 on linux (or whatever it's configured as in server).
 
 ```
-TODO: possibly target wasm directly with clang instead of emscripten, but then we don't have a libc at all
 TODO: emscripten wasm on firefox has memleaks related to midi, gets cleaned up by pressing GC in about:memory but why does this happen? Chromium based browsers are ok. Happens on both SDL2 and SDL3.
-TODO: auto-generated js by emscripten is blocking default browser shortcuts why exactly
 TODO: ability to set secured websocket at runtime instead of compile
+TODO: finish emscripten platform without using SDL
 ```
 
 ### Android

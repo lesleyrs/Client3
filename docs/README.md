@@ -49,7 +49,7 @@ the game uses 3 titles: "RuneScape - the massive online adventure game by Jagex 
 - errorhost, errorstarted code never runs
 - java has 16 bit char, undefined keychar is 0xffff, pound char doesn't fit in ascii
 - some keycodes differ from java virtual keycodes
-- window insets removed, (gameframe/viewbox).java replaced with platform dir
+- window insets removed outside of web, (gameframe/viewbox).java replaced with platform dir
 - added pix error checking in client_load
 - java static class members are added to a separate global struct
 - java private static class members are now C global static vars
