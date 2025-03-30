@@ -109,6 +109,7 @@ void platform_set_midi(const char *name, int crc, int len) {
 void platform_stop_midi(void) {
 }
 Surface *platform_create_surface(int *pixels, int width, int height, int alpha) {
+    (void)width, (void)height, (void)alpha;
     Surface *surface = calloc(1, sizeof(Surface));
     surface->pixels = pixels;
     return surface;
