@@ -77,8 +77,10 @@ if "%CC%" == "cl" (
 	echo TODO support some legacy version
 	exit /B 1
 ) else if "%CC%" == "emcc" (
+	%CC% %SRC% -fwrapv -gsource-map --shell-file shell.html --preload-file cache\client --preload-file SCC1_Florestan.sf2 --preload-file Roboto -s -Oz -ffast-math -flto -std=c99 -DWITH_RSA_BIGINT -D%ENTRY% -sALLOW_MEMORY_GROWTH -sINITIAL_HEAP=50MB -sSTACK_SIZE=1048576 -o index.html -sASYNCIFY -sSTRICT_JS -sDEFAULT_TO_CXX=0 && emrun --no-browser --hostname 0.0.0.0 .
+
 	REM -fsanitize=null -fsanitize-minimal-runtime
-	%CC% %SRC% -fwrapv -gsource-map --shell-file shell.html --preload-file cache\client --preload-file SCC1_Florestan.sf2 --preload-file Roboto -s -Oz -ffast-math -flto -std=c99 -DWITH_RSA_BIGINT -D%ENTRY% -DSDL=2 --use-port=sdl2 -sALLOW_MEMORY_GROWTH -sINITIAL_HEAP=50MB -sSTACK_SIZE=1048576 -o index.html -sASYNCIFY -sSTRICT_JS -sDEFAULT_TO_CXX=0 && emrun --no-browser --hostname 0.0.0.0 .
+	REM %CC% %SRC% -fwrapv -gsource-map --shell-file shell.html --preload-file cache\client --preload-file SCC1_Florestan.sf2 --preload-file Roboto -s -Oz -ffast-math -flto -std=c99 -DWITH_RSA_BIGINT -D%ENTRY% -DSDL=2 --use-port=sdl2 -sALLOW_MEMORY_GROWTH -sINITIAL_HEAP=50MB -sSTACK_SIZE=1048576 -o index.html -sASYNCIFY -sSTRICT_JS -sDEFAULT_TO_CXX=0 && emrun --no-browser --hostname 0.0.0.0 .
 ) else if "%CC%" == "gcc" (
 	::%CC% %SRC% -s -O3 -ffast-math -std=c99 -DSDL_main=main -DWITH_RSA_OPENSSL -D%ENTRY% %SDL% -I%SSLINC% -lws2_32 %OPT% -o %ENTRY%.exe SDL%VER%.dll libeay32.dll
 	REM added static linking for openssl, so linux mingw builds don't need the dll in same dir as well
