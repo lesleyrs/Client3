@@ -81,8 +81,7 @@ TODO: add default helvetica-like system ttf font in gameshell_draw_string when a
 TODO: all home consoles (wii, dreamcast, xbox) should be able to run the game at higher res or even full res on PAL TVs so you don't have to pan and simplifies set_pixels, but this isn't set up right now and emulators don't seem to support many video modes.
 TODO: copy original bzip from java maybe allows for O3 optimization on more consoles unlike current bzip?
 TODO: icon/metadata/title etc for the different platforms: title+taskbar+desktop
-add CI: run make check/scan + artifacts
-the game uses 3 titles: "RuneScape - the massive online adventure game by Jagex Ltd" (website), "RuneScape Game" (html) and "Jagex" (jar), maybe show the first as it was most commonly seen
+TODO: add CI: run make check/scan + artifacts
 ```
 
 ### Windows 95 to Windows 11
