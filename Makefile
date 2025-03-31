@@ -101,7 +101,7 @@ endif
 endif
 
 ifeq ($(basename $(notdir $(CC))),emcc)
-CFLAGS += --shell-file shell.html --preload-file cache/client --preload-file SCC1_Florestan.sf2 --preload-file Roboto
+CFLAGS += --shell-file shell.html --preload-file cache/client --preload-file SCC1_Florestan.sf2
 # CFLAGS += -sJSPI
 CFLAGS += -sASYNCIFY
 CFLAGS += -sSTACK_SIZE=1048576 -sINITIAL_HEAP=50MB
@@ -129,6 +129,7 @@ CFLAGS += -DSDL_DISABLE_IMMINTRIN_H
 endif
 
 ifeq ($(basename $(notdir $(CC))),emcc)
+CFLAGS += --preload-file Roboto
 LDFLAGS += --use-port=sdl2
 else ifeq ($(findstring -w64-mingw32-gcc,$(CC)),-w64-mingw32-gcc)
 CFLAGS += $(shell bin/SDL2-2.30.9/$(word 1, $(subst -, ,$(CC)))-w64-mingw32/bin/sdl2-config --cflags)
@@ -141,6 +142,7 @@ endif
 
 ifeq ($(SDL),3)
 ifeq ($(basename $(notdir $(CC))),emcc)
+CFLAGS += --preload-file Roboto
 LDFLAGS += --use-port=sdl3
 else ifeq ($(findstring -w64-mingw32-gcc,$(CC)),-w64-mingw32-gcc)
 # NOTE: removed this for now to have a lighter repo

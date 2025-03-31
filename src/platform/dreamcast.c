@@ -216,11 +216,13 @@ void platform_poll_events(Client *c) {
 
     prev_btns = state->buttons;
 }
+void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
+}
 void platform_update_surface(void) {
 }
-void platform_fill_rect(int x, int y, int w, int h, int color) {
+void platform_draw_rect(int x, int y, int w, int h, int color) {
 }
-void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
+void platform_fill_rect(int x, int y, int w, int h, int color) {
 }
 uint64_t get_ticks(void) {
     return timer_ms_gettime64();

@@ -15,6 +15,35 @@ extern ClientData _Client;
 extern InputTracking _InputTracking;
 extern Custom _Custom;
 
+EM_JS(void, draw_string_js, (const char *str, int x, int y, int color, bool bold, int size), {
+    var canvas = document.getElementById('canvas');
+    var ctx = canvas.getContext('2d');
+    var weight = bold ? 'bold ' : 'normal ';
+    ctx.font = weight + size + 'px helvetica, sans-serif';
+    let hexColor = '#' + ('000000' + color.toString(16)).slice(-6);
+    ctx.fillStyle = hexColor;
+    if (x == Math.floor(canvas.width / 2)) {
+        ctx.textAlign = 'center';
+    } else {
+        ctx.textAlign = 'left';
+    }
+    ctx.fillText(UTF8ToString(str), x, y);
+})
+
+EM_JS(void, draw_rect_js, (int x, int y, int w, int h, int color), {
+    var ctx = document.getElementById('canvas').getContext('2d');
+    let hexColor = '#' + ('000000' + color.toString(16)).slice(-6);
+    ctx.fillStyle = hexColor;
+    ctx.rect(x, y, w, h);
+})
+
+EM_JS(void, fill_rect_js, (int x, int y, int w, int h, int color), {
+    var ctx = document.getElementById('canvas').getContext('2d');
+    let hexColor = '#' + ('000000' + color.toString(16)).slice(-6);
+    ctx.fillStyle = hexColor;
+    ctx.fillRect(x, y, w, h);
+})
+
 EM_JS(float, frame_insets_left_js, (void), {
     var canvas = document.getElementById('canvas');
     var rect = canvas.getBoundingClientRect();
@@ -189,11 +218,21 @@ void platform_poll_events(Client *c) {
         init = true;
     }
 }
+// TODO remove blit_surface, unused for web
+void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
+    (void)x, (void)y, (void)w, (void)h, (void)surface;
+}
+void platform_draw_string(const char *str, int x, int y, int color, bool bold, int size) {
+    draw_string_js(str, x, y, color, bold, size);
+}
 void platform_update_surface(void) {
+    delay_ticks(0); // return a slice of time to the main loop so it can update the progress bar
+}
+void platform_draw_rect(int x, int y, int w, int h, int color) {
+    draw_rect_js(x, y, w, h, color);
 }
 void platform_fill_rect(int x, int y, int w, int h, int color) {
-}
-void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
+    fill_rect_js(x, y, w, h, color);
 }
 uint64_t get_ticks(void) {
     return emscripten_get_now();

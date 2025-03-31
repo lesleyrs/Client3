@@ -63,8 +63,12 @@ void platform_set_midi(const char *name, int crc, int len);
 void platform_stop_midi(void);
 void set_pixels(PixMap *pixmap, int x, int y);
 void platform_poll_events(Client *c);
-void platform_update_surface(void);
-void platform_fill_rect(int x, int y, int w, int h, int color);
+#if defined(__EMSCRIPTEN__) && (!defined(SDL) || SDL == 0)
+void platform_draw_string(const char *str, int x, int y, int color, bool bold, int size);
+#endif
 void platform_blit_surface(int x, int y, int w, int h, Surface *surface);
+void platform_update_surface(void);
+void platform_draw_rect(int x, int y, int w, int h, int color);
+void platform_fill_rect(int x, int y, int w, int h, int color);
 uint64_t get_ticks(void);
 void delay_ticks(int ticks);

@@ -224,6 +224,16 @@ void platform_update_surface(void) {
     SDL_Flip(window_surface);
 }
 
+void platform_draw_rect(int x, int y, int w, int h, int color) {
+    // TODO make non resizable only draw outer rect
+    if (color != BLACK) { // TODO other grayscale?
+        color = SDL_MapRGB(window_surface->format, color >> 16 & 0xff, color >> 8 & 0xff, color & 0xff);
+    }
+
+    SDL_Rect rect = {x, y, w, h};
+    SDL_FillRect(window_surface, &rect, color);
+}
+
 void platform_fill_rect(int x, int y, int w, int h, int color) {
     if (color != BLACK) { // TODO other grayscale?
         color = SDL_MapRGB(window_surface->format, color >> 16 & 0xff, color >> 8 & 0xff, color & 0xff);

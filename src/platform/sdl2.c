@@ -424,6 +424,22 @@ void platform_update_surface(void) {
     }
 }
 
+void platform_draw_rect(int x, int y, int w, int h, int color) {
+    if (!_Custom.resizable) {
+        // TODO make non resizable only draw outer rect
+        if (color != BLACK) { // TODO other grayscale?
+            color = SDL_MapRGB(window_surface->format, color >> 16 & 0xff, color >> 8 & 0xff, color & 0xff);
+        }
+
+        SDL_Rect rect = {x, y, w, h};
+        SDL_FillRect(window_surface, &rect, color);
+    } else {
+        SDL_SetRenderDrawColor(renderer, color >> 16 & 0xff, color >> 8 & 0xff, color & 0xff, 0xff);
+        SDL_Rect rect = {x, y, w, h};
+        SDL_RenderDrawRect(renderer, &rect);
+    }
+}
+
 void platform_fill_rect(int x, int y, int w, int h, int color) {
     if (!_Custom.resizable) {
         if (color != BLACK) { // TODO other grayscale?
@@ -433,7 +449,7 @@ void platform_fill_rect(int x, int y, int w, int h, int color) {
         SDL_Rect rect = {x, y, w, h};
         SDL_FillRect(window_surface, &rect, color);
     } else {
-        SDL_SetRenderDrawColor(renderer, (color >> 16) & 0xff, (color >> 8) & 0xff, color & 0xff, 0xff);
+        SDL_SetRenderDrawColor(renderer, color >> 16 & 0xff, color >> 8 & 0xff, color & 0xff, 0xff);
         SDL_Rect rect = {x, y, w, h};
         SDL_RenderFillRect(renderer, &rect);
     }

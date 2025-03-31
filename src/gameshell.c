@@ -3,14 +3,11 @@
 #include <stdlib.h>
 
 #include "client.h"
+#include "defines.h"
 #include "gameshell.h"
 #include "inputtracking.h"
 #include "pixmap.h"
 #include "platform.h"
-
-#define STB_TRUETYPE_IMPLEMENTATION
-#include "defines.h"
-#include "thirdparty/stb_truetype.h"
 
 extern InputTracking _InputTracking;
 
@@ -51,7 +48,7 @@ void gameshell_init_application(Client *c, int width, int height) {
 }
 
 void gameshell_run(Client *c) {
-    gameshell_draw_progress(c, "Loading...", 0);
+    gameshell_draw_progress(c->shell, "Loading...", 0);
     client_load(c);
 
     int opos = 0;
@@ -284,6 +281,16 @@ int poll_key(GameShell *shell) {
     return key;
 }
 
+#if defined(__EMSCRIPTEN__) && (!defined(SDL) || SDL == 0)
+void gameshell_draw_string(GameShell *shell, const char *str, int x, int y, int color, bool bold, int size) {
+    (void)shell;
+    platform_draw_string(str, x, y, color, bold, size);
+    return;
+}
+#else
+#define STB_TRUETYPE_IMPLEMENTATION
+#include "thirdparty/stb_truetype.h"
+
 static int ttf_string_width(stbtt_fontinfo *font, const char *message, float scale) {
     int string_width = 0;
     while (*message) {
@@ -295,10 +302,8 @@ static int ttf_string_width(stbtt_fontinfo *font, const char *message, float sca
     return string_width;
 }
 
-void gameshell_draw_string(Client *c, const char *str, int x, int y, int color, const char *font_name, bool font_bold, int font_size) {
-    (void)font_name, (void)font_bold;
-    // TODO: abstract this
-    // TODO: fontname and bold ignored rn it's always bold
+void gameshell_draw_string(GameShell *shell, const char *str, int x, int y, int color, bool bold, int size) {
+    // TODO: add regular fonts for mapview too
 #ifdef ANDROID
     SDL_RWops *file = NULL;
 #else
@@ -326,26 +331,26 @@ void gameshell_draw_string(Client *c, const char *str, int x, int y, int color, 
         file = fopen("Roboto/Roboto-Bold.ttf", "rb");
 #endif
         if (!file) {
-            // NOTE: if no font it won't show errors on screen if files are missing (some consoles embed though)
+            // TODO: won't show errors on screen if no font, try use native text drawing for all platforms if no system font or embedded ttf
             rs2_error("Failed to open font file\n");
             return;
         }
     }
 
 #ifdef ANDROID
-    size_t size = SDL_RWseek(file, 0, RW_SEEK_END);
+    size_t sz = SDL_RWseek(file, 0, RW_SEEK_END);
     SDL_RWseek(file, 0, RW_SEEK_SET);
 #else
     fseek(file, 0, SEEK_END);
-    size_t size = ftell(file);
+    size_t sz = ftell(file);
     fseek(file, 0, SEEK_SET);
 #endif
 
-    uint8_t *buffer = malloc(size);
+    uint8_t *buffer = malloc(sz);
 #ifdef ANDROID
-    if (SDL_RWread(file, buffer, 1, size) != size) {
+    if (SDL_RWread(file, buffer, 1, sz) != sz) {
 #else
-    if (fread(buffer, 1, size, file) != size) {
+    if (fread(buffer, 1, sz, file) != sz) {
 #endif
         rs2_error("Failed to read file\n", strerror(errno));
     }
@@ -358,11 +363,16 @@ void gameshell_draw_string(Client *c, const char *str, int x, int y, int color, 
     stbtt_fontinfo font;
     stbtt_InitFont(&font, buffer, stbtt_GetFontOffsetForIndex(buffer, 0));
 
-    float scale = stbtt_ScaleForPixelHeight(&font, (float)font_size);
+    float scale = stbtt_ScaleForPixelHeight(&font, (float)size);
+    bool centered = x == shell->screen_width / 2;
+    if (centered) {
+        // TODO: is this centering correct? maybe few pixels to the left?
+        x = (shell->screen_width - ttf_string_width(&font, str, scale)) / 2;
+    }
 
     float xpos = 0;
     int ch = 0;
-    // NOTE: this could probably be improved a lot
+    // NOTE: this could probably be improved a lot by drawing text in one go
     while (str[ch]) {
         int advance, lsb, x0, y0, x1, y1;
         float x_shift = xpos - floorf(xpos);
@@ -383,12 +393,8 @@ void gameshell_draw_string(Client *c, const char *str, int x, int y, int color, 
             pixels[i] = (pixels[i] & 0xff000000) | (pixels[i] & color);
         }
 
-        // TODO: is this centering correct? maybe few pixels to the left?
-        if (x == -1) {
-            platform_blit_surface((c->shell->screen_width - ttf_string_width(&font, str, scale)) / 2 + (int)xpos + x0, y + y0, width, height, surface);
-        } else {
-            platform_blit_surface(x + (int)xpos + x0, y + y0, width, height, surface);
-        }
+        platform_blit_surface(x + (int)xpos + x0, y + y0, width, height, surface);
+
         stbtt_FreeBitmap(bitmap, NULL);
         platform_free_surface(surface);
         free(pixels);
@@ -403,22 +409,24 @@ void gameshell_draw_string(Client *c, const char *str, int x, int y, int color, 
 
     free(buffer);
 }
+#endif
 
-void gameshell_draw_progress(Client *c, const char *message, int progress) {
+void gameshell_draw_progress(GameShell *shell, const char *message, int progress) {
     // NOTE there's no update or paint to call refresh, only focus gained event
-    if (c->shell->refresh) {
-        platform_fill_rect(0, 0, c->shell->screen_width, c->shell->screen_height, BLACK);
-        c->shell->refresh = false;
+    if (shell->refresh) {
+        platform_fill_rect(0, 0, shell->screen_width, shell->screen_height, BLACK);
+        shell->refresh = false;
     }
 
-    int y = c->shell->screen_height / 2 - 18;
+    int y = shell->screen_height / 2 - 18;
 
-    platform_fill_rect(c->shell->screen_width / 2 - 152, y, 304, 34, PROGRESS_RED); // NOTE: actually drawRect, but seems to be same effect
-    platform_fill_rect(c->shell->screen_width / 2 - 150, y + 2, progress * 3, 30, PROGRESS_RED);
-    platform_fill_rect(c->shell->screen_width / 2 + progress * 3 - 150, y + 2, 300 - progress * 3, 30, BLACK);
+    // NOTE: 140, 17, 17 but we only take hex for simplicity
+    platform_draw_rect(shell->screen_width / 2 - 152, y, 304, 34, PROGRESS_RED);
+    platform_fill_rect(shell->screen_width / 2 - 150, y + 2, progress * 3, 30, PROGRESS_RED);
+    platform_fill_rect(shell->screen_width / 2 + progress * 3 - 150, y + 2, 300 - progress * 3, 30, BLACK);
 
     int color = WHITE;
-    gameshell_draw_string(c, message, -1, y + 22, HELVETICA_BOLD_13);
+    gameshell_draw_string(shell, message, shell->screen_width / 2, y + 22, color, true, 13);
 
     platform_update_surface();
 }

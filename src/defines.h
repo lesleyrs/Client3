@@ -39,11 +39,6 @@
 // arbitrary + null terminator
 #define MAX_STR (CHAT_LENGTH + 1)
 
-#define HELVETICA_BOLD_12 color, "Helvetica", true, 12
-#define HELVETICA_BOLD_13 color, "Helvetica", true, 13
-#define HELVETICA_BOLD_16 color, "Helvetica", true, 16
-#define HELVETICA_BOLD_20 color, "Helvetica", true, 20
-
 #define MAX_CHATS 50
 
 #define COLLISIONMAP_LEVELS 4

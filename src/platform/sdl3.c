@@ -351,12 +351,9 @@ void platform_update_surface(void) {
     }
 }
 
-void platform_fill_rect(int x, int y, int w, int h, int color) {
-    if (_Custom.resizable) {
-        SDL_SetRenderDrawColor(renderer, (color >> 16) & 0xff, (color >> 8) & 0xff, color & 0xff, 0xff);
-        SDL_FRect rect = {x, y, w, h};
-        SDL_RenderFillRect(renderer, &rect);
-    } else {
+void platform_draw_rect(int x, int y, int w, int h, int color) {
+    if (!_Custom.resizable) {
+        // TODO make non resizable only draw outer rect
         if (color != BLACK) { // TODO other grayscale?
             const SDL_PixelFormatDetails* details = SDL_GetPixelFormatDetails(window_surface->format);
             if (details) {
@@ -366,9 +363,30 @@ void platform_fill_rect(int x, int y, int w, int h, int color) {
 
         SDL_Rect rect = {x, y, w, h};
         SDL_FillSurfaceRect(window_surface, &rect, color);
+    } else {
+        SDL_SetRenderDrawColor(renderer, color >> 16 & 0xff, color >> 8 & 0xff, color & 0xff, 0xff);
+        SDL_FRect rect = {x, y, w, h};
+        SDL_RenderDrawRect(renderer, &rect);
     }
 }
 
+void platform_fill_rect(int x, int y, int w, int h, int color) {
+    if (!_Custom.resizable) {
+        if (color != BLACK) { // TODO other grayscale?
+            const SDL_PixelFormatDetails* details = SDL_GetPixelFormatDetails(window_surface->format);
+            if (details) {
+                color = SDL_MapRGB(details, NULL, color >> 16 & 0xff, color >> 8 & 0xff, color & 0xff);
+            }
+        }
+
+        SDL_Rect rect = {x, y, w, h};
+        SDL_FillSurfaceRect(window_surface, &rect, color);
+    } else {
+        SDL_SetRenderDrawColor(renderer, color >> 16 & 0xff, color >> 8 & 0xff, color & 0xff, 0xff);
+        SDL_FRect rect = {x, y, w, h};
+        SDL_RenderFillRect(renderer, &rect);
+    }
+}
 
 static void platform_get_keycodes(const SDL_KeyboardEvent* e, int *code, char *ch) {
     *ch = -1;

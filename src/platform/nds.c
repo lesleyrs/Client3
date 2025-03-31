@@ -355,11 +355,13 @@ void platform_poll_events(Client *c) {
     //         break;
     // }
 }
+void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
+}
 void platform_update_surface(void) {
 }
-void platform_fill_rect(int x, int y, int w, int h, int color) {
+void platform_draw_rect(int x, int y, int w, int h, int color) {
 }
-void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
+void platform_fill_rect(int x, int y, int w, int h, int color) {
 }
 #define timers2ms(tlow, thigh) (tlow | (thigh << 16)) >> 5
 uint64_t get_ticks(void) {

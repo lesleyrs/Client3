@@ -10097,34 +10097,34 @@ void client_draw_error(Client *c) {
         int y = 35;
 
         color = YELLOW;
-        gameshell_draw_string(c, "Sorry, an error has occured whilst loading RuneScape", 30, y, HELVETICA_BOLD_16);
+        gameshell_draw_string(c->shell, "Sorry, an error has occured whilst loading RuneScape", 30, y, color, true, 16);
         y += 50;
 
         color = WHITE;
-        gameshell_draw_string(c, "To fix this try the following (in order):", 30, y, HELVETICA_BOLD_16);
+        gameshell_draw_string(c->shell, "To fix this try the following (in order):", 30, y, color, true, 16);
         y += 50;
 
-        gameshell_draw_string(c, "1: Try closing ALL open web-browser windows, and reloading", 30, y, HELVETICA_BOLD_12);
+        gameshell_draw_string(c->shell, "1: Try closing ALL open web-browser windows, and reloading", 30, y, color, true, 12);
         y += 30;
 
-        gameshell_draw_string(c, "2: Try clearing your web-browsers cache from tools->internet options", 30, y, HELVETICA_BOLD_12);
+        gameshell_draw_string(c->shell, "2: Try clearing your web-browsers cache from tools->internet options", 30, y, color, true, 12);
         y += 30;
 
-        gameshell_draw_string(c, "3: Try using a different game-world", 30, y, HELVETICA_BOLD_12);
+        gameshell_draw_string(c->shell, "3: Try using a different game-world", 30, y, color, true, 12);
         y += 30;
 
-        gameshell_draw_string(c, "4: Try rebooting your computer", 30, y, HELVETICA_BOLD_12);
+        gameshell_draw_string(c->shell, "4: Try rebooting your computer", 30, y, color, true, 12);
         y += 30;
 
-        gameshell_draw_string(c, "5: Try selecting a different version of Java from the play-game menu", 30, y, HELVETICA_BOLD_12);
+        gameshell_draw_string(c->shell, "5: Try selecting a different version of Java from the play-game menu", 30, y, color, true, 12);
     }
 
     if (c->error_host) {
         c->flame_active = false;
         color = WHITE;
-        gameshell_draw_string(c, "Error - unable to load game!", 50, 50, HELVETICA_BOLD_20);
-        gameshell_draw_string(c, "To play RuneScape make sure you play from", 50, 100, HELVETICA_BOLD_20);
-        gameshell_draw_string(c, "http://www.runescape.com", 50, 150, HELVETICA_BOLD_20);
+        gameshell_draw_string(c->shell, "Error - unable to load game!", 50, 50, color, true, 20);
+        gameshell_draw_string(c->shell, "To play RuneScape make sure you play from", 50, 100, color, true, 20);
+        gameshell_draw_string(c->shell, "http://www.runescape.com", 50, 150, color, true, 20);
     }
 
     if (c->error_started) {
@@ -10132,17 +10132,17 @@ void client_draw_error(Client *c) {
         int y = 35;
 
         color = YELLOW;
-        gameshell_draw_string(c, "Error a copy of RuneScape already appears to be loaded", 30, y, HELVETICA_BOLD_13);
+        gameshell_draw_string(c->shell, "Error a copy of RuneScape already appears to be loaded", 30, y, color, true, 13);
         y += 50;
 
         color = WHITE;
-        gameshell_draw_string(c, "To fix this try the following (in order):", 30, y, HELVETICA_BOLD_13);
+        gameshell_draw_string(c->shell, "To fix this try the following (in order):", 30, y, color, true, 13);
         y += 50;
 
-        gameshell_draw_string(c, "1: Try closing ALL open web-browser windows, and reloading", 30, y, HELVETICA_BOLD_12);
+        gameshell_draw_string(c->shell, "1: Try closing ALL open web-browser windows, and reloading", 30, y, color, true, 12);
         y += 30;
 
-        gameshell_draw_string(c, "2: Try rebooting your computer, and reloading", 30, y, HELVETICA_BOLD_12);
+        gameshell_draw_string(c->shell, "2: Try rebooting your computer, and reloading", 30, y, color, true, 12);
         y += 30;
     }
 
@@ -10712,7 +10712,6 @@ Jagfile *load_archive(Client *c, const char *name, int crc, const char *display_
     // rs2_log("Loading %s\n", filename);
     // TODO: add load messages?
     (void)c;
-    // platform_update_surface(c->shell);
 
 #ifdef ANDROID
     SDL_RWops *file = SDL_RWFromFile(filename, "rb");
@@ -10828,7 +10827,7 @@ void client_load_title(Client *c) {
 void client_draw_progress(Client *c, const char *message, int progress) {
     client_load_title(c);
     if (!c->archive_title) {
-        gameshell_draw_progress(c, message, progress);
+        gameshell_draw_progress(c->shell, message, progress);
     } else {
         pixmap_bind(c->image_title4);
         int x = 360;
@@ -10856,5 +10855,9 @@ void client_draw_progress(Client *c, const char *message, int progress) {
             pixmap_draw(c->image_title8, 574, 186);
         }
     }
+
+#ifdef __EMSCRIPTEN__
+    platform_update_surface();
+#endif
 }
 #endif
