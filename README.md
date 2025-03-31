@@ -11,10 +11,22 @@ Features:
 
 See [docs](/docs) for more info and media.
 
-## disclaimer
-During limited playtesting the client seems to be stable, but it could crash at any time! Run sanitizer or tcc debug backtrace build to share errors
+## known issues
+```
+server cache changes would require manual cache+checksums update in client for now, the server has an issue with client map crcs being changed when server maps get updated (also the cache has some interface changes rn for quest tab and another one) enable crc again after fixes, search "wait authentic cache". remove original cache at bin/archives when the cache matches exactly
 
-See [known issues](#known-issues) before reporting an issue.
+no midi fading, old js code for IE: https://github.com/2004Scape/Server/blob/61bf21fb3755c14b5cf6d47c9d974dee5783beda/view/javaclient.ejs new ts code: https://github.com/2004Scape/Client2/commit/92e74f1f134ea82e48dd608dcca3422777a7a986 (client-ts has more some fade fixes)
+
+locs like fires have no animations as pushLocs is disabled for now, it constantly allocates memory due to always calling model_copy_faces in loctype which requires a different approach. The leaks get worse if the dynamic model cache can't fit all sequences (animations) of the models in an area, disable the allocator to see origins.
+
+wordfilter isn't ported yet, so you will see your own swear words but others don't as it gets filtered by the server still.
+
+some bits from signlink missing (uid, reporterror, findcachedir, openurl, opensocket etc, move map loading to cacheload?
+
+remove the refcounting from model/pix24/lrucache for components and do smth else (kept to avoid leak spam rn) as components get assigned models from packets which are put into lrucaches, so global component doesn't own the memory anymore
+
+there are a few more memleaks to work out, also make sure playground doesn't leak anymore after attempting to fix this. Examples: inputtracking (when flagged which happens on report now lol), model_calculate_normals (on interfaces too like newcomer map)
+```
 
 ## quickstart for windows
 All you need to build for 32 bit windows is included:
@@ -43,23 +55,6 @@ type `::perf` command ingame to see fps and lrucache size
 # http_port = 80
 ```
 2. Then remove the `#` from the grouped fields of the world you want to access, some worlds don't need all fields and use the defaults.
-
-## known issues
-```
-server cache changes would require manual cache+checksums update in client for now, the server has an issue with client map crcs being changed when server maps get updated (also the cache has some interface changes rn for quest tab and another one) enable crc again after fixes, search "wait authentic cache".
-
-no midi fading, old js code for IE: https://github.com/2004Scape/Server/blob/61bf21fb3755c14b5cf6d47c9d974dee5783beda/view/javaclient.ejs new ts code: https://github.com/2004Scape/Client2/commit/92e74f1f134ea82e48dd608dcca3422777a7a986 (client-ts has more some fade fixes)
-
-locs like fires have no animations as pushLocs is disabled for now, it constantly allocates memory due to always calling model_copy_faces in loctype which requires a different approach. The leaks get worse if the dynamic model cache can't fit all sequences (animations) of the models in an area, disable the allocator to see origins.
-
-wordfilter isn't ported yet, so you will see your own swear words but others don't as it gets filtered by the server still.
-
-some bits from signlink missing (uid, reporterror, findcachedir, openurl, opensocket etc, move map loading to cacheload?
-
-remove the refcounting from model/pix24/lrucache for components and do smth else (kept to avoid leak spam rn) as components get assigned models from packets which are put into lrucaches, so global component doesn't own the memory anymore
-
-there are a few more memleaks to work out, also make sure playground doesn't leak anymore after attempting to fix this. Examples: inputtracking (when flagged which happens on report now lol), model_calculate_normals (on interfaces too like newcomer map)
-```
 
 ## Java client
 The 2004 jar is stored for comparisons, run with EG: `java -cp bin/runescape.jar client 10 0 highmem members` but:
@@ -106,16 +101,23 @@ emrun causes extra batch job message on windows sigint, can swap it for `py -m h
 
 SDL ports aren't used by default to avoid lag issues on Firefox, reduce output size, and prevent browser shortcuts being disabled. It's fixable by switching between requestAnimationFrame and setTimeout based on if the tab is focused, but using emscripten directly requires no client changes.
 
-Linux wasm/js output seems to be quite a bit smaller than on Windows
-
 If 4 args are passed in shell.html the ip + port will be from the URL instead of config
 
 If not passing args make sure to set http_port to 8888 on linux (or whatever it's configured as in server).
 
 ```
+TODO: avoiding SDL might also fix firefox memleaks + compare each platforms wasm/js output sizes again after finishing it
+NOTE: Linux wasm/js output may be smaller than on Windows
 TODO: emscripten wasm on firefox has memleaks related to midi, gets cleaned up by pressing GC in about:memory but why does this happen? Chromium based browsers are ok. Happens on both SDL2 and SDL3.
 TODO: ability to set secured websocket at runtime instead of compile
-TODO: finish emscripten platform without using SDL
+TODO: maybe use emscriptens indexeddb api to store data files and emscripten_wget download cache/checksums instead of preload-file
+TODO: fix speedup when tab becomes active
+TODO: link webclient in about when it's hosted somewhere
+TODO: maybe try adding web worker server compat again: https://emscripten.org/docs/api_reference/wasm_workers.html
+TODO: fullscreen option
+TODO: mobile controls + osk + mice
+
+NOTE: bring back worldlist loading in [shell.html](https://github.com/lesleyrs/Client3/commit/5da924b9f766005e82163d899e52a5df2f771584#diff-c878553ed816480a5e85ff602ff3c5d38788ca1d21095cd8f8ebc36a4dbc07ee) if it gets re-added for live servers
 ```
 
 ### Android

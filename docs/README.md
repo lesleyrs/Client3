@@ -14,7 +14,7 @@
 * https://github.com/RuneWiki/rs-deob - unmodified java deobs
 
 ### old
-* https://github.com/Pazaz/RS2-225 - old renamed java deob with builtin server
+* https://github.com/Pazaz/RS2-225 - renamed java deob with builtin server
 * https://github.com/2003scape/rsc-client - bundled webworker/webrtc server idea in Client2 (old TS port)
 * https://github.com/2004Scape/Client2 - https://lesleyrs.github.io/Client2/?world=999&detail=high&method=0
 * https://github.com/galsjel/RuneScape-317 - partial 317 TS port https://github.com/lesleyrs/webclient317
@@ -28,21 +28,18 @@
 ## TODO
 ```
 all home consoles (wii, dreamcast, xbox) should be able to run the game at higher res or even full res on PAL TVs so you don't have to pan and simplifies set_pixels, but this isn't set up right now and emulators don't seem to support many video modes.
+copy original bzip/gzip/isaac from java maybe allows for O3 optimization on more consoles unlike current bzip?
 ts Client2/java Client (lastmain/webclient branch) repo have extra funcs (pix2d etc?)
-remove original cache at bin/archives when the cache matches exactly
-add diskstore/gzip just for later cache loading
 icon/metadata/title etc for the different platforms: title+taskbar+desktop
+add diskstore/gzip just for later cache loading
+global search TODO and NOTE and all console __defines__
+add CI: run make check/scan + artifacts
+the game uses 3 titles: "RuneScape - the massive online adventure game by Jagex Ltd" (website), "RuneScape Game" (html) and "Jagex" (jar), maybe show the first as it was most commonly seen
+
 change a bunch of functions and function prototypes to static
 clientstream and keycodes are based off rsc-c (but both have some tweaks), double check them for accuracy
 the following are (partially) based on RS2-225 by accident, some funcs might take args in diff order to Client repo: animbase, animframe, pix2d, pix3d, gameshell, jagfile, model, packet, pix8, pixfont, pixmap. Rewrite maybe?
-inconsistent naming: used both world3d and scene for world3d, rename world3d to scene? or at least for args only
-COLLISIONMAP_LEVELS should probably be added in some more places
-global search TODO and NOTE and all console __defines__
-add CI: check both highmem/lowmem, members/free, all entrypoints, run make check/scan/san and clang-format
-maybe take webworker server compat from Client2: https://emscripten.org/docs/api_reference/wasm_workers.html
-maybe use emscriptens indexeddb api to store data files
-bring back worldlist loading in [shell.html](https://github.com/lesleyrs/Client3/commit/5da924b9f766005e82163d899e52a5df2f771584#diff-c878553ed816480a5e85ff602ff3c5d38788ca1d21095cd8f8ebc36a4dbc07ee) if it gets re-added for live servers
-the game uses 3 titles: "RuneScape - the massive online adventure game by Jagex Ltd" (website), "RuneScape Game" (html) and "Jagex" (jar), maybe show the first as it was most commonly seen
+inconsistent naming: used both world3d and scene for world3d, rename world3d to scene or at least for args? COLLISIONMAP_LEVELS could be added more?
 ```
 ## Java and C differences + codestyle
 ```
@@ -85,5 +82,5 @@ the game uses 3 titles: "RuneScape - the massive online adventure game by Jagex 
 - changed camelCase into snake_case, lowercase hex values
 - no code width limit as virtual text wrapping is superior for selecting complete lines
 - only moved files to dirs with little includes to avoid complicating builds with -I
-- outside of SDL3 or TCC the SDL header is exposed on windows ONLY to have SDL_main replace entrypoint for windows subsystem, don't use it
+- outside of SDL3 or TCC the SDL header is exposed on some platforms ONLY to have SDL_main replace entrypoint for subsystem:windows/android etc, don't use it
 ```
