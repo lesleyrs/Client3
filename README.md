@@ -26,6 +26,12 @@ some bits from signlink missing (uid, reporterror, findcachedir, openurl, openso
 remove the refcounting from model/pix24/lrucache for components and do smth else (kept to avoid leak spam rn) as components get assigned models from packets which are put into lrucaches, so global component doesn't own the memory anymore
 
 there are a few more memleaks to work out, also make sure playground doesn't leak anymore after attempting to fix this. Examples: inputtracking (when flagged which happens on report now lol), model_calculate_normals (on interfaces too like newcomer map)
+
+cleanup:
+global search TODO, NOTE, and all console defines, check clientstream and keycodes for accuracy (from rsc-c), look for missing/dupe with different casing client struct members and client funcs
+change a bunch of functions and function prototypes to static
+func args might partially differ in order to the Client repo due to being based off rs2-225: animbase, animframe, pix2d, pix3d, gameshell, jagfile, model, packet, pix8, pixfont, pixmap, redo them?
+inconsistent naming: used both world3d and scene for world3d, rename world3d to scene or at least for args? COLLISIONMAP_LEVELS could be added more?
 ```
 
 ## quickstart for windows
@@ -72,6 +78,11 @@ To move the executable you have to take the `cache/`, `Roboto/`, `config.ini` an
 ```
 TODO: macos, bsds
 TODO: add default helvetica-like system ttf font in gameshell_draw_string when available to avoid Roboto dependency
+TODO: all home consoles (wii, dreamcast, xbox) should be able to run the game at higher res or even full res on PAL TVs so you don't have to pan and simplifies set_pixels, but this isn't set up right now and emulators don't seem to support many video modes.
+TODO: copy original bzip from java maybe allows for O3 optimization on more consoles unlike current bzip?
+TODO: icon/metadata/title etc for the different platforms: title+taskbar+desktop
+add CI: run make check/scan + artifacts
+the game uses 3 titles: "RuneScape - the massive online adventure game by Jagex Ltd" (website), "RuneScape Game" (html) and "Jagex" (jar), maybe show the first as it was most commonly seen
 ```
 
 ### Windows 95 to Windows 11

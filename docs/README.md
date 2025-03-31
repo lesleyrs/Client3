@@ -25,22 +25,6 @@
 * https://oldschool.runescape.wiki/w/Graphical_updates_(historical)
 * https://oldschool.runescape.wiki/w/User:Hlwys
 
-## TODO
-```
-all home consoles (wii, dreamcast, xbox) should be able to run the game at higher res or even full res on PAL TVs so you don't have to pan and simplifies set_pixels, but this isn't set up right now and emulators don't seem to support many video modes.
-copy original bzip/gzip/isaac from java maybe allows for O3 optimization on more consoles unlike current bzip?
-ts Client2/java Client (lastmain/webclient branch) repo have extra funcs (pix2d etc?)
-icon/metadata/title etc for the different platforms: title+taskbar+desktop
-add diskstore/gzip just for later cache loading
-global search TODO and NOTE and all console __defines__
-add CI: run make check/scan + artifacts
-the game uses 3 titles: "RuneScape - the massive online adventure game by Jagex Ltd" (website), "RuneScape Game" (html) and "Jagex" (jar), maybe show the first as it was most commonly seen
-
-change a bunch of functions and function prototypes to static
-clientstream and keycodes are based off rsc-c (but both have some tweaks), double check them for accuracy
-the following are (partially) based on RS2-225 by accident, some funcs might take args in diff order to Client repo: animbase, animframe, pix2d, pix3d, gameshell, jagfile, model, packet, pix8, pixfont, pixmap. Rewrite maybe?
-inconsistent naming: used both world3d and scene for world3d, rename world3d to scene or at least for args? COLLISIONMAP_LEVELS could be added more?
-```
 ## Java and C differences + codestyle
 ```
 - errorhost, errorstarted code never runs
@@ -56,10 +40,11 @@ inconsistent naming: used both world3d and scene for world3d, rename world3d to 
 - some buffer sizes used are just arbitrary due there not being a strict limit
 - try catch turned into if (!var) break in load() or goto is used for login error message
 - on windows we aren't loading system gm.dls but use a similar sf2 soundfont instead
+- http requests for checksums/cache (not done as they aren't supposed to change and saving files on consoles depends on if sdcard or romfs was used) another downside is that being "connected" in emulators generally stops you from being able to fast forward so load times will be slow.
+
 - init() moved to main() as that's emscriptens entrypoint
 - emscripten wasm goes out of sync on lowmem if the tab was unfocused and tinysoundfont isn't running. The typescript client uses absolute time to avoid this issue, but since tsf is making it work on highmem it's not very important.
 - dnslookup on web just shows your public ip instead of dns, this is expected and the same applies to the typescript client. If dnslookup fails to resolve and welcome screen lags you can set `hide_dns = 1` in config.ini to skip it.
-- http requests for checksums/cache (not done as they aren't supposed to change and saving files on consoles depends on if sdcard or romfs was used) another downside is that being "connected" in emulators generally stops you from being able to fast forward so load times will be slow.
 
 - networking/midi/login flames run on the same thread
 - synchronized is unused and there's no run() function in client.c
