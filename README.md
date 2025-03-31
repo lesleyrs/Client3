@@ -73,7 +73,7 @@ The 2004 jar is stored for comparisons, run with EG: `java -cp bin/runescape.jar
 - TODO confirm: to connect to local java servers on WSL from Windows you might need to add `-Djava.net.preferIPv6Addresses=true` when running client
 
 ## Platforms and Compilers
-To move the executable you have to take the `cache/` + `config.ini` and optionally `SCC1_Florestan.sf2` + `Roboto/` along with it. The consoles will load it from sdcard if they don't embed the files already.
+To move the executable you have to take the `cache/` and optionally `config.ini`, `SCC1_Florestan.sf2` and `Roboto/` along with it. The consoles will load it from sdcard if they don't embed the files already.
 
 ```
 TODO: macos, bsds
