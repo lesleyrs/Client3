@@ -42,6 +42,7 @@
 - on windows we aren't loading system gm.dls but use a similar sf2 soundfont instead
 - the game uses 3 titles: "RuneScape - the massive online adventure game by Jagex Ltd" (website), "RuneScape Game" (html) and "Jagex" (jar)
 
+- no client_load_archive message for file streaming since the files are fetched all at once
 - http requests for checksums/cache (not done as they aren't supposed to change and saving files on consoles depends on if sdcard or romfs was used) another downside is that being "connected" in emulators generally stops you from being able to fast forward so load times will be slow.
 
 - init() moved to main() as that's emscriptens entrypoint

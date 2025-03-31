@@ -152,11 +152,32 @@ void client_load(Client *c) {
     // 	return;
     // }
 
-    // try {
-    // int retry = 5;
+    int retry = 5;
     c->archive_checksum[8] = 0;
     while (c->archive_checksum[8] == 0) {
         client_draw_progress(c, "Connecting to fileserver", 10);
+#if defined(__EMSCRIPTEN__) && (!defined(SDL) || SDL == 0)
+        char message[PATH_MAX];
+        sprintf(message, "crc%d", (int)(jrand() * 9.9999999e7));
+        int size = 0;
+        int8_t *buffer = client_open_url(message, &size);
+        if (!buffer) {
+            for (int i = retry; i > 0; i--) {
+                sprintf(message, "Error loading - Will retry in %d secs.", i);
+                client_draw_progress(c, message, 10);
+                delay_ticks(1000);
+            }
+            retry *= 2;
+            if (retry > 60) {
+                retry = 60;
+            }
+        } else {
+            Packet *checksums = packet_new(buffer, size); // 36
+            for (int i = 0; i < 9; i++) {
+                c->archive_checksum[i] = g4(checksums);
+            }
+        }
+#else
         // TODO: hardcoded for now add openurl/opensocket to clientstream
         c->archive_checksum[0] = 0;
         c->archive_checksum[1] = -430779560;
@@ -167,24 +188,7 @@ void client_load(Client *c) {
         c->archive_checksum[6] = 1703545114;
         c->archive_checksum[7] = 1570981179;
         c->archive_checksum[8] = -1532605973;
-        // 		try {
-        // DataInputStream stream = this.openUrl("crc" + (int) (jrand() * 9.9999999E7));
-        // 			Packet checksums = new Packet(new byte[36]);
-        // 			stream.readFully(checksums.data, 0, 36);
-        // 			for (int i = 0; i < 9; i++) {
-        // 				this.archive_checksum[i] = checksums.g4();
-        // 			}
-        // 			stream.close();
-        // 		} catch (IOException ex) {
-        // for (int i = retry; i > 0; i--) {
-        // 	client_draw_progress("Error loading - Will retry in " + i + " secs.", 10);
-        // 	delay_ticks(1000);
-        // }
-        // retry *= 2;
-        // if (retry > 60) {
-        // 	retry = 60;
-        // }
-        // }
+#endif
     }
 
     c->archive_title = load_archive(c, "title", c->archive_checksum[1], "title screen", 10);
@@ -10696,6 +10700,63 @@ Client *client_new(void) {
     return c;
 }
 
+#if defined(__EMSCRIPTEN__) && (!defined(SDL) || SDL == 0)
+void *client_open_url(const char *name, int *size) {
+    void *buffer = NULL;
+    int error = 0;
+    char url[PATH_MAX];
+    sprintf(url, "http://%s:%d/%s", _Client.socketip, _Custom.http_port, name);
+    emscripten_wget_data(url, &buffer, size, &error);
+    if (error) {
+        rs2_error("Error downloading %s: %d\n", url, error);
+        return NULL;
+    }
+    return buffer;
+}
+
+Jagfile *load_archive(Client *c, const char *name, int crc, const char *display_name, int progress) {
+    int retry = 5;
+    // int8_t *data = signlink.cacheload(name);
+    int8_t *data = NULL; // TODO cacheload
+    int size = 0;
+    if (data) {
+        // int crc_value = rs_crc32(data, file_size);
+        // if (crc_value != crc) {
+        //     free(data);
+        //     data = NULL;
+        // size = 0;
+        // }
+    }
+
+    if (data) {
+        return jagfile_new(data, size);
+    }
+
+    while (!data) {
+        char message[PATH_MAX];
+        snprintf(message, sizeof(message), "Requesting %s", display_name);
+        client_draw_progress(c, message, progress);
+
+        snprintf(message, sizeof(message), "%s%d", name, crc);
+        data = client_open_url(message, &size);
+        if (!data) {
+            for (int i = retry; i > 0; i--) {
+                snprintf(message, sizeof(message), "Error loading - Will retry in %d secs.", i);
+                client_draw_progress(c, message, progress);
+                delay_ticks(1000);
+            }
+
+            retry *= 2;
+            if (retry > 60) {
+                retry = 60;
+            }
+        }
+    }
+
+    // signlink.cachesave(name, data);
+    return jagfile_new(data, size);
+}
+#else
 Jagfile *load_archive(Client *c, const char *name, int crc, const char *display_name, int progress) {
     // TODO
     (void)display_name, (void)progress;
@@ -10761,6 +10822,7 @@ Jagfile *load_archive(Client *c, const char *name, int crc, const char *display_
 
     return jagfile_new(data, file_size);
 }
+#endif
 
 void client_load_title(Client *c) {
     if (c->image_title2) {

@@ -109,6 +109,8 @@ run `emmake make`/`make CC=emcc` or `build.bat -c emcc` for windows
 
 emrun causes extra batch job message on windows sigint, can swap it for `py -m http.server` or so to avoid it
 
+enable cors in server web.ts with `res.setHeader('Access-Control-Allow-Origin', '*');` or integrate it like the java/js clients
+
 SDL ports aren't used by default to avoid lag issues on Firefox, reduce output size, and prevent browser shortcuts being disabled. It's fixable by switching between requestAnimationFrame and setTimeout based on if the tab is focused, but using emscripten directly requires no client changes.
 
 If 4 args are passed in shell.html the ip + port will be from the URL instead of config

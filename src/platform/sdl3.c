@@ -265,6 +265,7 @@ void platform_set_jingle(int8_t *src, int len) {
     free(src);
 }
 
+// TODO add fade (always, not jingles)
 void platform_set_midi(const char *name, int crc, int len) {
     char filename[PATH_MAX];
     snprintf(filename, sizeof(filename), "cache/client/songs/%s.mid", name);

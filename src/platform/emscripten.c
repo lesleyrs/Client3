@@ -4,6 +4,7 @@
 #include <emscripten/key_codes.h>
 
 #include <malloc.h>
+#include <errno.h>
 
 #include "../client.h"
 #include "../custom.h"
@@ -14,6 +15,20 @@
 extern ClientData _Client;
 extern InputTracking _InputTracking;
 extern Custom _Custom;
+
+#include "../thirdparty/bzip.h"
+#define TSF_IMPLEMENTATION
+#include "../thirdparty/tsf.h"
+
+#define TML_IMPLEMENTATION
+#include "../thirdparty/tml.h"
+
+static tml_message *TinyMidiLoader;
+// Holds the global instance pointer
+static tsf *g_TinySoundFont;
+// Holds global MIDI playback state
+static double g_Msec;              // current playback time
+static tml_message *g_MidiMessage; // next message to be played
 
 EM_JS(void, draw_string_js, (const char *str, int x, int y, int color, bool bold, int size), {
     var canvas = document.getElementById('canvas');
@@ -33,8 +48,8 @@ EM_JS(void, draw_string_js, (const char *str, int x, int y, int color, bool bold
 EM_JS(void, draw_rect_js, (int x, int y, int w, int h, int color), {
     var ctx = document.getElementById('canvas').getContext('2d');
     let hexColor = '#' + ('000000' + color.toString(16)).slice(-6);
-    ctx.fillStyle = hexColor;
-    ctx.rect(x, y, w, h);
+    ctx.strokeStyle = hexColor;
+    ctx.strokeRect(x, y, w, h);
 })
 
 EM_JS(void, fill_rect_js, (int x, int y, int w, int h, int color), {
@@ -90,6 +105,39 @@ bool platform_init(void) {
 
 void platform_new(int width, int height) {
     emscripten_set_canvas_element_size("#canvas", width, height);
+
+//     SDL_AudioSpec midiSpec;
+//     midiSpec.freq = 44100;
+// // TODO separate midi and rm from sdl2
+// #if SDL == 1
+//     midiSpec.format = AUDIO_S16SYS;
+// #else
+//     midiSpec.format = AUDIO_F32;
+// #endif
+//     midiSpec.channels = 2;
+//     midiSpec.samples = 4096;
+//     midiSpec.callback = midi_callback;
+
+    void *buffer = NULL;
+    int size = 0;
+    int error = 0;
+    emscripten_wget_data("SCC1_Florestan.sf2", &buffer, &size, &error);
+    if (error) {
+        rs2_error("Error downloading SoundFont: %d\n", error);
+    }
+
+    g_TinySoundFont = tsf_load_memory(buffer, size);
+    if (!g_TinySoundFont) {
+        rs2_error("Could not load SoundFont\n");
+    } else {
+        // Set the SoundFont rendering output mode
+        // tsf_set_output(g_TinySoundFont, TSF_STEREO_INTERLEAVED, midiSpec.freq, 0.0f);
+
+        // if (SDL_OpenAudio(&midiSpec, NULL) < 0) {
+        //     rs2_error("Could not open the audio hardware or the desired audio output format\n");
+        // }
+        // SDL_PauseAudio(0);
+    }
 }
 
 void platform_free(void) {
@@ -101,12 +149,56 @@ void platform_play_wave(int8_t *src, int length) {
     play_wave_js(src, length);
 }
 void platform_set_midi_volume(float midivol) {
+    if (_Client.lowmem) {
+        return;
+    }
+    // if (midi_stream) {
+        tsf_set_volume(g_TinySoundFont, midivol);
+    // }
 }
 void platform_set_jingle(int8_t *src, int len) {
+    // tml_free(TinyMidiLoader);
+    TinyMidiLoader = tml_load_memory(src, len);
+    platform_stop_midi();
+    g_MidiMessage = TinyMidiLoader;
+    free(src);
 }
 void platform_set_midi(const char *name, int crc, int len) {
+    char filename[PATH_MAX];
+    void* data = NULL;
+    int data_len = 0;
+    snprintf(filename, sizeof(filename), "%s_%d.mid", name, crc);
+    data = client_open_url(filename, &data_len);
+    if (data && crc != 12345678) {
+        int data_crc = rs_crc32(data, len);
+        if (data_crc != crc) {
+            free(data);
+            data = NULL;
+        }
+    }
+
+    Packet *packet = packet_new(data, 4);
+    const int uncompressed_length = g4(packet);
+    int8_t *uncompressed = malloc(uncompressed_length);
+    bzip_decompress(uncompressed, data, data_len - 4, 4);
+    // tml_free(TinyMidiLoader);
+    TinyMidiLoader = tml_load_memory(uncompressed, uncompressed_length);
+    platform_stop_midi();
+    g_MidiMessage = TinyMidiLoader;
+    packet_free(packet);
+    free(uncompressed);
 }
 void platform_stop_midi(void) {
+    if (_Client.lowmem) {
+        return;
+    }
+    // if (midi_stream) {
+        g_MidiMessage = NULL;
+        g_Msec = 0;
+        tsf_reset(g_TinySoundFont);
+        // Initialize preset on special 10th MIDI channel to use percussion sound bank (128) if available
+        tsf_channel_set_bank_preset(g_TinySoundFont, 9, 128, 0);
+    // }
 }
 void set_pixels(PixMap *pixmap, int x, int y) {
     set_pixels_js(x, y, pixmap->width, pixmap->height, pixmap->pixels);
