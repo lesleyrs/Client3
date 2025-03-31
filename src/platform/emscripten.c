@@ -76,6 +76,14 @@ EM_JS(void, set_pixels_js, (int x, int y, int width, int height, int *pixels), {
     ctx.putImageData(imageData, x, y);
 })
 
+EM_JS(void, set_wave_volume_js, (int wavevol), {
+    setWaveVolume(wavevol);
+})
+
+EM_JS(void, play_wave_js, (int8_t * src, int length), {
+    playWave(HEAP8.subarray(src, src + length));
+})
+
 bool platform_init(void) {
     return true;
 }
@@ -87,8 +95,10 @@ void platform_new(int width, int height) {
 void platform_free(void) {
 }
 void platform_set_wave_volume(int wavevol) {
+    set_wave_volume_js(wavevol);
 }
 void platform_play_wave(int8_t *src, int length) {
+    play_wave_js(src, length);
 }
 void platform_set_midi_volume(float midivol) {
 }
