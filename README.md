@@ -118,12 +118,11 @@ If 4 args are passed in shell.html the ip + port will be from the URL instead of
 If not passing args make sure to set http_port to 8888 on linux (or whatever it's configured as in server).
 
 ```
-TODO: avoiding SDL might also fix firefox memleaks + compare each platforms wasm/js output sizes again after finishing it
 NOTE: Linux wasm/js output may be smaller than on Windows
-TODO: emscripten wasm on firefox has memleaks related to midi, gets cleaned up by pressing GC in about:memory but why does this happen? Chromium based browsers are ok. Happens on both SDL2 and SDL3.
+TODO: emscripten wasm on firefox has memleaks related to midi, gets cleaned up by pressing GC in about:memory but why does this happen? Chromium based browsers are ok. Happens on both SDL2 and SDL3. Without SDL ram usage fluctuates a lot still...?
 TODO: ability to set secured websocket at runtime instead of compile
-TODO: maybe use emscriptens indexeddb api to store data files and emscripten_wget download cache/checksums instead of preload-file
-TODO: fix speedup when tab becomes active
+TODO: maybe use emscriptens indexeddb api to store data files
+TODO: fix speedup when tab becomes active, either with midi or absolute time for idle_timeout
 TODO: link webclient in about when it's hosted somewhere
 TODO: maybe try adding web worker server compat again: https://emscripten.org/docs/api_reference/wasm_workers.html
 TODO: fullscreen option
