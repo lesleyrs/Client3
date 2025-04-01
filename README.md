@@ -21,7 +21,7 @@ locs like fires have no animations as pushLocs is disabled for now, it constantl
 
 wordfilter isn't ported yet, so you will see your own swear words but others don't as it gets filtered by the server still.
 
-some bits from signlink missing (uid, reporterror, findcachedir, openurl, opensocket etc, move map loading to cacheload?
+some bits from signlink missing: uid, reporterror, findcachedir, openurl, opensocket, cacheload, cachesave, etc
 
 remove the refcounting from model/pix24/lrucache for components and do smth else (kept to avoid leak spam rn) as components get assigned models from packets which are put into lrucaches, so global component doesn't own the memory anymore
 

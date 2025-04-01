@@ -4718,6 +4718,14 @@ bool client_read(Client *c) {
             }
         }
         if (index != -1) {
+#if defined(__EMSCRIPTEN__) && (!defined(SDL) || SDL == 0)
+            // TODO use indexeddb instead of emscripten memfs
+            char filename[PATH_MAX];
+            sprintf(filename, "m%d_%d", x, z);
+            FILE *file = fopen(filename, "wb");
+            fwrite(c->sceneMapLandData[index], 1, c->sceneMapLandDataIndexLength[index], file);
+            fclose(file);
+#endif
             // signlink.cachesave("m" + x + "_" + z, this.sceneMapLandData[index]);
             c->scene_state = 1;
         }
@@ -4767,7 +4775,8 @@ bool client_read(Client *c) {
             int landCrc = g4(c->in);
             int locCrc = g4(c->in);
             c->sceneMapIndex[i] = (mapsquareX << 8) + mapsquareZ;
-            int8_t *data;
+            int8_t *data = NULL;
+            size_t size = 0;
             if (landCrc != 0) {
                 // data = signlink.cacheload("m" + mapsquareX + "_" + mapsquareZ);
                 // custom NOTE move these
@@ -4776,6 +4785,8 @@ bool client_read(Client *c) {
                 snprintf(filename, sizeof(filename), "cache/client/maps/m%d_%d.", mapsquareX, mapsquareZ);
 #elif defined(NXDK)
                 snprintf(filename, sizeof(filename), "D:\\cache\\client\\maps\\m%d_%d", mapsquareX, mapsquareZ);
+#elif defined(__EMSCRIPTEN__) && (!defined(SDL) || SDL == 0)
+                snprintf(filename, sizeof(filename), "m%d_%d", mapsquareX, mapsquareZ);
 #else
                 snprintf(filename, sizeof(filename), "cache/client/maps/m%d_%d", mapsquareX, mapsquareZ);
 #endif
@@ -4787,30 +4798,30 @@ bool client_read(Client *c) {
 #endif
                 if (!file) {
                     rs2_error("%s: %s\n", filename, strerror(errno));
-                }
-
+                } else {
 #ifdef ANDROID
-                size_t size = SDL_RWseek(file, 0, RW_SEEK_END);
-                SDL_RWseek(file, 0, RW_SEEK_SET);
+                    size_t size = SDL_RWseek(file, 0, RW_SEEK_END);
+                    SDL_RWseek(file, 0, RW_SEEK_SET);
 #else
-                fseek(file, 0, SEEK_END);
-                size_t size = ftell(file);
-                fseek(file, 0, SEEK_SET);
+                    fseek(file, 0, SEEK_END);
+                    size = ftell(file);
+                    fseek(file, 0, SEEK_SET);
 #endif
 
-                data = malloc(size);
+                    data = malloc(size);
 #ifdef ANDROID
-                if (SDL_RWread(file, data, 1, size) != size) {
+                    if (SDL_RWread(file, data, 1, size) != size) {
 #else
-                if (fread(data, 1, size, file) != size) {
+                    if (fread(data, 1, size, file) != size) {
 #endif
-                    rs2_error("Failed to read file: %s\n", strerror(errno));
+                        rs2_error("Failed to read file: %s\n", strerror(errno));
+                    }
+#ifdef ANDROID
+                    SDL_RWclose(file);
+#else
+                    fclose(file);
+#endif
                 }
-#ifdef ANDROID
-                SDL_RWclose(file);
-#else
-                fclose(file);
-#endif
 
                 if (data) {
                     if (rs_crc32(data, size) != landCrc) {
@@ -4838,6 +4849,8 @@ bool client_read(Client *c) {
                 snprintf(filename, sizeof(filename), "cache/client/maps/l%d_%d.", mapsquareX, mapsquareZ);
 #elif defined(NXDK)
                 snprintf(filename, sizeof(filename), "D:\\cache\\client\\maps\\l%d_%d", mapsquareX, mapsquareZ);
+#elif defined(__EMSCRIPTEN__) && (!defined(SDL) || SDL == 0)
+            snprintf(filename, sizeof(filename), "l%d_%d", mapsquareX, mapsquareZ);
 #else
             snprintf(filename, sizeof(filename), "cache/client/maps/l%d_%d", mapsquareX, mapsquareZ);
 #endif
@@ -4849,30 +4862,30 @@ bool client_read(Client *c) {
 #endif
                 if (!file) {
                     rs2_error("%s: %s\n", filename, strerror(errno));
-                }
-
+                } else {
 #ifdef ANDROID
-                size_t size = SDL_RWseek(file, 0, RW_SEEK_END);
-                SDL_RWseek(file, 0, RW_SEEK_SET);
+                    size_t size = SDL_RWseek(file, 0, RW_SEEK_END);
+                    SDL_RWseek(file, 0, RW_SEEK_SET);
 #else
-                fseek(file, 0, SEEK_END);
-                size_t size = ftell(file);
-                fseek(file, 0, SEEK_SET);
+                    fseek(file, 0, SEEK_END);
+                    size = ftell(file);
+                    fseek(file, 0, SEEK_SET);
 #endif
 
-                data = malloc(size);
+                    data = malloc(size);
 #ifdef ANDROID
-                if (SDL_RWread(file, data, 1, size) != size) {
+                    if (SDL_RWread(file, data, 1, size) != size) {
 #else
-                if (fread(data, 1, size, file) != size) {
+                    if (fread(data, 1, size, file) != size) {
 #endif
-                    rs2_error("Failed to read file: %s\n", strerror(errno));
+                        rs2_error("Failed to read file: %s\n", strerror(errno));
+                    }
+#ifdef ANDROID
+                    SDL_RWclose(file);
+#else
+                    fclose(file);
+#endif
                 }
-#ifdef ANDROID
-                SDL_RWclose(file);
-#else
-                fclose(file);
-#endif
 
                 if (data) {
                     if (rs_crc32(data, size) != locCrc) {
@@ -5050,6 +5063,14 @@ bool client_read(Client *c) {
             }
         }
         if (index != -1) {
+#if defined(__EMSCRIPTEN__) && (!defined(SDL) || SDL == 0)
+            // TODO use indexeddb instead of emscripten memfs
+            char filename[PATH_MAX];
+            sprintf(filename, "l%d_%d", x, z);
+            FILE *file = fopen(filename, "wb");
+            fwrite(c->sceneMapLocData[index], 1, c->sceneMapLocDataIndexLength[index], file);
+            fclose(file);
+#endif
             // signlink.cachesave("l" + x + "_" + z, c->sceneMapLocData[index]);
             c->scene_state = 1;
         }
@@ -5135,7 +5156,7 @@ bool client_read(Client *c) {
         // DATA_LOC
         int x = g1(c->in);
         int z = g1(c->in);
-        int off = g2(c->in);
+        int offset = g2(c->in);
         int length = g2(c->in);
         int index = -1;
         for (int i = 0; i < c->sceneMapIndexLength; i++) {
@@ -5147,7 +5168,8 @@ bool client_read(Client *c) {
             if (!c->sceneMapLocData[index] || c->sceneMapLocDataIndexLength[index] != length) {
                 c->sceneMapLocData[index] = calloc(length, sizeof(int8_t));
             }
-            gdata(c->in, c->packet_size - 6, off, c->sceneMapLocData[index]);
+            gdata(c->in, c->packet_size - 6, offset, c->sceneMapLocData[index]);
+            c->sceneMapLocDataIndexLength[index] = length;
         }
         c->packet_type = -1;
         return true;
@@ -5431,6 +5453,7 @@ bool client_read(Client *c) {
                 c->sceneMapLandData[index] = calloc(length, sizeof(int8_t));
             }
             gdata(c->in, c->packet_size - 6, offset, c->sceneMapLandData[index]);
+            c->sceneMapLandDataIndexLength[index] = length;
         }
         c->packet_type = -1;
         return true;
