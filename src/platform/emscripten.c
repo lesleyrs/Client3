@@ -264,6 +264,7 @@ static bool onkeydown(int event_type, const EmscriptenKeyboardEvent *e, void *us
     case K_DOWN:
     case K_LEFT:
     case K_RIGHT:
+    case K_CONTROL:
         key_pressed(c->shell, e->keyCode, -1);
         break;
     }
@@ -279,6 +280,7 @@ static bool onkeyup(int event_type, const EmscriptenKeyboardEvent *e, void *user
     case K_DOWN:
     case K_LEFT:
     case K_RIGHT:
+    case K_CONTROL:
         key_released(c->shell, e->keyCode, -1);
         break;
     }

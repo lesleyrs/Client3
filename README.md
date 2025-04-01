@@ -13,7 +13,7 @@ See [docs](/docs) for more info and media.
 
 ## known issues
 ```
-server cache changes would require manual cache+checksums update in client for now, the server has an issue with client map crcs being changed when server maps get updated (also the cache has some interface changes rn for quest tab and another one) enable crc again after fixes, search "wait authentic cache". remove original cache at bin/archives when the cache matches exactly
+server cache changes would require manual cache+checksums update in client for now, the server has an issue with client map crcs being changed when server maps get updated (also the cache has some interface changes rn for quest tab and another one), remove original cache at bin/archives when the cache matches exactly
 
 no midi fading, old js code for IE: https://github.com/2004Scape/Server/blob/61bf21fb3755c14b5cf6d47c9d974dee5783beda/view/javaclient.ejs new ts code: https://github.com/2004Scape/Client2/commit/92e74f1f134ea82e48dd608dcca3422777a7a986 (client-ts has more some fade fixes)
 

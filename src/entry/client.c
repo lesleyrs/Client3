@@ -4797,7 +4797,7 @@ bool client_read(Client *c) {
                 FILE *file = fopen(filename, "rb");
 #endif
                 if (!file) {
-                    rs2_error("%s: %s\n", filename, strerror(errno));
+                    // rs2_error("%s: %s\n", filename, strerror(errno));
                 } else {
 #ifdef ANDROID
                     size_t size = SDL_RWseek(file, 0, RW_SEEK_END);
@@ -4825,9 +4825,9 @@ bool client_read(Client *c) {
 
                 if (data) {
                     if (rs_crc32(data, size) != landCrc) {
-                        // TODO wait authentic cache
-                        // free(data);
-                        // data = NULL;
+                        rs2_error("mapdata CRC check failed\n");
+                        free(data);
+                        data = NULL;
                     }
                 }
                 if (!data) {
@@ -4861,7 +4861,7 @@ bool client_read(Client *c) {
                 FILE *file = fopen(filename, "rb");
 #endif
                 if (!file) {
-                    rs2_error("%s: %s\n", filename, strerror(errno));
+                    // rs2_error("%s: %s\n", filename, strerror(errno));
                 } else {
 #ifdef ANDROID
                     size_t size = SDL_RWseek(file, 0, RW_SEEK_END);
@@ -4889,9 +4889,9 @@ bool client_read(Client *c) {
 
                 if (data) {
                     if (rs_crc32(data, size) != locCrc) {
-                        // TODO wait authentic cache
-                        // free(data);
-                        // data = NULL;
+                        rs2_error("mapdata CRC check failed\n");
+                        free(data);
+                        data = NULL;
                     }
                 }
                 if (!data) {
@@ -10743,12 +10743,13 @@ Jagfile *load_archive(Client *c, const char *name, int crc, const char *display_
     int8_t *data = NULL; // TODO cacheload
     int size = 0;
     if (data) {
-        // int crc_value = rs_crc32(data, file_size);
-        // if (crc_value != crc) {
-        //     free(data);
-        //     data = NULL;
-        // size = 0;
-        // }
+        int crc_value = rs_crc32(data, size);
+        if (crc_value != crc) {
+            rs2_error("%s archive CRC check failed\n", display_name);
+            free(data);
+            data = NULL;
+            size = 0;
+        }
     }
 
     if (data) {
@@ -10838,9 +10839,9 @@ Jagfile *load_archive(Client *c, const char *name, int crc, const char *display_
 
     int crc_value = rs_crc32(data, file_size);
     if (crc_value != crc) {
-        // TODO wait authentic cache
-        // free(data);
-        // data = NULL;
+        rs2_error("%s archive CRC check failed\n", display_name);
+        free(data);
+        data = NULL;
     }
 
     return jagfile_new(data, file_size);
