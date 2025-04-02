@@ -303,7 +303,7 @@ static int ttf_string_width(stbtt_fontinfo *font, const char *message, float sca
 }
 
 void gameshell_draw_string(GameShell *shell, const char *str, int x, int y, int color, bool bold, int size) {
-    // TODO: add regular fonts for mapview too
+    (void)bold; // TODO: add regular fonts for mapview too
 #ifdef ANDROID
     SDL_RWops *file = NULL;
 #else
@@ -425,8 +425,7 @@ void gameshell_draw_progress(GameShell *shell, const char *message, int progress
     platform_fill_rect(shell->screen_width / 2 - 150, y + 2, progress * 3, 30, PROGRESS_RED);
     platform_fill_rect(shell->screen_width / 2 + progress * 3 - 150, y + 2, 300 - progress * 3, 30, BLACK);
 
-    int color = WHITE;
-    gameshell_draw_string(shell, message, shell->screen_width / 2, y + 22, color, true, 13);
+    gameshell_draw_string(shell, message, shell->screen_width / 2, y + 22, WHITE, true, 13);
 
     platform_update_surface();
 }

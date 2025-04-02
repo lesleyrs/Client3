@@ -152,7 +152,9 @@ void client_load(Client *c) {
     // 	return;
     // }
 
+#if defined(__EMSCRIPTEN__) && (!defined(SDL) || SDL == 0)
     int retry = 5;
+#endif
     c->archive_checksum[8] = 0;
     while (c->archive_checksum[8] == 0) {
         client_draw_progress(c, "Connecting to fileserver", 10);

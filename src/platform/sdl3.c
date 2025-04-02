@@ -1,9 +1,9 @@
 #if SDL == 3
 #include "SDL3/SDL.h"
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "../client.h"
 #include "../custom.h"
@@ -31,23 +31,23 @@ static tsf *g_TinySoundFont;
 static double g_Msec;              // current playback time
 static tml_message *g_MidiMessage; // next message to be played
 
-static float* midi_buffer;
+static float *midi_buffer;
 
-static SDL_Window* window;
+static SDL_Window *window;
 static SDL_Surface *window_surface;
-static SDL_Texture* texture;
-static SDL_Renderer* renderer;
-static SDL_AudioStream* midi_stream;
+static SDL_Texture *texture;
+static SDL_Renderer *renderer;
+static SDL_AudioStream *midi_stream;
 
 static void platform_get_keycodes(const SDL_KeyboardEvent *e, int *code, char *ch);
 
-static SDL_AudioStream* wave_stream = NULL;
+static SDL_AudioStream *wave_stream = NULL;
 static int g_wavevol = 128;
 void platform_play_wave(int8_t *src, int length) {
     SDL_AudioSpec wave_spec = {0};
-    uint8_t* wave_buffer = NULL;
+    uint8_t *wave_buffer = NULL;
     uint32_t wave_length = 0;
-    SDL_IOStream* sdl_iostream = SDL_IOFromMem(src, length);
+    SDL_IOStream *sdl_iostream = SDL_IOFromMem(src, length);
     if (!SDL_LoadWAV_IO(sdl_iostream, true, &wave_spec, &wave_buffer, &wave_length)) {
         rs2_error("SDL3: LoadWAV_IO failed: %s\n", SDL_GetError());
         return;
@@ -82,7 +82,7 @@ void platform_set_wave_volume(int wavevol) {
     g_wavevol = wavevol;
 }
 
-static void midi_callback(void* data, SDL_AudioStream* stream, int additional_amount_needed, int total_amount_requested) {
+static void midi_callback(void *data, SDL_AudioStream *stream, int additional_amount_needed, int total_amount_requested) {
     (void)data;
     (void)total_amount_requested;
     if (additional_amount_needed == 0) {
@@ -93,7 +93,7 @@ static void midi_callback(void* data, SDL_AudioStream* stream, int additional_am
     // Number of samples per block
     const int num_samples_per_block = TSF_RENDER_EFFECTSAMPLEBLOCK;
     // Number of bytes per block
-    const int num_bytes_per_block = num_samples_per_block * 2 * sizeof(float);  // 2 channels F32
+    const int num_bytes_per_block = num_samples_per_block * 2 * sizeof(float); // 2 channels F32
     // Number of bytes that still need to be provided to the Audio Stream; decreases by num_bytes_per_block each iteration.
     int num_bytes_remaining = additional_amount_needed;
 
@@ -155,7 +155,23 @@ void platform_new(int width, int height) {
         return;
     }
 
-    if (_Custom.resizable) {
+    if (!_Custom.resizable) {
+        window_surface = SDL_GetWindowSurface(window);
+        if (!window_surface) {
+            rs2_error("SDL3: window surface creation failed: %s\n", SDL_GetError());
+            SDL_DestroyWindow(window);
+            SDL_Quit();
+            return;
+        }
+    } else {
+        window_surface = SDL_CreateSurface(width, height, SDL_GetPixelFormatForMasks(32, 0xff0000, 0x00ff00, 0x0000ff, 0));
+        if (!window_surface) {
+            rs2_error("SDL2: surface creation failed: %s\n", SDL_GetError());
+            SDL_DestroyWindow(window);
+            SDL_Quit();
+            return;
+        }
+
         int num_renderers = SDL_GetNumRenderDrivers();
         if (num_renderers == 0) {
             rs2_error("SDL3: no renderers available!\n");
@@ -173,9 +189,9 @@ void platform_new(int width, int height) {
         }
 
         char renderers[1024] = {0};
-        const char* r_name = SDL_GetRendererName(renderer);
+        const char *r_name = SDL_GetRendererName(renderer);
         for (int i = 0; i < num_renderers; i++) {
-            const char* name = SDL_GetRenderDriver(i);
+            const char *name = SDL_GetRenderDriver(i);
             if (i > 0) {
                 strcat(renderers, ", ");
             }
@@ -195,21 +211,13 @@ void platform_new(int width, int height) {
         }
 
         SDL_SetRenderLogicalPresentation(renderer, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_LOGICAL_PRESENTATION_LETTERBOX);
-    } else {  // !_Custom.resizable
-        window_surface = SDL_GetWindowSurface(window);
-        if (!window_surface) {
-            rs2_error("SDL3: window surface creation failed: %s\n", SDL_GetError());
-            SDL_DestroyWindow(window);
-            SDL_Quit();
-            return;
-        }
     }
     // audio
     if (_Client.lowmem) {
         return;
     }
     // Create MIDI audio stream:
-    const SDL_AudioSpec midi_spec = { SDL_AUDIO_F32, 2, 44100 };
+    const SDL_AudioSpec midi_spec = {SDL_AUDIO_F32, 2, 44100};
 
     g_TinySoundFont = tsf_load_filename("SCC1_Florestan.sf2");
     if (!g_TinySoundFont) {
@@ -228,7 +236,7 @@ void platform_new(int width, int height) {
     }
 
     // Create WAVE audio stream:
-    const SDL_AudioSpec wave_spec = { SDL_AUDIO_U8, 1, 22050 };
+    const SDL_AudioSpec wave_spec = {SDL_AUDIO_U8, 1, 22050};
     wave_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &wave_spec, NULL, NULL);
     if (!wave_stream) {
         rs2_error("SDL3: OpenAudioDeviceStream(Wave) failed: %s\n", SDL_GetError());
@@ -318,10 +326,15 @@ void set_pixels(PixMap *pixmap, int x, int y) {
 }
 
 void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
-    if (_Custom.resizable) {
-        int* pix_write = NULL;
+    if (!_Custom.resizable) {
+        SDL_Rect dest = {x, y, w, h};
+        // SDL_BlitSurfaceScaled(surface, NULL, window_surface, &dest, SDL_SCALEMODE_LINEAR);
+        // SDL_BlitSurfaceScaled(surface, NULL, window_surface, &dest, SDL_SCALEMODE_NEAREST);
+        SDL_BlitSurface(surface, NULL, window_surface, &dest);
+    } else {
+        int *pix_write = NULL;
         int _pitch_unused = 0;
-        if (!SDL_LockTexture(texture, NULL, (void**)&pix_write, &_pitch_unused) || pix_write == NULL) {
+        if (!SDL_LockTexture(texture, NULL, (void **)&pix_write, &_pitch_unused) || pix_write == NULL) {
             rs2_error("SDL3: SDL_LockTexture failed: %s\n", SDL_GetError());
             return;
         }
@@ -329,19 +342,13 @@ void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
         int *src_pixels = (int *)surface->pixels;
         for (int src_y = y; src_y < (y + h); src_y++) {
             // Compute the starting index for the destination row
-            int* dest_row = &pix_write[(src_y * SCREEN_WIDTH) + x];
+            int *dest_row = &pix_write[(src_y * SCREEN_WIDTH) + x];
 
             // Copy a row of pixels
             memcpy(dest_row, &src_pixels[(src_y - y) * w], row_size);
         }
         SDL_UnlockTexture(texture);
         SDL_RenderTexture(renderer, texture, NULL, NULL);
-    } else {
-        SDL_Rect dest = {x, y, w, h};
-        SDL_BlitSurfaceScaled(surface, NULL, window_surface, &dest, SDL_SCALEMODE_LINEAR);
-        // SDL_BlitSurfaceScaled(surface, NULL, window_surface, &dest, SDL_SCALEMODE_NEAREST);
-        // SDL_BlitSurfaceScaled(surface, NULL, window_surface, NULL, SDL_SCALEMODE_NEAREST);
-        // SDL_BlitSurface(surface, NULL, window_surface, NULL);
     }
 }
 
@@ -354,43 +361,34 @@ void platform_update_surface(void) {
 }
 
 void platform_draw_rect(int x, int y, int w, int h, int color) {
-    if (!_Custom.resizable) {
-        // TODO make non resizable only draw outer rect
-        if (color != BLACK) { // TODO other grayscale?
-            const SDL_PixelFormatDetails* details = SDL_GetPixelFormatDetails(window_surface->format);
-            if (details) {
-                color = SDL_MapRGB(details, NULL, color >> 16 & 0xff, color >> 8 & 0xff, color & 0xff);
-            }
-        }
+    uint32_t *pixels = (uint32_t *)window_surface->pixels;
+    int width = window_surface->pitch / sizeof(uint32_t); // SCREEN_WIDTH
 
-        SDL_Rect rect = {x, y, w, h};
-        SDL_FillSurfaceRect(window_surface, &rect, color);
-    } else {
-        SDL_SetRenderDrawColor(renderer, color >> 16 & 0xff, color >> 8 & 0xff, color & 0xff, 0xff);
-        SDL_FRect rect = {x, y, w, h};
-        SDL_RenderDrawRect(renderer, &rect);
+    for (int i = 0; i < w; i++) {
+        pixels[y * width + x + i] = color;             // top
+        pixels[((y + h - 1) * width) + x + i] = color; // bottom
+    }
+
+    for (int i = 0; i < h; i++) {
+        pixels[(y + i) * width + x] = color;         // left
+        pixels[(y + i) * width + x + w - 1] = color; // right
+    }
+
+    if (_Custom.resizable) {
+        platform_blit_surface(0, 0, window_surface->w, window_surface->h, window_surface);
     }
 }
 
 void platform_fill_rect(int x, int y, int w, int h, int color) {
-    if (!_Custom.resizable) {
-        if (color != BLACK) { // TODO other grayscale?
-            const SDL_PixelFormatDetails* details = SDL_GetPixelFormatDetails(window_surface->format);
-            if (details) {
-                color = SDL_MapRGB(details, NULL, color >> 16 & 0xff, color >> 8 & 0xff, color & 0xff);
-            }
-        }
+    SDL_Rect rect = {x, y, w, h};
+    SDL_FillSurfaceRect(window_surface, &rect, color);
 
-        SDL_Rect rect = {x, y, w, h};
-        SDL_FillSurfaceRect(window_surface, &rect, color);
-    } else {
-        SDL_SetRenderDrawColor(renderer, color >> 16 & 0xff, color >> 8 & 0xff, color & 0xff, 0xff);
-        SDL_FRect rect = {x, y, w, h};
-        SDL_RenderFillRect(renderer, &rect);
+    if (_Custom.resizable) {
+        platform_blit_surface(0, 0, window_surface->w, window_surface->h, window_surface);
     }
 }
 
-static void platform_get_keycodes(const SDL_KeyboardEvent* e, int *code, char *ch) {
+static void platform_get_keycodes(const SDL_KeyboardEvent *e, int *code, char *ch) {
     *ch = -1;
 
     switch (e->scancode) {
@@ -647,14 +645,14 @@ void platform_poll_events(Client *c) {
         case SDL_EVENT_KEY_DOWN: {
             char ch;
             int code;
-            platform_get_keycodes((SDL_KeyboardEvent*)&e, &code, &ch);
+            platform_get_keycodes((SDL_KeyboardEvent *)&e, &code, &ch);
             key_pressed(c->shell, code, ch);
             break;
         }
         case SDL_EVENT_KEY_UP: {
             char ch;
             int code;
-            platform_get_keycodes((SDL_KeyboardEvent*)&e, &code, &ch);
+            platform_get_keycodes((SDL_KeyboardEvent *)&e, &code, &ch);
             key_released(c->shell, code, ch);
             break;
         }

@@ -92,7 +92,7 @@ run.ps1: cl, clang, tcc, mingw-gcc, emcc
 You might want the updated [PowerShell](https://github.com/PowerShell/PowerShell) for run.ps1
 
 ```
-TODO: confirm win9x work still (with old openssl or mingw-gcc with libtom), maybe add screenshot to /docs
+TODO: confirm win9x work still (can use both libtom or openssl), maybe add screenshot to /docs
 TODO: do we assume windows 95 has -lws2_32, otherwise re-add -lwsock32 and remove -DMODERN_POSIX in batch file
 TODO: make win9x compatible batch file (no delayed expansion?) right now needs to build from more modern system
 TODO: clean up ps1 script so it doesn't need to be modified
@@ -139,7 +139,9 @@ NOTE: bring back worldlist loading in [shell.html](https://github.com/lesleyrs/C
 https://github.com/libsdl-org/SDL/blob/SDL2/docs/README-android.md - from "For more complex projects"
 
 1. `mkdir ~/android && cd ~/android` and download [android command line tools](#tools) to it + accept licenses whenever it asks
-2. enable developer options by tapping build number and connect `$HOME/android/platform-tools/adb connect IP:PORT`
+2. enable developer options by tapping build number, then you can pair and connect to the device through wifi:
+`$HOME/android/platform-tools/adb pair IP:PORT`
+`$HOME/android/platform-tools/adb connect IP:PORT`
 3. In Client3/android-project run `ANDROID_HOME="$HOME/android/" ./gradlew installDebug`
 4. The APK will be in android-project/app/build/outputs/apk/debug/ and installed on the device
 
@@ -286,7 +288,7 @@ emcc libcrypto.a from: [get-openssl-wasm.sh](get-openssl-wasm.sh)
 
 * [LibTomMath](https://github.com/libtom/libtommath) | https://github.com/libtom/libtommath/releases/latest
 
-libtommath releases include a gen.pl script to generate a single mpi.c file from the whole source. Move the unresolved rand symbols behind define to fix windows building.
+libtommath releases include a gen.pl script to generate a single mpi.c file from the whole source. ifdefs have been added to fix building with other compilers than gcc.
 
 * [SDL-1.2](https://github.com/libsdl-org/SDL-1.2) | [SDL-2/SDL-3](https://github.com/libsdl-org/SDL) | https://libsdl.org/release/
 

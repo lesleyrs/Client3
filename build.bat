@@ -71,8 +71,7 @@ if not exist SDL3.dll (
 	copy bin\SDL3-devel-3.1.6-VC\SDL3-3.1.6\lib\x86\SDL3.dll SDL3.dll
 )
 
-REM add remaining debug builds
-REM -DWITH_RSA_LIBTOM can be used instead of -DWITH_RSA_OPENSSL to avoid binaries but tcc doesn't include wincrypt.h by default
+REM add remaining debug builds, can also use -DWITH_RSA_OPENSSL
 if "%CC%" == "cl" (
 	echo TODO support some legacy version
 	exit /B 1
@@ -82,17 +81,17 @@ if "%CC%" == "cl" (
 	REM -fsanitize=null -fsanitize-minimal-runtime
 	REM %CC% %SRC% -fwrapv -gsource-map --shell-file shell.html --preload-file cache\client --preload-file SCC1_Florestan.sf2 --preload-file Roboto -s -Oz -ffast-math -flto -std=c99 -DWITH_RSA_BIGINT -D%ENTRY% -DSDL=2 --use-port=sdl2 -sALLOW_MEMORY_GROWTH -sINITIAL_HEAP=50MB -sSTACK_SIZE=1048576 -o index.html -sASYNCIFY -sSTRICT_JS -sDEFAULT_TO_CXX=0 && emrun --no-browser --hostname 0.0.0.0 .
 ) else if "%CC%" == "gcc" (
-	::%CC% %SRC% -s -O3 -ffast-math -std=c99 -DSDL_main=main -DWITH_RSA_OPENSSL -D%ENTRY% %SDL% -I%SSLINC% -lws2_32 %OPT% -o %ENTRY%.exe SDL%VER%.dll libeay32.dll
+	::%CC% %SRC% -s -O3 -ffast-math -std=c99 -DSDL_main=main -DWITH_RSA_LIBTOM -D%ENTRY% %SDL% -I%SSLINC% -lws2_32 %OPT% -o %ENTRY%.exe SDL%VER%.dll libeay32.dll
 	REM added static linking for openssl, so linux mingw builds don't need the dll in same dir as well
-	::%CC% %SRC% -s -O3 -ffast-math -std=c99 -DSDL_main=main -DWITH_RSA_OPENSSL -D%ENTRY% %SDL% -I%SSLINC% -L%SSLLIB% -lcrypto -lws2_32 %OPT% -o %ENTRY%.exe SDL%VER%.dll
+	::%CC% %SRC% -s -O3 -ffast-math -std=c99 -DSDL_main=main -DWITH_RSA_LIBTOM -D%ENTRY% %SDL% -I%SSLINC% -L%SSLLIB% -lcrypto -lws2_32 %OPT% -o %ENTRY%.exe SDL%VER%.dll
 	REM added libtom option
 	%CC% %SRC% -s -O3 -ffast-math -std=c99 -DSDL_main=main -DWITH_RSA_LIBTOM -D%ENTRY% %SDL% -lws2_32 %OPT% -o %ENTRY%.exe SDL%VER%.dll
 ) else (
 	REM if using your own tcc you could also add -b for better errors (SLOW, and libs not stored in repo)
 	REM need to add else branch for now to add -bt until SRC is changed
 	if "%OPT%" == "%DEBUG%" (
-		%CC%.exe -bt -v %SRC% -std=c99 -Wall -Wwrite-strings -DWITH_RSA_OPENSSL -D%ENTRY% %SDL% -I%SSLINC% -lws2_32 %OPT% -o %ENTRY%.exe SDL%VER%.dll libeay32.dll
+		%CC%.exe -bt -v %SRC% -std=c99 -Wall -Wwrite-strings -DWITH_RSA_LIBTOM -D%ENTRY% %SDL% -I%SSLINC% -lws2_32 %OPT% -o %ENTRY%.exe SDL%VER%.dll libeay32.dll
 	) else (
-		%CC%.exe -v %SRC% -std=c99 -Wall -Wwrite-strings -DWITH_RSA_OPENSSL -D%ENTRY% %SDL% -I%SSLINC% -lws2_32 %OPT% -o %ENTRY%.exe SDL%VER%.dll libeay32.dll
+		%CC%.exe -v %SRC% -std=c99 -Wall -Wwrite-strings -DWITH_RSA_LIBTOM -D%ENTRY% %SDL% -I%SSLINC% -lws2_32 %OPT% -o %ENTRY%.exe SDL%VER%.dll libeay32.dll
 	)
 )

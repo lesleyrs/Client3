@@ -203,6 +203,14 @@ void platform_new(int width, int height) {
             return;
         }
     } else {
+        window_surface = SDL_CreateRGBSurface(0, width, height, 32, 0xff0000, 0x00ff00, 0x0000ff, 0);
+        if (!window_surface) {
+            rs2_error("SDL2: surface creation failed: %s\n", SDL_GetError());
+            SDL_DestroyWindow(window);
+            SDL_Quit();
+            return;
+        }
+
         int num_renderers = SDL_GetNumRenderDrivers();
         if (num_renderers == 0) {
             rs2_error("SDL2: no renderers available\n");
@@ -392,9 +400,8 @@ void set_pixels(PixMap *pixmap, int x, int y) {
 void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
     if (!_Custom.resizable) {
         SDL_Rect dest = {x, y, w, h};
-        SDL_BlitScaled(surface, NULL, window_surface, &dest);
-        // SDL_BlitScaled(surface, NULL, window_surface, NULL);
-        // SDL_BlitSurface(surface, NULL, window_surface, NULL);
+        // SDL_BlitScaled(surface, NULL, window_surface, &dest);
+        SDL_BlitSurface(surface, NULL, window_surface, &dest);
     } else {
         // Lock the texture (texture) so that we may write directly to the pixels:
         int *pix_write = NULL;
@@ -426,33 +433,30 @@ void platform_update_surface(void) {
 }
 
 void platform_draw_rect(int x, int y, int w, int h, int color) {
-    if (!_Custom.resizable) {
-        // TODO make non resizable only draw outer rect
-        if (color != BLACK) { // TODO other grayscale?
-            color = SDL_MapRGB(window_surface->format, color >> 16 & 0xff, color >> 8 & 0xff, color & 0xff);
-        }
+    uint32_t *pixels = (uint32_t *)window_surface->pixels;
+    int width = window_surface->pitch / sizeof(uint32_t); // SCREEN_WIDTH
 
-        SDL_Rect rect = {x, y, w, h};
-        SDL_FillRect(window_surface, &rect, color);
-    } else {
-        SDL_SetRenderDrawColor(renderer, color >> 16 & 0xff, color >> 8 & 0xff, color & 0xff, 0xff);
-        SDL_Rect rect = {x, y, w, h};
-        SDL_RenderDrawRect(renderer, &rect);
+    for (int i = 0; i < w; i++) {
+        pixels[y * width + x + i] = color;             // top
+        pixels[((y + h - 1) * width) + x + i] = color; // bottom
+    }
+
+    for (int i = 0; i < h; i++) {
+        pixels[(y + i) * width + x] = color;         // left
+        pixels[(y + i) * width + x + w - 1] = color; // right
+    }
+
+    if (_Custom.resizable) {
+        platform_blit_surface(0, 0, window_surface->w, window_surface->h, window_surface);
     }
 }
 
 void platform_fill_rect(int x, int y, int w, int h, int color) {
-    if (!_Custom.resizable) {
-        if (color != BLACK) { // TODO other grayscale?
-            color = SDL_MapRGB(window_surface->format, color >> 16 & 0xff, color >> 8 & 0xff, color & 0xff);
-        }
+    SDL_Rect rect = {x, y, w, h};
+    SDL_FillRect(window_surface, &rect, color);
 
-        SDL_Rect rect = {x, y, w, h};
-        SDL_FillRect(window_surface, &rect, color);
-    } else {
-        SDL_SetRenderDrawColor(renderer, color >> 16 & 0xff, color >> 8 & 0xff, color & 0xff, 0xff);
-        SDL_Rect rect = {x, y, w, h};
-        SDL_RenderFillRect(renderer, &rect);
+    if (_Custom.resizable) {
+        platform_blit_surface(0, 0, window_surface->w, window_surface->h, window_surface);
     }
 }
 

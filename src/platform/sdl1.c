@@ -1,15 +1,15 @@
 #if SDL == 1
 #include "SDL.h"
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
-#include <errno.h>
 
 #include "../client.h"
+#include "../custom.h"
 #include "../defines.h"
 #include "../gameshell.h"
 #include "../inputtracking.h"
 #include "../pixmap.h"
-#include "../custom.h"
 
 extern ClientData _Client;
 extern InputTracking _InputTracking;
@@ -210,15 +210,13 @@ void platform_stop_midi(void) {
     }
 }
 void set_pixels(PixMap *pixmap, int x, int y) {
-    SDL_Rect dest = {x, y, pixmap->width, pixmap->height};
-    SDL_BlitSurface(pixmap->image, NULL, window_surface, &dest);
-    // SDL_BlitSurface(pixmap->image, NULL, window_surface, NULL);
-    SDL_Flip(window_surface);
+    platform_blit_surface(x, y, pixmap->width, pixmap->height, pixmap->image);
+    platform_update_surface();
 }
 
 void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
-    SDL_Rect rect = {x, y, w, h};
-    SDL_BlitSurface(surface, NULL, window_surface, &rect);
+    SDL_Rect dest = {x, y, w, h};
+    SDL_BlitSurface(surface, NULL, window_surface, &dest);
 }
 
 void platform_update_surface(void) {
@@ -226,20 +224,21 @@ void platform_update_surface(void) {
 }
 
 void platform_draw_rect(int x, int y, int w, int h, int color) {
-    // TODO make non resizable only draw outer rect
-    if (color != BLACK) { // TODO other grayscale?
-        color = SDL_MapRGB(window_surface->format, color >> 16 & 0xff, color >> 8 & 0xff, color & 0xff);
+    uint32_t *pixels = (uint32_t *)window_surface->pixels;
+    int width = window_surface->pitch / sizeof(uint32_t); // SCREEN_WIDTH
+
+    for (int i = 0; i < w; i++) {
+        pixels[y * width + x + i] = color;             // top
+        pixels[((y + h - 1) * width) + x + i] = color; // bottom
     }
 
-    SDL_Rect rect = {x, y, w, h};
-    SDL_FillRect(window_surface, &rect, color);
+    for (int i = 0; i < h; i++) {
+        pixels[(y + i) * width + x] = color;         // left
+        pixels[(y + i) * width + x + w - 1] = color; // right
+    }
 }
 
 void platform_fill_rect(int x, int y, int w, int h, int color) {
-    if (color != BLACK) { // TODO other grayscale?
-        color = SDL_MapRGB(window_surface->format, color >> 16 & 0xff, color >> 8 & 0xff, color & 0xff);
-    }
-
     SDL_Rect rect = {x, y, w, h};
     SDL_FillRect(window_surface, &rect, color);
 }
