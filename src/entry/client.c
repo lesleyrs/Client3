@@ -10299,10 +10299,9 @@ EM_JS(void, get_host_js, (char *socketip, size_t len, int *http_port), {
         HEAP32[http_port >> 2] = parseInt(url.port);
     }
     const secured = url.protocol == 'https';
-    if (secured) {
-        // TODO: can't set it here as it might get overwritten by clientstream?
-        // https://github.com/emscripten-core/emscripten/issues/22969
-    }
+    const protocol = secured ? 'wss' : 'ws';
+    // TODO: check https://github.com/emscripten-core/emscripten/issues/22969
+    SOCKFS.websocketArgs = {'url': protocol + '://'};
 })
 #endif
 

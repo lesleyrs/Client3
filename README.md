@@ -115,23 +115,23 @@ Linux output may be smaller, Windows js size doesn't go down after removing prel
 
 SDL ports aren't used by default to avoid lag issues on Firefox, reduce output size, and prevent browser shortcuts being disabled. It's fixable by switching between requestAnimationFrame and setTimeout based on if the tab is focused, but using emscripten directly requires no client changes.
 
-If 4 args are passed in shell.html the ip + port will be from the URL instead of config
+If 4 args are passed in shell.html the ip + port will be from the URL instead of config, this will also set secure websocket if needed.
 
 If not passing args make sure to set http_port to 8888 on linux (or whatever it's configured as in server).
 
 ```
-TODO: ability to set secured websocket at runtime instead of compile
-TODO: maybe use emscriptens indexeddb api to store data files
-TODO: fix speedup when tab becomes active, either with midi or absolute time for idle_timeout
-TODO: link webclient in about when it's hosted somewhere
-TODO: maybe try adding web worker server compat again: https://emscripten.org/docs/api_reference/wasm_workers.html
-TODO: fullscreen option
+TODO: midi
+TODO: use emscriptens indexeddb api to store data files
+TODO: if the tab is unfocused on web without wavs or midi playing the game will speed up. The typescript client uses absolute time for idlecycles.
+
+TODO: fullscreen option button
 TODO: mobile controls + osk + mice
 TODO: cleanup key input + preventDefault some stuff + check SDL_emscriptenevents.c for other emscripten events usage
 ```
 
 old:
 ```
+TODO: try adding web worker server compat again: https://emscripten.org/docs/api_reference/wasm_workers.html
 TODO: SDL2/3+emscripten on firefox has memleaks, gets cleaned up by pressing GC in about:memory but why does this happen?
 NOTE: bring back worldlist loading in [shell.html](https://github.com/lesleyrs/Client3/commit/5da924b9f766005e82163d899e52a5df2f771584#diff-c878553ed816480a5e85ff602ff3c5d38788ca1d21095cd8f8ebc36a4dbc07ee) if it gets re-added for live servers
 ```

@@ -45,7 +45,6 @@
 - no client_load_archive message for file streaming since the files are fetched all at once
 - http requests for checksums/cache/midis/maps are only added for web as they aren't supposed to change and saving files on consoles depends on if sdcard or romfs was used) another downside is that being "connected" in emulators generally stops you from being able to fast forward so load times will be slow.
 - init() moved to main() as that's emscriptens entrypoint
-- if the tab is unfocused on web without wavs or midi playing the game will speed up. The typescript client uses absolute time to avoid this issue.
 - dnslookup on web just shows your public ip instead of dns, this is expected and the same applies to the typescript client. If dnslookup fails to resolve and welcome screen lags you can set `hide_dns = 1` in config.ini to skip it.
 
 - networking/midi/login flames run on the same thread
