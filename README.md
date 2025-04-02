@@ -127,6 +127,7 @@ TODO: link webclient in about when it's hosted somewhere
 TODO: maybe try adding web worker server compat again: https://emscripten.org/docs/api_reference/wasm_workers.html
 TODO: fullscreen option
 TODO: mobile controls + osk + mice
+TODO: cleanup key input + preventDefault some stuff + check SDL_emscriptenevents.c for other emscripten events usage
 ```
 
 old:

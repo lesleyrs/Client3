@@ -486,6 +486,9 @@ static void platform_get_keycodes(SDL_Keysym *keysym, int *code, char *ch) {
     case SDL_SCANCODE_PAGEDOWN:
         *code = K_PAGE_DOWN;
         break;
+    case SDL_SCANCODE_END:
+        *code = K_END;
+        break;
     case SDL_SCANCODE_HOME:
         *code = K_HOME;
         break;

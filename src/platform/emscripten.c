@@ -3,8 +3,8 @@
 #include <emscripten/html5.h>
 #include <emscripten/key_codes.h>
 
-#include <malloc.h>
 #include <errno.h>
+#include <malloc.h>
 
 #include "../client.h"
 #include "../custom.h"
@@ -106,17 +106,17 @@ bool platform_init(void) {
 void platform_new(int width, int height) {
     emscripten_set_canvas_element_size("#canvas", width, height);
 
-//     SDL_AudioSpec midiSpec;
-//     midiSpec.freq = 44100;
-// // TODO separate midi and rm from sdl2
-// #if SDL == 1
-//     midiSpec.format = AUDIO_S16SYS;
-// #else
-//     midiSpec.format = AUDIO_F32;
-// #endif
-//     midiSpec.channels = 2;
-//     midiSpec.samples = 4096;
-//     midiSpec.callback = midi_callback;
+    //     SDL_AudioSpec midiSpec;
+    //     midiSpec.freq = 44100;
+    // // TODO separate midi and rm from sdl2
+    // #if SDL == 1
+    //     midiSpec.format = AUDIO_S16SYS;
+    // #else
+    //     midiSpec.format = AUDIO_F32;
+    // #endif
+    //     midiSpec.channels = 2;
+    //     midiSpec.samples = 4096;
+    //     midiSpec.callback = midi_callback;
 
     void *buffer = NULL;
     int size = 0;
@@ -153,7 +153,7 @@ void platform_set_midi_volume(float midivol) {
         return;
     }
     // if (midi_stream) {
-        tsf_set_volume(g_TinySoundFont, midivol);
+    tsf_set_volume(g_TinySoundFont, midivol);
     // }
 }
 void platform_set_jingle(int8_t *src, int len) {
@@ -165,7 +165,7 @@ void platform_set_jingle(int8_t *src, int len) {
 }
 void platform_set_midi(const char *name, int crc, int len) {
     char filename[PATH_MAX];
-    void* data = NULL;
+    void *data = NULL;
     int data_len = 0;
     snprintf(filename, sizeof(filename), "%s_%d.mid", name, crc);
     data = client_open_url(filename, &data_len);
@@ -193,11 +193,11 @@ void platform_stop_midi(void) {
         return;
     }
     // if (midi_stream) {
-        g_MidiMessage = NULL;
-        g_Msec = 0;
-        tsf_reset(g_TinySoundFont);
-        // Initialize preset on special 10th MIDI channel to use percussion sound bank (128) if available
-        tsf_channel_set_bank_preset(g_TinySoundFont, 9, 128, 0);
+    g_MidiMessage = NULL;
+    g_Msec = 0;
+    tsf_reset(g_TinySoundFont);
+    // Initialize preset on special 10th MIDI channel to use percussion sound bank (128) if available
+    tsf_channel_set_bank_preset(g_TinySoundFont, 9, 128, 0);
     // }
 }
 void set_pixels(PixMap *pixmap, int x, int y) {
@@ -256,35 +256,157 @@ static bool onmouseup(int event_type, const EmscriptenMouseEvent *e, void *user_
     return 0;
 }
 
-static bool onkeydown(int event_type, const EmscriptenKeyboardEvent *e, void *user_data) {
-    (void)event_type;
-    Client *c = (Client *)user_data;
+static void platform_get_keycodes(const EmscriptenKeyboardEvent *e, int *code, unsigned char *ch) {
     switch (e->keyCode) {
     case K_UP:
     case K_DOWN:
     case K_LEFT:
     case K_RIGHT:
     case K_CONTROL:
-        key_pressed(c->shell, e->keyCode, -1);
-        break;
+    case K_PAGE_UP:
+    case K_PAGE_DOWN:
+    case K_END:
+    case K_HOME:
+    case K_F1:
+    case K_F2:
+    case K_F3:
+    case K_F4:
+    case K_F5:
+    case K_F6:
+    case K_F7:
+    case K_F8:
+    case K_F9:
+    case K_F10:
+    case K_F11:
+    case K_F12:
+    case K_ESCAPE:
+    case K_ENTER:
+    default:
+        *code = e->keyCode;
+        *ch = e->keyCode;
+
+        if (!e->shiftKey) {
+            if (*ch >= 'A' && *ch <= 'Z') {
+                *ch += 32;
+            }
+            switch (e->keyCode) {
+            case 173:
+                *ch = '-';
+                break;
+            case 188:
+                *ch = ',';
+                break;
+            case 190:
+                *ch = '.';
+                break;
+            case 191:
+                *ch = '/';
+                break;
+            case 192: // '`'
+                *ch = -1;
+                break;
+            case 219:
+                *ch = '[';
+                break;
+            case 220:
+                *ch = '\\';
+                break;
+            case 221:
+                *ch = ']';
+                break;
+            case 222:
+                *ch = '\'';
+            }
+        } else {
+            switch (*ch) {
+            case '1':
+                *ch = '!';
+                break;
+            case '2':
+                *ch = '@';
+                break;
+            case '3':
+                *ch = '#';
+                break;
+            case '4':
+                *ch = '$';
+                break;
+            case '5':
+                *ch = '%';
+                break;
+            case '6':
+                *ch = '^';
+                break;
+            case '7':
+                *ch = '&';
+                break;
+            case '8':
+                *ch = '*';
+                break;
+            case '9':
+                *ch = '(';
+                break;
+            case '0':
+                *ch = ')';
+                break;
+            case ';':
+                *ch = ':';
+                break;
+            case '=':
+                *ch = '+';
+                break;
+            case 173:
+                *ch = '_';
+                break;
+            case 188:
+                *ch = '<';
+                break;
+            case 190:
+                *ch = '>';
+                break;
+            case 191:
+                *ch = '?';
+                break;
+            case 192:
+                *ch = '~';
+                break;
+            case 219:
+                *ch = '{';
+                break;
+            case 220:
+                *ch = '|';
+                break;
+            case 221:
+                *ch = '}';
+                break;
+            case 222:
+                *ch = '"';
+            }
+        }
     }
-    rs2_log("down %d\n", e->keyCode);
+}
+
+static bool onkeydown(int event_type, const EmscriptenKeyboardEvent *e, void *user_data) {
+    (void)event_type;
+    Client *c = (Client *)user_data;
+
+    int code = -1;
+    unsigned char ch = -1;
+    platform_get_keycodes(e, &code, &ch);
+    key_pressed(c->shell, code, ch);
+    // TODO rm
+    // rs2_log("down %d\n", e->keyCode);
     return 0;
 }
 
 static bool onkeyup(int event_type, const EmscriptenKeyboardEvent *e, void *user_data) {
     (void)event_type;
     Client *c = (Client *)user_data;
-    switch (e->keyCode) {
-    case K_UP:
-    case K_DOWN:
-    case K_LEFT:
-    case K_RIGHT:
-    case K_CONTROL:
-        key_released(c->shell, e->keyCode, -1);
-        break;
-    }
-    rs2_log("up %d\n", e->keyCode);
+
+    int code = -1;
+    unsigned char ch = -1;
+    platform_get_keycodes(e, &code, &ch);
+    key_released(c->shell, code, ch);
     return 0;
 }
 
