@@ -10292,7 +10292,7 @@ void client_unload(Client *c) {
 #ifdef __EMSCRIPTEN__
 #include "emscripten.h"
 
-EM_JS(void, get_host_js, (char *socketip, size_t len, int *http_port), {
+EM_JS(bool, get_host_js, (char *socketip, size_t len, int *http_port), {
     const url = new URL(window.location.href);
     stringToUTF8(url.hostname, socketip, len);
     if (url.port && url.hostname != 'localhost' && url.hostname != '127.0.0.1') {
@@ -10302,7 +10302,10 @@ EM_JS(void, get_host_js, (char *socketip, size_t len, int *http_port), {
     const protocol = secured ? 'wss' : 'ws';
     // TODO: check https://github.com/emscripten-core/emscripten/issues/22969
     SOCKFS.websocketArgs = {'url': protocol + '://'};
+    return secured;
 })
+
+static bool secured = false;
 #endif
 
 int main(int argc, char **argv) {
@@ -10328,7 +10331,7 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    get_host_js(_Client.socketip, MAX_STR - 1, &_Custom.http_port);
+    secured = get_host_js(_Client.socketip, MAX_STR - 1, &_Custom.http_port);
     _Client.nodeid = atoi(argv[1]);
     _Client.portoff = atoi(argv[2]);
 
@@ -10729,7 +10732,7 @@ void *client_open_url(const char *name, int *size) {
     void *buffer = NULL;
     int error = 0;
     char url[PATH_MAX];
-    sprintf(url, "http://%s:%d/%s", _Client.socketip, _Custom.http_port, name);
+    sprintf(url, "%s://%s:%d/%s", secured ? "https" : "http", _Client.socketip, _Custom.http_port, name);
     emscripten_wget_data(url, &buffer, size, &error);
     if (error) {
         rs2_error("Error downloading %s: %d\n", url, error);
