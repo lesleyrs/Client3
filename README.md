@@ -120,7 +120,7 @@ SDL ports aren't used by default to avoid lag issues on Firefox, reduce output s
 ```
 TODO: midi fading + scape_main stutters so it's moved to post load + get rid of SDL2 dependency for audio (check tinymidipcm)
 TODO: use emscriptens indexeddb api to store data files
-TODO: if the tab is unfocused on web without wavs or midi playing the game will speed up. The typescript client uses absolute time for idlecycles.
+TODO: if the tab is unfocused on web without tinysoundfont running the game will speed up. The typescript client uses absolute time for idlecycles.
 TODO: fullscreen option button
 TODO: mobile controls + osk + mice
 TODO: cleanup key input + preventDefault some stuff + check SDL_emscriptenevents.c for other emscripten events usage
