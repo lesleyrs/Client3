@@ -284,3 +284,92 @@ void draw_info_overlay(Client *c) {
         y += 13;
     }
 }
+
+bool insideChatInputArea(Client *c) {
+    // 495 x 33
+    const int chatInputAreaX1 = 11;
+    const int chatInputAreaY1 = 449;
+    const int chatInputAreaX2 = chatInputAreaX1 + 495;
+    const int chatInputAreaY2 = chatInputAreaY1 + 33;
+    return c->ingame &&
+           c->chat_interface_id == -1 &&
+           !c->chatback_input_open &&
+           !c->show_social_input &&
+           c->shell->mouse_x >= chatInputAreaX1 &&
+           c->shell->mouse_x <= chatInputAreaX2 &&
+           c->shell->mouse_y >= chatInputAreaY1 &&
+           c->shell->mouse_y <= chatInputAreaY2;
+}
+
+bool insideChatPopupArea(Client *c) {
+    // 495 x 99
+    const int chatInputAreaX1 = 11;
+    const int chatInputAreaY1 = 383;
+    const int chatInputAreaX2 = chatInputAreaX1 + 495;
+    const int chatInputAreaY2 = chatInputAreaY1 + 99;
+    return c->ingame && (c->chatback_input_open || c->show_social_input) && c->shell->mouse_x >= chatInputAreaX1 && c->shell->mouse_x <= chatInputAreaX2 && c->shell->mouse_y >= chatInputAreaY1 && c->shell->mouse_y <= chatInputAreaY2;
+}
+
+bool insideReportInterfaceTextArea(Client *c) {
+    // custom: for report abuse input on mobile
+    // actual component size is [233, 137, 58 14]
+    // extended it a little bit for easier interaction, since the area to
+    // touch is not obvious (it's a bit narrow)
+    if (!c->ingame) {
+        return false;
+    }
+    // either viewport or report-abuse interface Ids are bad
+    if (c->viewport_interface_id == -1 || c->reportAbuseInterfaceID == -1) {
+        return false;
+    }
+    // active viewport interface Id does not match
+    if (c->viewport_interface_id != c->reportAbuseInterfaceID) {
+        return false;
+    }
+    const int reportInputAreaX1 = 82;
+    const int reportInputAreaY1 = 137;
+    const int reportInputAreaX2 = reportInputAreaX1 + 366;
+    const int reportInputAreaY2 = reportInputAreaY1 + 26;
+    return c->shell->mouse_x >= reportInputAreaX1 && c->shell->mouse_x <= reportInputAreaX2 && c->shell->mouse_y >= reportInputAreaY1 && c->shell->mouse_y <= reportInputAreaY2;
+}
+
+bool insideUsernameArea(Client *c) {
+    // 261 x 17
+    const int usernameAreaX1 = 301;
+    const int usernameAreaY1 = 262;
+    const int usernameAreaX2 = usernameAreaX1 + 261;
+    const int usernameAreaY2 = usernameAreaY1 + 17;
+    return !c->ingame && c->title_screen_state == 2 && c->shell->mouse_x >= usernameAreaX1 && c->shell->mouse_x <= usernameAreaX2 && c->shell->mouse_y >= usernameAreaY1 && c->shell->mouse_y <= usernameAreaY2;
+}
+
+bool inPasswordArea(Client *c) {
+    // 261 x 17
+    const int passwordAreaX1 = 301;
+    const int passwordAreaY1 = 279;
+    const int passwordAreaX2 = passwordAreaX1 + 261;
+    const int passwordAreaY2 = passwordAreaY1 + 17;
+    return !c->ingame && c->title_screen_state == 2 && c->shell->mouse_x >= passwordAreaX1 && c->shell->mouse_x <= passwordAreaX2 && c->shell->mouse_y >= passwordAreaY1 && c->shell->mouse_y <= passwordAreaY2;
+}
+
+bool insideMobileInputArea(Client *c) {
+    // custom: for mobile keyboard input
+    return insideChatInputArea(c) || insideChatPopupArea(c) || insideUsernameArea(c) || inPasswordArea(c) || insideReportInterfaceTextArea(c);
+}
+
+bool insideTabArea(Client *c) {
+    // 190 x 261
+    const int tabAreaX1 = 562;
+    const int tabAreaY1 = 231;
+    const int tabAreaX2 = tabAreaX1 + 190;
+    const int tabAreaY2 = tabAreaY1 + 261;
+    return c->ingame && c->shell->mouse_x >= tabAreaX1 && c->shell->mouse_x <= tabAreaX2 && c->shell->mouse_y >= tabAreaY1 && c->shell->mouse_y <= tabAreaY2;
+}
+
+bool insideViewportArea(Client *c) {
+    // 512 x 334
+    const int viewportAreaX1 = 8;
+    const int viewportAreaY1 = 11;
+    const int viewportAreaX2 = viewportAreaX1 + 512;
+    const int viewportAreaY2 = viewportAreaY1 + 334;
+    return c->ingame && c->shell->mouse_x >= viewportAreaX1 && c->shell->mouse_x <= viewportAreaX2 && c->shell->mouse_y >= viewportAreaY1 && c->shell->mouse_y <= viewportAreaY2;
+}

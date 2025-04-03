@@ -848,6 +848,10 @@ void platform_poll_events(Client *c) {
             c->shell->mouse_click_x = x;
             c->shell->mouse_click_y = y;
 
+            if (insideMobileInputArea(c)) {
+                SDL_StartTextInput();
+            }
+
             if (right_touch) {
                 c->shell->mouse_click_button = 2;
                 c->shell->mouse_button = 2;
