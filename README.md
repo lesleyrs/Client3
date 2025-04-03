@@ -159,7 +159,6 @@ https://github.com/libsdl-org/SDL/blob/SDL2/docs/README-android.md - from "For m
 
 https://github.com/libsdl-org/SDL/blob/SDL2/docs/README-touch.md
 ```
-TODO: onscreen keyboard SDL_StartTextInput?
 TODO: long press right click? click on touch release? hold in viewport to rotate? share code with postmarketos/vita
 ```
 ### Nintendo consoles (devkitPro)
@@ -229,12 +228,12 @@ can test with Vita3K, and to avoid waiting for the vpk to decompress all files y
 Controls: touch as mouse, X for right click, /\ for control, Dpad as arrow keys
 
 ```
-TODO: check if vita.c native touch fixes minimap offset
+TODO: check if vita.c native touch fixes minimap offset, check if osk works on real hw
 TODO: find minimap touch offset issue, center game+offset touch input after.
 TODO: vitagl
-TODO: touch input on the back, confirm touch works correctly
-TODO: update sce_sys assets
+TODO: use touch input on the back?
 TODO: allow setting sdl version to 3 in makefile when sdl2 is complete
+TODO: update sce_sys assets
 ```
 
 ### Sega Dreamcast
