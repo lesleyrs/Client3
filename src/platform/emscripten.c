@@ -99,24 +99,73 @@ EM_JS(void, play_wave_js, (int8_t * src, int length), {
     playWave(HEAP8.subarray(src, src + length));
 })
 
+static void midi_callback(void *data, uint8_t *stream, int len) {
+    (void)data;
+// Number of samples to process
+#if SDL == 1
+    int SampleBlock, SampleCount = (len / (2 * sizeof(short))); // 2 output channels
+    for (SampleBlock = TSF_RENDER_EFFECTSAMPLEBLOCK; SampleCount; SampleCount -= SampleBlock, stream += (SampleBlock * (2 * sizeof(short)))) {
+#else
+    int SampleBlock, SampleCount = (len / (2 * sizeof(float))); // 2 output channels
+    for (SampleBlock = TSF_RENDER_EFFECTSAMPLEBLOCK; SampleCount; SampleCount -= SampleBlock, stream += (SampleBlock * (2 * sizeof(float)))) {
+#endif
+        // We progress the MIDI playback and then process TSF_RENDER_EFFECTSAMPLEBLOCK samples at once
+        if (SampleBlock > SampleCount)
+            SampleBlock = SampleCount;
+
+        // Loop through all MIDI messages which need to be played up until the current playback time
+        for (g_Msec += SampleBlock * (1000.0 / 44100.0); g_MidiMessage && g_Msec >= g_MidiMessage->time; g_MidiMessage = g_MidiMessage->next) {
+            switch (g_MidiMessage->type) {
+            case TML_PROGRAM_CHANGE: // channel program (preset) change (special handling for 10th MIDI channel with drums)
+                tsf_channel_set_presetnumber(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->program, (g_MidiMessage->channel == 9));
+                break;
+            case TML_NOTE_ON: // play a note
+                tsf_channel_note_on(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->key, g_MidiMessage->velocity / 127.0f);
+                break;
+            case TML_NOTE_OFF: // stop a note
+                tsf_channel_note_off(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->key);
+                break;
+            case TML_PITCH_BEND: // pitch wheel modification
+                tsf_channel_set_pitchwheel(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->pitch_bend);
+                break;
+            case TML_CONTROL_CHANGE: // MIDI controller messages
+                tsf_channel_midi_control(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->control, g_MidiMessage->control_value);
+                break;
+            }
+        }
+
+// Render the block of audio samples in float format
+#if SDL == 1
+        tsf_render_short(g_TinySoundFont, (int16_t *)stream, SampleBlock, 0);
+#else
+        tsf_render_float(g_TinySoundFont, (float *)stream, SampleBlock, 0);
+#endif
+    }
+}
+
 bool platform_init(void) {
     return true;
 }
 
+#include <SDL.h>
 void platform_new(int width, int height) {
     emscripten_set_canvas_element_size("#canvas", width, height);
 
-    //     SDL_AudioSpec midiSpec;
-    //     midiSpec.freq = 44100;
-    // // TODO separate midi and rm from sdl2
-    // #if SDL == 1
-    //     midiSpec.format = AUDIO_S16SYS;
-    // #else
-    //     midiSpec.format = AUDIO_F32;
-    // #endif
-    //     midiSpec.channels = 2;
-    //     midiSpec.samples = 4096;
-    //     midiSpec.callback = midi_callback;
+    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+        rs2_error("SDL_Init failed: %s\n", SDL_GetError());
+        return;
+    }
+
+    SDL_AudioSpec midiSpec;
+    midiSpec.freq = 44100;
+#if SDL == 1
+    midiSpec.format = AUDIO_S16SYS;
+#else
+    midiSpec.format = AUDIO_F32;
+#endif
+    midiSpec.channels = 2;
+    midiSpec.samples = 4096;
+    midiSpec.callback = midi_callback;
 
     void *buffer = NULL;
     int size = 0;
@@ -131,12 +180,12 @@ void platform_new(int width, int height) {
         rs2_error("Could not load SoundFont\n");
     } else {
         // Set the SoundFont rendering output mode
-        // tsf_set_output(g_TinySoundFont, TSF_STEREO_INTERLEAVED, midiSpec.freq, 0.0f);
+        tsf_set_output(g_TinySoundFont, TSF_STEREO_INTERLEAVED, midiSpec.freq, 0.0f);
 
-        // if (SDL_OpenAudio(&midiSpec, NULL) < 0) {
-        //     rs2_error("Could not open the audio hardware or the desired audio output format\n");
-        // }
-        // SDL_PauseAudio(0);
+        if (SDL_OpenAudio(&midiSpec, NULL) < 0) {
+            rs2_error("Could not open the audio hardware or the desired audio output format\n");
+        }
+        SDL_PauseAudio(0);
     }
 }
 
@@ -152,9 +201,9 @@ void platform_set_midi_volume(float midivol) {
     if (_Client.lowmem) {
         return;
     }
-    // if (midi_stream) {
-    tsf_set_volume(g_TinySoundFont, midivol);
-    // }
+    if (SDL_GetAudioStatus() != SDL_AUDIO_STOPPED) {
+        tsf_set_volume(g_TinySoundFont, midivol);
+    }
 }
 void platform_set_jingle(int8_t *src, int len) {
     // tml_free(TinyMidiLoader);
@@ -192,13 +241,13 @@ void platform_stop_midi(void) {
     if (_Client.lowmem) {
         return;
     }
-    // if (midi_stream) {
-    g_MidiMessage = NULL;
-    g_Msec = 0;
-    tsf_reset(g_TinySoundFont);
-    // Initialize preset on special 10th MIDI channel to use percussion sound bank (128) if available
-    tsf_channel_set_bank_preset(g_TinySoundFont, 9, 128, 0);
-    // }
+    if (SDL_GetAudioStatus() != SDL_AUDIO_STOPPED) {
+        g_MidiMessage = NULL;
+        g_Msec = 0;
+        tsf_reset(g_TinySoundFont);
+        // Initialize preset on special 10th MIDI channel to use percussion sound bank (128) if available
+        tsf_channel_set_bank_preset(g_TinySoundFont, 9, 128, 0);
+    }
 }
 void set_pixels(PixMap *pixmap, int x, int y) {
     set_pixels_js(x, y, pixmap->width, pixmap->height, pixmap->pixels);

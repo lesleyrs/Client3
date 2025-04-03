@@ -118,7 +118,7 @@ enable cors in server web.ts with `res.setHeader('Access-Control-Allow-Origin', 
 SDL ports aren't used by default to avoid lag issues on Firefox, reduce output size, and prevent browser shortcuts being disabled. It's fixable by switching between requestAnimationFrame and setTimeout based on if the tab is focused, but using the emscripten api directly requires no changes and works well with just setTimeout.
 
 ```
-TODO: midi
+TODO: midi fading + scape_main stutters so it's moved to post load + get rid of SDL2 dependency for audio (check tinymidipcm)
 TODO: use emscriptens indexeddb api to store data files
 TODO: if the tab is unfocused on web without wavs or midi playing the game will speed up. The typescript client uses absolute time for idlecycles.
 TODO: fullscreen option button
