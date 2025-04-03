@@ -21,17 +21,17 @@ locs like fires have no animations as pushLocs is disabled for now, it constantl
 
 wordfilter isn't ported yet, so you will see your own swear words but others don't as it gets filtered by the server still.
 
-some bits from signlink missing: uid, reporterror, findcachedir, openurl, opensocket, cacheload, cachesave (to write maps to it from socket)
+some bits from signlink missing: uid, reporterror, findcachedir, openurl, opensocket, cacheload, cachesave
 
 remove the refcounting from model/pix24/lrucache for components and do smth else (kept to avoid leak spam rn) as components get assigned models from packets which are put into lrucaches, so global component doesn't own the memory anymore
 
 there are a few more memleaks to work out, also make sure playground doesn't leak anymore after attempting to fix this. Examples: inputtracking (when flagged which happens on report now lol), model_calculate_normals (on interfaces too like newcomer map)
 
 cleanup:
-global search TODO, NOTE, and all console defines, check clientstream and keycodes for accuracy (from rsc-c), look for missing/dupe with different casing client struct members and client funcs
+global search TODO, NOTE, and all console defines, check clientstream and keycodes for accuracy (from rsc-c), look for missing/dupe with different casing client struct members and client funcs. COLLISIONMAP_LEVELS could be added more?
 change a bunch of functions and function prototypes to static
 func args might partially differ in order to the Client repo due to being based off rs2-225: animbase, animframe, pix2d, pix3d, gameshell, jagfile, model, packet, pix8, pixfont, pixmap, redo them?
-inconsistent naming: used both world3d and scene for world3d, rename world3d to scene or at least for args? COLLISIONMAP_LEVELS could be added more?
+inconsistent naming: used both world3d and scene for world3d, rename world3d to scene or at least for args?
 ```
 
 ## quickstart for windows
@@ -120,7 +120,7 @@ SDL ports aren't used by default to avoid lag issues on Firefox, reduce output s
 ```
 TODO: midi fading + scape_main stutters so it's moved to post load + get rid of SDL2 dependency for audio (check tinymidipcm)
 TODO: use emscriptens indexeddb api to store data files
-TODO: if the tab is unfocused on web without tinysoundfont running the game will speed up. The typescript client uses absolute time for idlecycles.
+TODO: if the tab is unfocused on web the game will speed up. SDL2 audio seems to fix this. The typescript client uses absolute time for idlecycles.
 TODO: fullscreen option button
 TODO: mobile controls + osk + mice
 TODO: cleanup key input + preventDefault some stuff + check SDL_emscriptenevents.c for other emscripten events usage
@@ -134,8 +134,6 @@ NOTE: bring back worldlist loading in [shell.html](https://github.com/lesleyrs/C
 ```
 
 ### Android
-https://github.com/libsdl-org/SDL/blob/SDL2/docs/README-android.md - from "For more complex projects"
-
 1. `mkdir ~/android && cd ~/android` and download [android command line tools](#tools) to it + accept licenses whenever it asks
 2. enable developer options by tapping build number, then you can pair and connect to the device through wifi:
 `$HOME/android/platform-tools/adb pair IP:PORT`
@@ -157,6 +155,9 @@ cd android-project/app/src/main && ln -s ../../../../rom assets
 5. set Client LOCAL_CFLAGS and LOCAL_SRC_FILES app/jni/src/Android.mk
 6. enable networking in app/src/main/AndroidManifest.xml `<uses-permission android:name="android.permission.INTERNET" />`
 
+https://github.com/libsdl-org/SDL/blob/SDL2/docs/README-android.md - from "For more complex projects"
+
+https://github.com/libsdl-org/SDL/blob/SDL2/docs/README-touch.md
 ```
 TODO: onscreen keyboard SDL_StartTextInput?
 TODO: long press right click? click on touch release? hold in viewport to rotate? share code with postmarketos/vita
@@ -228,11 +229,12 @@ can test with Vita3K, and to avoid waiting for the vpk to decompress all files y
 Controls: touch as mouse, X for right click, /\ for control, Dpad as arrow keys
 
 ```
-TODO: draw game at offset to center it, and offset touch input based on that.
+TODO: check if vita.c native touch fixes minimap offset
+TODO: find minimap touch offset issue, center game+offset touch input after.
+TODO: vitagl
 TODO: touch input on the back, confirm touch works correctly
 TODO: update sce_sys assets
-TODO: allow setting sdl version to 3 in makefile when it works
-TODO: check if vita.c native touch fixes minimap offset, and make it playable
+TODO: allow setting sdl version to 3 in makefile when sdl2 is complete
 ```
 
 ### Sega Dreamcast
