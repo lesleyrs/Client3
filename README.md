@@ -107,23 +107,20 @@ If tcc from your package manager isn't working you should build latest [tcc](htt
 install [emsdk](#tools)
 run `emmake make`/`make CC=emcc` or `build.bat -c emcc` for windows
 
-emrun causes extra batch job message on windows sigint, can swap it for `py -m http.server` or so to avoid it
+For make you can append `run` to start an http server and `DEBUG=0` to optimize, Windows does both by default but js output is larger (didn't go down after removing preloads) and sigint will cause terminate batch job message.
 
-enable cors in server web.ts with `res.setHeader('Access-Control-Allow-Origin', '*');` or integrate it like the java/js clients
+Pass 4 args in shell.html to use the ip + port from URL instead of config, otherwise set http_port to 8888 in config for linux servers.
 
-Linux output may be smaller, Windows js size doesn't go down after removing preload?
+The only needed files are the index.`html,js,wasm` and optionally the soundfont/config.ini relative to it.
 
-SDL ports aren't used by default to avoid lag issues on Firefox, reduce output size, and prevent browser shortcuts being disabled. It's fixable by switching between requestAnimationFrame and setTimeout based on if the tab is focused, but using emscripten directly requires no client changes.
+enable cors in server web.ts with `res.setHeader('Access-Control-Allow-Origin', '*');`
 
-If 4 args are passed in shell.html the ip + port will be from the URL instead of config, this will also set secure websocket if needed.
-
-If not passing args make sure to set http_port to 8888 on linux (or whatever it's configured as in server).
+SDL ports aren't used by default to avoid lag issues on Firefox, reduce output size, and prevent browser shortcuts being disabled. It's fixable by switching between requestAnimationFrame and setTimeout based on if the tab is focused, but using the emscripten api directly requires no changes and works well with just setTimeout.
 
 ```
 TODO: midi
 TODO: use emscriptens indexeddb api to store data files
 TODO: if the tab is unfocused on web without wavs or midi playing the game will speed up. The typescript client uses absolute time for idlecycles.
-
 TODO: fullscreen option button
 TODO: mobile controls + osk + mice
 TODO: cleanup key input + preventDefault some stuff + check SDL_emscriptenevents.c for other emscripten events usage
