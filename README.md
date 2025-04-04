@@ -52,16 +52,6 @@ type `::perf` command ingame to see fps and lrucache size
 - If the client fails to start it most likely means you are using a SDL dll for the wrong architecture. Delete them and it should copy during next build
 - If the server changes cache it has to be manually updated in cache/ directory for now (still happens if new mapdata is found). Crc is disabled for maps and archives for time being.
 
-### Changing between worlds (aka nodeid) using config.ini:
-1. You first have to put a `#` in front of all lines that contain the fields below to ignore them
-```
-# nodeid = 1
-# portoff = 0
-# server = localhost
-# http_port = 80
-```
-2. Then remove the `#` from the grouped fields of the world you want to access, some worlds don't need all fields and use the defaults.
-
 ## Java client
 The 2004 jar is stored for comparisons, run with EG: `java -cp bin/runescape.jar client 10 0 highmem members` but:
 - there is no audio, it saves audio files for the browser to play which is no longer applicable
@@ -76,8 +66,7 @@ The 2004 jar is stored for comparisons, run with EG: `java -cp bin/runescape.jar
 To move the executable you have to take the `cache/` and optionally `config.ini`, `SCC1_Florestan.sf2` and `Roboto/` along with it. The consoles will load it from sdcard if they don't embed the files already.
 
 ```
-TODO: macos, bsds
-TODO: add default helvetica-like system ttf font in gameshell_draw_string when available to avoid Roboto dependency
+TODO: macos, bsds + add default helvetica-like system ttf font in gameshell_draw_string when available to avoid Roboto dependency
 TODO: all home consoles (wii, dreamcast, xbox) should be able to run the game at higher res or even full res on PAL TVs so you don't have to pan and simplifies set_pixels, but this isn't set up right now and emulators don't seem to support many video modes.
 TODO: copy original bzip from java maybe allows for O3 optimization on more consoles unlike current bzip?
 TODO: icon/metadata/title etc for the different platforms: title+taskbar+desktop
