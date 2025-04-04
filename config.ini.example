@@ -1,48 +1,27 @@
-# use hardware acceleration to allow resizing the window and draw the game at any scale (sdl2, sdl3 and sdl1 with compat layer)
-# resizable = 1
+# socketip = wstaging-tcp.lostcity.rs
+# http_port = 8888
 
-# 1 for low detail: disables audio, ground decor, some animations, less textures, and only builds scene for current height lvl
+# ARGS: lowmem disables audio, ground decor, some animations, less textures, and only builds scene for current height lvl
 # lowmem = 1
-
-# changes members items text to "Members Object", can cause you to be on p2p world with f2p client
 # free = 1
+# nodeid = 1
+# portoff = 0
 
-# hides dns on desktop or ip in browser on welcome screen
-# hide_dns = 1
-
-# hides a debug sprite along water in some places (lumbridge for example)
-# hide_debug_sprite = 1
-
-# allows running client commands with ::, originally this was only allowed on desktop (not applets) or on local servers
+# OPTIONS: resizable (sdl2/sdl3), commands ::, debugprocs ::~, chat: 0 - early beta, 1 - late beta, 2 - launch, tiny-bignum wants even digits (prefix 0)
 # allow_commands = 1
-
-# allows typing debugprocs (server commands) with ::~, expands allowed keys to be able to type ~ (others won't see it)
-# this was only added to RS recently, and they used to trigger their runescript code just from items/buttons/NPCs etc
 # allow_debugprocs = 1
 
-# set chat font era: 0 - early beta, 1 - late beta, 2 - launch
-# chat_era = 0
+# hide_debug_sprite = 1
+# hide_dns = 1
 
-# default username/password on load
-# username = 
-# password = 
-
-# remember username/password on logout
 # remember_username = 1
 # remember_password = 1
 
-# tiny-bignum might require you to prefix a 0 for an even amount of digits
+# username =
+# password =
+
 # rsa_exponent = 
 # rsa_modulus = 
 
-# default world options, http_port is only used as websocket port, set to 8888 for non-windows/mac servers)
-# nodeid = 1
-# portoff = 0
-# socketip = localhost
-# http_port = 80
-
-# available servers, staging doesn't require signup
-# socketip = wstaging-tcp.lostcity.rs
-
-# socketip = w1.toomyscape.lol
-# http_port = 8888
+# chat_era = 0
+# resizable = 1
