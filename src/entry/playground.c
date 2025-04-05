@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 #include "../client.h"
 #include "../defines.h"
@@ -66,19 +67,19 @@ void client_load(Client *c) {
     Jagfile *wordenc = load_archive_simple("wordenc", c->archive_checksum[7], "chat system", 65);
     Jagfile *sounds = load_archive_simple("sounds", c->archive_checksum[8], "sound effects", 70);
 
-    gameshell_draw_progress(c, "Unpacking media", 75);
+    gameshell_draw_progress(c->shell, "Unpacking media", 75);
 
-    gameshell_draw_progress(c, "Unpacking textures", 80);
+    gameshell_draw_progress(c->shell, "Unpacking textures", 80);
     pix3d_unpack_textures(textures);
     pix3d_set_brightness(0.8);
     pix3d_init_pool(20);
 
-    gameshell_draw_progress(c, "Unpacking models", 83);
+    gameshell_draw_progress(c->shell, "Unpacking models", 83);
     model_unpack(models);
     // animbase_unpack(models);
     // animframe_unpack(models);
 
-    gameshell_draw_progress(c, "Unpacking config", 86);
+    gameshell_draw_progress(c->shell, "Unpacking config", 86);
     // SeqType.unpack(config);
     // LocType.unpack(config);
     // FloType.unpack(config);
@@ -89,17 +90,17 @@ void client_load(Client *c) {
     // VarpType.unpack(config);
 
     if (!_Client.lowmem) {
-        gameshell_draw_progress(c, "Unpacking sounds", 90);
+        gameshell_draw_progress(c->shell, "Unpacking sounds", 90);
         // byte[] data = sounds.read("sounds.dat", null);
         // Packet soundDat = new Packet(data);
         // wave_unpack(soundDat);
     }
 
-    gameshell_draw_progress(c, "Unpacking interfaces", 92);
+    gameshell_draw_progress(c->shell, "Unpacking interfaces", 92);
     // PixFont *fonts[] = {c->font_plain11, c->font_plain12, c->font_bold12, c->font_quill8};
     // component_unpack(media, inter, fonts);
 
-    gameshell_draw_progress(c, "Preparing game engine", 97);
+    gameshell_draw_progress(c->shell, "Preparing game engine", 97);
     // wordfilter_unpack(wordenc);
 
     pixmap_bind(c->shell->draw_area);
@@ -267,7 +268,7 @@ int main(int argc, char **argv) {
     pixfont_init_global();
     packet_init_global();
 
-    gameshell_init_application(c, 789, 532);
+    gameshell_init_application(c, SCREEN_WIDTH, SCREEN_HEIGHT);
     return 0;
 }
 
