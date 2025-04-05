@@ -37,7 +37,7 @@ inconsistent naming: used both world3d and scene for world3d, rename world3d to 
 ## quickstart for windows
 All you need to build for 32 bit windows is included:
 * tinycc (C compiler, built with `TCC_C=..\tcc.c` env var and some removed libs for smaller distribution)
-* libeay32.dll for faster rsa https://gnuwin32.sourceforge.net/packages/openssl.htm
+* libtommath mpi.c OR libeay32.dll for faster rsa
 * all 32 bit SDL dlls, only SDL1 works prior to windows XP and is always 32 bit unlike the others
 
 To build simply run `build.bat` in cmd to get the client.exe, it depends on the cache + SDL.dll, libeay32.dll, and optionally .sf2 soundfont/config.ini
@@ -48,9 +48,7 @@ Both tcc and old mingw-gcc can target windows 9x with SDL 1. This (unofficial) r
 
 type `::perf` command ingame to see fps and lrucache size
 
-### Troubleshooting:
-- If the client fails to start it most likely means you are using a SDL dll for the wrong architecture. Delete them and it should copy during next build
-- If the server changes cache it has to be manually updated in cache/ directory for now (still happens if new mapdata is found). Crc is disabled for maps and archives for time being.
+If the client fails to start you either aren't passing cli args and don't have a config.ini OR you are using a SDL dll for the wrong architecture. Delete them and it should copy during next build
 
 ## Java client
 The 2004 jar is stored for comparisons, run with EG: `java -cp bin/runescape.jar client 10 0 highmem members` but:
