@@ -36,30 +36,31 @@ void component_free_global(void) {
             if (_Component.instances[i]->activeText) {
                 free(_Component.instances[i]->activeText);
             }
+            // TODO can't free these due to them being modified in packets
             if (_Component.instances[i]->invSlotObjCount) {
-                for (int j = 0; j < 20; j++) {
-                    if (_Component.instances[i]->invSlotSprite && _Component.instances[i]->invSlotSprite[j]) {
-                        pix24_free(_Component.instances[i]->invSlotSprite[j]);
-                    }
-                }
+                // for (int j = 0; j < 20; j++) {
+                //     if (_Component.instances[i]->invSlotSprite && _Component.instances[i]->invSlotSprite[j]) {
+                //         pix24_free(_Component.instances[i]->invSlotSprite[j]);
+                //     }
+                // }
                 free(_Component.instances[i]->invSlotOffsetX);
                 free(_Component.instances[i]->invSlotOffsetY);
                 free(_Component.instances[i]->invSlotSprite);
                 free(_Component.instances[i]->invSlotObjId);
                 free(_Component.instances[i]->invSlotObjCount);
             }
-            if (_Component.instances[i]->model) {
-                model_free(_Component.instances[i]->model);
-            }
-            if (_Component.instances[i]->activeModel) {
-                model_free(_Component.instances[i]->activeModel);
-            }
-            if (_Component.instances[i]->graphic) {
-                pix24_free(_Component.instances[i]->graphic);
-            }
-            if (_Component.instances[i]->activeGraphic) {
-                pix24_free(_Component.instances[i]->activeGraphic);
-            }
+            // if (_Component.instances[i]->model) {
+            //     model_free(_Component.instances[i]->model);
+            // }
+            // if (_Component.instances[i]->activeModel) {
+            //     model_free(_Component.instances[i]->activeModel);
+            // }
+            // if (_Component.instances[i]->graphic) {
+            //     pix24_free(_Component.instances[i]->graphic);
+            // }
+            // if (_Component.instances[i]->activeGraphic) {
+            //     pix24_free(_Component.instances[i]->activeGraphic);
+            // }
         }
         free(_Component.instances[i]);
     }

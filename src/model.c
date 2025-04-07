@@ -176,9 +176,6 @@ void model_free_share_alpha(Model *m, bool shareAlpha) {
 }
 
 void model_free(Model *model) {
-    if (--model->link.link.refcount != -1) {
-        return;
-    }
     free(model->vertices_x);
     free(model->vertices_y);
     free(model->vertices_z);

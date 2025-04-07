@@ -16,8 +16,7 @@
 #define STBI_ONLY_JPEG
 #define STBI_NO_HDR
 #define STBI_NO_SIMD
-// TODO enable?
-// #define STBI_NO_FAILURE_STRINGS
+#define STBI_NO_FAILURE_STRINGS
 #ifdef NXDK
 #undef _MSC_VER
 #endif
@@ -35,9 +34,6 @@ Pix24 *pix24_new(int width, int height, bool use_allocator) {
 }
 
 void pix24_free(Pix24 *pix24) {
-    if (--pix24->link.link.refcount != -1) {
-        return;
-    }
     free(pix24->pixels);
     free(pix24);
 }

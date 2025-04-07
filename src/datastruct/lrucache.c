@@ -24,7 +24,6 @@ void lrucache_free(LruCache *cache) {
 DoublyLinkable *lrucache_get(LruCache *cache, int64_t key) {
     DoublyLinkable *node = (DoublyLinkable *)hashtable_get(cache->hashtable, key);
     if (node) {
-        node->link.refcount++;
         doublylinklist_push(cache->history, node);
     }
 

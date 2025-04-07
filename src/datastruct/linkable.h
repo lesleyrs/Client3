@@ -8,7 +8,6 @@ struct Linkable {
     int64_t key;
     Linkable *next;
     Linkable *prev;
-    int refcount;
 };
 
 void linkable_unlink(Linkable *link);

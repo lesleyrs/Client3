@@ -21,9 +21,7 @@ wordfilter isn't ported yet, so you will see your own swear words but others don
 
 locs like fires have no animations as pushLocs is disabled for now, it constantly allocates memory due to always calling model_copy_faces in loctype which requires a different approach. The leaks get worse if the dynamic model cache can't fit all sequences (animations) of the models in an area, disable the allocator to see origins.
 
-remove the refcounting from model/pix24/lrucache for components and do smth else (kept to avoid leak spam rn) as components get assigned models from packets which are put into lrucaches, so global component doesn't own the memory anymore
-
-there are a few more memleaks to work out, also make sure playground doesn't leak anymore after attempting to fix this. Examples: inputtracking (when flagged which happens on report now lol), model_calculate_normals (on interfaces too like newcomer map)
+there are a few more memleaks to work out, also make sure playground doesn't leak anymore after attempting to fix this. Examples: inputtracking (when flagged which happens on report now lol), model_calculate_normals (on interfaces too like newcomer map), can't easily free component model/pix24 as they get modified in packets so the global component doesn't own that memory anymore.
 
 cleanup:
 global search TODO, NOTE, and all console defines, change a bunch of functions and function prototypes to static, look for missing/dupe with different casing client struct members and client funcs. COLLISIONMAP_LEVELS could be added more? inconsistent naming: used both world3d and scene for world3d, rename world3d to scene or at least for args?

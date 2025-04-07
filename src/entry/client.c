@@ -559,10 +559,6 @@ void client_load_title_background(Client *c) {
 
 void client_update_flame_buffer(Client *c, Pix8 *image) {
     int flame_height = 256;
-    // TODO compare perf memset
-    // for (int i = 0; i < FLAME_BUFFER_SIZE; i++) {
-    // 	c->flame_buffer0[i] = 0;
-    // }
     memset(c->flame_buffer0, 0, FLAME_BUFFER_SIZE * sizeof(int));
 
     for (int i = 0; i < 5000; i++) {
