@@ -16,6 +16,7 @@ typedef struct {
     int http_port;
     int chat_era; // 0 - early beta, 1 - late beta, 2 - launch
     bool resizable;
+    bool item_outlines;
 } Custom;
 
 bool load_ini_args(void);

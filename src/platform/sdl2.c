@@ -630,8 +630,6 @@ static void platform_get_keycodes(SDL_Keysym *keysym, int *code, char *ch) {
             *code = K_5;
             break;
         default:
-            // TODO
-            // rs2_log("code %i %i %i\n", keysym->scancode, 'w', 's');
             *code = *ch;
             break;
         }

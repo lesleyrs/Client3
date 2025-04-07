@@ -137,16 +137,6 @@ void gameshell_set_framerate(GameShell *shell, int fps) {
 void key_pressed(GameShell *shell, int code, int ch) {
     shell->idle_cycles = 0;
 
-    // TODO: check
-    // if (e.ctrlKey) {
-    //     if ((ch >= 'A'.charCodeAt(0) && ch <= ']'.charCodeAt(0)) || ch == '_'.charCodeAt(0)) {
-    //         ch -= 'A'.charCodeAt(0) - 1;
-    //     } else if (ch >= 'a'.charCodeAt(0) && ch <= 'z'.charCodeAt(0)) {
-    //         ch -= 'a'.charCodeAt(0) - 1;
-    //     }
-    // }
-
-    // rs2_log("%i %i\n", code, ch);
     if (ch < 30) {
         ch = 0;
     }
@@ -186,8 +176,10 @@ void key_pressed(GameShell *shell, int code, int ch) {
     } else if (code == 13) { // NOTE: needed for windows?
         // ENTER
         ch = 13;
-        // } else if (code >= 112 && code <= 123) {
-        // 	ch = code + 1008 - 112;
+#ifdef __EMSCRIPTEN__
+    } else if (code >= 112 && code <= 123) {
+        ch = code + 1008 - 112;
+#endif
     } else if (code == 36) {
         ch = 1000;
     } else if (code == 35) {
@@ -251,8 +243,13 @@ void key_released(GameShell *shell, int code, int ch) {
     } else if (code == 10) {
         // ENTER
         ch = 10;
-        // } else if (code >= 112 && code <= 123) {
-        // 	ch = code + 1008 - 112;
+    } else if (code == 13) { // NOTE: needed for windows?
+        // ENTER
+        ch = 13;
+#ifdef __EMSCRIPTEN__
+    } else if (code >= 112 && code <= 123) {
+        ch = code + 1008 - 112;
+#endif
     } else if (code == 36) {
         ch = 1000;
     } else if (code == 35) {

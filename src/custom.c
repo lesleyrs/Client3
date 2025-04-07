@@ -1,4 +1,3 @@
-#include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -109,6 +108,7 @@ void load_ini_config(Client *c) {
 #ifdef ANDROID
     _Custom.resizable = true;
 #endif
+    INI_INT_LOG(&(&_Custom), item_outlines, );
 
     rs2_log("\n");
     ini_free(config);

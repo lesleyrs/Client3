@@ -3,7 +3,6 @@
 #include <emscripten/html5.h>
 #include <emscripten/key_codes.h>
 
-#include <errno.h>
 #include <malloc.h>
 
 #include "../client.h"
@@ -305,132 +304,160 @@ static bool onmouseup(int event_type, const EmscriptenMouseEvent *e, void *user_
     return 0;
 }
 
-static void platform_get_keycodes(const EmscriptenKeyboardEvent *e, int *code, unsigned char *ch) {
-    switch (e->keyCode) {
-    case K_UP:
-    case K_DOWN:
-    case K_LEFT:
-    case K_RIGHT:
-    case K_CONTROL:
-    case K_PAGE_UP:
-    case K_PAGE_DOWN:
-    case K_END:
-    case K_HOME:
-    case K_F1:
-    case K_F2:
-    case K_F3:
-    case K_F4:
-    case K_F5:
-    case K_F6:
-    case K_F7:
-    case K_F8:
-    case K_F9:
-    case K_F10:
-    case K_F11:
-    case K_F12:
-    case K_ESCAPE:
-    case K_ENTER:
-    default:
-        *code = e->keyCode;
-        *ch = e->keyCode;
+static bool onmouseenter(int event_type, const EmscriptenMouseEvent *e, void *user_data) {
+    (void)event_type, (void)e, (void)user_data;
+    if (_InputTracking.enabled) {
+        inputtracking_mouse_entered(&_InputTracking);
+    }
+    return 0;
+}
 
-        if (!e->shiftKey) {
-            if (*ch >= 'A' && *ch <= 'Z') {
-                *ch += 32;
-            }
-            switch (e->keyCode) {
-            case 173:
-                *ch = '-';
-                break;
-            case 188:
-                *ch = ',';
-                break;
-            case 190:
-                *ch = '.';
-                break;
-            case 191:
-                *ch = '/';
-                break;
-            case 192: // '`'
-                *ch = -1;
-                break;
-            case 219:
-                *ch = '[';
-                break;
-            case 220:
-                *ch = '\\';
-                break;
-            case 221:
-                *ch = ']';
-                break;
-            case 222:
-                *ch = '\'';
-            }
-        } else {
-            switch (*ch) {
-            case '1':
-                *ch = '!';
-                break;
-            case '2':
-                *ch = '@';
-                break;
-            case '3':
-                *ch = '#';
-                break;
-            case '4':
-                *ch = '$';
-                break;
-            case '5':
-                *ch = '%';
-                break;
-            case '6':
-                *ch = '^';
-                break;
-            case '7':
-                *ch = '&';
-                break;
-            case '8':
-                *ch = '*';
-                break;
-            case '9':
-                *ch = '(';
-                break;
-            case '0':
-                *ch = ')';
-                break;
-            case ';':
-                *ch = ':';
-                break;
-            case '=':
-                *ch = '+';
-                break;
-            case 173:
-                *ch = '_';
-                break;
-            case 188:
-                *ch = '<';
-                break;
-            case 190:
-                *ch = '>';
-                break;
-            case 191:
-                *ch = '?';
-                break;
-            case 192:
-                *ch = '~';
-                break;
-            case 219:
-                *ch = '{';
-                break;
-            case 220:
-                *ch = '|';
-                break;
-            case 221:
-                *ch = '}';
-                break;
-            case 222:
-                *ch = '"';
-            }
+static bool onmouseleave(int event_type, const EmscriptenMouseEvent *e, void *user_data) {
+    (void)event_type, (void)e, (void)user_data;
+    if (_InputTracking.enabled) {
+        inputtracking_mouse_exited(&_InputTracking);
+    }
+    return 0;
+}
+
+static bool onfocus(int event_type, const EmscriptenFocusEvent *e, void *user_data) {
+    (void)event_type, (void)e;
+    Client *c = (Client *)user_data;
+
+    c->shell->has_focus = true; // mapview applet
+    c->shell->refresh = true;
+#ifdef client
+    c->redraw_background = true;
+#endif
+#ifdef mapview
+// TODO add mapview refresh
+#endif
+    if (_InputTracking.enabled) {
+        inputtracking_focus_gained(&_InputTracking);
+    }
+    return 0;
+}
+
+static bool onblur(int event_type, const EmscriptenFocusEvent *e, void *user_data) {
+    (void)event_type, (void)e;
+    Client *c = (Client *)user_data;
+
+    c->shell->has_focus = false; // mapview applet
+    if (_InputTracking.enabled) {
+        inputtracking_focus_lost(&_InputTracking);
+    }
+    return 0;
+}
+
+static void platform_get_keycodes(const EmscriptenKeyboardEvent *e, int *code, unsigned char *ch) {
+    *code = e->keyCode;
+    *ch = e->keyCode;
+
+    if (!e->shiftKey) {
+        if (*ch >= 'A' && *ch <= 'Z') {
+            *ch += 32;
+        }
+        switch (e->keyCode) {
+        case 173:
+            *ch = '-';
+            break;
+        case 188:
+            *ch = ',';
+            break;
+        case 190:
+            *ch = '.';
+            break;
+        case 191:
+            *ch = '/';
+            break;
+        case 192: // '`'
+            *ch = -1;
+            break;
+        case 219:
+            *ch = '[';
+            break;
+        case 220:
+            *ch = '\\';
+            break;
+        case 221:
+            *ch = ']';
+            break;
+        case 222:
+            *ch = '\'';
+        }
+    } else {
+        switch (*ch) {
+        case '1':
+            *ch = '!';
+            break;
+        case '2':
+            *ch = '@';
+            break;
+        case '3':
+            *ch = '#';
+            break;
+        case '4':
+            *ch = '$';
+            break;
+        case '5':
+            *ch = '%';
+            break;
+        case '6':
+            *ch = '^';
+            break;
+        case '7':
+            *ch = '&';
+            break;
+        case '8':
+            *ch = '*';
+            break;
+        case '9':
+            *ch = '(';
+            break;
+        case '0':
+            *ch = ')';
+            break;
+        case ';':
+            *ch = ':';
+            break;
+        case '=':
+            *ch = '+';
+            break;
+        case 173:
+            *ch = '_';
+            break;
+        case 188:
+            *ch = '<';
+            break;
+        case 190:
+            *ch = '>';
+            break;
+        case 191:
+            *ch = '?';
+            break;
+        case 192:
+            *ch = '~';
+            break;
+        case 219:
+            *ch = '{';
+            break;
+        case 220:
+            *ch = '|';
+            break;
+        case 221:
+            *ch = '}';
+            break;
+        case 222:
+            *ch = '"';
+        }
+    }
+
+    // java ctrl key lowers char value
+    if (e->ctrlKey) {
+        if ((*ch >= 'A' && *ch <= ']') || *ch == '_') {
+            *ch -= 'A' - 1;
+        } else if (*ch >= 'a' && *ch <= 'z') {
+            *ch -= 'a' - 1;
         }
     }
 }
@@ -443,9 +470,12 @@ static bool onkeydown(int event_type, const EmscriptenKeyboardEvent *e, void *us
     unsigned char ch = -1;
     platform_get_keycodes(e, &code, &ch);
     key_pressed(c->shell, code, ch);
-    // TODO rm
-    // rs2_log("down %d\n", e->keyCode);
-    return 0;
+
+    // returning 0 = preventDefault
+    if (strcmp(e->key, "F5") == 0 || strcmp(e->key, "F11") == 0 || strcmp(e->key, "F12") == 0) {
+        return 0;
+    }
+    return 1;
 }
 
 static bool onkeyup(int event_type, const EmscriptenKeyboardEvent *e, void *user_data) {
@@ -456,7 +486,12 @@ static bool onkeyup(int event_type, const EmscriptenKeyboardEvent *e, void *user
     unsigned char ch = -1;
     platform_get_keycodes(e, &code, &ch);
     key_released(c->shell, code, ch);
-    return 0;
+
+    // returning 0 = preventDefault
+    if (strcmp(e->key, "F5") == 0 || strcmp(e->key, "F11") == 0 || strcmp(e->key, "F12") == 0) {
+        return 0;
+    }
+    return 1;
 }
 
 static bool init;
@@ -469,18 +504,18 @@ void platform_poll_events(Client *c) {
         emscripten_set_keydown_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, onkeydown);
         emscripten_set_keyup_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, onkeyup);
 
-        // emscripten_set_mouseenter_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, onmousefocus);
-        // emscripten_set_mouseleave_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, onmouseleave);
+        emscripten_set_mouseenter_callback("#canvas", c, false, onmouseenter);
+        emscripten_set_mouseleave_callback("#canvas", c, false, onmouseleave);
 
-        // emscripten_set_wheel_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, Emscripten_HandleWheel);
-
-        // emscripten_set_focus_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, Emscripten_HandleFocus);
-        // emscripten_set_blur_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, Emscripten_HandleFocus);
+        emscripten_set_focus_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, onfocus);
+        emscripten_set_blur_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, onblur);
 
         // emscripten_set_touchstart_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, Emscripten_HandleTouch);
         // emscripten_set_touchend_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, Emscripten_HandleTouch);
         // emscripten_set_touchmove_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, Emscripten_HandleTouch);
         // emscripten_set_touchcancel_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, Emscripten_HandleTouch);
+
+        // emscripten_set_wheel_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, Emscripten_HandleWheel);
 
         // emscripten_set_fullscreenchange_callback(EMSCRIPTEN_EVENT_TARGET_DOCUMENT, c, false, Emscripten_HandleFullscreenChange);
 
@@ -493,7 +528,7 @@ void platform_poll_events(Client *c) {
         init = true;
     }
 }
-// TODO remove blit_surface, unused for web
+// NOTE: unused for web since we draw strings in js
 void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
     (void)x, (void)y, (void)w, (void)h, (void)surface;
 }

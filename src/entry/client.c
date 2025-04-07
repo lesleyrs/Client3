@@ -3173,6 +3173,9 @@ static void useMenuOption(Client *cl, int optionId) {
         cl->objInterface = a;
         cl->objSelectedName = objtype_get(a)->name;
         cl->spell_selected = 0;
+        if (_Custom.item_outlines) {
+            cl->redraw_sidebar = true;
+        }
         return;
     } else if (action == 44) {
         if (!cl->pressed_continue_option) {
@@ -3342,6 +3345,9 @@ static void useMenuOption(Client *cl, int optionId) {
         cl->activeSpellId = c;
         cl->activeSpellFlags = com->actionTarget;
         cl->obj_selected = 0;
+        if (_Custom.item_outlines) {
+            cl->redraw_sidebar = true;
+        }
 
         const char *prefix = com->actionVerb;
         if (indexof(prefix, " ") != -1) {
@@ -3582,6 +3588,9 @@ static void useMenuOption(Client *cl, int optionId) {
 
     cl->obj_selected = 0;
     cl->spell_selected = 0;
+    if (_Custom.item_outlines) {
+        cl->redraw_sidebar = true;
+    }
 }
 
 static void applyCutscene(Client *c) {
@@ -9830,7 +9839,16 @@ static void client_draw_interface(Client *c, Component *com, int x, int y, int s
                         int id = child->invSlotObjId[slot] - 1;
 
                         if ((slotX >= -32 && slotX <= 512 && slotY >= -32 && slotY <= 334) || (c->obj_drag_area != 0 && c->objDragSlot == slot)) {
-                            Pix24 *icon = objtype_get_icon(id, child->invSlotObjCount[slot]);
+                            Pix24 *icon = NULL;
+                            if (_Custom.item_outlines) {
+                                int outline_color = 0;
+                                if (c->obj_selected == 1 && c->objSelectedSlot == slot && c->objSelectedInterface == child->id) {
+                                    outline_color = WHITE;
+                                }
+                                icon = objtype_get_icon_outline(id, child->invSlotObjCount[slot], outline_color);
+                            } else {
+                                icon = objtype_get_icon(id, child->invSlotObjCount[slot]);
+                            }
                             if (c->obj_drag_area != 0 && c->objDragSlot == slot && c->objDragInterfaceId == child->id) {
                                 dx = c->shell->mouse_x - c->objGrabX;
                                 dy = c->shell->mouse_y - c->objGrabY;
@@ -10558,28 +10576,10 @@ void client_free(Client *c) {
     free(c);
 }
 
-// commented out 0 fields as we use calloc
 Client *client_new(void) {
     Client *c = calloc(1, sizeof(Client));
 
     c->shell = gameshell_new();
-    // c->redraw_background = false;
-    // c->flame_active = false;
-    // c->error_started = false;
-    // c->error_loading = false;
-    // c->error_host = false;
-    // c->ingame = false;
-    // c->drag_cycles = 0;
-    // c->title_screen_state = 0;
-    // c->login_message0 = "";
-    // c->login_message1 = "";
-    // c->title_login_field = 0;
-    // c->username[0] = '\0';
-    // c->password[0] = '\0';
-    // c->chat_typed[0] = '\0';
-    // c->social_input[0] = '\0';
-    // c->chatback_input[0] = '\0';
-    // c->reportAbuseInput[0] = '\0';
     c->image_sideicons = calloc(13, sizeof(Pix8 *));
     c->image_mapscene = calloc(50, sizeof(Pix8 *));
     c->image_mapfunction = calloc(50, sizeof(Pix24 *));
@@ -10591,100 +10591,21 @@ Client *client_new(void) {
     c->minimap_mask_line_offsets = calloc(151, sizeof(int));
     c->minimap_mask_line_lengths = calloc(151, sizeof(int));
 
-    // c->rights = false;
     c->out = packet_alloc(1);
     c->in = packet_alloc(1);
     c->login = packet_alloc(1);
-    // c->packet_type = 0;
-    // c->last_packet_type0 = 0;
-    // c->last_packet_type1 = 0;
-    // c->last_packet_type2 = 0;
-    // c->packet_size = 0;
-    // c->idle_net_cycles = 0;
-    // c->system_update_timer = 0;
-    // c->idle_timeout = 0;
-    // c->hint_type = 0;
-    // c->menu_size = 0;
-
-    // for (int i = 0; i < 100; i++) {
-    // 	c->message_text[i][0] = '\0';
-    // }
-    // for (int i = 0; i < 100; i++) {
-    // 	c->message_sender[i][0] = '\0';
-    // }
-
-    // c->obj_selected = 0;
-    // c->spell_selected = 0;
-    // c->scene_state = 0;
-    // c->wave_count = 0;
-
-    // c->camera_anticheat_offset_x = 0;
-    // c->camera_anticheat_offset_z = 0;
-    // c->camera_anticheat_angle = 0;
-    // c->minimap_anticheat_angle = 0;
-    // c->minimap_zoom = 0;
-    // c->orbit_camera_yaw = 0;
     c->orbit_camera_pitch = 128;
 
     c->minimap_level = -1;
-    // c->flag_scene_tile_x = 0;
-    // c->flag_scene_tile_z = 0;
-
-    // c->player_count = 0;
-    // c->npc_count = 0;
-
-    // c->friend_count = 0;
     c->sticky_chat_interface_id = -1;
     c->chat_interface_id = -1;
     c->viewport_interface_id = -1;
     c->sidebar_interface_id = -1;
-    // c->pressed_continue_option = false;
     c->selected_tab = 3;
-    // c->chatback_input_open = false;
-    // c->menu_visible = false;
-    // c->show_social_input = false;
-    // c->modal_message = NULL;
-    // c->in_multizone = 0;
     c->flashing_tab = -1;
     c->design_gender_male = true;
     c->design_colors = malloc(5 * sizeof(int));
-    // _Client.oplogic1 = 0;
-    // _Client.oplogic2 = 0;
-    // _Client.oplogic3 = 0;
-    // _Client.oplogic4 = 0;
-    // _Client.oplogic5 = 0;
-    // _Client.oplogic6 = 0;
-    // _Client.oplogic7 = 0;
-    // _Client.oplogic8 = 0;
-    // _Client.oplogic9 = 0;
-    // _Client.cyclelogic1 = 0;
-    // _Client.cyclelogic2 = 0;
-    // _Client.cyclelogic3 = 0;
-    // _Client.cyclelogic4 = 0;
-    // _Client.cyclelogic5 = 0;
-    // _Client.cyclelogic6 = 0;
-
-    // c->redraw_sidebar = false;
-    // c->redraw_chatback = false;
-    // c->redraw_sideicons = false;
-    // c->redraw_privacy_settings = false;
-    // c->menu_area = 0;
-    // c->scene_delta = 0;
     memset(c->tab_interface_id, -1, sizeof(c->tab_interface_id));
-    // c->menu_x = 0;
-    // c->menu_y = 0;
-    // c->menu_width = 0;
-    // c->menu_height = 0;
-    // for (int i = 0; i < MENU_OPTION_LENGTH; i++) {
-    // 	c->menu_option[i][0] = '\0';
-    // }
-    // c->selected_area = 0;
-    // c->obj_drag_area = 0;
-    // c->public_chat_setting = 0;
-    // c->private_chat_setting = 0;
-    // c->trade_chat_setting = 0;
-    // c->social_message[0] = '\0';
-    // c->camera_moved_write = 0;
     c->projectiles = linklist_new();
     c->spotanims = linklist_new();
     c->merged_locations = linklist_new();
@@ -10711,16 +10632,6 @@ Client *client_new(void) {
     c->reportAbuseInterfaceID = -1;
     c->projectX = -1;
     c->projectY = -1;
-    // for (int i = 0; i < MAX_CHATS; i++) {
-    //     c->chatWidth[i] = 0;
-    //     c->chatHeight[i] = 0;
-    //     c->chatX[i] = 0;
-    //     c->chatY[i] = 0;
-    //     c->chatColors[i] = 0;
-    //     c->chatStyles[i] = 0;
-    //     c->chatTimers[i] = 0;
-    //     c->chats[i][0] = '\0';
-    // }
     c->textureBuffer = calloc(16384, sizeof(int8_t));
     c->wave_enabled = true;
     c->midiActive = true;

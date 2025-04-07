@@ -53,3 +53,4 @@
 
 -D__EMSCRIPTEN__
 -I/home/lesley/emsdk/upstream/emscripten/cache/sysroot/include
+-USDL

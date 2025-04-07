@@ -28,7 +28,8 @@ remove the refcounting from model/pix24/lrucache for components and do smth else
 there are a few more memleaks to work out, also make sure playground doesn't leak anymore after attempting to fix this. Examples: inputtracking (when flagged which happens on report now lol), model_calculate_normals (on interfaces too like newcomer map)
 
 cleanup:
-global search TODO, NOTE, and all console defines, check clientstream and keycodes for accuracy (from rsc-c), look for missing/dupe with different casing client struct members and client funcs. COLLISIONMAP_LEVELS could be added more?
+global search TODO, NOTE, and all console defines, look for missing/dupe with different casing client struct members and client funcs. COLLISIONMAP_LEVELS could be added more?
+check clientstream for accuracy and fix keycodes which are different for each platform (from rsc-c, EG non-emscripten single/double quotes + fkeys keycodes are defined for emscripten only)
 change a bunch of functions and function prototypes to static
 func args might partially differ in order to the Client repo due to being based off rs2-225: animbase, animframe, pix2d, pix3d, gameshell, jagfile, model, packet, pix8, pixfont, pixmap, redo them?
 inconsistent naming: used both world3d and scene for world3d, rename world3d to scene or at least for args?
@@ -94,7 +95,7 @@ If tcc from your package manager isn't working you should build latest [tcc](htt
 install [emsdk](#tools)
 run `emmake make`/`make CC=emcc` or `build.bat -c emcc` for windows
 
-For make you can append `run` to start an http server and `DEBUG=0` to optimize, Windows does both by default but js output is larger (didn't go down after removing preloads) and sigint will cause terminate batch job message.
+For make you can append `run` to start an http server and `DEBUG=0` to optimize.
 
 Pass 4 args in shell.html to use the ip + port from URL instead of config, otherwise set http_port to 8888 in config for linux servers.
 
@@ -106,17 +107,18 @@ enable cors in server web.ts with `res.setHeader('Access-Control-Allow-Origin', 
 TODO: midi fading + scape_main stutters so it's moved to post load + remove SDL2 dep for audio (check tinymidipcm) but it fixes inactive tab speedup too
 TODO: use emscriptens indexeddb api to store data files
 TODO: fullscreen option button
-TODO: mobile controls + osk + mice
-TODO: cleanup key input + preventDefault some stuff + check SDL_emscriptenevents.c for other emscripten events usage
+TODO: mobile controls: touch + rotate + osk + mice, PWA manifest
+
+NOTE: Windows js output is larger (didn't go down after removing preloads) and sigint will cause terminate batch job message.
 ```
 
 old:
 ```
+TODO: try adding web worker server compat again: https://emscripten.org/docs/api_reference/wasm_workers.html
 TODO: if the tab is unfocused on web the game will speed up, the typescript client uses absolute time for idlecycles. SDL2 audio fixes this, even lowmem
 TODO: SDL2/3+emscripten on firefox has memleaks, gets cleaned up by pressing GC in about:memory but why does this happen?
 NOTE: SDL ports aren't used by default to avoid lag issues on Firefox, reduce output size, and prevent browser shortcuts being disabled. It's fixable by switching between requestAnimationFrame and setTimeout based on if the tab is focused, but using the emscripten api directly requires no changes and works well with just setTimeout.
 NOTE: bring back worldlist loading in [shell.html](https://github.com/lesleyrs/Client3/commit/5da924b9f766005e82163d899e52a5df2f771584#diff-c878553ed816480a5e85ff602ff3c5d38788ca1d21095cd8f8ebc36a4dbc07ee) if it gets re-added for live servers
-TODO: try adding web worker server compat again: https://emscripten.org/docs/api_reference/wasm_workers.html
 ```
 
 ### Android

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "custom.h"
 #include "datastruct/lrucache.h"
 #include "defines.h"
 #include "jagfile.h"
@@ -15,6 +16,7 @@
 
 extern Pix3D _Pix3D;
 extern Pix2D _Pix2D;
+extern Custom _Custom;
 
 // name taken from rs3
 ObjTypeData _ObjType = {0};
@@ -90,6 +92,157 @@ ObjType *objtype_get(int id) {
     }
 
     return obj;
+}
+
+// NOTE: custom from later revision
+Pix24 *objtype_get_icon_outline(int id, int count, int outline_color) {
+    if (outline_color == 0) {
+        Pix24 *icon = (Pix24 *)lrucache_get(_ObjType.iconCache, id);
+        if (icon && icon->crop_h != count && icon->crop_h != -1) {
+            linkable_unlink(&icon->link.link);
+            icon = NULL;
+        }
+
+        if (icon) {
+            return icon;
+        }
+    }
+
+    ObjType *obj = objtype_get(id);
+    if (!obj->countobj) {
+        count = -1;
+    }
+
+    if (count > 1) {
+        int countobj = -1;
+        for (int i = 0; i < 10; i++) {
+            if (count >= obj->countco[i] && obj->countco[i] != 0) {
+                countobj = obj->countobj[i];
+            }
+        }
+
+        if (countobj != -1) {
+            obj = objtype_get(countobj);
+        }
+    }
+
+    // NOTE: does later rev use diff model?
+    Model *imodel = objtype_get_interfacemodel(obj, 1, true);
+    if (!imodel) {
+        return NULL;
+    }
+
+    Pix24 *linkedIcon = NULL;
+    if (obj->certtemplate != -1) {
+        linkedIcon = objtype_get_icon_outline(obj->certlink, 10, -1);
+
+        if (!linkedIcon) {
+            return NULL;
+        }
+    }
+
+    Pix24 *icon = pix24_new(32, 32, true);
+
+    int _cx = _Pix3D.center_x;
+    int _cy = _Pix3D.center_y;
+    int *_loff = _Pix3D.line_offset;
+    int *_data = _Pix2D.pixels;
+    int _w = _Pix2D.width;
+    int _h = _Pix2D.height;
+    int _l = _Pix2D.left;
+    int _r = _Pix2D.right;
+    int _t = _Pix2D.top;
+    int _b = _Pix2D.bottom;
+
+    _Pix3D.jagged = false;
+    pix2d_bind(32, 32, icon->pixels);
+    pix2d_fill_rect(0, 0, BLACK, 32, 32);
+    pix3d_init2d();
+
+    int zoom2d = obj->zoom2d;
+
+    if (outline_color == -1) {
+        zoom2d = (int)((double)zoom2d * 1.5);
+    }
+
+    if (outline_color > 0) {
+        zoom2d = (int)((double)zoom2d * 1.04);
+    }
+
+    int sinPitch = _Pix3D.sin_table[obj->xan2d] * zoom2d >> 16;
+    int cosPitch = _Pix3D.cos_table[obj->xan2d] * zoom2d >> 16;
+    model_draw_simple(imodel, 0, obj->yan2d, obj->zan2d, obj->xan2d, obj->xof2d, sinPitch + imodel->max_y / 2 + obj->yof2d, cosPitch + obj->yof2d);
+
+    for (int x = 31; x >= 0; x--) {
+        for (int y = 31; y >= 0; y--) {
+            if (icon->pixels[x + y * 32] != 0) {
+                continue;
+            }
+
+            if (x > 0 && icon->pixels[x + y * 32 - 1] > 1) {
+                icon->pixels[x + y * 32] = 1;
+            } else if (y > 0 && icon->pixels[x + (y - 1) * 32] > 1) {
+                icon->pixels[x + y * 32] = 1;
+            } else if (x < 31 && icon->pixels[x + y * 32 + 1] > 1) {
+                icon->pixels[x + y * 32] = 1;
+            } else if (y < 31 && icon->pixels[x + (y + 1) * 32] > 1) {
+                icon->pixels[x + y * 32] = 1;
+            }
+        }
+    }
+
+    if (outline_color > 0) {
+        for (int x = 31; x >= 0; x--) {
+            for (int y = 31; y >= 0; y--) {
+                if (icon->pixels[x + y * 32] == 0) {
+                    if (x > 0 && icon->pixels[x - 1 + y * 32] == 1) {
+                        icon->pixels[x + y * 32] = outline_color;
+                    } else if (y > 0 && icon->pixels[x + (y - 1) * 32] == 1) {
+                        icon->pixels[x + y * 32] = outline_color;
+                    } else if (x < 31 && icon->pixels[x + 1 + y * 32] == 1) {
+                        icon->pixels[x + y * 32] = outline_color;
+                    } else if (y < 31 && icon->pixels[x + (y + 1) * 32] == 1) {
+                        icon->pixels[x + y * 32] = outline_color;
+                    }
+                }
+            }
+        }
+    } else if (outline_color == 0) {
+        for (int x = 31; x >= 0; x--) {
+            for (int y = 31; y >= 0; y--) {
+                if (icon->pixels[x + y * 32] == 0 && x > 0 && y > 0 && icon->pixels[x + (y - 1) * 32 - 1] > 0) {
+                    icon->pixels[x + y * 32] = 3153952;
+                }
+            }
+        }
+    }
+
+    if (obj->certtemplate != -1) {
+        int w = linkedIcon->crop_w;
+        int h = linkedIcon->crop_h;
+        linkedIcon->crop_w = 32;
+        linkedIcon->crop_h = 32;
+        pix24_draw(linkedIcon, 0, 0);
+        linkedIcon->crop_w = w;
+        linkedIcon->crop_h = h;
+    }
+
+    if (outline_color == 0) {
+        lrucache_put(_ObjType.iconCache, id, &icon->link);
+    }
+    pix2d_bind(_w, _h, _data);
+    pix2d_set_clipping(_b, _r, _t, _l);
+    _Pix3D.center_x = _cx;
+    _Pix3D.center_y = _cy;
+    _Pix3D.line_offset = _loff;
+    _Pix3D.jagged = true;
+    if (obj->stackable) {
+        icon->crop_w = 33;
+    } else {
+        icon->crop_w = 32;
+    }
+    icon->crop_h = count;
+    return icon;
 }
 
 Pix24 *objtype_get_icon(int id, int count) {

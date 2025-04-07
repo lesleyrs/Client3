@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "../client.h"
 #include "../custom.h"
@@ -89,8 +90,7 @@ void platform_new(int width, int height) {
         return;
     }
 
-    // NOTE: input isn't compatible with sdl2 :(
-    // SDL_EnableUNICODE(1);
+    SDL_EnableUNICODE(1);
     SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
     SDL_WM_SetCaption("Jagex", NULL);
     // window_surface = SDL_SetVideoMode(width, height, 32, SDL_HWSURFACE | SDL_RESIZABLE);
@@ -247,15 +247,6 @@ static void platform_get_keycodes(SDL_keysym *keysym, int *code, char *ch) {
     *code = -1;
     *ch = -1;
 
-    /* note: unicode is not set for key released */
-    if (keysym->unicode > 0 && keysym->unicode < 128) {
-        if (isprint((unsigned char)keysym->unicode)) {
-            *code = keysym->unicode;
-            *ch = keysym->unicode;
-            return;
-        }
-    }
-
     switch (keysym->sym) {
     case SDLK_TAB:
         *code = K_TAB;
@@ -361,7 +352,27 @@ static void platform_get_keycodes(SDL_keysym *keysym, int *code, char *ch) {
         *code = K_5;
         *ch = K_5;
         break;
+    case SDLK_BACKQUOTE:
+        *code = 192;
+        *ch = '`';
+        break;
+    case SDLK_QUOTE:
+        *code = 222;
+        *ch = '\'';
+        break;
+    case SDLK_QUOTEDBL:
+        *code = 222;
+        *ch = '"';
+        break;
     default:
+        /* NOTE: unicode is not set for key released */
+        if (keysym->unicode > 0 && keysym->unicode < 128) {
+            if (isprint((unsigned char)keysym->unicode)) {
+                *code = keysym->unicode;
+                *ch = keysym->unicode;
+                return;
+            }
+        }
         break;
     }
 }

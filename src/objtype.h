@@ -63,6 +63,8 @@ void objtype_unpack(Jagfile *config);
 void objtype_free_global(void);
 ObjType *objtype_get(int id);
 Pix24 *objtype_get_icon(int id, int count);
+// NOTE: custom
+Pix24 *objtype_get_icon_outline(int id, int count, int outline_color);
 void objtype_reset(ObjType *obj);
 void objtype_to_certificate(ObjType *obj);
 Model *objtype_get_interfacemodel(ObjType *obj, int count, bool use_allocator);
