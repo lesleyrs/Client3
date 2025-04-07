@@ -471,10 +471,10 @@ static bool onkeydown(int event_type, const EmscriptenKeyboardEvent *e, void *us
     platform_get_keycodes(e, &code, &ch);
     key_pressed(c->shell, code, ch);
 
-    // returning 0 = preventDefault
     if (strcmp(e->key, "F5") == 0 || strcmp(e->key, "F11") == 0 || strcmp(e->key, "F12") == 0) {
         return 0;
     }
+    // returning 1 = preventDefault
     return 1;
 }
 
@@ -487,10 +487,10 @@ static bool onkeyup(int event_type, const EmscriptenKeyboardEvent *e, void *user
     platform_get_keycodes(e, &code, &ch);
     key_released(c->shell, code, ch);
 
-    // returning 0 = preventDefault
     if (strcmp(e->key, "F5") == 0 || strcmp(e->key, "F11") == 0 || strcmp(e->key, "F12") == 0) {
         return 0;
     }
+    // returning 1 = preventDefault
     return 1;
 }
 
