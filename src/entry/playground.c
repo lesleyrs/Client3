@@ -41,7 +41,7 @@ void client_run_flames(Client *c) {
 }
 
 void client_load(Client *c) {
-    // TODO: hardcoded for now add openurl/opensocket to clientstream
+    // TODO: hardcoded for now add openurl
     c->archive_checksum[0] = 0;
     c->archive_checksum[1] = -430779560;
     c->archive_checksum[2] = -1494598746;

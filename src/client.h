@@ -510,6 +510,4 @@ void project(Client *c, int x, int y, int z);
 void client_run_flames(Client *c);
 void client_set_lowmem(void);
 void client_set_highmem(void);
-#if defined(__EMSCRIPTEN__) && (!defined(SDL) || SDL == 0)
-void* client_open_url(const char* name, int* size);
-#endif
+void* client_openurl(const char* name, int* size);

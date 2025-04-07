@@ -17,22 +17,18 @@ server cache changes would require manual cache+checksums update in client for n
 
 no midi fading, old js code for IE: https://github.com/2004Scape/Server/blob/61bf21fb3755c14b5cf6d47c9d974dee5783beda/view/javaclient.ejs new ts code: https://github.com/2004Scape/Client2/commit/92e74f1f134ea82e48dd608dcca3422777a7a986 (client-ts has more some fade fixes)
 
-locs like fires have no animations as pushLocs is disabled for now, it constantly allocates memory due to always calling model_copy_faces in loctype which requires a different approach. The leaks get worse if the dynamic model cache can't fit all sequences (animations) of the models in an area, disable the allocator to see origins.
-
 wordfilter isn't ported yet, so you will see your own swear words but others don't as it gets filtered by the server still.
 
-some bits from signlink missing: uid, reporterror, findcachedir, openurl, opensocket, cacheload, cachesave
+locs like fires have no animations as pushLocs is disabled for now, it constantly allocates memory due to always calling model_copy_faces in loctype which requires a different approach. The leaks get worse if the dynamic model cache can't fit all sequences (animations) of the models in an area, disable the allocator to see origins.
 
 remove the refcounting from model/pix24/lrucache for components and do smth else (kept to avoid leak spam rn) as components get assigned models from packets which are put into lrucaches, so global component doesn't own the memory anymore
 
 there are a few more memleaks to work out, also make sure playground doesn't leak anymore after attempting to fix this. Examples: inputtracking (when flagged which happens on report now lol), model_calculate_normals (on interfaces too like newcomer map)
 
 cleanup:
-global search TODO, NOTE, and all console defines, look for missing/dupe with different casing client struct members and client funcs. COLLISIONMAP_LEVELS could be added more?
-check clientstream for accuracy and fix keycodes which are different for each platform (from rsc-c, EG non-emscripten single/double quotes + fkeys keycodes are defined for emscripten only)
-change a bunch of functions and function prototypes to static
+global search TODO, NOTE, and all console defines, change a bunch of functions and function prototypes to static, look for missing/dupe with different casing client struct members and client funcs. COLLISIONMAP_LEVELS could be added more? inconsistent naming: used both world3d and scene for world3d, rename world3d to scene or at least for args?
+check clientstream for accuracy and fix keycodes which are different for each platform (from rsc-c, EG non-emscripten single/double quotes + fkey keycodes are defined for emscripten only)
 func args might partially differ in order to the Client repo due to being based off rs2-225: animbase, animframe, pix2d, pix3d, gameshell, jagfile, model, packet, pix8, pixfont, pixmap, redo them?
-inconsistent naming: used both world3d and scene for world3d, rename world3d to scene or at least for args?
 ```
 
 ## quickstart for windows
@@ -105,7 +101,7 @@ enable cors in server web.ts with `res.setHeader('Access-Control-Allow-Origin', 
 
 ```
 TODO: midi fading + scape_main stutters so it's moved to post load + remove SDL2 dep for audio (check tinymidipcm) but it fixes inactive tab speedup too
-TODO: use emscriptens indexeddb api to store data files
+TODO: use emscriptens indexeddb api to store data files (add cacheload and cachesave)
 TODO: fullscreen option button
 TODO: mobile controls: touch + rotate + osk + mice, PWA manifest
 

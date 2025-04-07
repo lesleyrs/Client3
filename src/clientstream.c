@@ -188,12 +188,15 @@ bool clientstream_init(void) {
     return true;
 }
 
-ClientStream *clientstream_new(int port) {
+ClientStream *clientstream_new(void) {
     ClientStream *stream = calloc(1, sizeof(ClientStream));
-    stream->closed = false;
+    return stream;
+}
+
+ClientStream *clientstream_opensocket(int port) {
+    ClientStream *stream = clientstream_new();
 
     int ret = 0;
-
 #ifdef __WII__
     char local_ip[16] = {0};
     char gateway[16] = {0};

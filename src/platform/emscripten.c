@@ -216,7 +216,7 @@ void platform_set_midi(const char *name, int crc, int len) {
     void *data = NULL;
     int data_len = 0;
     snprintf(filename, sizeof(filename), "%s_%d.mid", name, crc);
-    data = client_open_url(filename, &data_len);
+    data = client_openurl(filename, &data_len);
     if (data && crc != 12345678) {
         int data_crc = rs_crc32(data, len);
         if (data_crc != crc) {

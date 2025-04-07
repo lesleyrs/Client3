@@ -42,10 +42,10 @@
 - try catch turned into if (!var) break in load() or goto is used for login error message
 - on windows we aren't loading system gm.dls but use a similar sf2 soundfont instead
 - the game uses 3 titles: "RuneScape - the massive online adventure game by Jagex Ltd" (website), "RuneScape Game" (html) and "Jagex" (jar)
-- no client_load_archive message for file streaming since the files are fetched all at once
-- http requests for checksums/cache/midis/maps are only added for web as they aren't supposed to change and saving files on consoles depends on if sdcard or romfs was used) another downside is that being "connected" in emulators generally stops you from being able to fast forward so load times will be slow.
 - init() moved to main() as that's emscriptens entrypoint
 - dnslookup on web just shows your public ip instead of dns, this is expected and the same applies to the typescript client. If dnslookup fails to resolve and welcome screen lags you can set `hide_dns = 1` in config.ini to skip it.
+- no client_load_archive message for file streaming since the files are fetched all at once
+- http requests with openurl for checksums/cache/midis and cacheload + cachesave only have an emscripten impl as they aren't supposed to change and saving files on consoles depends on if sdcard or romfs was used) another downside is that being "connected" in emulators generally stops you from being able to fast forward so load times will be slow. Other signlink functions like getuid, reporterror, findcachedir and saving audio files for the browser to play are no longer that useful.
 
 - networking/midi/login flames run on the same thread
 - synchronized is unused and there's no run() function in client.c

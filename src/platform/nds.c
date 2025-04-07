@@ -363,6 +363,7 @@ void platform_draw_rect(int x, int y, int w, int h, int color) {
 }
 void platform_fill_rect(int x, int y, int w, int h, int color) {
 }
+// NOTE: timers are untested
 #define timers2ms(tlow, thigh) (tlow | (thigh << 16)) >> 5
 uint64_t get_ticks(void) {
     return timers2ms(TIMER0_DATA, TIMER1_DATA);

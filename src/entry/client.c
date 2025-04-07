@@ -162,7 +162,7 @@ void client_load(Client *c) {
         char message[PATH_MAX];
         sprintf(message, "crc%d", (int)(jrand() * 9.9999999e7));
         int size = 0;
-        int8_t *buffer = client_open_url(message, &size);
+        int8_t *buffer = client_openurl(message, &size);
         if (!buffer) {
             for (int i = retry; i > 0; i--) {
                 sprintf(message, "Error loading - Will retry in %d secs.", i);
@@ -180,7 +180,7 @@ void client_load(Client *c) {
             }
         }
 #else
-        // TODO: hardcoded for now add openurl/opensocket to clientstream
+        // TODO: hardcoded for now add openurl
         c->archive_checksum[0] = 0;
         c->archive_checksum[1] = -430779560;
         c->archive_checksum[2] = -1494598746;
@@ -7425,9 +7425,9 @@ void client_login(Client *c, const char *username, const char *password, bool re
 
     free(c->stream);
 #ifdef __EMSCRIPTEN__
-    c->stream = clientstream_new(_Custom.http_port);
+    c->stream = clientstream_opensocket(_Custom.http_port);
 #else
-    c->stream = clientstream_new(_Client.portoff + 43594);
+    c->stream = clientstream_opensocket(_Client.portoff + 43594);
 #endif
     if (!c->stream) {
         goto login_fail;
@@ -10639,7 +10639,7 @@ Client *client_new(void) {
 }
 
 #if defined(__EMSCRIPTEN__) && (!defined(SDL) || SDL == 0)
-void *client_open_url(const char *name, int *size) {
+void *client_openurl(const char *name, int *size) {
     void *buffer = NULL;
     int error = 0;
     char url[PATH_MAX];
@@ -10677,7 +10677,7 @@ Jagfile *load_archive(Client *c, const char *name, int crc, const char *display_
         client_draw_progress(c, message, progress);
 
         snprintf(message, sizeof(message), "%s%d", name, crc);
-        data = client_open_url(message, &size);
+        data = client_openurl(message, &size);
         if (!data) {
             for (int i = retry; i > 0; i--) {
                 snprintf(message, sizeof(message), "Error loading - Will retry in %d secs.", i);
@@ -10696,6 +10696,9 @@ Jagfile *load_archive(Client *c, const char *name, int crc, const char *display_
     return jagfile_new(data, size);
 }
 #else
+void *client_openurl(const char *name, int *size) {
+    return NULL;
+}
 Jagfile *load_archive(Client *c, const char *name, int crc, const char *display_name, int progress) {
     // TODO
     (void)display_name, (void)progress;
