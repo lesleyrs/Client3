@@ -144,11 +144,11 @@ void platform_new(int width, int height) {
         rs2_error("SDL3: SDL_Init failed: %s\n", SDL_GetError());
         return;
     }
-    int sdl_win_flags = 0;
+    int win_flags = 0;
     if (_Custom.resizable) {
-        sdl_win_flags |= SDL_WINDOW_RESIZABLE;
+        win_flags |= SDL_WINDOW_RESIZABLE;
     }
-    window = SDL_CreateWindow("Jagex", width, height, sdl_win_flags);
+    window = SDL_CreateWindow("Jagex", width, height, win_flags);
     if (!window) {
         rs2_error("SDL3: window creation failed: %s\n", SDL_GetError());
         SDL_Quit();
@@ -643,7 +643,6 @@ void platform_poll_events(Client *c) {
         switch (e.type) {
         case SDL_EVENT_QUIT:
             gameshell_destroy(c);
-            break;
             break;
         case SDL_EVENT_KEY_DOWN: {
             char ch;
