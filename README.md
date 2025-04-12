@@ -265,7 +265,7 @@ TODO: controls (nxdk devs said they would refactor get_ticks name to resolve con
 
 32 bit libeay32.dll from: [gnuwin32](https://gnuwin32.sourceforge.net/packages/openssl.htm)
 
-emcc libcrypto.a from: [get-openssl-wasm.sh](get-openssl-wasm.sh)
+emcc libcrypto.a from: [get-openssl-wasm.sh](bin/get-openssl-wasm.sh)
 
 * [LibTomMath](https://github.com/libtom/libtommath) | https://github.com/libtom/libtommath/releases/latest
 
