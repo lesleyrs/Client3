@@ -20,7 +20,7 @@ set CC=bin\tcc\tcc
 ::set CC=tcc
 ::set CC=gcc
 ::set CC=emcc
-set SDL=2
+set SDL=1
 set ENTRY=client
 set OPT=%DEBUG%
 

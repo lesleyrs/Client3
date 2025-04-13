@@ -74,6 +74,7 @@ run.ps1: cl, clang, tcc, mingw-gcc, emcc
 You might want the updated [PowerShell](https://github.com/PowerShell/PowerShell) for run.ps1
 
 ```
+TODO: add wav sfx to complete SDL1 platform for win9x
 TODO: confirm win9x work still (can use both libtom or openssl), maybe add screenshot to /docs
 TODO: do we assume windows 95 has -lws2_32, otherwise re-add -lwsock32 and remove -DMODERN_POSIX in batch file
 TODO: make win9x compatible batch file (no delayed expansion?) right now needs to build from more modern system
