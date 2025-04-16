@@ -361,6 +361,12 @@ void platform_update_surface(void) {
 }
 
 void platform_draw_rect(int x, int y, int w, int h, int color) {
+#ifdef __EMSCRIPTEN__
+    if (!_Custom.resizable) {
+        color = ((color & 0xff0000) >> 16) | (color & 0x00ff00) | ((color & 0x0000ff) << 16);
+    }
+#endif
+
     uint32_t *pixels = (uint32_t *)window_surface->pixels;
     int width = window_surface->pitch / sizeof(uint32_t); // SCREEN_WIDTH
 
@@ -380,6 +386,12 @@ void platform_draw_rect(int x, int y, int w, int h, int color) {
 }
 
 void platform_fill_rect(int x, int y, int w, int h, int color) {
+#ifdef __EMSCRIPTEN__
+    if (!_Custom.resizable) {
+        color = ((color & 0xff0000) >> 16) | (color & 0x00ff00) | ((color & 0x0000ff) << 16);
+    }
+#endif
+
     SDL_Rect rect = {x, y, w, h};
     SDL_FillSurfaceRect(window_surface, &rect, color);
 
