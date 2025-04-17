@@ -33,24 +33,24 @@ void world_init_global(void) {
     _World.randomLightnessOffset = (int)(jrand() * 33.0) - 16;
 }
 
-World *world_new(int maxTileX, int maxTileZ, int (*levelHeightmap)[COLLISIONMAP_SIZE + 1][COLLISIONMAP_SIZE + 1], int8_t (*levelTileFlags)[COLLISIONMAP_SIZE][COLLISIONMAP_SIZE]) {
+World *world_new(int maxTileX, int maxTileZ, int (*levelHeightmap)[104 + 1][104 + 1], int8_t (*levelTileFlags)[104][104]) {
     World *world = calloc(1, sizeof(World));
     world->maxTileX = maxTileX;
     world->maxTileZ = maxTileZ;
     world->levelHeightmap = levelHeightmap;
     world->levelTileFlags = levelTileFlags;
 
-    world->levelTileUnderlayIds = calloc(COLLISIONMAP_LEVELS, sizeof(*world->levelTileUnderlayIds));
+    world->levelTileUnderlayIds = calloc(4, sizeof(*world->levelTileUnderlayIds));
 
-    world->levelTileOverlayIds = calloc(COLLISIONMAP_LEVELS, sizeof(*world->levelTileOverlayIds));
+    world->levelTileOverlayIds = calloc(4, sizeof(*world->levelTileOverlayIds));
 
-    world->levelTileOverlayShape = calloc(COLLISIONMAP_LEVELS, sizeof(*world->levelTileOverlayShape));
+    world->levelTileOverlayShape = calloc(4, sizeof(*world->levelTileOverlayShape));
 
-    world->levelTileOverlayRotation = calloc(COLLISIONMAP_LEVELS, sizeof(*world->levelTileOverlayRotation));
+    world->levelTileOverlayRotation = calloc(4, sizeof(*world->levelTileOverlayRotation));
 
-    world->levelOccludemap = calloc(COLLISIONMAP_LEVELS, sizeof(*world->levelOccludemap));
+    world->levelOccludemap = calloc(4, sizeof(*world->levelOccludemap));
 
-    world->levelShademap = calloc(COLLISIONMAP_LEVELS, sizeof(*world->levelShademap));
+    world->levelShademap = calloc(4, sizeof(*world->levelShademap));
 
     world->levelLightmap = calloc(world->maxTileX + 1, sizeof(*world->levelLightmap));
 
@@ -123,7 +123,7 @@ int noise(int x, int y) {
     return n2 >> 19 & 0xff;
 }
 
-void world_add_loc(int level, int x, int z, World3D *scene, int (*levelHeightmap)[COLLISIONMAP_SIZE + 1][COLLISIONMAP_SIZE + 1], LinkList *locs, CollisionMap *collision, int locId, int shape, int rotation, int trueLevel) {
+void world_add_loc(int level, int x, int z, World3D *scene, int (*levelHeightmap)[104 + 1][104 + 1], LinkList *locs, CollisionMap *collision, int locId, int shape, int rotation, int trueLevel) {
     int heightSW = levelHeightmap[trueLevel][x][z];
     int heightSE = levelHeightmap[trueLevel][x + 1][z];
     int heightNW = levelHeightmap[trueLevel][x + 1][z + 1];
@@ -321,14 +321,14 @@ void clearLandscape(World *world, int startX, int startZ, int endX, int endZ) {
 void world_load_ground(World *world, int originX, int originZ, int xOffset, int zOffset, int8_t *src, int src_len) {
     Packet *buf = packet_new(src, src_len);
 
-    for (int level = 0; level < COLLISIONMAP_LEVELS; level++) {
+    for (int level = 0; level < 4; level++) {
         for (int x = 0; x < 64; x++) {
             for (int z = 0; z < 64; z++) {
                 int stx = x + xOffset;
                 int stz = z + zOffset;
                 int opcode;
 
-                if (stx >= 0 && stx < COLLISIONMAP_SIZE && stz >= 0 && stz < COLLISIONMAP_SIZE) {
+                if (stx >= 0 && stx < 104 && stz >= 0 && stz < 104) {
                     world->levelTileFlags[level][stx][stz] = 0;
                     while (true) {
                         opcode = g1(buf);
@@ -418,7 +418,7 @@ void world_load_locations(World *world, World3D *scene, LinkList *locs, Collisio
             int stx = x + xOffset;
             int stz = z + zOffset;
 
-            if (stx > 0 && stz > 0 && stx < COLLISIONMAP_SIZE - 1 && stz < COLLISIONMAP_SIZE - 1) {
+            if (stx > 0 && stz > 0 && stx < 104 - 1 && stz < 104 - 1) {
                 int currentLevel = level;
                 if ((world->levelTileFlags[1][stx][stz] & 0x2) == 2) {
                     currentLevel = level - 1;
@@ -724,9 +724,9 @@ void world_add_loc2(World *world, int level, int x, int z, World3D *scene, LinkL
 }
 
 void world_build(World *world, World3D *scene, CollisionMap **collision) {
-    for (int level = 0; level < COLLISIONMAP_LEVELS; level++) {
-        for (int x = 0; x < COLLISIONMAP_SIZE; x++) {
-            for (int z = 0; z < COLLISIONMAP_SIZE; z++) {
+    for (int level = 0; level < 4; level++) {
+        for (int x = 0; x < 104; x++) {
+            for (int z = 0; z < 104; z++) {
                 // solid
                 if ((world->levelTileFlags[level][x][z] & 0x1) == 1) {
                     int trueLevel = level;
@@ -758,8 +758,8 @@ void world_build(World *world, World3D *scene, CollisionMap **collision) {
         _World.randomLightnessOffset = 16;
     }
 
-    for (int level = 0; level < COLLISIONMAP_LEVELS; level++) {
-        int8_t (*shademap)[COLLISIONMAP_SIZE + 1] = world->levelShademap[level];
+    for (int level = 0; level < 4; level++) {
+        int8_t (*shademap)[104 + 1] = world->levelShademap[level];
         int8_t lightAmbient = 96;
         int lightAttenuation = 768;
         int8_t lightX = -50;

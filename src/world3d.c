@@ -59,7 +59,7 @@ void world3d_init_global(void) {
     _World3D.visibilityMatrix = calloc(8, sizeof(*_World3D.visibilityMatrix));
 }
 
-World3D *world3d_new(int (*levelHeightmaps)[COLLISIONMAP_SIZE + 1][COLLISIONMAP_SIZE + 1], int maxTileZ, int maxLevel, int maxTileX) {
+World3D *world3d_new(int (*levelHeightmaps)[104 + 1][104 + 1], int maxTileZ, int maxLevel, int maxTileX) {
     World3D *world3d = calloc(1, sizeof(World3D));
     world3d->maxLevel = maxLevel;
     world3d->maxTileX = maxTileX;
