@@ -10693,6 +10693,7 @@ Jagfile *load_archive(Client *c, const char *name, int crc, const char *display_
 }
 #else
 void *client_openurl(const char *name, int *size) {
+    (void)name, (void)size;
     return NULL;
 }
 Jagfile *load_archive(Client *c, const char *name, int crc, const char *display_name, int progress) {
