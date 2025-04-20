@@ -3,6 +3,9 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#if defined(_arch_dreamcast) || defined(__NDS__)
+#include <malloc.h>
+#endif
 
 #include "../allocator.h"
 #include "../animbase.h"
@@ -454,9 +457,8 @@ void client_load(Client *c) {
 
 // NOTE: we can't grow it so it needs to fit the max usage, left value is shifted to MiB (arbitrary value)
 #if defined(_arch_dreamcast) || defined(__NDS__)
-#include <malloc.h>
     malloc_stats();
-    if (!bump_allocator_init(4 << 20)) {
+    if (!bump_allocator_init(6 << 20)) {
 #else
     if (!(_Client.lowmem ? bump_allocator_init(16 << 20) : bump_allocator_init(32 << 20))) {
 #endif
@@ -477,6 +479,10 @@ void client_load(Client *c) {
 // TODO temp
 #if defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__PSP__) || defined(__WII__) || defined(_arch_dreamcast) || defined(NXDK) || defined(__NDS__)
     client_login(c, c->username, c->password, false);
+#endif
+
+#if defined(_arch_dreamcast) || defined(__NDS__)
+    malloc_stats();
 #endif
 }
 

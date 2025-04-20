@@ -30,7 +30,7 @@ void model_init_global(void) {
     _Model.tmp_depth_face_count = calloc(MODEL_MAX_DEPTH, sizeof(int));
     _Model.tmp_depth_faces = calloc(MODEL_MAX_DEPTH, sizeof(int *));
     for (int i = 0; i < MODEL_MAX_DEPTH; i++) {
-        _Model.tmp_depth_faces[i] = calloc(512, sizeof(int));
+        _Model.tmp_depth_faces[i] = calloc(MODEL_DEPTH_FACE_COUNT, sizeof(int));
     }
     _Model.tmp_priority_face_count = calloc(12, sizeof(int));
     _Model.tmp_priority_faces = calloc(12, sizeof(int *));

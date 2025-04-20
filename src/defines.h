@@ -42,10 +42,13 @@
 #define MAX_CHATS 50
 
 #if defined(_arch_dreamcast) || defined(__NDS__)
-// saves 2 MB RAM, may cause some models to be invisible
+// NOTE: saves 2 MB RAM, may cause some models to be invisible
 #define MODEL_MAX_DEPTH 600
+// NOTE: saves 1 MB RAM, may cause buffer overflows
+#define MODEL_DEPTH_FACE_COUNT 80
 #else
 #define MODEL_MAX_DEPTH 1500
+#define MODEL_DEPTH_FACE_COUNT 512
 #endif
 #define LOCBUFFER_COUNT 100
 #define MAX_NPC_COUNT 8192
