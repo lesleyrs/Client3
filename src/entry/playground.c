@@ -72,7 +72,7 @@ void client_load(Client *c) {
     gameshell_draw_progress(c->shell, "Unpacking textures", 80);
     pix3d_unpack_textures(textures);
     pix3d_set_brightness(0.8);
-    pix3d_init_pool(20);
+    pix3d_init_pool(PIX3D_POOL_COUNT);
 
     gameshell_draw_progress(c->shell, "Unpacking models", 83);
     model_unpack(models);

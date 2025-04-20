@@ -348,7 +348,7 @@ void client_load(Client *c) {
     client_draw_progress(c, "Unpacking textures", 80);
     pix3d_unpack_textures(textures);
     pix3d_set_brightness(0.8);
-    pix3d_init_pool(20);
+    pix3d_init_pool(PIX3D_POOL_COUNT);
 
     client_draw_progress(c, "Unpacking models", 83);
     model_unpack(models);
@@ -458,7 +458,7 @@ void client_load(Client *c) {
 // NOTE: we can't grow it so it needs to fit the max usage, left value is shifted to MiB (arbitrary value)
 #if defined(_arch_dreamcast) || defined(__NDS__)
     malloc_stats();
-    if (!bump_allocator_init(6 << 20)) {
+    if (!bump_allocator_init(7 << 20)) {
 #else
     if (!(_Client.lowmem ? bump_allocator_init(16 << 20) : bump_allocator_init(32 << 20))) {
 #endif
@@ -6278,7 +6278,7 @@ static void client_build_scene(Client *c) {
     // }
 
     lrucache_clear(_LocType.modelCacheStatic);
-    pix3d_init_pool(20);
+    pix3d_init_pool(PIX3D_POOL_COUNT);
     world_free(world);
 }
 
