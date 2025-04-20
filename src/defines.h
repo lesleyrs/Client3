@@ -41,7 +41,12 @@
 
 #define MAX_CHATS 50
 
+#if defined(_arch_dreamcast) || defined(__NDS__)
+// saves 2 MB RAM, may cause some models to be invisible
+#define MODEL_MAX_DEPTH 600
+#else
 #define MODEL_MAX_DEPTH 1500
+#endif
 #define LOCBUFFER_COUNT 100
 #define MAX_NPC_COUNT 8192
 #define MAX_PLAYER_COUNT 2048

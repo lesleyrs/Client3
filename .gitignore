@@ -67,6 +67,7 @@
 
 # dreamcast
 /client.cdi
+/flycast.log
 
 # devkitpro
 /build

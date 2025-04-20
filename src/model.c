@@ -1049,13 +1049,12 @@ void model_draw(Model *m, int yaw, int sinCameraPitch, int cosCameraPitch, int s
         x = temp;
         temp = (y * cosCameraPitch - z * sinCameraPitch) >> 16;
         z = (y * sinCameraPitch + z * cosCameraPitch) >> 16;
-        if (_Model.vertex_screen_z) {
-            _Model.vertex_screen_z[v] = z - b;
-        }
-        if (z >= 50 && _Model.vertex_screen_x && _Model.vertex_screen_y) {
+
+        _Model.vertex_screen_z[v] = z - b;
+        if (z >= 50) {
             _Model.vertex_screen_x[v] = cx + (x << 9) / z;
             _Model.vertex_screen_y[v] = cy + (temp << 9) / z;
-        } else if (_Model.vertex_screen_x) {
+        } else {
             _Model.vertex_screen_x[v] = -5000;
             project = true;
         }
@@ -1071,47 +1070,43 @@ void model_draw(Model *m, int yaw, int sinCameraPitch, int cosCameraPitch, int s
 }
 
 void model_draw2(Model *m, bool projected, bool hasInput, int bitset) {
-    for (int i = 0; i < m->max_depth; i++) {
-        // NOTE: custom check for model 714 && i < MODEL_MAX_DEPTH
-        if (_Model.tmp_depth_face_count && i < MODEL_MAX_DEPTH) {
-            _Model.tmp_depth_face_count[i] = 0;
-        }
+    // NOTE: added < MODEL_MAX_DEPTH checks for model 714 and for optional smaller depth buffer
+    for (int i = 0; i < m->max_depth && i < MODEL_MAX_DEPTH; i++) {
+        _Model.tmp_depth_face_count[i] = 0;
     }
     for (int f = 0; f < m->face_count; f++) {
         if (!m->face_infos || m->face_infos[f] != -1) {
             int a = m->face_indices_a[f];
             int b = m->face_indices_b[f];
             int c = m->face_indices_c[f];
-            if (_Model.vertex_screen_x) {
-                int xa = _Model.vertex_screen_x[a];
-                int xb = _Model.vertex_screen_x[b];
-                int xc = _Model.vertex_screen_x[c];
-                if (projected && (xa == -5000 || xb == -5000 || xc == -5000)) {
-                    _Model.face_near_clipped[f] = true;
+
+            int xa = _Model.vertex_screen_x[a];
+            int xb = _Model.vertex_screen_x[b];
+            int xc = _Model.vertex_screen_x[c];
+            if (projected && (xa == -5000 || xb == -5000 || xc == -5000)) {
+                _Model.face_near_clipped[f] = true;
+                int depth_average = (_Model.vertex_screen_z[a] + _Model.vertex_screen_z[b] + _Model.vertex_screen_z[c]) / 3 + m->min_depth;
+                if (depth_average < MODEL_MAX_DEPTH) {
+                    _Model.tmp_depth_faces[depth_average][_Model.tmp_depth_face_count[depth_average]++] = f;
+                }
+            } else {
+                if (hasInput && model_point_within_triangle(_Model.mouse_x, _Model.mouse_y, _Model.vertex_screen_y[a], _Model.vertex_screen_y[b], _Model.vertex_screen_y[c], xa, xb, xc)) {
+                    _Model.picked_bitsets[_Model.picked_count++] = bitset;
+                    hasInput = false;
+                }
+
+                if ((xa - xb) * (_Model.vertex_screen_y[c] - _Model.vertex_screen_y[b]) - (_Model.vertex_screen_y[a] - _Model.vertex_screen_y[b]) * (xc - xb) > 0) {
+                    _Model.face_near_clipped[f] = false;
+                    _Model.face_clipped_x[f] = xa >= 0 || xb >= 0 || xc >= 0 || xa <= _Pix2D.bound_x || xb <= _Pix2D.bound_x || xc <= _Pix2D.bound_x;
                     int depth_average = (_Model.vertex_screen_z[a] + _Model.vertex_screen_z[b] + _Model.vertex_screen_z[c]) / 3 + m->min_depth;
                     if (depth_average < MODEL_MAX_DEPTH) {
                         _Model.tmp_depth_faces[depth_average][_Model.tmp_depth_face_count[depth_average]++] = f;
-                    }
-                } else {
-                    if (hasInput && model_point_within_triangle(_Model.mouse_x, _Model.mouse_y, _Model.vertex_screen_y[a], _Model.vertex_screen_y[b], _Model.vertex_screen_y[c], xa, xb, xc)) {
-                        _Model.picked_bitsets[_Model.picked_count++] = bitset;
-                        hasInput = false;
-                    }
-
-                    if ((xa - xb) * (_Model.vertex_screen_y[c] - _Model.vertex_screen_y[b]) - (_Model.vertex_screen_y[a] - _Model.vertex_screen_y[b]) * (xc - xb) > 0) {
-                        _Model.face_near_clipped[f] = false;
-                        _Model.face_clipped_x[f] = xa >= 0 || xb >= 0 || xc >= 0 || xa <= _Pix2D.bound_x || xb <= _Pix2D.bound_x || xc <= _Pix2D.bound_x;
-                        int depth_average = (_Model.vertex_screen_z[a] + _Model.vertex_screen_z[b] + _Model.vertex_screen_z[c]) / 3 + m->min_depth;
-                        if (depth_average < MODEL_MAX_DEPTH) {
-                            _Model.tmp_depth_faces[depth_average][_Model.tmp_depth_face_count[depth_average]++] = f;
-                        }
                     }
                 }
             }
         }
     }
     if (!m->face_priorities) {
-        // NOTE: custom check for model 714: && depth < MODEL_MAX_DEPTH
         for (int depth = m->max_depth - 1; depth >= 0 && depth < MODEL_MAX_DEPTH; depth--) {
             int count = _Model.tmp_depth_face_count[depth];
             if (count > 0) {
@@ -1124,116 +1119,63 @@ void model_draw2(Model *m, bool projected, bool hasInput, int bitset) {
         return;
     }
     for (int priority = 0; priority < 12; priority++) {
-        if (_Model.tmp_priority_face_count && _Model.tmp_priority_depth_sum) {
-            _Model.tmp_priority_face_count[priority] = 0;
-            _Model.tmp_priority_depth_sum[priority] = 0;
-        }
+        _Model.tmp_priority_face_count[priority] = 0;
+        _Model.tmp_priority_depth_sum[priority] = 0;
     }
-    for (int depth = m->max_depth - 1; depth >= 0; depth--) {
-        if (_Model.tmp_depth_face_count) {
-            const int face_count = _Model.tmp_depth_face_count[depth];
-            if (face_count > 0) {
-                int *faces = _Model.tmp_depth_faces[depth];
-                for (int i = 0; i < face_count; i++) {
-                    int priority_depth = faces[i];
-                    int depth_average = m->face_priorities[priority_depth];
-                    int priority_face_count = _Model.tmp_priority_face_count[depth_average]++;
-                    _Model.tmp_priority_faces[depth_average][priority_face_count] = priority_depth;
-                    if (depth_average < 10) {
-                        _Model.tmp_priority_depth_sum[depth_average] += depth;
-                    } else if (depth_average == 10) {
-                        _Model.tmp_priority10_face_depth[priority_face_count] = depth;
-                    } else {
-                        _Model.tmp_priority11_face_depth[priority_face_count] = depth;
-                    }
+    for (int depth = m->max_depth - 1; depth >= 0 && depth < MODEL_MAX_DEPTH; depth--) {
+        const int face_count = _Model.tmp_depth_face_count[depth];
+        if (face_count > 0) {
+            int *faces = _Model.tmp_depth_faces[depth];
+            for (int i = 0; i < face_count; i++) {
+                int priority_depth = faces[i];
+                int depth_average = m->face_priorities[priority_depth];
+                int priority_face_count = _Model.tmp_priority_face_count[depth_average]++;
+                _Model.tmp_priority_faces[depth_average][priority_face_count] = priority_depth;
+                if (depth_average < 10) {
+                    _Model.tmp_priority_depth_sum[depth_average] += depth;
+                } else if (depth_average == 10) {
+                    _Model.tmp_priority10_face_depth[priority_face_count] = depth;
+                } else {
+                    _Model.tmp_priority11_face_depth[priority_face_count] = depth;
                 }
             }
         }
     }
     int averagePriorityDepthSum1_2 = 0;
-    if (_Model.tmp_priority_face_count && (_Model.tmp_priority_face_count[1] > 0 || _Model.tmp_priority_face_count[2] > 0)) {
+    if (_Model.tmp_priority_face_count[1] > 0 || _Model.tmp_priority_face_count[2] > 0) {
         averagePriorityDepthSum1_2 = (_Model.tmp_priority_depth_sum[1] + _Model.tmp_priority_depth_sum[2]) / (_Model.tmp_priority_face_count[1] + _Model.tmp_priority_face_count[2]);
     }
     int averagePriorityDepthSum3_4 = 0;
-    if (_Model.tmp_priority_face_count && (_Model.tmp_priority_face_count[3] > 0 || _Model.tmp_priority_face_count[4] > 0)) {
+    if (_Model.tmp_priority_face_count[3] > 0 || _Model.tmp_priority_face_count[4] > 0) {
         averagePriorityDepthSum3_4 = (_Model.tmp_priority_depth_sum[3] + _Model.tmp_priority_depth_sum[4]) / (_Model.tmp_priority_face_count[3] + _Model.tmp_priority_face_count[4]);
     }
     int averagePriorityDepthSum6_8 = 0;
-    if (_Model.tmp_priority_face_count && (_Model.tmp_priority_face_count[6] > 0 || _Model.tmp_priority_face_count[8] > 0)) {
+    if (_Model.tmp_priority_face_count[6] > 0 || _Model.tmp_priority_face_count[8] > 0) {
         averagePriorityDepthSum6_8 = (_Model.tmp_priority_depth_sum[6] + _Model.tmp_priority_depth_sum[8]) / (_Model.tmp_priority_face_count[6] + _Model.tmp_priority_face_count[8]);
     }
 
-    if (_Model.tmp_priority_face_count && _Model.tmp_priority_faces) {
-        int priority_face = 0;
-        int priority_face_count = _Model.tmp_priority_face_count[10];
-        int *faces = _Model.tmp_priority_faces[10];
-        int *priorities = _Model.tmp_priority10_face_depth;
-        if (priority_face_count == 0) {
-            priority_face_count = _Model.tmp_priority_face_count[11];
-            faces = _Model.tmp_priority_faces[11];
-            priorities = _Model.tmp_priority11_face_depth;
-        }
-        int priority_depth;
-        if (priority_face_count > 0) {
-            priority_depth = priorities[0];
-        } else {
-            priority_depth = -1000;
-        }
-        for (int p = 0; p < 10; p++) {
-            while (p == 0 && priority_depth > averagePriorityDepthSum1_2) {
-                model_draw_face(m, faces[priority_face++]);
-                if (priority_face == priority_face_count && faces != _Model.tmp_priority_faces[11]) {
-                    priority_face = 0;
-                    priority_face_count = _Model.tmp_priority_face_count[11];
-                    faces = _Model.tmp_priority_faces[11];
-                    priorities = _Model.tmp_priority11_face_depth;
-                }
-                if (priority_face < priority_face_count) {
-                    priority_depth = priorities[priority_face];
-                } else {
-                    priority_depth = -1000;
-                }
-            }
-            while (p == 3 && priority_depth > averagePriorityDepthSum3_4) {
-                model_draw_face(m, faces[priority_face++]);
-                if (priority_face == priority_face_count && faces != _Model.tmp_priority_faces[11]) {
-                    priority_face = 0;
-                    priority_face_count = _Model.tmp_priority_face_count[11];
-                    faces = _Model.tmp_priority_faces[11];
-                    priorities = _Model.tmp_priority11_face_depth;
-                }
-                if (priority_face < priority_face_count) {
-                    priority_depth = priorities[priority_face];
-                } else {
-                    priority_depth = -1000;
-                }
-            }
-            while (p == 5 && priority_depth > averagePriorityDepthSum6_8) {
-                model_draw_face(m, faces[priority_face++]);
-                if (priority_face == priority_face_count && faces != _Model.tmp_priority_faces[11]) {
-                    priority_face = 0;
-                    priority_face_count = _Model.tmp_priority_face_count[11];
-                    faces = _Model.tmp_priority_faces[11];
-                    priorities = _Model.tmp_priority11_face_depth;
-                }
-                if (priority_face < priority_face_count) {
-                    priority_depth = priorities[priority_face];
-                } else {
-                    priority_depth = -1000;
-                }
-            }
-            int n = _Model.tmp_priority_face_count[p];
-            int *tris = _Model.tmp_priority_faces[p];
-            for (int f = 0; f < n; f++) {
-                model_draw_face(m, tris[f]);
-            }
-        }
-        while (priority_depth != -1000) {
+    int priority_face = 0;
+    int priority_face_count = _Model.tmp_priority_face_count[10];
+    int *faces = _Model.tmp_priority_faces[10];
+    int *priorities = _Model.tmp_priority10_face_depth;
+    if (priority_face_count == 0) {
+        priority_face_count = _Model.tmp_priority_face_count[11];
+        faces = _Model.tmp_priority_faces[11];
+        priorities = _Model.tmp_priority11_face_depth;
+    }
+    int priority_depth;
+    if (priority_face_count > 0) {
+        priority_depth = priorities[0];
+    } else {
+        priority_depth = -1000;
+    }
+    for (int p = 0; p < 10; p++) {
+        while (p == 0 && priority_depth > averagePriorityDepthSum1_2) {
             model_draw_face(m, faces[priority_face++]);
             if (priority_face == priority_face_count && faces != _Model.tmp_priority_faces[11]) {
                 priority_face = 0;
-                faces = _Model.tmp_priority_faces[11];
                 priority_face_count = _Model.tmp_priority_face_count[11];
+                faces = _Model.tmp_priority_faces[11];
                 priorities = _Model.tmp_priority11_face_depth;
             }
             if (priority_face < priority_face_count) {
@@ -1241,6 +1183,53 @@ void model_draw2(Model *m, bool projected, bool hasInput, int bitset) {
             } else {
                 priority_depth = -1000;
             }
+        }
+        while (p == 3 && priority_depth > averagePriorityDepthSum3_4) {
+            model_draw_face(m, faces[priority_face++]);
+            if (priority_face == priority_face_count && faces != _Model.tmp_priority_faces[11]) {
+                priority_face = 0;
+                priority_face_count = _Model.tmp_priority_face_count[11];
+                faces = _Model.tmp_priority_faces[11];
+                priorities = _Model.tmp_priority11_face_depth;
+            }
+            if (priority_face < priority_face_count) {
+                priority_depth = priorities[priority_face];
+            } else {
+                priority_depth = -1000;
+            }
+        }
+        while (p == 5 && priority_depth > averagePriorityDepthSum6_8) {
+            model_draw_face(m, faces[priority_face++]);
+            if (priority_face == priority_face_count && faces != _Model.tmp_priority_faces[11]) {
+                priority_face = 0;
+                priority_face_count = _Model.tmp_priority_face_count[11];
+                faces = _Model.tmp_priority_faces[11];
+                priorities = _Model.tmp_priority11_face_depth;
+            }
+            if (priority_face < priority_face_count) {
+                priority_depth = priorities[priority_face];
+            } else {
+                priority_depth = -1000;
+            }
+        }
+        int n = _Model.tmp_priority_face_count[p];
+        int *tris = _Model.tmp_priority_faces[p];
+        for (int f = 0; f < n; f++) {
+            model_draw_face(m, tris[f]);
+        }
+    }
+    while (priority_depth != -1000) {
+        model_draw_face(m, faces[priority_face++]);
+        if (priority_face == priority_face_count && faces != _Model.tmp_priority_faces[11]) {
+            priority_face = 0;
+            faces = _Model.tmp_priority_faces[11];
+            priority_face_count = _Model.tmp_priority_face_count[11];
+            priorities = _Model.tmp_priority11_face_depth;
+        }
+        if (priority_face < priority_face_count) {
+            priority_depth = priorities[priority_face];
+        } else {
+            priority_depth = -1000;
         }
     }
 }

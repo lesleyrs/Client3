@@ -456,7 +456,7 @@ void client_load(Client *c) {
 #if defined(_arch_dreamcast) || defined(__NDS__)
 #include <malloc.h>
     malloc_stats();
-    if (!bump_allocator_init(2 << 20)) {
+    if (!bump_allocator_init(4 << 20)) {
 #else
     if (!(_Client.lowmem ? bump_allocator_init(16 << 20) : bump_allocator_init(32 << 20))) {
 #endif
