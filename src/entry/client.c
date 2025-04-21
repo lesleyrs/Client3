@@ -477,7 +477,7 @@ void client_load(Client *c) {
 #endif
 
 // TODO temp
-#if defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__PSP__) || defined(__WII__) || defined(_arch_dreamcast) || defined(NXDK) || defined(__NDS__)
+#if defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__PSP__) || defined(__WII__) || defined(NXDK) || defined(__NDS__)
     client_login(c, c->username, c->password, false);
 #endif
 
