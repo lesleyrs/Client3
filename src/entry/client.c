@@ -458,7 +458,7 @@ void client_load(Client *c) {
 // NOTE: we can't grow it so it needs to fit the max usage, left value is shifted to MiB (arbitrary value)
 #if defined(_arch_dreamcast) || defined(__NDS__)
     malloc_stats();
-    if (!bump_allocator_init(7 << 20)) {
+    if (!bump_allocator_init(8 << 20)) {
 #else
     if (!(_Client.lowmem ? bump_allocator_init(16 << 20) : bump_allocator_init(32 << 20))) {
 #endif
@@ -604,6 +604,13 @@ void client_update_flame_buffer(Client *c, Pix8 *image) {
 void client_load_title_images(Client *c) {
     c->image_titlebox = pix8_from_archive(c->archive_title, "titlebox", 0);
     c->image_titlebutton = pix8_from_archive(c->archive_title, "titlebutton", 0);
+#ifdef DISABLE_FLAMES
+    // NOTE: redraw behind "flames" when there's any spare memory, gets freed after login
+    // c->image_flames_left = pix24_new(128, 265, false);
+    // c->image_flames_right = pix24_new(128, 265, false);
+    // memcpy(c->image_flames_left->pixels, c->image_title0->pixels, 33920 * sizeof(int));
+    // memcpy(c->image_flames_right->pixels, c->image_title1->pixels, 33920 * sizeof(int));
+#else
     c->image_runes = calloc(12, sizeof(Pix8 *));
     for (int i = 0; i < 12; i++) {
         c->image_runes[i] = pix8_from_archive(c->archive_title, "runes", i);
@@ -661,6 +668,7 @@ void client_load_title_images(Client *c) {
     if (!c->flame_active) {
         c->flame_active = true;
     }
+#endif
 }
 
 static void client_update_flames(Client *c) {
@@ -7699,6 +7707,7 @@ void client_unload_title(Client *c) {
     c->flame_active = false;
     pix8_free(c->image_titlebox);
     pix8_free(c->image_titlebutton);
+#ifndef DISABLE_FLAMES
     for (int i = 0; i < 12; i++) {
         pix8_free(c->image_runes[i]);
     }
@@ -7713,6 +7722,7 @@ void client_unload_title(Client *c) {
     free(c->flame_buffer2);
     pix24_free(c->image_flames_left);
     pix24_free(c->image_flames_right);
+#endif
 
     c->image_titlebox = NULL;
     c->image_titlebutton = NULL;
@@ -10321,7 +10331,7 @@ EM_JS(bool, get_host_js, (char *socketip, size_t len, int *http_port), {
     const secured = url.protocol == 'https';
     const protocol = secured ? 'wss' : 'ws';
     // TODO: check https://github.com/emscripten-core/emscripten/issues/22969
-    SOCKFS.websocketArgs = {'url': protocol + '://'};
+    SOCKFS.websocketArgs = {'url' : protocol + '://'};
     return secured;
 })
 
@@ -10439,6 +10449,7 @@ void client_free(Client *c) {
         // other images are allocated at same time
         pix8_free(c->image_titlebox);
         pix8_free(c->image_titlebutton);
+#ifndef DISABLE_FLAMES
         for (int i = 0; i < 12; i++) {
             pix8_free(c->image_runes[i]);
         }
@@ -10453,6 +10464,7 @@ void client_free(Client *c) {
         free(c->flame_buffer2);
         pix24_free(c->image_flames_left);
         pix24_free(c->image_flames_right);
+#endif
         pixmap_free(c->image_title0);
         pixmap_free(c->image_title1);
         pixmap_free(c->image_title2);
