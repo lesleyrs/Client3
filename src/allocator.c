@@ -56,9 +56,12 @@ void *rs2_calloc(bool use_allocator, int count, int size) {
 }
 
 static void *bump_alloc(int size) {
-    // NOTE: why only sanitizers complain about alignment not valgrind?
-    // int aligned_ptr = alloc.used + 3 & ~3; // NOTE 4 byte alignment may save some memory
+    // NOTE: use 4 byte alignment to save couple dozen KBs memory, confirm it works everywhere
+#if __SIZEOF_POINTER__ == 4
+    int aligned_ptr = alloc.used + 3 & ~3;
+#else
     int aligned_ptr = alloc.used + 7 & ~7;
+#endif
     if (aligned_ptr + size > alloc.capacity) {
         rs2_error("Allocator full: this should never happen! attempted: %d, capacity: %d", alloc.used + size, alloc.capacity);
         exit(1);
