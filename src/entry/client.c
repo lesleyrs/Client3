@@ -476,8 +476,8 @@ void client_load(Client *c) {
     }
 #endif
 
-// TODO temp
-#if defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__WII__) || defined(NXDK) || defined(__NDS__)
+// TODO temp: wait for wiiu input fixes, nxdk get_ticks controller name change, melonds 32mb emulation
+#if defined(__WIIU__) || defined(__SWITCH__) || defined(NXDK) || defined(__NDS__)
     client_login(c, c->username, c->password, false);
 #endif
 
