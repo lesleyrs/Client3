@@ -198,7 +198,7 @@ Controls: move cursor with analog stick, O for left click, X for right click, /\
 Works on real hardware but requires at least model 2000 due to only 24MB (28MB with kernel mode not sure if safe to use?) being accessible on model 1000, only lowmem fits in memory so we force lowmem in custom.c
 
 ```
-TODO: Could enable sfx and/or midi in lowmem for 2000+ models
+NOTE: Could add sfx and/or midi in lowmem, since it's the most important highmem feature
 ```
 
 ### Sony PS Vita

@@ -7,6 +7,7 @@
 -D_POSIX_C_SOURCE=200112L
 // -D_POSIX_C_SOURCE=200809L
 -DMODERN_POSIX
+// -DWITH_RSA_BIGINT
 // -DWITH_RSA_OPENSSL
 -DWITH_RSA_LIBTOM
 
@@ -31,8 +32,8 @@
 // -I/opt/devkitpro/wut/include/
 // -D__SWITCH__
 // -I/opt/devkitpro/libnx/include/
--D__PSP__
--I/usr/local/pspdev/psp/sdk/include/
+// -D__PSP__
+// -I/usr/local/pspdev/psp/sdk/include/
 // -D__vita__
 // -I/usr/local/vitasdk/arm-vita-eabi/include/
 
