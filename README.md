@@ -231,7 +231,7 @@ There's currently no way to type. But it's not required to play the game and you
 Controls: joystick = move cursor, Dpad = arrow keys, B = left click, A = right click, Y = control, Ltrig = center screen, Rtrig+joystick = pan screen
 
 ```
-TODO: can we make use of dreamcast vram as it is quite big (8mb)
+TODO: try to make use of dreamcast vram or aram
 TODO: support mouse/keyboard for dreamcast. For mouse and keyboard in flycast you have to set the physical device ports to dreamcast device port, but mouse is not very useful in emu until they hide the system cursor.
 
 NOTE: local servers don't work on emulator? only live works
