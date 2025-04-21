@@ -228,6 +228,8 @@ Flycast seems to be the best emulator, supports ram expansion and networking.
 
 Memory usage has been reduced for the dreamcast to run nearly the full game in 32 MB RAM in ways that might cause some slight gameplay issues (see defines.h), and the system can still easily go OOM which you can fix by restarting.
 
+There's currently no way to type. But it's not required to play the game and you can set your login details in rom/config.ini
+
 Controls: joystick = move cursor, Dpad = arrow keys, B = left click, A = right click, Y = control, Ltrig = center screen, Rtrig+joystick = pan screen
 
 ```
