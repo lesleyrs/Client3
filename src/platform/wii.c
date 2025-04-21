@@ -80,8 +80,7 @@ static uint8_t arrow_yuv[] = {
 static void draw_arrow(void) {
     int relative_x = cursor_x + screen_offset_x;
     int relative_y = cursor_y + screen_offset_y;
-    // NOTE on emu the cursor won't reach the right or bottom, and the top shows the bottom part of a cursor?
-    if (relative_x < 0 || relative_y < 0 || relative_x >= SCREEN_FB_WIDTH || relative_y >= SCREEN_FB_HEIGHT - 20 /* NOTE why rsc-c does -20? */) {
+    if (relative_x < 0 || relative_y < 0 || relative_x >= SCREEN_FB_WIDTH || relative_y >= SCREEN_FB_HEIGHT) {
         return;
     }
 

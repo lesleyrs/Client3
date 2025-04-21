@@ -36,9 +36,9 @@
 // -D__vita__
 // -I/usr/local/vitasdk/arm-vita-eabi/include/
 
-// -D_arch_dreamcast
-// -I/opt/toolchains/dc/kos/include
-// -I/opt/toolchains/dc/kos/kernel/arch/dreamcast/include
+-D_arch_dreamcast
+-I/opt/toolchains/dc/kos/include
+-I/opt/toolchains/dc/kos/kernel/arch/dreamcast/include
 
 // -D__NDS__
 // -DARM9
