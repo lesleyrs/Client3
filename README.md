@@ -222,20 +222,20 @@ TODO: update sce_sys assets
 ### Sega Dreamcast
 Install [kallistios and mkdcdisc](#tools) and run `make -f dreamcast.mk -j$(nproc) -B`. Necessary files are built into the cdi.
 
-To try on real hardware you'd need the 32 MB ram expansion mod, which seems involved and maybe less compatible with some other games
+To try on real hardware you'd need networking support and the 32 MB ram expansion mod, which seems involved and maybe less compatible with some other games.
 
 Flycast seems to be the best emulator, supports ram expansion and networking.
 
-Not fully playable due to limited RAM, you can only load areas that use 2 MB of space in lrucaches (wildy etc)
+Memory usage has been reduced for the dreamcast to run nearly the full game in 32 MB RAM in ways that might cause some slight gameplay issues (see defines.h), and the system can still easily go OOM which you can fix by restarting.
 
 Controls: joystick = move cursor, Dpad = arrow keys, B = left click, A = right click, Y = control, Ltrig = center screen, Rtrig+joystick = pan screen
 
 ```
+TODO: can we make use of dreamcast vram as it is quite big (8mb)
+TODO: support mouse/keyboard for dreamcast. For mouse and keyboard in flycast you have to set the physical device ports to dreamcast device port, but mouse is not very useful in emu until they hide the system cursor.
+
 NOTE: local servers don't work on emulator? only live works
-TODO: fopen path was changed due to the mkdcdisc tool adding dots to files without extension https://gitlab.com/simulant/mkdcdisc/-/issues/14
-TODO: check if it's making use of vram currently, dreamcast vram is quite big (8mb)
-TODO: instead of INIT_DEFAULT choose the flags we want to use, Mouse could be used in flycast too if they hide system cursor. For mouse and keyboard in flycast you have to set the physical device ports to dreamcast device port.
-TODO: virtual cursor icon
+NOTE: fopen path was changed due to the mkdcdisc tool adding dots to files without extension https://gitlab.com/simulant/mkdcdisc/-/issues/14
 ```
 
 ### Microsoft Xbox
