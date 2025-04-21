@@ -476,7 +476,7 @@ void client_load(Client *c) {
     }
 #endif
 
-// TODO temp: wait for wiiu input fixes, nxdk get_ticks controller name change, melonds 32mb emulation
+// TODO temp: wait for wiiu and switch touch input fixes, nxdk get_ticks controller renaming, melonds 32mb emulation
 #if defined(__WIIU__) || defined(__SWITCH__) || defined(NXDK) || defined(__NDS__)
     client_login(c, c->username, c->password, false);
 #endif
