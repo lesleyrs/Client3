@@ -195,12 +195,10 @@ ppsspp emulator loads relative dir as memstick, so the filesystem works automati
 
 Controls: move cursor with analog stick, O for left click, X for right click, /\ for control, Dpad as arrow keys, Rtrigger + analog stick to pan, Ltrigger to reset screen position
 
-Works on real hardware but requires at least model 2000 due to the full 32 MB not being accessible, only lowmem fits into memory so we force lowmem in custom.c
+Works on real hardware but requires at least model 2000 due to only 24MB (28MB with kernel mode not sure if safe to use?) being accessible on model 1000, only lowmem fits in memory so we force lowmem in custom.c
 
 ```
-TODO: Model 1000 has the same CPU just less memory, might be worth trying to make it work in kernel mode for 28MB BUT is it safe to do so?
-TODO: Could enable audio in lowmem for 2000+ models if there's enough memory remaining?
-TODO: virtual cursor icon
+TODO: Could enable sfx and/or midi in lowmem for 2000+ models
 ```
 
 ### Sony PS Vita
@@ -251,7 +249,6 @@ Controls: none yet, it just automatically logs in
 NOTE: local servers don't work on emulator? only live works
 NOTE: default.xbe stays around in rom dir when it's junk for other consoles that embed that directory. Can remove it after building.
 TODO: fopen had to be separated due to the need for backwards slashes, also there's no chdir equivalent?
-TODO: virtual cursor icon
 TODO: controls (nxdk devs said they would refactor get_ticks name to resolve conflict)
 ```
 
