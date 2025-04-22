@@ -198,7 +198,7 @@ ClientStream *clientstream_opensocket(int port) {
 
     int ret = 0;
 #ifdef __WII__
-    char local_ip[16] = {0};
+    // char local_ip[16] = {0};
     char gateway[16] = {0};
     char netmask[16] = {0};
 
@@ -363,6 +363,8 @@ ClientStream *clientstream_opensocket(int port) {
 
                     return NULL;
                 }
+#else
+                (void)lon;
 #endif
 
                 if (valopt > 0) {
