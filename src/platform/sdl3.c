@@ -24,7 +24,6 @@ extern InputTracking _InputTracking;
 extern Custom _Custom;
 
 static tml_message *TinyMidiLoader;
-
 // Holds the global instance pointer
 static tsf *g_TinySoundFont;
 // Holds global MIDI playback state

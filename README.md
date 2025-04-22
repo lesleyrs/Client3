@@ -159,8 +159,7 @@ in dolphin emulator you can find the sdcard path in `options>configuration>wii>s
 Controls: wiimote IR pointer works as mouse, A for left click, B for right click, Dpad works as arrow keys, minus for control, plus to pan by moving your wiimote to a side of the screen, 1 to center screen, home button to exit. The nunchuck joystick can also be used as arrow keys.
 
 ```
-TODO: audio
-TODO: support usb keyboard and mouse on wii
+TODO: support usb keyboard (dolphin doesn't emulate it yet)
 TODO: add game offset expected for real hardware?
 ```
 

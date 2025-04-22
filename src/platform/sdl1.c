@@ -28,7 +28,6 @@ static void platform_get_keycodes(SDL_keysym *keysym, int *code, char *ch);
 #include "../thirdparty/tml.h"
 
 static tml_message *TinyMidiLoader;
-
 // Holds the global instance pointer
 static tsf *g_TinySoundFont;
 // Holds global MIDI playback state

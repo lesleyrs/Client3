@@ -29,7 +29,6 @@ static SDL_Joystick *joystick;
 static bool right_touch = false;
 
 static tml_message *TinyMidiLoader;
-
 // Holds the global instance pointer
 static tsf *g_TinySoundFont;
 // Holds global MIDI playback state
