@@ -42,6 +42,8 @@ static int cursor_y = SCREEN_FB_HEIGHT / 2;
 static int screen_offset_x = INITIAL_X_OFFSET;
 static int screen_offset_y = INITIAL_Y_OFFSET;
 
+#define CURSOR_W 12
+#define CURSOR_H 18
 static const unsigned char cursor[] = {
     0x00, 0x00, 0x01, 0xff, 0x00, 0x00, 0x01, 0xff, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -115,9 +117,6 @@ static const unsigned char cursor[] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0xff, 0x00, 0x00, 0x01, 0xff,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-// static const unsigned int cursor_len = 864;
-#define CURSOR_W 12
-#define CURSOR_H 18
 
 int get_free_mem(void) {
     return pspSdkTotalFreeUserMemSize();
@@ -207,7 +206,7 @@ void set_pixels(PixMap *pixmap, int x, int y) {
 
             int pixel = pixmap->pixels[src_offset];
 
-            // NOTE: draw cursor in here + redraw_background in poll_events
+            // draw cursor in here + redraw_background in poll_events
             int cx = screen_x - relative_x;
             int cy = screen_y - relative_y;
             if (cx >= 0 && cy >= 0 && cx < CURSOR_W && cy < CURSOR_H) {
@@ -299,7 +298,7 @@ void platform_poll_events(Client *c) {
     if (pad.Lx != 128 || pad.Ly != 128) {
         c->redraw_background = true;
 
-        #define CURSOR_SENSITIVITY 20
+#define CURSOR_SENSITIVITY 20
         // TODO allow changing cursor sensitivity
         if (pad.Buttons & PSP_CTRL_RTRIGGER) {
             screen_offset_x = MAX(SCREEN_FB_WIDTH - SCREEN_WIDTH, MIN(screen_offset_x - (pad.Lx - 128) / CURSOR_SENSITIVITY, 0));

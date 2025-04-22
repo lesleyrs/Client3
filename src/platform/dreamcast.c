@@ -78,6 +78,9 @@ void platform_set_midi(const char *name, int crc, int len) {
 }
 void platform_stop_midi(void) {
 }
+
+#define CURSOR_W 12
+#define CURSOR_H 18
 static const unsigned char cursor[] = {
     0x00, 0x00, 0x01, 0xff, 0x00, 0x00, 0x01, 0xff, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -151,9 +154,6 @@ static const unsigned char cursor[] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0xff, 0x00, 0x00, 0x01, 0xff,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-// static const unsigned int cursor_len = 864;
-#define CURSOR_W 12
-#define CURSOR_H 18
 
 static void draw_arrow(void) {
     int relative_x = cursor_x + screen_offset_x;
@@ -198,7 +198,7 @@ void set_pixels(PixMap *pixmap, int x, int y) {
 
             int color = pixmap->pixels[h * pixmap->width + w];
 
-            // NOTE: no memory for separate framebuffer so draw cursor in here + redraw_background in poll_events
+            // draw cursor in here + redraw_background in poll_events
             int cx = screen_x - relative_x;
             int cy = screen_y - relative_y;
             if (cx >= 0 && cy >= 0 && cx < CURSOR_W && cy < CURSOR_H) {

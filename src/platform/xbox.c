@@ -28,6 +28,8 @@ static int cursor_y = SCREEN_FB_HEIGHT / 2;
 static int screen_offset_x = INITIAL_SCREEN_X;
 static int screen_offset_y = INITIAL_SCREEN_Y;
 
+#define CURSOR_W 12
+#define CURSOR_H 18
 static const unsigned char cursor[] = {
     0x00, 0x00, 0x01, 0xff, 0x00, 0x00, 0x01, 0xff, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -101,9 +103,6 @@ static const unsigned char cursor[] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0xff, 0x00, 0x00, 0x01, 0xff,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-// static const unsigned int cursor_len = 864;
-#define CURSOR_W 12
-#define CURSOR_H 18
 
 bool platform_init(void) {
     XVideoSetMode(640, 480, 32, REFRESH_DEFAULT);
@@ -189,7 +188,7 @@ void set_pixels(PixMap *pixmap, int x, int y) {
 
             int color = pixmap->pixels[h * pixmap->width + w];
 
-            // NOTE: draw cursor in here + redraw_background in poll_events
+            // draw cursor in here + redraw_background in poll_events
             int cx = screen_x - relative_x;
             int cy = screen_y - relative_y;
             if (cx >= 0 && cy >= 0 && cx < CURSOR_W && cy < CURSOR_H) {
