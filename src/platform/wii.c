@@ -241,6 +241,7 @@ void set_pixels(PixMap *pixmap, int x, int y) {
             g1 = (pixel1 >> 8) & 0xff;
             b1 = pixel1 & 0xff;
 
+            // TODO: why annoying pixel flickering if redraw_background is called? it fixes itself...
             int pixel2 = (col + 1 < pixmap->width) ? pixmap->pixels[src_offset + 1] : pixel1;
             r2 = (pixel2 >> 16) & 0xff;
             g2 = (pixel2 >> 8) & 0xff;
