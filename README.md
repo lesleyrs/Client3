@@ -151,8 +151,6 @@ The NDS target only works on 3DS with DSI emulation as it should have 32MB RAM t
 
 Wii U and Switch also need the (wiiu/switch)-sdl2 package.
 
-If you own a console and want to improve a port look at rsc-c for reference: https://github.com/2003scape/rsc-c
-
 #### Wii
 in dolphin emulator you can find the sdcard path in `options>configuration>wii>sd card` settings and after moving the files there you have to click `Convert Folder to File Now` to format it.
 
