@@ -25,6 +25,17 @@
 * https://oldschool.runescape.wiki/w/Graphical_updates_(historical)
 * https://oldschool.runescape.wiki/w/User:Hlwys
 
+## TODO
+```
+- check macos, bsds and anything else + add default helvetica-like system ttf font in gameshell_draw_string when available to avoid Roboto dependency
+- all home consoles (wii, dreamcast, xbox) should be able to run the game at higher res or even full res on PAL TVs so you don't have to pan, but this isn't set up and emulators don't support many video modes.
+- copy original bzip from java maybe allows for O3 optimization on more consoles unlike current bzip?
+- mapview from java client (change preload-file in makefile to cache/mapview for sdl2 emscripten)
+- optional QOL changes from the java client teavm branch
+- icon/metadata/title etc for the different platforms: title+taskbar+desktop (see rsc-c for examples)
+- add CI: run make check/scan + artifacts
+```
+
 ## Java and C differences + codestyle
 ```
 - the 225 java client has client bugs which are all present in the C client: disappearing locs (doors/gates), stuck sequences (anims), etc

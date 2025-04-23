@@ -58,14 +58,6 @@ The 2004 jar is stored for comparisons, run with EG: `java -cp bin/runescape.jar
 ## Platforms and Compilers
 To move the executable you have to take the `cache/` and optionally `config.ini`, `SCC1_Florestan.sf2` and `Roboto/` along with it. The consoles will load it from sdcard if they don't embed the files already.
 
-```
-TODO: macos, bsds + add default helvetica-like system ttf font in gameshell_draw_string when available to avoid Roboto dependency
-TODO: all home consoles (wii, dreamcast, xbox) should be able to run the game at higher res or even full res on PAL TVs so you don't have to pan and simplifies set_pixels, but this isn't set up right now and emulators don't seem to support many video modes.
-TODO: copy original bzip from java maybe allows for O3 optimization on more consoles unlike current bzip?
-TODO: icon/metadata/title etc for the different platforms: title+taskbar+desktop
-TODO: add CI: run make check/scan + artifacts
-```
-
 ### Windows 95 to Windows 11
 build.bat(32 bit): tcc (included), mingw-gcc, emcc
 
@@ -252,6 +244,7 @@ TODO: controls (nxdk devs said they would refactor get_ticks name to resolve con
 * [isaac](https://burtleburtle.net/bob/rand/isaacafa.html) | https://burtleburtle.net/bob/c/readable.c
 * [TinySoundFont](https://github.com/schellingb/TinySoundFont) - with fix for attack1.mid by skipping RIFF header and android support
 * [tiny-bignum-c](https://github.com/kokke/tiny-bignum-c) - prefer libtom/openssl/bigint, but works fine with smaller exponent
+* [LibTomMath](https://github.com/libtom/libtommath) | mpi.c is from gen.pl script in [releases](https://github.com/libtom/libtommath/releases/latest). with added ifdefs to fix non-gcc builds.
 * [ini](https://github.com/rxi/ini)
 * [stb_image and stb_truetype](https://github.com/nothings/stb)
 
@@ -261,10 +254,6 @@ TODO: controls (nxdk devs said they would refactor get_ticks name to resolve con
 32 bit libeay32.dll from: [gnuwin32](https://gnuwin32.sourceforge.net/packages/openssl.htm)
 
 emcc libcrypto.a from: [get-openssl-wasm.sh](bin/get-openssl-wasm.sh)
-
-* [LibTomMath](https://github.com/libtom/libtommath) | https://github.com/libtom/libtommath/releases/latest
-
-libtommath releases include a gen.pl script to generate a single mpi.c file from the whole source. ifdefs have been added to fix building with other compilers than gcc.
 
 * [SDL-1.2](https://github.com/libsdl-org/SDL-1.2) | [SDL-2/SDL-3](https://github.com/libsdl-org/SDL) | https://libsdl.org/release/
 
