@@ -658,14 +658,14 @@ void platform_poll_events(Client *c) {
         case SDL_EVENT_KEY_DOWN: {
             char ch;
             int code;
-            platform_get_keycodes((SDL_KeyboardEvent *)&e, &code, &ch);
+            platform_get_keycodes(&e.key, &code, &ch);
             key_pressed(c->shell, code, ch);
             break;
         }
         case SDL_EVENT_KEY_UP: {
             char ch;
             int code;
-            platform_get_keycodes((SDL_KeyboardEvent *)&e, &code, &ch);
+            platform_get_keycodes(&e.key, &code, &ch);
             key_released(c->shell, code, ch);
             break;
         }
