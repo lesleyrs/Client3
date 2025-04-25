@@ -376,7 +376,7 @@ void rsaenc(Packet *packet, const char *mod, const char *exp) {
      * ignored unless they're being used to indicate the MSB for sign. since
      * the byte array lengths range from 63-65 and we always want a positive
      * integer, we can make result_length 65 and begin with up to two 0 bytes */
-    // NOTE: enc_len+1 to prefix 0 avoids login fail if first byte is negative
+    // enc_len+1 to prefix 0 avoids login fail if first byte is negative
     p1(packet, enc_len + 1);
     p1(packet, 0);
 

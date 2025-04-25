@@ -20,7 +20,7 @@ Custom _Custom = {.chat_era = 2, .http_port = 80, .showPerformance = true};
 Custom _Custom = {.chat_era = 2, .http_port = 80};
 #endif
 
-// NOTE: it's nice to have this file separate from client but easily creates conflicts if other non-client entrypoints compile all c files
+// NOTE: having this file separate from client easily creates conflicts if other non-client entrypoints compile all c files
 
 // macro assumes ini setting has the same name as the member variable
 // works with pointers and non-pointers, no bounds checks for ints
@@ -69,8 +69,8 @@ bool load_ini_args(void) {
     INI_INT_LOG(&(&_Client), nodeid, _Client.nodeid = 10 + _Client.nodeid - 1);
     INI_INT_LOG(&(&_Client), portoff, );
     INI_INT_LOG(&(&_Client), lowmem, );
-#if defined(__PSP__) || defined(_arch_dreamcast) || defined(NXDK) || defined(__NDS__)
-    // NOTE: implicitly ignore highmem, avoids confusion as there's no way it'll load
+#if defined(__PSP__) || defined(_arch_dreamcast) || defined(__NDS__) || defined(NXDK)
+    // implicitly ignore highmem, avoids confusion as there's no way it'll load, except if xbox has mem expansion
     _Client.lowmem = true;
 #endif
     INI_INT_LOG(&(&_Client), members, _Client.members = !_Client.members);

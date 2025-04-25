@@ -118,7 +118,7 @@ void model_free_label_references(Model *m) {
         free(m->label_faces[i]);
     }
     free(m->label_faces);
-    // NOTE these are in the original place already, exception is npctype/playerentity which create label refs before being put in cache
+    // these are in the original place already, exception is npctype/playerentity which create label refs before being put in cache
     // m->label_faces = NULL;
     // m->label_vertices = NULL;
 }
@@ -1055,7 +1055,7 @@ void model_draw(Model *m, int yaw, int sinCameraPitch, int cosCameraPitch, int s
 }
 
 void model_draw2(Model *m, bool projected, bool hasInput, int bitset) {
-    // NOTE: added < MODEL_MAX_DEPTH checks for model 714 and for optional smaller depth buffer
+    // added < MODEL_MAX_DEPTH checks for model 714 and for optional smaller depth buffer
     for (int i = 0; i < m->max_depth && i < MODEL_MAX_DEPTH; i++) {
         _Model.tmp_depth_face_count[i] = 0;
     }

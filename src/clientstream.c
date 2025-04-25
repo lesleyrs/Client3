@@ -349,7 +349,6 @@ ClientStream *clientstream_opensocket(int port) {
             FD_ZERO(&write_fds);
             FD_SET(stream->socket, &write_fds);
 
-            // NOTE: cast for windows
             ret = select((int)stream->socket + 1, NULL, &write_fds, NULL, &timeout);
 
             if (ret > 0) {
@@ -401,7 +400,7 @@ void clientstream_close(ClientStream *stream) {
     }
 
     // stream->closed = true;
-    // NOTE: is this ok without closed?
+    // TODO: is this ok without closed?
     free(stream);
 }
 

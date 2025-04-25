@@ -31,8 +31,7 @@
 #define SCREEN_HEIGHT 532
 
 // arbitrary to fix -Wall possible overflow warnings
-// NOTE maybe change the ones using half_str to use strncpy but yolo
-// NOTE could also double both buf sizes to be 100% sure, would waste memory though
+// NOTE maybe change the ones using half_str to use strncpy or double sizes but yolo
 #define HALF_STR (CHAT_LENGTH / 2)
 #define SIXTY_STR 60
 #define DOUBLE_STR (CHAT_LENGTH * 2)
@@ -40,6 +39,12 @@
 #define MAX_STR (CHAT_LENGTH + 1)
 
 #define MAX_CHATS 50
+
+// avoid doubles on consoles with only single precision floats or no fpu at all!
+// this doesn't change all occurences of doubles into floats yet
+#if defined(__PSP__) || defined(__NDS__)
+#define USE_FLOATS
+#endif
 
 #if defined(_arch_dreamcast) || defined(__NDS__)
 // NOTE: more extreme lowmem mode, making the game fully explorable on 32 MB

@@ -173,7 +173,7 @@ void key_pressed(GameShell *shell, int code, int ch) {
     } else if (code == 10) {
         // ENTER
         ch = 10;
-    } else if (code == 13) { // NOTE: needed for windows?
+    } else if (code == 13) { // needed for windows?
         // ENTER
         ch = 13;
 #ifdef __EMSCRIPTEN__
@@ -243,7 +243,7 @@ void key_released(GameShell *shell, int code, int ch) {
     } else if (code == 10) {
         // ENTER
         ch = 10;
-    } else if (code == 13) { // NOTE: needed for windows?
+    } else if (code == 13) { // needed for windows?
         // ENTER
         ch = 13;
 #ifdef __EMSCRIPTEN__
@@ -369,7 +369,7 @@ void gameshell_draw_string(GameShell *shell, const char *str, int x, int y, int 
 
     float xpos = 0;
     int ch = 0;
-    // NOTE: this could probably be improved a lot by drawing text in one go
+    // TODO: this could probably be improved a lot by drawing text in one go
     while (str[ch]) {
         int advance, lsb, x0, y0, x1, y1;
         float x_shift = xpos - floorf(xpos);
@@ -417,7 +417,7 @@ void gameshell_draw_progress(GameShell *shell, const char *message, int progress
 
     int y = shell->screen_height / 2 - 18;
 
-    // NOTE: 140, 17, 17 but we only take hex for simplicity
+    // rgb 140, 17, 17 but we only take hex for simplicity
     platform_draw_rect(shell->screen_width / 2 - 152, y, 304, 34, PROGRESS_RED);
     platform_fill_rect(shell->screen_width / 2 - 150, y + 2, progress * 3, 30, PROGRESS_RED);
     platform_fill_rect(shell->screen_width / 2 + progress * 3 - 150, y + 2, 300 - progress * 3, 30, BLACK);

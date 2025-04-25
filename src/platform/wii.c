@@ -136,7 +136,7 @@ bool platform_init(void) {
     rmode = VIDEO_GetPreferredMode(NULL);
 
     xfb = MEM_K0_TO_K1(SYS_AllocateFramebuffer(rmode));
-    VIDEO_ClearFrameBuffer(rmode, xfb, COLOR_BLACK); // NOTE: why is this needed to avoid garbage fb on boot when rsc-c doesn't
+    VIDEO_ClearFrameBuffer(rmode, xfb, COLOR_BLACK); // TODO: why is this needed to avoid garbage fb on boot when rsc-c doesn't
 
     VIDEO_Configure(rmode);
     VIDEO_SetNextFramebuffer(xfb);
@@ -266,7 +266,7 @@ void platform_poll_events(Client *c) {
     static float ir_x = 0;
     static float ir_y = 0;
     if (data->ir.valid && (data->ir.x != ir_x || data->ir.y != ir_y)) {
-        // NOTE: causes lag if moving wiimote/cursor too much
+        // TODO causes lag when moving mouse/wiimote, either need more partial redraw or double buffering
         c->redraw_background = true;
         ir_x = data->ir.x;
         ir_y = data->ir.y;
@@ -455,7 +455,7 @@ void platform_draw_rect(int x, int y, int w, int h, int color) {
 void platform_fill_rect(int x, int y, int w, int h, int color) {
 }
 uint64_t get_ticks(void) {
-    // NOTE: gettime() starts at high value, maybe subtract the initial val
+    // TODO: gettime() starts at high value, maybe subtract the initial val
     uint64_t ticks = gettime();
     return (uint64_t)(ticks / TB_TIMER_CLOCK);
 }

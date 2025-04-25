@@ -69,10 +69,15 @@ void rs2_error(const char *format, ...) {
 }
 
 // Java Math.random, rand requires + 1 to never reach 1 else it'll overflow on update_flame_buffer
-// TODO: maybe float version for better perf?
+#ifdef USE_FLOATS
+double jrand(void) {
+    return (float)rand() / ((float)RAND_MAX + 1.0);
+}
+#else
 double jrand(void) {
     return (double)rand() / ((double)RAND_MAX + 1.0);
 }
+#endif
 
 // Java indexOf
 int indexof(const char *str, const char *str2) {
@@ -86,7 +91,7 @@ int indexof(const char *str, const char *str2) {
 }
 
 // Java substring
-// NOTE: should this return a ptr instead of copy?
+// TODO: should this return a ptr instead of copy?
 char *substring(const char *src, size_t start, size_t length) {
     size_t len = length - start;
     char *sub = malloc(len + 1);
@@ -127,7 +132,6 @@ bool strendswith(const char *str, const char *suffix) {
 
 // Java equalsIgnoreCase
 int platform_strcasecmp(const char *str1, const char *str2) {
-// NOTE make non platform specific one? we undef _WIN32 in makefile if xbox
 #if defined(_WIN32) || defined(NXDK)
     return _stricmp(str1, str2);
 #else

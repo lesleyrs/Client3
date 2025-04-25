@@ -43,7 +43,7 @@ void bump_allocator_reset(void) {
     alloc.used = 0;
 }
 
-// NOTE: returning malloc/calloc here effectively disables the allocator
+// returning malloc/calloc here effectively disables the allocator
 void *rs2_malloc(bool use_allocator, int size) {
     // return malloc(size);
     return use_allocator ? bump_alloc(size) : malloc(size);
@@ -51,12 +51,12 @@ void *rs2_malloc(bool use_allocator, int size) {
 
 void *rs2_calloc(bool use_allocator, int count, int size) {
     // return calloc(count, size);
-    // NOTE: allocator_reset already memsets for us so we can just move ptr
+    // allocator_reset already memsets for us so we can just move ptr
     return use_allocator ? bump_alloc(count * size) : calloc(count, size);
 }
 
 static void *bump_alloc(int size) {
-    // NOTE: use 4 byte alignment to save couple dozen KBs memory, confirm it works everywhere
+    // use 4 byte alignment to save couple dozen KBs memory, confirm it works everywhere
 #if __SIZEOF_POINTER__ == 4
     int aligned_ptr = alloc.used + 3 & ~3;
 #else

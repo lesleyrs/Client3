@@ -465,7 +465,7 @@ void client_load(Client *c) {
         c->error_loading = true;
     }
 
-    // NOTE: network init happens here after game loads instead of in platform_init because being connected disables fast-forward in emulators
+    // network init happens here after game loads instead of in platform_init because being connected disables fast-forward in emulators
     if (!clientstream_init()) {
         c->error_loading = true;
     }
@@ -482,6 +482,7 @@ void client_load(Client *c) {
 #endif
 
 #if defined(_arch_dreamcast) || defined(__NDS__)
+    // it's fine for the consoles memory to be full here, it frees the login screen after this
     malloc_stats();
 #endif
 }
@@ -605,7 +606,7 @@ void client_load_title_images(Client *c) {
     c->image_titlebox = pix8_from_archive(c->archive_title, "titlebox", 0);
     c->image_titlebutton = pix8_from_archive(c->archive_title, "titlebutton", 0);
 #ifdef DISABLE_FLAMES
-    // NOTE: redraw behind "flames" when there's any spare memory, gets freed after login
+    // TODO: redraw behind "flames" when there's any spare memory, gets freed after login
     // c->image_flames_left = pix24_new(128, 265, false);
     // c->image_flames_right = pix24_new(128, 265, false);
     // memcpy(c->image_flames_left->pixels, c->image_title0->pixels, 33920 * sizeof(int));
@@ -832,7 +833,7 @@ void client_run_flames(Client *c) {
     client_update_flames(c);
     client_update_flames(c);
     client_draw_flames(c);
-    next = get_ticks() + 35; // NOTE: hardcode interval of 35 to avoid inconsistent rate
+    next = get_ticks() + 35; // hardcode interval of 35 to avoid inconsistent rate
 
     /* NOTE: original
     // try {
@@ -4308,7 +4309,7 @@ void client_update_game(Client *c) {
     if (c->ingame) {
         for (int wave = 0; wave < c->wave_count; wave++) {
             if (c->wave_delay[wave] <= 0) {
-                // NOTE we don't need this old code to save wav for browser to play it
+                // deprecated code unused to save wav for the browser to play it
                 // bool failed = false;
                 // try {
                 // if (c->wave_ids[wave] != c->last_wave_id || c->wave_loops[wave] != c->last_wave_loops) {
@@ -7569,7 +7570,7 @@ void client_login(Client *c, const char *username, const char *password, bool re
             }
         }
 
-        // NOTE: why not linklist_clear originally?
+        // TODO: why not linklist_clear originally?
         linklist_free(c->spawned_locations);
         c->spawned_locations = linklist_new();
         c->friend_count = 0;
@@ -10345,13 +10346,13 @@ static bool secured = false;
 #endif
 
 int main(int argc, char **argv) {
-    // NOTE: init screens before logging for some platforms
+    // init screen before logging is required for some platforms
     if (!platform_init()) {
         rs2_error("Failed to init platform!\n");
         delay_ticks(5000);
         return 1;
     }
-    // NOTE: to print argv on emscripten you need to print index to flush instead of just \n?
+    // to print argv on emscripten you need to print index to flush instead of just \n?
     rs2_log("RS2 user client - release #%d\n", _Client.clientversion);
 
 #ifdef __EMSCRIPTEN__

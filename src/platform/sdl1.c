@@ -471,7 +471,7 @@ void platform_poll_events(Client *c) {
                     }
                 }
             }
-            // if (e.active.state & SDL_APPACTIVE) { // NOTE: doesn't always work
+            // if (e.active.state & SDL_APPACTIVE) { // TODO: doesn't always work
             break;
         }
     }

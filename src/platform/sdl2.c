@@ -778,7 +778,7 @@ void platform_poll_events(Client *c) {
                 break;
             case 11: // Start
                 break;
-                // NOTE unused PS TV mode
+                // unused PS TV mode
                 // case 12: // L2
                 //     break;
                 // case 13: // R2
@@ -822,7 +822,7 @@ void platform_poll_events(Client *c) {
                 break;
             case 11: // Start
                 break;
-                // NOTE unused PS TV mode
+                // unused PS TV mode
                 // case 12: // L2
                 //     break;
                 // case 13: // R2
@@ -852,7 +852,7 @@ void platform_poll_events(Client *c) {
             float y = e.tfinger.y * SCREEN_FB_HEIGHT;
 
             c->shell->idle_cycles = 0;
-            // NOTE: set mouse pos here again due to no mouse movement
+            // set mouse pos here again due to no mouse movement
             c->shell->mouse_x = x;
             c->shell->mouse_y = y;
 

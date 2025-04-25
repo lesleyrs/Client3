@@ -12,8 +12,8 @@ typedef struct Surface {
 } Surface;
 #endif
 
-#if defined(_WIN32) || defined(ANDROID)            // TODO: add other systems that use sdl_main? SDL3 replaced sdl_main with a header
-#if defined(SDL) && SDL < 3 && !defined(__TINYC__) // NOTE: tcc can't use .lib files but doesn't require SDL include to use subsystem:windows
+#if defined(_WIN32) || defined(ANDROID)            // add other systems that use sdl_main? SDL3 replaced sdl_main with a header
+#if defined(SDL) && SDL < 3 && !defined(__TINYC__) // tcc can't use .lib files but doesn't require SDL include to use subsystem:windows
 #include "SDL.h"
 #endif
 #endif

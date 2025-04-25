@@ -93,7 +93,6 @@ ObjType *objtype_get(int id) {
     return obj;
 }
 
-// NOTE: custom from later revision
 Pix24 *objtype_get_icon_outline(int id, int count, int outline_color) {
     if (outline_color == 0) {
         Pix24 *icon = (Pix24 *)lrucache_get(_ObjType.iconCache, id);
@@ -125,7 +124,7 @@ Pix24 *objtype_get_icon_outline(int id, int count, int outline_color) {
         }
     }
 
-    // NOTE: does later rev use diff model?
+    // TODO: does later rev use diff model func?
     Model *imodel = objtype_get_interfacemodel(obj, 1, true);
     if (!imodel) {
         return NULL;
