@@ -209,15 +209,13 @@ TODO: update sce_sys assets
 ### Sega Dreamcast
 Install [kallistios and mkdcdisc](#tools) and run `make -f dreamcast.mk -j$(nproc) -B`. Necessary files are built into the cdi.
 
-To try on real hardware you'd need networking support and the 32 MB ram expansion mod, which seems involved and maybe less compatible with some other games.
+To try on real hardware you'd need networking support and the 32 MB ram expansion mod, which seems involved and maybe less compatible with some other games. Flycast seems to be the best emulator and supports both.
 
-Flycast seems to be the best emulator, supports ram expansion and networking.
-
-Memory usage has been reduced for the dreamcast to run nearly the full game in 32 MB RAM in ways that might cause some slight gameplay issues (see defines.h), and the system can still easily go OOM which you can fix by restarting.
-
-There's currently no way to type. But it's not required to play the game and you can set your login details in rom/config.ini
+See defines.h for inauthentic changes to get below 32MB RAM usage.
 
 Controls: joystick = move cursor, Dpad = arrow keys, B = left click, A = right click, Y = control, Ltrig = center screen, Rtrig+joystick = pan screen
+
+There's currently no way to type. But it's not required to play the game and you can set your login details in rom/config.ini
 
 ```
 TODO: try to make use of dreamcast vram or aram
