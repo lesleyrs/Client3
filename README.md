@@ -13,7 +13,7 @@ See [docs](/docs) for more info and media.
 
 ## known issues
 ```
-(outside of emscripten.c): server cache changes would require manual cache+checksums update in client for now, the server has an issue with client map crcs being changed when server maps get updated (also the cache has some interface changes rn for quest tab and another one), remove original cache at bin/archives when the cache matches exactly
+(outside of emscripten.c): server cache changes requires manual cache+checksums update in client for now, the server has an issue with client map crcs changing when only server maps get updated. Also textures were modified to make quests unhoverable since there are no journals + grayed out unfinished ones), remove original cache at bin/archives when the textures match.
 
 no midi fading, old js code for IE: https://github.com/2004Scape/Server/blob/61bf21fb3755c14b5cf6d47c9d974dee5783beda/view/javaclient.ejs new ts code: https://github.com/2004Scape/Client2/commit/92e74f1f134ea82e48dd608dcca3422777a7a986 (client-ts has more some fade fixes)
 
@@ -21,12 +21,9 @@ wordfilter isn't ported yet, so you will see your own swear words but others don
 
 locs like fires have no animations as pushLocs is disabled for now, it constantly allocates memory due to always calling model_copy_faces in loctype which requires a different approach. The leaks get worse if the dynamic model cache can't fit all sequences (animations) of the models in an area, disable the allocator to see origins.
 
-there are a few more memleaks to work out, also make sure playground doesn't leak anymore after attempting to fix this. Examples: inputtracking (when flagged which happens on report now lol), model_calculate_normals (on interfaces too like newcomer map), can't easily free component model/pix24 as they get modified in packets so the global component doesn't own that memory anymore.
+fix playground leaks, fix component leaks model/pix24: they get modified in packets so the global component doesn't own that memory anymore.
 
-cleanup:
-global search TODO, NOTE, and all console defines, change a bunch of functions and function prototypes to static, look for missing or dupe client struct members and client funcs with different casing. inconsistent naming: used both world3d and scene for world3d, rename world3d to scene or at least for args?
-check clientstream for accuracy and fix keycodes which are different for each platform (from rsc-c, EG non-emscripten single/double quotes + fkey keycodes are defined for emscripten only)
-func args might partially differ in order to the Client repo due to being based off rs2-225: animbase, animframe, pix2d, pix3d, gameshell, jagfile, model, packet, pix8, pixfont, pixmap, redo them?
+check docs for more TODOs
 ```
 
 ## quickstart for windows
@@ -57,6 +54,10 @@ The 2004 jar is stored for comparisons, run with EG: `java -cp bin/runescape.jar
 
 ## Platforms and Compilers
 To move the executable you have to take the `cache/` and optionally `config.ini`, `SCC1_Florestan.sf2` and `Roboto/` along with it. The consoles will load it from sdcard if they don't embed the files already.
+
+all home consoles (wii, dreamcast, xbox) should be able to run the game at higher res or even full res on PAL TVs so you don't have to pan, but this isn't set up and emulators don't support many video modes.
+
+When adding a new platform also add system ttf font closest to helvetica in gameshell_draw_string when available to avoid Roboto dependency.
 
 ### Windows 95 to Windows 11
 build.bat(32 bit): tcc (included), mingw-gcc, emcc
@@ -169,7 +170,8 @@ in cemu emulator click `file>open mlc folder`, go 1 directory up to see sdcard d
 
 ```
 TODO: Touch input not working yet, might be fixed by last wiiu-sdl2 commit.
-NOTE: there's weird issues: highmem seems to not start due to tinysoundfont tsf_load failing, and libtom encryption fails (tiny-bignum is ok)
+NOTE: libtom encryption fails when it works on old wii? (tiny-bignum is ok)
+NOTE: highmem doesn't start due to tinysoundfont not working on powerpc
 ```
 
 #### Switch

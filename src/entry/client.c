@@ -4846,7 +4846,8 @@ bool client_read(Client *c) {
 
                 if (data) {
                     if (rs_crc32(data, size) != landCrc) {
-                        rs2_error("mapdata CRC check failed\n");
+                        // NOTE: requires manual update since it doesn't dl/save
+                        // rs2_error("mapdata CRC check failed\n");
                         free(data);
                         data = NULL;
                     }
@@ -4910,7 +4911,8 @@ bool client_read(Client *c) {
 
                 if (data) {
                     if (rs_crc32(data, size) != locCrc) {
-                        rs2_error("mapdata CRC check failed\n");
+                        // NOTE: requires manual update since it doesn't dl/save
+                        // rs2_error("mapdata CRC check failed\n");
                         free(data);
                         data = NULL;
                     }

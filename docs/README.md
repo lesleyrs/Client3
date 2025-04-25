@@ -27,13 +27,16 @@
 
 ## TODO
 ```
-- check macos, bsds and anything else + add default helvetica-like system ttf font in gameshell_draw_string when available to avoid Roboto dependency
-- all home consoles (wii, dreamcast, xbox) should be able to run the game at higher res or even full res on PAL TVs so you don't have to pan, but this isn't set up and emulators don't support many video modes.
+- add missing platforms: macos, bsds + anything else
 - copy original bzip from java maybe allows for O3 optimization on more consoles unlike current bzip?
+- tinysoundfont seems to break on powerpc cpus (wii, wiiu) and libtom specfically on wiiu only?
 - mapview from java client (change preload-file in makefile to cache/mapview for sdl2 emscripten)
 - optional QOL changes from the java client teavm branch
 - icon/metadata/title etc for the different platforms: title+taskbar+desktop (see rsc-c for examples)
 - add CI: run make check/scan + artifacts
+- check clientstream for accuracy and fix keycodes which are different for each platform (from rsc-c, EG non-emscripten single/double quotes + fkey keycodes are defined for emscripten only)
+- func args might partially differ in order to the Client repo due to being based off rs2-225: animbase, animframe, pix2d, pix3d, gameshell, jagfile, model, packet, pix8, pixfont, pixmap, redo them? inconsistent naming: used both world3d and scene for world3d, rename world3d to scene or at least for args?
+- global search TODO, NOTE, and all platform defines, change many funcs+prototypes to static, look for missing/dupe client struct members and client funcs with different casing.
 ```
 
 ## Java and C differences + codestyle
