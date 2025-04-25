@@ -140,7 +140,7 @@ Model *model_copy_faces(Model *src, bool copyVertexY, bool copyFaces, bool use_a
 Model *model_share_alpha(Model *src, bool shareAlpha);
 void model_calculate_normals(Model *m, int light_ambient, int light_attenuation, int lightsrc_x, int lightsrc_y, int lightsrc_z, bool apply_lighting, bool use_allocator);
 int model_mul_color_lightness(int hsl, int scalar, int face_info);
-void model_apply_lighting(Model *m, int light_ambient, int light_attenuation, int lightsrc_x, int lightsrc_y, int lightsrc_z);
+void model_apply_lighting(Model *m, int light_ambient, int light_attenuation, int lightsrc_x, int lightsrc_y, int lightsrc_z, bool _free);
 void model_calculate_bounds_cylinder(Model *m);
 void model_calculate_bounds_aabb(Model *m);
 void model_calculate_bounds_y(Model *m);

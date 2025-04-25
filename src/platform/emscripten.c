@@ -205,9 +205,9 @@ void platform_set_midi_volume(float midivol) {
     }
 }
 void platform_set_jingle(int8_t *src, int len) {
-    // tml_free(TinyMidiLoader);
-    TinyMidiLoader = tml_load_memory(src, len);
     platform_stop_midi();
+    tml_free(TinyMidiLoader);
+    TinyMidiLoader = tml_load_memory(src, len);
     g_MidiMessage = TinyMidiLoader;
     free(src);
 }
@@ -229,10 +229,12 @@ void platform_set_midi(const char *name, int crc, int len) {
     const int uncompressed_length = g4(packet);
     int8_t *uncompressed = malloc(uncompressed_length);
     bzip_decompress(uncompressed, data, data_len - 4, 4);
-    // tml_free(TinyMidiLoader);
-    TinyMidiLoader = tml_load_memory(uncompressed, uncompressed_length);
+
     platform_stop_midi();
+    tml_free(TinyMidiLoader);
+    TinyMidiLoader = tml_load_memory(uncompressed, uncompressed_length);
     g_MidiMessage = TinyMidiLoader;
+
     packet_free(packet);
     free(uncompressed);
 }

@@ -44,7 +44,6 @@ void loctype_free_global(void) {
     lrucache_free(_LocType.modelCacheDynamic);
     free(_LocType.offsets);
     for (int i = 0; i < 10; i++) {
-        // TODO this doesn't free everything
         free(_LocType.cache[i]);
     }
     free(_LocType.cache);
@@ -177,6 +176,7 @@ static void loctype_decode(LocType *loc, Packet *dat) {
 
             loc->op[code - 30] = gjstr(dat);
             if (platform_strcasecmp(loc->op[code - 30], "hidden") == 0) {
+                free(loc->op[code - 30]);
                 loc->op[code - 30] = NULL;
             }
         } else if (code == 40) {

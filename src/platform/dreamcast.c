@@ -155,7 +155,7 @@ static const unsigned char cursor[] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0xff, 0x00, 0x00, 0x01, 0xff,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-static void draw_arrow(void) {
+/* static void draw_arrow(void) {
     int relative_x = cursor_x + screen_offset_x;
     int relative_y = cursor_y + screen_offset_y;
     if (relative_x < 0 || relative_y < 0 || relative_x >= SCREEN_FB_WIDTH - CURSOR_W || relative_y >= SCREEN_FB_HEIGHT - CURSOR_H) {
@@ -178,7 +178,7 @@ static void draw_arrow(void) {
             }
         }
     }
-}
+} */
 void set_pixels(PixMap *pixmap, int x, int y) {
     int relative_x = cursor_x + screen_offset_x;
     int relative_y = cursor_y + screen_offset_y;
@@ -279,14 +279,6 @@ void platform_poll_events(Client *c) {
     if (pressed & CONT_X) {
     }
 
-    if (state->joyx != 0 || state->joyy != 0) {
-        // TODO allow setting "cursor" sensitivity
-        cursor_x = MAX(0, MIN(cursor_x + (state->joyx >> 4), SCREEN_WIDTH - 1));
-        cursor_y = MAX(0, MIN(cursor_y + (state->joyy >> 4), SCREEN_HEIGHT - 1));
-        // TODO use separate framebuffer instead of redrawing bg
-        c->redraw_background = true;
-    }
-
     if (state->ltrig) {
         screen_offset_x = INITIAL_SCREEN_X;
         screen_offset_y = INITIAL_SCREEN_Y;
@@ -296,7 +288,17 @@ void platform_poll_events(Client *c) {
         screen_offset_x = MAX(SCREEN_FB_WIDTH - SCREEN_WIDTH, MIN(screen_offset_x - (state->joyx >> 4), 0));
         screen_offset_y = MAX(SCREEN_FB_HEIGHT - SCREEN_HEIGHT, MIN(screen_offset_y - (state->joyy >> 4), 0));
         c->redraw_background = true;
+    } else {
+        // don't move cursor while panning
+        if (state->joyx || state->joyy) {
+            // TODO allow setting "cursor" sensitivity
+            cursor_x = MAX(0, MIN(cursor_x + (state->joyx >> 4), SCREEN_WIDTH - 1));
+            cursor_y = MAX(0, MIN(cursor_y + (state->joyy >> 4), SCREEN_HEIGHT - 1));
+            // TODO use separate framebuffer instead of redrawing bg
+            c->redraw_background = true;
+        }
     }
+
     // TODO see if it becomes exactly 0 on real hw too
     if (state->joyx || state->joyy) {
         int x = cursor_x;

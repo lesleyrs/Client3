@@ -13,6 +13,7 @@
 #include "pix3d.h"
 #include "platform.h"
 #include "world3d.h"
+#include "allocator.h"
 
 SceneData _World3D = {.lowMemory = true};
 extern Pix2D _Pix2D;
@@ -460,8 +461,7 @@ bool world3d_add_loc2(World3D *world3d, int x, int z, int y, int level, int tile
             }
         }
     }
-    Location *loc = calloc(1, sizeof(Location));
-    // Location *loc = rs2_calloc(!temporary, 1, sizeof(Location)); // TODO this leaks still, need to be able to free in allocator just like the pushLocs issue
+    Location *loc = rs2_calloc(!temporary, 1, sizeof(Location));
     loc->bitset = bitset;
     loc->info = info;
     loc->level = level;
@@ -515,6 +515,7 @@ void world3d_clear_temporarylocs(World3D *world3d) {
         Location *loc = world3d->temporaryLocs[i];
         world3d_remove_loc2(world3d, loc);
         world3d->temporaryLocs[i] = NULL;
+        free(loc);
     }
 
     world3d->temporaryLocCount = 0;
@@ -547,7 +548,6 @@ void world3d_remove_loc2(World3D *world3d, Location *loc) {
             }
         }
     }
-    free(loc);
 }
 
 void world3d_set_locmodel(World3D *world3d, int level, int x, int z, Model *model) {
@@ -782,23 +782,23 @@ void world3d_build_models(World3D *world3d, int lightAmbient, int lightAttenuati
                     if (wall->modelB && wall->modelB->vertex_normal) {
                         world3d_merge_locnormals(world3d, level, tileX, tileZ, 1, 1, wall->modelB);
                         world3d_merge_normals(world3d, wall->modelA, wall->modelB, 0, 0, 0, false);
-                        model_apply_lighting(wall->modelB, lightAmbient, attenuation, lightSrcX, lightSrcY, lightSrcZ);
+                        model_apply_lighting(wall->modelB, lightAmbient, attenuation, lightSrcX, lightSrcY, lightSrcZ, false);
                     }
-                    model_apply_lighting(wall->modelA, lightAmbient, attenuation, lightSrcX, lightSrcY, lightSrcZ);
+                    model_apply_lighting(wall->modelA, lightAmbient, attenuation, lightSrcX, lightSrcY, lightSrcZ, false);
                 }
 
                 for (int i = 0; i < tile->locCount; i++) {
                     Location *loc = tile->locs[i];
                     if (loc && loc->model && loc->model->vertex_normal) {
                         world3d_merge_locnormals(world3d, level, tileX, tileZ, loc->maxSceneTileX + 1 - loc->minSceneTileX, loc->maxSceneTileZ - loc->minSceneTileZ + 1, loc->model);
-                        model_apply_lighting(loc->model, lightAmbient, attenuation, lightSrcX, lightSrcY, lightSrcZ);
+                        model_apply_lighting(loc->model, lightAmbient, attenuation, lightSrcX, lightSrcY, lightSrcZ, false);
                     }
                 }
 
                 GroundDecor *decor = tile->groundDecor;
                 if (decor && decor->model->vertex_normal) {
                     world3d_merge_grounddecorationnormals(world3d, level, tileX, tileZ, decor->model);
-                    model_apply_lighting(decor->model, lightAmbient, attenuation, lightSrcX, lightSrcY, lightSrcZ);
+                    model_apply_lighting(decor->model, lightAmbient, attenuation, lightSrcX, lightSrcY, lightSrcZ, false);
                 }
             }
         }

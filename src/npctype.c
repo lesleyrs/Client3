@@ -59,7 +59,6 @@ void npctype_free_global(void) {
     lrucache_free(_NpcType.modelCache);
     free(_NpcType.offsets);
     for (int i = 0; i < 20; i++) {
-        // TODO this doesn't free everything
         free(_NpcType.cache[i]);
     }
     free(_NpcType.cache);
@@ -120,6 +119,7 @@ static void npctype_decode(NpcType *npc, Packet *dat) {
 
             npc->op[code - 30] = gjstr(dat);
             if (platform_strcasecmp(npc->op[code - 30], "hidden") == 0) {
+                free(npc->op[code - 30]);
                 npc->op[code - 30] = NULL;
             }
         } else if (code == 40) {

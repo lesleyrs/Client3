@@ -102,7 +102,6 @@ void model_free_global(void) {
 }
 
 void model_free_calculate_normals(Model *m) {
-    // TODO: calculate_normals is allocating more memory and setting it to null in apply_lighting
     free(m->face_color_a);
     free(m->face_color_b);
     free(m->face_color_c);
@@ -119,11 +118,6 @@ void model_free_label_references(Model *m) {
         free(m->label_faces[i]);
     }
     free(m->label_faces);
-    // TODO: not needed?
-    // m->label_faces_count = 0;
-    // m->label_vertices_count = 0;
-    // m->label_faces_index_count = NULL;
-    // m->label_vertices_index_count = NULL;
     // NOTE these are in the original place already, exception is npctype/playerentity which create label refs before being put in cache
     // m->label_faces = NULL;
     // m->label_vertices = NULL;
@@ -196,15 +190,6 @@ void model_free(Model *model) {
     free(model->face_color_a);
     free(model->face_color_b);
     free(model->face_color_c);
-    // TODO yes or no
-    // for (int v = 0; v < model->vertex_count; v++) {
-    //  free(model->vertex_normal[v]);
-    // }
-    free(model->vertex_normal);
-    // for (int v = 0; v < model->vertex_count; v++) {
-    // 	free(model->vertex_normal_original[v]);
-    // }
-    free(model->vertex_normal_original);
     free(model);
 }
 
@@ -1521,7 +1506,7 @@ void model_calculate_normals(Model *m, int light_ambient, int light_attenuation,
         }
     }
     if (apply_lighting) {
-        model_apply_lighting(m, light_ambient, attenuation, lightsrc_x, lightsrc_y, lightsrc_z);
+        model_apply_lighting(m, light_ambient, attenuation, lightsrc_x, lightsrc_y, lightsrc_z, !use_allocator);
     } else {
         m->vertex_normal_original = rs2_malloc(use_allocator, m->vertex_count * sizeof(VertexNormal *));
         for (int v = 0; v < m->vertex_count; v++) {
@@ -1960,7 +1945,7 @@ int model_mul_color_lightness(int hsl, int scalar, int face_infos) {
     return (hsl & 0xff80) + scalar;
 }
 
-void model_apply_lighting(Model *m, int light_ambient, int light_attenuation, int lightsrc_x, int lightsrc_y, int lightsrc_z) {
+void model_apply_lighting(Model *m, int light_ambient, int light_attenuation, int lightsrc_x, int lightsrc_y, int lightsrc_z, bool _free) {
     for (int f = 0; f < m->face_count; f++) {
         int a = m->face_indices_a[f];
         int b = m->face_indices_b[f];
@@ -1990,11 +1975,14 @@ void model_apply_lighting(Model *m, int light_ambient, int light_attenuation, in
             m->face_color_c[f] = model_mul_color_lightness(color, lightness, info);
         }
     }
-    // TODO somehow free vertex_normal before it's null
-    // for (int v = 0; v < m->vertex_count; v++) {
-    // 	free(m->vertex_normal[v]);
-    // }
-    // free(m->vertex_normal);
+    if (_free) {
+        if (m->vertex_normal) {
+            for (int v = 0; v < m->vertex_count; v++) {
+                free(m->vertex_normal[v]);
+            }
+            free(m->vertex_normal);
+        }
+    }
     m->vertex_normal = NULL;
     m->vertex_normal_original = NULL;
     m->vertex_labels = NULL;

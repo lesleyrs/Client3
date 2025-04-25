@@ -397,10 +397,12 @@ ClientStream *clientstream_opensocket(int port) {
 void clientstream_close(ClientStream *stream) {
     if (stream->socket > -1) {
         close(stream->socket);
-        stream->socket = -1;
+        // stream->socket = -1;
     }
 
-    stream->closed = true;
+    // stream->closed = true;
+    // NOTE: is this ok without closed?
+    free(stream);
 }
 
 int clientstream_available(ClientStream *stream, int len) {

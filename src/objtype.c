@@ -59,7 +59,6 @@ void objtype_free_global(void) {
     lrucache_free(_ObjType.iconCache);
     free(_ObjType.offsets);
     for (int i = 0; i < 10; i++) {
-        // TODO this doesn't free everything?
         free(_ObjType.cache[i]);
     }
     free(_ObjType.cache);
@@ -234,6 +233,7 @@ Pix24 *objtype_get_icon_outline(int id, int count, int outline_color) {
     pix2d_set_clipping(_b, _r, _t, _l);
     _Pix3D.center_x = _cx;
     _Pix3D.center_y = _cy;
+    free(_Pix3D.line_offset);
     _Pix3D.line_offset = _loff;
     _Pix3D.jagged = true;
     if (obj->stackable) {
@@ -339,6 +339,7 @@ Pix24 *objtype_get_icon(int id, int count) {
     pix2d_set_clipping(_b, _r, _t, _l);
     _Pix3D.center_x = _cx;
     _Pix3D.center_y = _cy;
+    free(_Pix3D.line_offset);
     _Pix3D.line_offset = _loff;
     _Pix3D.jagged = true;
     if (obj->stackable) {
@@ -467,6 +468,7 @@ static void objtype_decode(ObjType *obj, Packet *dat) {
 
             obj->op[code - 30] = gjstr(dat);
             if (platform_strcasecmp(obj->op[code - 30], "hidden") == 0) {
+                free(obj->op[code - 30]);
                 obj->op[code - 30] = NULL;
             }
         } else if (code >= 35 && code < 40) {

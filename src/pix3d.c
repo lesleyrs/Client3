@@ -55,8 +55,6 @@ void pix3d_free_global(void) {
     free(_Pix3D.textures);
     free(_Pix3D.texturePalettes);
     free(_Pix3D.activeTexels);
-    // NOTE: line_offset doesn't own it's memory
-    // free(_Pix3D.line_offset);
     free(_Pix3D.reciprical15);
     free(_Pix3D.reciprical16);
     free(_Pix3D.sin_table);
@@ -295,6 +293,7 @@ void pix3d_set_brightness(double brightness) {
         if (_Pix3D.textures[id]) {
             int palette_count = _Pix3D.textures[id]->palette_count;
             int *palette = _Pix3D.textures[id]->palette;
+            free(_Pix3D.texturePalettes[id]);
             _Pix3D.texturePalettes[id] = calloc(palette_count, sizeof(int));
             for (int i = 0; i < palette_count; i++) {
                 _Pix3D.texturePalettes[id][i] = pix3d_set_gamma(palette[i], random_brightness);

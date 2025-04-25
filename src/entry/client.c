@@ -6948,6 +6948,7 @@ void getNpcPos(Client *c, Packet *buf, int size) {
         int index = c->entityRemovalIds[i];
         if (c->npcs[index]->pathing_entity.cycle != _Client.loop_cycle) {
             c->npcs[index]->type = NULL;
+            free(c->npcs[index]);
             c->npcs[index] = NULL;
         }
     }
@@ -7433,7 +7434,6 @@ void client_login(Client *c, const char *username, const char *password, bool re
         client_draw_title_screen(c);
     }
 
-    free(c->stream);
 #ifdef __EMSCRIPTEN__
     c->stream = clientstream_opensocket(_Custom.http_port);
 #else
@@ -7546,7 +7546,10 @@ void client_login(Client *c, const char *username, const char *password, bool re
         }
 
         for (int i = 0; i < MAX_NPC_COUNT; i++) {
-            c->npcs[i] = NULL;
+            if (c->npcs[i]) {
+                free(c->npcs[i]);
+                c->npcs[i] = NULL;
+            }
         }
 
         c->local_player = c->players[LOCAL_PLAYER_INDEX] = playerentity_new();
@@ -7556,9 +7559,8 @@ void client_login(Client *c, const char *username, const char *password, bool re
         for (int level = 0; level < 4; level++) {
             for (int x = 0; x < 104; x++) {
                 for (int z = 0; z < 104; z++) {
-                    if (c->level_obj_stacks[c->currentLevel][x][z]) {
-                        // TODO this is wrong?
-                        // linklist_free(c->level_obj_stacks[c->currentLevel][x][z]);
+                    if (c->level_obj_stacks[level][x][z]) {
+                        linklist_free(c->level_obj_stacks[level][x][z]);
                         c->level_obj_stacks[level][x][z] = NULL;
                     }
                 }
@@ -10070,6 +10072,8 @@ static void client_draw_interface(Client *c, Component *com, int x, int y, int s
             if (model) {
                 model_draw_simple(model, 0, child->yan, 0, child->xan, 0, eyeY, eyeZ);
                 if (_free) {
+                    model_free_label_references(model);
+                    model_free_calculate_normals(model);
                     model_free_share_colored(model, true, true, false);
                 }
             }
