@@ -109,7 +109,9 @@ void playerentity_read(PlayerEntity *entity, Packet *buf) {
         entity->pathing_entity.seqRunId = -1;
     }
 
-    entity->name = jstring_format_name(jstring_from_base37(g8(buf)));
+    char* name = jstring_format_name(jstring_from_base37(g8(buf)));
+    strcpy(entity->name, name);
+    free(name);
     entity->combatLevel = g1(buf);
 
     entity->visible = true;

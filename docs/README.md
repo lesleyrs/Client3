@@ -49,7 +49,7 @@
 - added pix error checking in client_load
 - java static class members are added to a separate global struct
 - java private static class members are now C global static vars
-- for stack allocated arrays/strings we have to check if idx[0] != '\0'
+- for stack allocated arrays/strings we have to check if idx[0] != '\0' or idx[0] for short
 - original unused vars/params casted to (void) to avoid spam with warnings on
 - some input (EG client_update_title username/password) is changed to fit C better
 - some buffer sizes used are just arbitrary due there not being a strict limit

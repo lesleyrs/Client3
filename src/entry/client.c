@@ -1221,7 +1221,7 @@ void handlePrivateChatInput(Client *c, int mouse_x, int mouse_y) {
     }
 
     for (int i = 0; i < 100; i++) {
-        if (c->message_text[i][0] != '\0') {
+        if (c->message_text[i][0]) {
             int type = c->message_type[i];
             if ((type == 3 || type == 7) && (type == 7 || c->private_chat_setting == 0 || (c->private_chat_setting == 1 && client_is_friend(c, c->message_sender[i])))) {
                 int y = 329 - lineOffset * 13;
@@ -2967,7 +2967,7 @@ static void useMenuOption(Client *cl, int optionId) {
             for (int i = 0; i < cl->player_count; i++) {
                 PlayerEntity *player = cl->players[cl->player_ids[i]];
 
-                if (player && player->name && platform_strcasecmp(player->name, name) == 0) {
+                if (player && player->name[0] && platform_strcasecmp(player->name, name) == 0) {
                     client_try_move(cl, cl->local_player->pathing_entity.pathTileX[0], cl->local_player->pathing_entity.pathTileZ[0], player->pathing_entity.pathTileX[0], player->pathing_entity.pathTileZ[0], 2, 1, 1, 0, 0, 0, false);
 
                     if (action == 903) {
@@ -6033,6 +6033,9 @@ void getPlayerExtended2(Client *c, PlayerEntity *player, int index, int mask, Pa
         Packet *appearance = packet_new(data, length);
         gdata(buf, length, 0, data);
 
+        if (c->player_appearance_buffer[index]) {
+            packet_free(c->player_appearance_buffer[index]);
+        }
         c->player_appearance_buffer[index] = appearance;
         playerentity_read(player, appearance);
     }
@@ -6084,7 +6087,7 @@ void getPlayerExtended2(Client *c, PlayerEntity *player, int index, int mask, Pa
         int type = g1(buf);
         int length = g1(buf);
         int start = buf->pos;
-        if (player->name) {
+        if (player->name[0]) {
             int64_t username = jstring_to_base37(player->name);
             bool ignored = false;
             if (type <= 1) {
@@ -6156,6 +6159,7 @@ void getPlayer(Client *c, Packet *buf, int size) {
     for (int i = 0; i < c->entityRemovalCount; i++) {
         int index = c->entityRemovalIds[i];
         if (c->players[index]->pathing_entity.cycle != _Client.loop_cycle) {
+            free(c->players[i]);
             c->players[index] = NULL;
         }
     }
@@ -7541,6 +7545,7 @@ void client_login(Client *c, const char *username, const char *password, bool re
         c->npc_count = 0;
 
         for (int i = 0; i < MAX_PLAYER_COUNT; i++) {
+            free(c->players[i]);
             c->players[i] = NULL;
             if (c->player_appearance_buffer[i]) {
                 packet_free(c->player_appearance_buffer[i]);
@@ -8428,7 +8433,7 @@ static void draw2DEntityElements(Client *c) {
             }
         }
 
-        if (entity->chat[0] != '\0' && (index >= c->player_count || c->public_chat_setting == 0 || c->public_chat_setting == 3 || (c->public_chat_setting == 1 && client_is_friend(c, ((PlayerEntity *)entity)->name)))) {
+        if (entity->chat[0] && (index >= c->player_count || c->public_chat_setting == 0 || c->public_chat_setting == 3 || (c->public_chat_setting == 1 && client_is_friend(c, ((PlayerEntity *)entity)->name)))) {
             projectFromGround(c, entity, entity->height);
 
             if (c->projectX > -1 && c->chatCount < MAX_CHATS) {
@@ -9399,7 +9404,7 @@ void client_draw_chatback(Client *c) {
         int line = 0;
         pix2d_set_clipping(77, 463, 0, 0);
         for (int i = 0; i < 100; i++) {
-            if (c->message_text[i][0] != '\0') {
+            if (c->message_text[i][0]) {
                 int type = c->message_type[i];
                 int offset = c->chat_scroll_offset + 70 - line * 14;
                 if (type == 0) {
@@ -10559,10 +10564,15 @@ void client_free(Client *c) {
     packet_free(c->in);
     packet_free(c->login);
     for (int i = 0; i < MAX_PLAYER_COUNT; i++) {
+        free(c->players[i]);
         if (c->player_appearance_buffer[i]) {
             packet_free(c->player_appearance_buffer[i]);
         }
     }
+    for (int i = 0; i < MAX_NPC_COUNT; i++) {
+        free(c->npcs[i]);
+    }
+
     free(c->design_colors);
 
     linklist_free(c->projectiles);

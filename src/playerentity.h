@@ -7,7 +7,7 @@
 
 typedef struct {
     PathingEntity pathing_entity;
-    char *name;
+    char name[USERNAME_LENGTH + 1];
     bool visible; // = false;
     int gender;
     int headicons;
