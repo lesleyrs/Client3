@@ -4475,8 +4475,8 @@ void client_update_game(Client *c) {
             }
         }
 
-        if (c->shell->mouse_click_button == 1 && c->modal_message) {
-            c->modal_message = NULL;
+        if (c->shell->mouse_click_button == 1 && c->modal_message[0]) {
+            c->modal_message[0] = '\0';
             c->redraw_chatback = true;
             c->shell->mouse_click_button = 0;
         }
@@ -5628,6 +5628,7 @@ bool client_read(Client *c) {
         } else {
             client_add_message(c, 0, message, "");
         }
+        free(message);
         c->packet_type = -1;
         return true;
     }
@@ -7152,7 +7153,7 @@ void getNpcPosOldVis(Client *c, Packet *buf, int size) {
 
 void client_add_message(Client *c, int type, const char *text, const char *sender) {
     if (type == 0 && c->sticky_chat_interface_id != -1) {
-        c->modal_message = text;
+        strcpy(c->modal_message, text);
         c->shell->mouse_click_button = 0;
     }
 
@@ -7588,7 +7589,7 @@ void client_login(Client *c, const char *username, const char *password, bool re
         c->chatback_input_open = false;
         c->menu_visible = false;
         c->show_social_input = false;
-        c->modal_message = NULL;
+        c->modal_message[0] = '\0';
         c->in_multizone = 0;
         c->flashing_tab = -1;
         c->design_gender_male = true;
@@ -7868,7 +7869,7 @@ void client_draw_game(Client *c) {
         c->redraw_chatback = true;
     }
 
-    if (c->modal_message) {
+    if (c->modal_message[0]) {
         c->redraw_chatback = true;
     }
 
@@ -9391,7 +9392,7 @@ void client_draw_chatback(Client *c) {
         sprintf(buf, "%s*", c->chatback_input);
         drawStringCenter(c->font_bold12, 239, 40, "Enter amount:", BLACK);
         drawStringCenter(c->font_bold12, 239, 60, buf, DARKBLUE);
-    } else if (c->modal_message) {
+    } else if (c->modal_message[0]) {
         drawStringCenter(c->font_bold12, 239, 40, c->modal_message, BLACK);
         drawStringCenter(c->font_bold12, 239, 60, "Click to continue", DARKBLUE);
     } else if (c->chat_interface_id != -1) {

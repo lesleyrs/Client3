@@ -200,7 +200,7 @@ struct Client {
     int selected_tab;
     bool chatback_input_open;
     bool show_social_input;
-    const char *modal_message;
+    char modal_message[MAX_STR];
     int in_multizone;
     int flashing_tab;
     bool design_gender_male;
