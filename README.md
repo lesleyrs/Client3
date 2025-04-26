@@ -221,6 +221,7 @@ There's currently no way to type. But it's not required to play the game and you
 TODO: try to make use of dreamcast vram or aram
 TODO: support mouse/keyboard for dreamcast. For mouse and keyboard in flycast you have to set the physical device ports to dreamcast device port, but mouse is not very useful in emu until they hide the system cursor.
 
+NOTE: if the cdi doesn't load you might have to remove --no-padding in Makefile? untested on hardware
 NOTE: local servers don't work on emulator? only live works
 NOTE: fopen path was changed due to the mkdcdisc tool adding dots to files without extension https://gitlab.com/simulant/mkdcdisc/-/issues/14
 ```
