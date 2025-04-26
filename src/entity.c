@@ -39,6 +39,7 @@ void entity_draw_free(Entity *entity, Model *m, int loopCycle) {
         model_free_share_colored(m, true, !spotanim->type->animHasAlpha, false);
     } else if (strcmp(entity->type, "projectile") == 0) {
         ProjectileEntity *projectile = ((ProjectileEntity *)entity);
+        model_free_calculate_normals(m);
         model_free_share_colored(m, true, !projectile->spotanim->animHasAlpha, false);
     }
 }

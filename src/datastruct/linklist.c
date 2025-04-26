@@ -95,5 +95,6 @@ void linklist_clear(LinkList *list) {
             return;
         }
         linkable_unlink(node);
+        free(node);
     }
 }
