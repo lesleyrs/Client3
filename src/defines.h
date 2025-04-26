@@ -53,7 +53,7 @@
 // -1 MB RAM, may cause buffer overflows
 #define MODEL_DEPTH_FACE_COUNT 80
 // -1 MB RAM, may cause more lag
-#define PIX3D_POOL_COUNT 1
+#define PIX3D_POOL_COUNT 5
 // -1 MB RAM, disables login screen flames
 #define DISABLE_FLAMES
 #else

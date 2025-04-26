@@ -6,7 +6,8 @@ DEBUG = 0
 ifeq ($(DEBUG),1)
 CFLAGS += -g
 else
-CFLAGS += -s -O3 -ffast-math -flto=$(shell nproc)
+# -ffast-math causes wrong lvl exp past lvl 80
+CFLAGS += -s -O3 -flto=$(shell nproc)
 endif
 MKDCDISC = /opt/toolchains/dc/mkdcdisc/builddir/mkdcdisc
 
