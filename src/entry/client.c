@@ -3360,17 +3360,28 @@ static void useMenuOption(Client *cl, int optionId) {
             cl->redraw_sidebar = true;
         }
 
-        const char *prefix = com->actionVerb;
+        char *prefix = com->actionVerb;
+        bool free_prefix = false;
         if (indexof(prefix, " ") != -1) {
             prefix = substring(prefix, 0, indexof(prefix, " "));
+            free_prefix = true;
         }
 
-        const char *suffix = com->actionVerb;
+        char *suffix = com->actionVerb;
+        bool free_suffix = false;
         if (indexof(suffix, " ") != -1) {
             suffix = substring(suffix, indexof(suffix, " ") + 1, strlen(suffix));
+            free_suffix = true;
         }
 
         sprintf(cl->spellCaption, "%s %s %s", prefix, com->action, suffix);
+        if (free_prefix) {
+            free(prefix);
+        }
+        if (free_suffix) {
+            free(suffix);
+        }
+
         if (cl->activeSpellFlags == 16) {
             cl->redraw_sidebar = true;
             cl->selected_tab = 3;
