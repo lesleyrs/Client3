@@ -21,7 +21,7 @@ wordfilter isn't ported yet, so you will see your own swear words but others don
 
 locs like fires have no animations as pushLocs is disabled for now, it constantly allocates memory due to always calling model_copy_faces in loctype which requires a different approach. The leaks get worse if the dynamic model cache can't fit all sequences (animations) of the models in an area, disable the allocator to see origins.
 
-fix playground leaks, fix component leaks model/pix24: they get modified in packets so the global component doesn't own that memory anymore.
+fix playground leaks, fix component "indirect" leaks model/pix24: they get modified in packets so the global component doesn't own that memory anymore.
 
 check docs for more TODOs
 ```
