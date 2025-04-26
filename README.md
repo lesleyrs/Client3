@@ -211,7 +211,7 @@ Install [kallistios and mkdcdisc](#tools) and run `make -f dreamcast.mk -j$(npro
 
 To try on real hardware you'd need networking support and the 32 MB ram expansion mod, which seems involved and maybe less compatible with some other games. Flycast seems to be the best emulator and supports both.
 
-See defines.h for inauthentic changes to get below 32MB RAM usage.
+See defines.h for inauthentic changes to get below 32MB RAM usage. The city of Ardougne isn't accessible as it uses up to 12MB ram in allocator.
 
 Controls: joystick = move cursor, Dpad = arrow keys, B = left click, A = right click, Y = control, Ltrig = center screen, Rtrig+joystick = pan screen
 
