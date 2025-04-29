@@ -59,6 +59,8 @@ all home consoles (wii, dreamcast, xbox) should be able to run the game at highe
 
 When adding a new platform also add system ttf font closest to helvetica in gameshell_draw_string when available to avoid Roboto dependency.
 
+To be able to run some emulators on WSL you may need to prefix `MESA_GL_VERSION_OVERRIDE=4.6 MESA_GLSL_VERSION_OVERRIDE=460`.
+
 ### Windows 95 to Windows 11
 build.bat(32 bit): tcc (included), mingw-gcc, emcc
 

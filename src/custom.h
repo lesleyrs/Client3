@@ -4,9 +4,10 @@
 #include <stdbool.h>
 
 typedef struct {
-    bool showDebug;
     bool showPerformance;
+    bool showDebug;
     bool cameraEditor;
+
     bool remember_username;
     bool remember_password;
     bool hide_dns;
