@@ -162,6 +162,8 @@ void platform_new(int width, int height) {
 
 void platform_free(void) {
     nxNetShutdown();
+    SDL_GameControllerClose(pad);
+    SDL_Quit();
 }
 void platform_set_wave_volume(int wavevol) {
 }
