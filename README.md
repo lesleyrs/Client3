@@ -36,7 +36,7 @@ To build simply run `build.bat` in cmd to get the client.exe, it depends on the 
 
 `build.bat -h` shows options, EG `-v 1|2|3` sets SDL version and `-c tcc|gcc|emcc` for system tcc, gcc, emcc
 
-Both tcc and old mingw-gcc can target windows 9x with SDL 1. This (unofficial) release doesn't require msys install: https://github.com/fsb4000/gcc-for-Windows98/releases. mingw-gcc 11 optimizations seem to only be slightly faster than tcc though.
+SDL1 is default for tcc and old mingw-gcc to target windows 9x, but only SDL2/3 have sounds right now. This (unofficial) release doesn't require msys install: https://github.com/fsb4000/gcc-for-Windows98/releases. mingw-gcc 11 optimizations seem to only be slightly faster than tcc though.
 
 type `::perf` command ingame to see fps and lrucache size
 
