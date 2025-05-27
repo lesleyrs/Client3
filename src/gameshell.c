@@ -56,7 +56,7 @@ void gameshell_run(Client *c) {
     int delta = 1;
     int count = 0;
     for (int i = 0; i < 10; i++) {
-        c->shell->otim[i] = get_ticks();
+        c->shell->otim[i] = rs2_now();
     }
     uint64_t ntime;
     while (c->shell->state >= 0) {
@@ -71,7 +71,7 @@ void gameshell_run(Client *c) {
         int lastDelta = delta;
         ratio = 300;
         delta = 1;
-        ntime = get_ticks();
+        ntime = rs2_now();
         if (c->shell->otim[opos] == 0L) {
             ratio = lastRatio;
             delta = lastDelta;
@@ -98,7 +98,7 @@ void gameshell_run(Client *c) {
             delta = c->shell->mindel;
         }
 
-        delay_ticks(delta);
+        rs2_sleep(delta);
         while (count < 256) {
             client_update(c);
             c->shell->mouse_click_button = 0;
@@ -119,14 +119,14 @@ void gameshell_run(Client *c) {
 
 void gameshell_destroy(Client *c) {
     c->shell->state = -1;
-    // delay_ticks(5000); // NOTE really this long?
+    // rs2_sleep(5000); // NOTE really this long?
     // gameshell_shutdown(c);
 }
 
 void gameshell_shutdown(Client *c) {
     c->shell->state = -2;
     client_unload(c);
-    // delay_ticks(1000); // NOTE: original
+    // rs2_sleep(1000); // NOTE: original
     exit(0);
 }
 

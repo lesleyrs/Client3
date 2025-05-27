@@ -352,10 +352,10 @@ void platform_draw_rect(int x, int y, int w, int h, int color) {
 }
 void platform_fill_rect(int x, int y, int w, int h, int color) {
 }
-uint64_t get_ticks(void) {
+uint64_t rs2_now(void) {
     return timer_ms_gettime64();
 }
-void delay_ticks(int ticks) {
-    thd_sleep(ticks);
+void rs2_sleep(int ms) {
+    thd_sleep(ms);
 }
 #endif

@@ -76,10 +76,10 @@ void platform_draw_rect(int x, int y, int w, int h, int color) {
 }
 void platform_fill_rect(int x, int y, int w, int h, int color) {
 }
-uint64_t get_ticks(void) {
+uint64_t rs2_now(void) {
     return sceKernelGetSystemTimeWide() / 1000;
 }
-void delay_ticks(int ticks) {
-    sceKernelDelayThreadCB(ticks * 1000);
+void rs2_sleep(int ms) {
+    sceKernelDelayThreadCB(ms * 1000);
 }
 #endif

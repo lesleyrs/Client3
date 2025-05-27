@@ -170,7 +170,7 @@ void client_load(Client *c) {
             for (int i = retry; i > 0; i--) {
                 sprintf(message, "Error loading - Will retry in %d secs.", i);
                 client_draw_progress(c, message, 10);
-                delay_ticks(1000);
+                rs2_sleep(1000);
             }
             retry *= 2;
             if (retry > 60) {
@@ -476,8 +476,8 @@ void client_load(Client *c) {
     }
 #endif
 
-// TODO temp: wait for wiiu and switch touch input fixes, nxdk get_ticks controller renaming, melonds 32mb emulation
-#if defined(__WIIU__) || defined(__SWITCH__) || defined(NXDK) || defined(__NDS__)
+// TODO temp: wait for wiiu and switch touch input fixes, melonds 32mb emulation
+#if defined(__WIIU__) || defined(__SWITCH__) || defined(__NDS__)
     client_login(c, c->username, c->password, false);
 #endif
 
@@ -827,17 +827,17 @@ static void client_draw_flames(Client *c) {
 
 void client_run_flames(Client *c) {
     static uint64_t next = 0;
-    if (!c->flame_active || next >= get_ticks()) {
+    if (!c->flame_active || next >= rs2_now()) {
         return;
     }
     client_update_flames(c);
     client_update_flames(c);
     client_draw_flames(c);
-    next = get_ticks() + 35; // hardcode interval of 35 to avoid inconsistent rate
+    next = rs2_now() + 35; // hardcode interval of 35 to avoid inconsistent rate
 
     /* NOTE: original
     // try {
-    uint64_t last = get_ticks();
+    uint64_t last = rs2_now();
     int cycle = 0;
     int interval = 20;
     while (c->flame_active) {
@@ -848,7 +848,7 @@ void client_run_flames(Client *c) {
         cycle++;
 
         if (cycle > 10) {
-            uint64_t now = get_ticks();
+            uint64_t now = rs2_now();
             int delay = (int)(now - last) / 10 - interval;
 
             interval = 40 - delay;
@@ -861,7 +861,7 @@ void client_run_flames(Client *c) {
         }
 
         // try {
-        delay_ticks(interval);
+        rs2_sleep(interval);
         // } catch (@Pc(52) Exception ignored) {
         // }
     }
@@ -4326,9 +4326,9 @@ void client_update_game(Client *c) {
                 // if (c->wave_ids[wave] != c->last_wave_id || c->wave_loops[wave] != c->last_wave_loops) {
                 Packet *buf = wave_generate(c->wave_ids[wave], c->wave_loops[wave]);
 
-                if (get_ticks() + (uint64_t)(buf->pos / 22) > c->last_wave_start_time + (uint64_t)(c->last_wave_length / 22)) {
+                if (rs2_now() + (uint64_t)(buf->pos / 22) > c->last_wave_start_time + (uint64_t)(c->last_wave_length / 22)) {
                     c->last_wave_length = buf->pos;
-                    c->last_wave_start_time = get_ticks();
+                    c->last_wave_start_time = rs2_now();
                     // if (c->saveWave(buf->data, buf->pos)) {
                     c->last_wave_id = c->wave_ids[wave];
                     c->last_wave_loops = c->wave_loops[wave];
@@ -7511,7 +7511,7 @@ void client_login(Client *c, const char *username, const char *password, bool re
 
     int reply = clientstream_read_byte(c->stream);
     if (reply == 1) {
-        delay_ticks(2000);
+        rs2_sleep(2000);
         client_login(c, username, password, reconnect);
     } else if (reply == 2 || reply == 18) {
         c->rights = reply == 18;
@@ -10366,7 +10366,7 @@ int main(int argc, char **argv) {
     // init screen before logging is required for some platforms
     if (!platform_init()) {
         rs2_error("Failed to init platform!\n");
-        delay_ticks(5000);
+        rs2_sleep(5000);
         return 1;
     }
     // to print argv on emscripten you need to print index to flush instead of just \n?
@@ -10725,7 +10725,7 @@ Jagfile *load_archive(Client *c, const char *name, int crc, const char *display_
             for (int i = retry; i > 0; i--) {
                 snprintf(message, sizeof(message), "Error loading - Will retry in %d secs.", i);
                 client_draw_progress(c, message, progress);
-                delay_ticks(1000);
+                rs2_sleep(1000);
             }
 
             retry *= 2;

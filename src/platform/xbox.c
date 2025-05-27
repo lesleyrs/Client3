@@ -5,6 +5,7 @@
 #include <nxdk/net.h>
 #include <windows.h>
 
+#include <SDL.h>
 #include <hal/video.h>
 #include <stdlib.h>
 
@@ -104,6 +105,8 @@ static const unsigned char cursor[] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0xff, 0x00, 0x00, 0x01, 0xff,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
+SDL_GameController *pad = NULL;
+
 bool platform_init(void) {
     XVideoSetMode(640, 480, 32, REFRESH_DEFAULT);
     rgbx = (uint32_t *)XVideoGetFB();
@@ -147,6 +150,9 @@ bool platform_init(void) {
         Sleep(2000);
     } */
 
+    if (SDL_Init(SDL_INIT_GAMECONTROLLER) < 0) {
+        debugPrint("SDL_Init failed: %s\n", SDL_GetError());
+    }
     return true;
 }
 
@@ -208,6 +214,151 @@ void set_pixels(PixMap *pixmap, int x, int y) {
 }
 
 void platform_poll_events(Client *c) {
+    SDL_Event e;
+    while (SDL_PollEvent(&e)) {
+        if (e.type == SDL_CONTROLLERDEVICEADDED) {
+            SDL_GameController *new_pad = SDL_GameControllerOpen(e.cdevice.which);
+            if (!pad) {
+                pad = new_pad;
+            }
+        } else if (e.type == SDL_CONTROLLERDEVICEREMOVED) {
+            if (pad == SDL_GameControllerFromInstanceID(e.cdevice.which)) {
+                pad = NULL;
+            }
+            SDL_GameControllerClose(SDL_GameControllerFromInstanceID(e.cdevice.which));
+        } else if (e.type == SDL_CONTROLLERBUTTONDOWN) {
+            if (e.cbutton.button == SDL_CONTROLLER_BUTTON_START) {
+                pad = (SDL_GameControllerFromInstanceID(e.cdevice.which));
+            }
+        }
+    }
+
+    SDL_GameControllerUpdate();
+
+    // TODO need to save button states to avoid repeated presses happening
+    if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_DPAD_LEFT)) {
+        key_pressed(c->shell, K_LEFT, -1);
+    }
+
+    if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_DPAD_RIGHT)) {
+        key_pressed(c->shell, K_RIGHT, -1);
+    }
+
+    if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_DPAD_UP)) {
+        key_pressed(c->shell, K_UP, -1);
+    }
+
+    if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_DPAD_DOWN)) {
+        key_pressed(c->shell, K_DOWN, -1);
+    }
+
+    if (!SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_DPAD_LEFT)) {
+        key_released(c->shell, K_LEFT, -1);
+    }
+
+    if (!SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_DPAD_RIGHT)) {
+        key_released(c->shell, K_RIGHT, -1);
+    }
+
+    if (!SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_DPAD_UP)) {
+        key_released(c->shell, K_UP, -1);
+    }
+
+    if (!SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_DPAD_DOWN)) {
+        key_released(c->shell, K_DOWN, -1);
+    }
+
+    if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_Y)) {
+        key_pressed(c->shell, K_CONTROL, -1);
+    }
+
+    if (!SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_Y)) {
+        key_released(c->shell, K_CONTROL, -1);
+    }
+
+    if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_BACK)) {
+        if (c->ingame) {
+            client_logout(c);
+        }
+    }
+
+    if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_START)) {
+        if (!c->ingame) {
+            client_login(c, c->username, c->password, false);
+        }
+    }
+
+    if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_LEFTSHOULDER)) {
+        // viewport start
+        screen_offset_x = -8;
+        screen_offset_y = -11;
+        c->redraw_background = true;
+    }
+
+    if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_X)) {
+        _Custom.showPerformance = !_Custom.showPerformance;
+    }
+
+    // TODO might not work on real hw and unused: SDL_CONTROLLER_AXIS_LEFTX, SDL_CONTROLLER_AXIS_LEFTY
+    if (SDL_GameControllerGetAxis(pad, SDL_CONTROLLER_AXIS_RIGHTX) != 0 || SDL_GameControllerGetAxis(pad, SDL_CONTROLLER_AXIS_RIGHTY) != 0 || SDL_GameControllerGetAxis(pad, SDL_CONTROLLER_AXIS_RIGHTY) != -1) {
+        c->redraw_background = true;
+
+#define CURSOR_SENSITIVITY 5000
+        // TODO allow changing cursor sensitivity, don't move cursor while panning
+        if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER)) {
+            screen_offset_x = MAX(SCREEN_FB_WIDTH - SCREEN_WIDTH, MIN(screen_offset_x - SDL_GameControllerGetAxis(pad, SDL_CONTROLLER_AXIS_RIGHTX) / CURSOR_SENSITIVITY, 0));
+            screen_offset_y = MAX(SCREEN_FB_HEIGHT - SCREEN_HEIGHT, MIN(screen_offset_y - SDL_GameControllerGetAxis(pad, SDL_CONTROLLER_AXIS_RIGHTY) / CURSOR_SENSITIVITY, 0));
+            // c->redraw_background = true;
+        }
+
+        cursor_x = MAX(0, MIN(cursor_x + SDL_GameControllerGetAxis(pad, SDL_CONTROLLER_AXIS_RIGHTX) / CURSOR_SENSITIVITY, SCREEN_WIDTH - 1));
+        cursor_y = MAX(0, MIN(cursor_y + SDL_GameControllerGetAxis(pad, SDL_CONTROLLER_AXIS_RIGHTY) / CURSOR_SENSITIVITY, SCREEN_HEIGHT - 1));
+
+        int x = cursor_x;
+        int y = cursor_y;
+
+        c->shell->idle_cycles = 0;
+        c->shell->mouse_x = x;
+        c->shell->mouse_y = y;
+
+        if (_InputTracking.enabled) {
+            inputtracking_mouse_moved(&_InputTracking, x, y);
+        }
+    }
+
+    static bool was_pressed = false;
+    // TODO these send wrong inputtracking, need to check individual button
+    if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_A) || SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_B)) {
+        was_pressed = true;
+        int x = cursor_x;
+        int y = cursor_y;
+
+        c->shell->idle_cycles = 0;
+        c->shell->mouse_click_x = x;
+        c->shell->mouse_click_y = y;
+
+        if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_A)) {
+            c->shell->mouse_click_button = 2;
+            c->shell->mouse_button = 2;
+        } else {
+            c->shell->mouse_click_button = 1;
+            c->shell->mouse_button = 1;
+        }
+
+        if (_InputTracking.enabled) {
+            inputtracking_mouse_pressed(&_InputTracking, x, y, SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_A) ? 1 : 0);
+        }
+    }
+
+    if (was_pressed) {
+        was_pressed = false;
+        c->shell->idle_cycles = 0;
+        c->shell->mouse_button = 0;
+
+        if (_InputTracking.enabled) {
+            inputtracking_mouse_released(&_InputTracking, SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_A) ? 1 : 0);
+        }
+    }
 }
 void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
 }
@@ -217,10 +368,10 @@ void platform_draw_rect(int x, int y, int w, int h, int color) {
 }
 void platform_fill_rect(int x, int y, int w, int h, int color) {
 }
-uint64_t get_ticks(void) {
+uint64_t rs2_now(void) {
     return GetTickCount();
 }
-void delay_ticks(int ticks) {
-    Sleep(ticks);
+void rs2_sleep(int ms) {
+    Sleep(ms);
 }
 #endif

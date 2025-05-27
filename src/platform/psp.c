@@ -299,7 +299,7 @@ void platform_poll_events(Client *c) {
         c->redraw_background = true;
 
 #define CURSOR_SENSITIVITY 20
-        // TODO allow changing cursor sensitivity
+        // TODO allow changing cursor sensitivity, don't move cursor while panning
         if (pad.Buttons & PSP_CTRL_RTRIGGER) {
             screen_offset_x = MAX(SCREEN_FB_WIDTH - SCREEN_WIDTH, MIN(screen_offset_x - (pad.Lx - 128) / CURSOR_SENSITIVITY, 0));
             screen_offset_y = MAX(SCREEN_FB_HEIGHT - SCREEN_HEIGHT, MIN(screen_offset_y - (pad.Ly - 128) / CURSOR_SENSITIVITY, 0));
@@ -367,10 +367,10 @@ void platform_draw_rect(int x, int y, int w, int h, int color) {
 }
 void platform_fill_rect(int x, int y, int w, int h, int color) {
 }
-uint64_t get_ticks(void) {
+uint64_t rs2_now(void) {
     return sceKernelGetSystemTimeWide() / 1000;
 }
-void delay_ticks(int ticks) {
-    sceKernelDelayThreadCB(ticks * 1000);
+void rs2_sleep(int ms) {
+    sceKernelDelayThreadCB(ms * 1000);
 }
 #endif

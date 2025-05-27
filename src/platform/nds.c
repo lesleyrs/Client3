@@ -365,13 +365,17 @@ void platform_fill_rect(int x, int y, int w, int h, int color) {
 }
 // TODO: timers are untested
 #define timers2ms(tlow, thigh) (tlow | (thigh << 16)) >> 5
-uint64_t get_ticks(void) {
+uint64_t rs2_now(void) {
     return timers2ms(TIMER0_DATA, TIMER1_DATA);
 }
-void delay_ticks(int ticks) {
+void rs2_sleep(int ms) {
     uint32_t now;
     now = timers2ms(TIMER0_DATA, TIMER1_DATA);
-    while ((uint32_t)timers2ms(TIMER0_DATA, TIMER1_DATA) < now + ticks)
+    while ((uint32_t)timers2ms(TIMER0_DATA, TIMER1_DATA) < now + ms)
         ;
+    /* uint64_t end = rs2_now() + ms;
+
+    while (rs2_now() != end)
+        ; */
 }
 #endif

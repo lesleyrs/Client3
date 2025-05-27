@@ -538,7 +538,7 @@ void platform_draw_string(const char *str, int x, int y, int color, bool bold, i
     draw_string_js(str, x, y, color, bold, size);
 }
 void platform_update_surface(void) {
-    delay_ticks(0); // return a slice of time to the main loop so it can update the progress bar
+    rs2_sleep(0); // return a slice of time to the main loop so it can update the progress bar
 }
 void platform_draw_rect(int x, int y, int w, int h, int color) {
     draw_rect_js(x, y, w, h, color);
@@ -546,10 +546,10 @@ void platform_draw_rect(int x, int y, int w, int h, int color) {
 void platform_fill_rect(int x, int y, int w, int h, int color) {
     fill_rect_js(x, y, w, h, color);
 }
-uint64_t get_ticks(void) {
+uint64_t rs2_now(void) {
     return emscripten_get_now();
 }
-void delay_ticks(int ticks) {
-    emscripten_sleep(ticks);
+void rs2_sleep(int ms) {
+    emscripten_sleep(ms);
 }
 #endif

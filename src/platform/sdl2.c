@@ -976,11 +976,11 @@ void platform_poll_events(Client *c) {
     }
 }
 
-uint64_t get_ticks(void) {
+uint64_t rs2_now(void) {
     return SDL_GetTicks64();
 }
 
-void delay_ticks(int ticks) {
-    SDL_Delay(ticks);
+void rs2_sleep(int ms) {
+    SDL_Delay(ms);
 }
 #endif

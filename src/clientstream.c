@@ -174,7 +174,7 @@ bool clientstream_init(void) {
             }
         }
 
-        delay_ticks(50);
+        rs2_sleep(50);
     }
 #endif
 #ifdef NXDK
@@ -283,7 +283,7 @@ ClientStream *clientstream_opensocket(int port) {
         if (errno == 30 && attempts_ms < 2100 /* timed out, this is the only way to know if it failed */) {
             ret = 0;
         } else {
-            delay_ticks(100);
+            rs2_sleep(100);
             attempts_ms += 100;
         }
     }
@@ -396,12 +396,12 @@ ClientStream *clientstream_opensocket(int port) {
 void clientstream_close(ClientStream *stream) {
     if (stream->socket > -1) {
         close(stream->socket);
-        // stream->socket = -1;
+        stream->socket = -1;
     }
 
-    // stream->closed = true;
-    // TODO: is this ok without closed?
-    free(stream);
+    stream->closed = true;
+    // TODO just let it leak for now
+    // free(stream);
 }
 
 int clientstream_available(ClientStream *stream, int len) {
@@ -481,7 +481,7 @@ int clientstream_read_bytes(ClientStream *stream, int8_t *dst, int off, int len)
                 clientstream_close(stream);
                 return -1;
             } else {
-                delay_ticks(1);
+                rs2_sleep(1);
             }
         }
     }

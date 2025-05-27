@@ -224,7 +224,7 @@ TODO: try to make use of dreamcast vram or aram
 TODO: support mouse/keyboard for dreamcast. For mouse and keyboard in flycast you have to set the physical device ports to dreamcast device port, but mouse is not very useful in emu until they hide the system cursor.
 
 NOTE: if the cdi doesn't load you might have to remove --no-padding in Makefile? untested on hardware
-NOTE: local servers don't work on emulator? only live works
+NOTE: local servers don't work on emulator? only remote servers work
 NOTE: fopen path was changed due to the mkdcdisc tool adding dots to files without extension https://gitlab.com/simulant/mkdcdisc/-/issues/14
 ```
 
@@ -233,13 +233,13 @@ Install [nxdk](#tools) and run `make -f xbox.mk -j$(nproc) -B`. Necessary files 
 
 To run with xemu use `-dvd_path client.iso` as args.
 
-Controls: none yet, it just automatically logs in
+Controls: right analog stick to move the mouse, dpad to rotate camera, B = left click, A = right click, Y = control, X = toggle fps, back = logout, start = login, white = center screen pan, black = pan with right analog stick
 
 ```
-NOTE: local servers don't work on emulator? only live works
+NOTE: local servers don't work on emulator? only remote servers work
 NOTE: default.xbe stays around in rom dir when it's junk for other consoles that embed that directory. Can remove it after building.
 TODO: fopen had to be separated due to the need for backwards slashes, also there's no chdir equivalent?
-TODO: controls (nxdk devs said they would refactor get_ticks name to resolve conflict)
+TODO: save all button states to stop repeated button presses
 ```
 
 ## libraries

@@ -454,22 +454,17 @@ void platform_draw_rect(int x, int y, int w, int h, int color) {
 }
 void platform_fill_rect(int x, int y, int w, int h, int color) {
 }
-uint64_t get_ticks(void) {
+uint64_t rs2_now(void) {
     // TODO: gettime() starts at high value, maybe subtract the initial val
     uint64_t ticks = gettime();
     return (uint64_t)(ticks / TB_TIMER_CLOCK);
 }
-void delay_ticks(int ticks) {
+void rs2_sleep(int ms) {
     struct timespec elapsed, tv;
-    elapsed.tv_sec = ticks / 1000;
-    elapsed.tv_nsec = (ticks % 1000) * 1000000;
+    elapsed.tv_sec = ms / 1000;
+    elapsed.tv_nsec = (ms % 1000) * 1000000;
     tv.tv_sec = elapsed.tv_sec;
     tv.tv_nsec = elapsed.tv_nsec;
     nanosleep(&tv, &elapsed);
-
-    /* uint64_t end = get_ticks() + ticks;
-
-    while (get_ticks() != end)
-        ; */
 }
 #endif

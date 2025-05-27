@@ -47,10 +47,11 @@
 // -I/opt/devkitpro/libnds/include/
 // -I/opt/devkitpro/calico/include/
 
-// -DNXDK
-// -I/home/lesley/dev/c/nxdk/lib
-// -I/home/lesley/dev/c/nxdk/lib/winapi
-// -I/home/lesley/dev/c/nxdk/lib/net/lwip/src/include
+-DNXDK
+-I/home/lesley/dev/c/nxdk/lib
+-I/home/lesley/dev/c/nxdk/lib/winapi
+-I/home/lesley/dev/c/nxdk/lib/net/lwip/src/include
+-I/home/lesley/dev/c/nxdk/lib/sdl/SDL2/include
 
 // -D__EMSCRIPTEN__
 // -I/home/lesley/emsdk/upstream/emscripten/cache/sysroot/include
