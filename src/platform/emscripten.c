@@ -106,7 +106,7 @@ void platform_play_wave(int8_t *src, int length) {
     }
     if (wave_buffer == NULL || wave_length == 0) {
         rs2_error("SDL3: bad wave data\n");
-        SDL_free(wave_buffer);
+        free(wave_buffer);
         return;
     }
     if (g_wavevol != 128) {
@@ -118,16 +118,16 @@ void platform_play_wave(int8_t *src, int length) {
     if (wave_bytes_already_in_stream == 0) {
         if (!SDL_PutAudioStreamData(wave_stream, wave_buffer, wave_length)) {
             rs2_error("SDL3: PutAudioStreamData(Wave) failed: %s\n", SDL_GetError());
-            SDL_free(wave_buffer);
+            free(wave_buffer);
             return;
         }
         if (!SDL_ResumeAudioStreamDevice(wave_stream)) {
             rs2_error("SDL3: ResumeAudioStreamDevice(Wave) failed: %s\n", SDL_GetError());
-            SDL_free(wave_buffer);
+            free(wave_buffer);
             return;
         }
     }
-    SDL_free(wave_buffer);
+    free(wave_buffer);
 }
 
 void platform_set_wave_volume(int wavevol) {
