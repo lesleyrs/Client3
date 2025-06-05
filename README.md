@@ -94,6 +94,7 @@ The only needed files are the index.`html,js,wasm` and optionally the soundfont/
 enable cors in server web.ts with `res.setHeader('Access-Control-Allow-Origin', '*');`
 
 ```
+TODO: JSPI decreases output size a lot, but is locked behind browser flag for now
 TODO: midi fading + scape_main stutters so it's moved to post load + remove SDL2 dep for audio (check tinymidipcm) but it fixes inactive tab speedup too
 TODO: use emscriptens indexeddb api to store data files (add cacheload and cachesave)
 TODO: fullscreen option button
