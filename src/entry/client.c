@@ -10350,7 +10350,7 @@ EM_JS(bool, get_host_js, (char *socketip, size_t len, int *http_port), {
     const url = new URL(window.location.href);
     stringToUTF8(url.hostname, socketip, len);
     if (url.port && url.hostname != 'localhost' && url.hostname != '127.0.0.1') {
-        HEAP32[http_port >> 2] = parseInt(url.port);
+        HEAP32[http_port >> 2] = parseInt(url.port, 10);
     }
     const secured = url.protocol == 'https';
     const protocol = secured ? 'wss' : 'ws';

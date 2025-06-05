@@ -216,7 +216,7 @@ void platform_new(int width, int height) {
         return;
     }
     // Create MIDI audio stream:
-    const SDL_AudioSpec midi_spec = {SDL_AUDIO_F32, 2, 44100};
+    const SDL_AudioSpec midi_spec = {.format = SDL_AUDIO_F32, .channels = 2, .freq = 44100};
 
     g_TinySoundFont = tsf_load_filename("SCC1_Florestan.sf2");
     if (!g_TinySoundFont) {
@@ -235,7 +235,7 @@ void platform_new(int width, int height) {
     }
 
     // Create WAVE audio stream:
-    const SDL_AudioSpec wave_spec = {SDL_AUDIO_U8, 1, 22050};
+    const SDL_AudioSpec wave_spec = {.format = SDL_AUDIO_U8, .channels = 1, .freq = 22050};
     wave_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &wave_spec, NULL, NULL);
     if (!wave_stream) {
         rs2_error("SDL3: OpenAudioDeviceStream(Wave) failed: %s\n", SDL_GetError());

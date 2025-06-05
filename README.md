@@ -99,6 +99,7 @@ TODO: use emscriptens indexeddb api to store data files (add cacheload and cache
 TODO: fullscreen option button
 TODO: mobile controls: touch + rotate + osk + mice, PWA manifest
 
+NOTE: the shell.html js funcs are commented out due to SDL3 audio and libtommath bigint, avoids having external js calls for closure compiler.
 NOTE: Windows js output is larger (didn't go down after removing preloads) and sigint will cause terminate batch job message.
 ```
 

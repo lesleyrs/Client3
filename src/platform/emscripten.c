@@ -1,4 +1,5 @@
 #if defined(__EMSCRIPTEN__) && (!defined(SDL) || SDL == 0)
+#include <SDL3/SDL.h>
 #include <emscripten.h>
 #include <emscripten/html5.h>
 #include <emscripten/key_codes.h>
@@ -90,30 +91,70 @@ EM_JS(void, set_pixels_js, (int x, int y, int width, int height, int *pixels), {
     ctx.putImageData(imageData, x, y);
 })
 
-EM_JS(void, set_wave_volume_js, (int wavevol), {
-    setWaveVolume(wavevol);
-})
+static float *midi_buffer;
+static SDL_AudioStream *midi_stream;
+static SDL_AudioStream *wave_stream = NULL;
+static int g_wavevol = 128;
+void platform_play_wave(int8_t *src, int length) {
+    SDL_AudioSpec wave_spec = {0};
+    uint8_t *wave_buffer = NULL;
+    uint32_t wave_length = 0;
+    SDL_IOStream *sdl_iostream = SDL_IOFromMem(src, length);
+    if (!SDL_LoadWAV_IO(sdl_iostream, true, &wave_spec, &wave_buffer, &wave_length)) {
+        rs2_error("SDL3: LoadWAV_IO failed: %s\n", SDL_GetError());
+        return;
+    }
+    if (wave_buffer == NULL || wave_length == 0) {
+        rs2_error("SDL3: bad wave data\n");
+        SDL_free(wave_buffer);
+        return;
+    }
+    if (g_wavevol != 128) {
+        for (uint32_t i = 0; i < wave_length; i++) {
+            wave_buffer[i] = (wave_buffer[i] - 128) * g_wavevol / 128 + 128;
+        }
+    }
+    const int wave_bytes_already_in_stream = SDL_GetAudioStreamAvailable(wave_stream);
+    if (wave_bytes_already_in_stream == 0) {
+        if (!SDL_PutAudioStreamData(wave_stream, wave_buffer, wave_length)) {
+            rs2_error("SDL3: PutAudioStreamData(Wave) failed: %s\n", SDL_GetError());
+            SDL_free(wave_buffer);
+            return;
+        }
+        if (!SDL_ResumeAudioStreamDevice(wave_stream)) {
+            rs2_error("SDL3: ResumeAudioStreamDevice(Wave) failed: %s\n", SDL_GetError());
+            SDL_free(wave_buffer);
+            return;
+        }
+    }
+    SDL_free(wave_buffer);
+}
 
-EM_JS(void, play_wave_js, (int8_t * src, int length), {
-    playWave(HEAP8.subarray(src, src + length));
-})
+void platform_set_wave_volume(int wavevol) {
+    g_wavevol = wavevol;
+}
 
-static void midi_callback(void *data, uint8_t *stream, int len) {
+static void midi_callback(void *data, SDL_AudioStream *stream, int additional_amount_needed, int total_amount_requested) {
     (void)data;
-// Number of samples to process
-#if SDL == 1
-    int SampleBlock, SampleCount = (len / (2 * sizeof(short))); // 2 output channels
-    for (SampleBlock = TSF_RENDER_EFFECTSAMPLEBLOCK; SampleCount; SampleCount -= SampleBlock, stream += (SampleBlock * (2 * sizeof(short)))) {
-#else
-    int SampleBlock, SampleCount = (len / (2 * sizeof(float))); // 2 output channels
-    for (SampleBlock = TSF_RENDER_EFFECTSAMPLEBLOCK; SampleCount; SampleCount -= SampleBlock, stream += (SampleBlock * (2 * sizeof(float)))) {
-#endif
-        // We progress the MIDI playback and then process TSF_RENDER_EFFECTSAMPLEBLOCK samples at once
-        if (SampleBlock > SampleCount)
-            SampleBlock = SampleCount;
+    (void)total_amount_requested;
+    if (additional_amount_needed == 0) {
+        return;
+    }
+    const float samples_per_second = 44100.0;
+    const float samples_per_millisecond = 1000.0 / samples_per_second;
+    // Number of samples per block
+    const int num_samples_per_block = TSF_RENDER_EFFECTSAMPLEBLOCK;
+    // Number of bytes per block
+    const int num_bytes_per_block = num_samples_per_block * 2 * sizeof(float); // 2 channels F32
+    // Number of bytes that still need to be provided to the Audio Stream; decreases by num_bytes_per_block each iteration.
+    int num_bytes_remaining = additional_amount_needed;
+
+    // Continually read Midi messages until we have no more bytes needed to be sent to the Audio Stream:
+    while (num_bytes_remaining > 0) {
+        // Note: over-feeding Audio Stream is OK, keep the blocks of uniform size.
 
         // Loop through all MIDI messages which need to be played up until the current playback time
-        for (g_Msec += SampleBlock * (1000.0 / 44100.0); g_MidiMessage && g_Msec >= g_MidiMessage->time; g_MidiMessage = g_MidiMessage->next) {
+        for (g_Msec += num_samples_per_block * samples_per_millisecond; g_MidiMessage && g_Msec >= g_MidiMessage->time; g_MidiMessage = g_MidiMessage->next) {
             switch (g_MidiMessage->type) {
             case TML_PROGRAM_CHANGE: // channel program (preset) change (special handling for 10th MIDI channel with drums)
                 tsf_channel_set_presetnumber(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->program, (g_MidiMessage->channel == 9));
@@ -133,12 +174,12 @@ static void midi_callback(void *data, uint8_t *stream, int len) {
             }
         }
 
-// Render the block of audio samples in float format
-#if SDL == 1
-        tsf_render_short(g_TinySoundFont, (int16_t *)stream, SampleBlock, 0);
-#else
-        tsf_render_float(g_TinySoundFont, (float *)stream, SampleBlock, 0);
-#endif
+        // Provide one block of samples to the Audio Stream
+        tsf_render_float(g_TinySoundFont, midi_buffer, num_samples_per_block, 0);
+        if (!SDL_PutAudioStreamData(stream, midi_buffer, num_bytes_per_block)) {
+            rs2_error("SDL3: PutAudioStreamData failed: %s\n", SDL_GetError());
+        }
+        num_bytes_remaining -= num_bytes_per_block;
     }
 }
 
@@ -146,25 +187,19 @@ bool platform_init(void) {
     return true;
 }
 
-#include <SDL.h>
 void platform_new(int width, int height) {
     emscripten_set_canvas_element_size("#canvas", width, height);
 
-    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+    if (_Client.lowmem) {
+        return;
+    }
+
+    if (!SDL_Init(SDL_INIT_AUDIO)) {
         rs2_error("SDL_Init failed: %s\n", SDL_GetError());
         return;
     }
 
-    SDL_AudioSpec midiSpec;
-    midiSpec.freq = 44100;
-#if SDL == 1
-    midiSpec.format = AUDIO_S16SYS;
-#else
-    midiSpec.format = AUDIO_F32;
-#endif
-    midiSpec.channels = 2;
-    midiSpec.samples = 4096;
-    midiSpec.callback = midi_callback;
+    const SDL_AudioSpec midi_spec = {.format = SDL_AUDIO_F32, .channels = 2, .freq = 44100};
 
     void *buffer = NULL;
     int size = 0;
@@ -179,28 +214,33 @@ void platform_new(int width, int height) {
         rs2_error("Could not load SoundFont\n");
     } else {
         // Set the SoundFont rendering output mode
-        tsf_set_output(g_TinySoundFont, TSF_STEREO_INTERLEAVED, midiSpec.freq, 0.0f);
+        tsf_set_output(g_TinySoundFont, TSF_STEREO_INTERLEAVED, midi_spec.freq, 0.0f);
 
-        if (SDL_OpenAudio(&midiSpec, NULL) < 0) {
-            rs2_error("Could not open the audio hardware or the desired audio output format\n");
+        midi_buffer = malloc(TSF_RENDER_EFFECTSAMPLEBLOCK * 2 * sizeof(float));
+        midi_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &midi_spec, midi_callback, NULL);
+        if (!midi_stream) {
+            rs2_error("SDL3: OpenAudioDeviceStream(Midi) failed: %s\n", SDL_GetError());
         }
-        SDL_PauseAudio(0);
+        if (!SDL_ResumeAudioStreamDevice(midi_stream)) {
+            rs2_error("SDL3: ResumeAudioStreamDevice failed: %s\n", SDL_GetError());
+        }
+    }
+
+    // Create WAVE audio stream:
+    const SDL_AudioSpec wave_spec = {.format = SDL_AUDIO_U8, .channels = 1, .freq = 22050};
+    wave_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &wave_spec, NULL, NULL);
+    if (!wave_stream) {
+        rs2_error("SDL3: OpenAudioDeviceStream(Wave) failed: %s\n", SDL_GetError());
     }
 }
 
 void platform_free(void) {
 }
-void platform_set_wave_volume(int wavevol) {
-    set_wave_volume_js(wavevol);
-}
-void platform_play_wave(int8_t *src, int length) {
-    play_wave_js(src, length);
-}
 void platform_set_midi_volume(float midivol) {
     if (_Client.lowmem) {
         return;
     }
-    if (SDL_GetAudioStatus() != SDL_AUDIO_STOPPED) {
+    if (midi_stream) {
         tsf_set_volume(g_TinySoundFont, midivol);
     }
 }
@@ -242,7 +282,7 @@ void platform_stop_midi(void) {
     if (_Client.lowmem) {
         return;
     }
-    if (SDL_GetAudioStatus() != SDL_AUDIO_STOPPED) {
+    if (midi_stream) {
         g_MidiMessage = NULL;
         g_Msec = 0;
         tsf_reset(g_TinySoundFont);

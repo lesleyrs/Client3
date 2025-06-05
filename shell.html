@@ -29,6 +29,7 @@
   <body>
     <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
     <script type='text/javascript'>
+    /*
       window.AudioContext = window.AudioContext || window.webkitAudioContext;
       if (window.AudioContext) {
           window.audioContext = new window.AudioContext();
@@ -100,6 +101,7 @@
           url.searchParams.set(name, value);
           window.history.pushState(null, '', url.toString());
       }
+    */
 
       var Module = {
         arguments: [],

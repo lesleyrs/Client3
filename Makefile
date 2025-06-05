@@ -17,7 +17,8 @@ MODERN_POSIX ?= 1
 RSA_LENGTH ?= 128
 
 ifeq ($(basename $(notdir $(CC))),emcc)
-WITH_JS_BIGINT ?= 1
+# TODO: JS_BIGINT disabled for closure compiler, can be fixed?
+# WITH_JS_BIGINT ?= 1
 # getnameinfo does nothing with emscripten so use old api
 MODERN_POSIX = 0
 # we don't use SDL by default to avoid Firefox lag without having to use requestAnimationFrame if focussed
@@ -108,8 +109,9 @@ CFLAGS += -sSTACK_SIZE=1048576 -sINITIAL_HEAP=50MB
 CFLAGS += -sALLOW_MEMORY_GROWTH -sASSERTIONS=2
 CFLAGS += -sDEFAULT_TO_CXX=0
 # CFLAGS += -sWEBSOCKET_URL=wss://
-# TODO: rm temp
-LDFLAGS += --use-port=sdl2
+ifeq ($(SDL),)
+LDFLAGS += --use-port=sdl3
+endif
 endif
 
 ifeq ($(SDL),1)
@@ -165,6 +167,9 @@ ifeq ($(DEBUG),0)
 ifeq ($(basename $(notdir $(CC))),emcc)
 # TODO use -Oz or -O3?
 CFLAGS += -DNDEBUG -s -Oz -ffast-math
+ifeq ($(SDL),)
+CFLAGS += --closure 1
+endif
 else
 CFLAGS += -DNDEBUG -s -O3 -ffast-math
 endif
