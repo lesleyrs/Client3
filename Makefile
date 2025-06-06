@@ -106,8 +106,8 @@ CFLAGS += --shell-file shell.html
 # CFLAGS += -sJSPI
 CFLAGS += -sASYNCIFY
 CFLAGS += -sSTACK_SIZE=1048576 -sINITIAL_HEAP=50MB
-CFLAGS += -sALLOW_MEMORY_GROWTH -sASSERTIONS=2
-CFLAGS += -sDEFAULT_TO_CXX=0
+CFLAGS += -sALLOW_MEMORY_GROWTH
+CFLAGS += -sDEFAULT_TO_CXX=0 -sENVIRONMENT=web
 # CFLAGS += -sWEBSOCKET_URL=wss://
 ifeq ($(SDL),)
 LDFLAGS += --use-port=sdl3
@@ -180,7 +180,7 @@ CFLAGS += -flto
 endif
 else ifeq ($(DEBUG),1)
 ifeq ($(basename $(notdir $(CC))),emcc)
-CFLAGS += -gsource-map
+CFLAGS += -gsource-map -sASSERTIONS=2
 # LDFLAGS += -sSOCKET_DEBUG -sRUNTIME_DEBUG=0
 SAN += -fsanitize=null -fsanitize-minimal-runtime
 # SAN += -fsanitize=undefined
