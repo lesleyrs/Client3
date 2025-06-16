@@ -29,28 +29,17 @@ check docs for more TODOs
 ## quickstart for windows
 All you need to build for 32 bit windows is included:
 * tinycc (C compiler, built with `TCC_C=..\tcc.c` env var and some removed libs for smaller distribution)
-* libtommath mpi.c OR libeay32.dll for faster rsa
 * all 32 bit SDL dlls, only SDL1 works prior to windows XP and is always 32 bit unlike the others
 
-To build simply run `build.bat` in cmd to get the client.exe, it depends on the cache + SDL.dll, libeay32.dll, and optionally .sf2 soundfont/config.ini
+To build simply run `build.bat` in cmd to get the client.exe, it depends on the cache + SDL.dll, and optionally .sf2 soundfont/config.ini
 
 `build.bat -h` shows options, EG `-v 1|2|3` sets SDL version and `-c tcc|gcc|emcc` for system tcc, gcc, emcc
 
-SDL1 is default for tcc and old mingw-gcc to target windows 9x, but only SDL2/3 have sounds right now. This (unofficial) release doesn't require msys install: https://github.com/fsb4000/gcc-for-Windows98/releases. mingw-gcc 11 optimizations seem to only be slightly faster than tcc though.
+SDL1 is default for tcc and old mingw-gcc to target windows 9x, but only SDL2/3 have sfx right now. This (unofficial) release doesn't require msys install: https://github.com/fsb4000/gcc-for-Windows98/releases. mingw-gcc 11 optimizations seem to only be slightly faster than tcc though.
 
 type `::perf` command ingame to see fps and lrucache size
 
-If the client fails to start you either aren't passing cli args and don't have a config.ini OR you are using a SDL dll for the wrong architecture. Delete them and it should copy during next build
-
-## Java client
-The 2004 jar is stored for comparisons, run with EG: `java -cp bin/runescape.jar client 10 0 highmem members` but:
-- there is no audio, it saves audio files for the browser to play which is no longer applicable
-- right clicking breaks past java 8
-- window insets on modern systems are causing the sides of the game to be cut off slightly
-- outside of windows it saves the cache to `/tmp` so every reboot you may have to redownload it
-- it only connects to localhost if it's not running as applet
-- server http port needs to be set to 80 (2004scape on linux defaults to 8888 right now to avoid sudo)
-- TODO confirm: to connect to local java servers on WSL from Windows you might need to add `-Djava.net.preferIPv6Addresses=true` when running client
+If the client fails to start you either aren't passing cli args and don't have a config.ini OR you are using a SDL dll for the wrong architecture. Delete it and it'll be copied during next build
 
 ## Platforms and Compilers
 To move the executable you have to take the `cache/` and optionally `config.ini`, `SCC1_Florestan.sf2` and `Roboto/` along with it. The consoles will load it from sdcard if they don't embed the files already.
@@ -61,6 +50,8 @@ When adding a new platform also add system ttf font closest to helvetica in game
 
 To be able to run some emulators on WSL you may need to prefix `MESA_GL_VERSION_OVERRIDE=4.6 MESA_GLSL_VERSION_OVERRIDE=460`.
 
+[v86](#tools) is a x86 PC emulator running in the browser, including older windows.
+
 ### Windows 95 to Windows 11
 build.bat(32 bit): tcc (included), mingw-gcc, emcc
 
@@ -70,10 +61,10 @@ You might want the updated [PowerShell](https://github.com/PowerShell/PowerShell
 
 ```
 TODO: add wav sfx to complete SDL1 platform for win9x
-TODO: confirm win9x work still (can use both libtom or openssl), maybe add screenshot to /docs
-TODO: do we assume windows 95 has -lws2_32, otherwise re-add -lwsock32 and remove -DMODERN_POSIX in batch file
 TODO: make win9x compatible batch file (no delayed expansion?) right now needs to build from more modern system
 TODO: clean up ps1 script so it doesn't need to be modified
+
+NOTE: on v86 PC emulator the cursor flickers on win95, and both win9x colours are wrong? win2k is fine
 ```
 
 ### Linux GNU or musl
@@ -97,20 +88,16 @@ enable cors in server web.ts with `res.setHeader('Access-Control-Allow-Origin', 
 TODO: JSPI decreases output size a lot, but is locked behind browser flag for now
 TODO: midi fading + scape_main stutters so it's moved to post load + remove SDL2 dep for audio (check tinymidipcm) but it fixes inactive tab speedup too
 TODO: use emscriptens indexeddb api to store data files (add cacheload and cachesave)
+TODO: try adding web worker server compat again: https://emscripten.org/docs/api_reference/wasm_workers.html
 TODO: fullscreen option button
 TODO: mobile controls: touch + rotate + osk + mice, PWA manifest
+TODO: remove the full SDL targets for web due to settimeout lag use emscripten.c instead (then we can use SDL define again)
+TODO: fix closure undefined error? prefer SDL2 in emscripten.c with jsbigint+playwave for smaller size
 
-NOTE: the shell.html js funcs are commented out due to SDL3 audio and libtommath bigint, avoids having external js calls for closure compiler.
-NOTE: Windows js output is larger (didn't go down after removing preloads) and sigint will cause terminate batch job message.
-```
-
-old:
-```
-TODO: try adding web worker server compat again: https://emscripten.org/docs/api_reference/wasm_workers.html
-TODO: if the tab is unfocused on web the game will speed up, the typescript client uses absolute time for idlecycles. SDL2 audio fixes this, even lowmem
-TODO: SDL2/3+emscripten on firefox has memleaks, gets cleaned up by pressing GC in about:memory but why does this happen?
-NOTE: SDL ports aren't used by default to avoid lag issues on Firefox, reduce output size, and prevent browser shortcuts being disabled. It's fixable by switching between requestAnimationFrame and setTimeout based on if the tab is focused, but using the emscripten api directly requires no changes and works well with just setTimeout.
-NOTE: bring back worldlist loading in [shell.html](https://github.com/lesleyrs/Client3/commit/5da924b9f766005e82163d899e52a5df2f771584#diff-c878553ed816480a5e85ff602ff3c5d38788ca1d21095cd8f8ebc36a4dbc07ee) if it gets re-added for live servers
+NOTE: Windows and Linux output size might differ and sigint on Windows will cause terminate batch job message if using emrun.
+NOTE: SDL2/3 audio prevents the tab from speeding up when changing focus even in lowmem, the typescript client uses absolute time for idlecycles.
+NOTE: SDL2/3 emscripten ports have setTimeout lag issues, block browser shortcuts in generated js, and memleaks on firefox that get cleaned up by pressing GC in about:memory but why does this happen? (not if only using audio)
+NOTE: maybe bring back worldlist loading in [shell.html](https://github.com/lesleyrs/Client3/commit/5da924b9f766005e82163d899e52a5df2f771584#diff-c878553ed816480a5e85ff602ff3c5d38788ca1d21095cd8f8ebc36a4dbc07ee) if it gets re-added for live servers
 ```
 
 ### Android
@@ -244,6 +231,16 @@ TODO: fopen had to be separated due to the need for backwards slashes, also ther
 TODO: save all button states to stop repeated button presses
 ```
 
+## Java client
+The 2004 jar is stored for comparisons, run with EG: `java -cp bin/runescape.jar client 10 0 highmem members` but:
+- there is no audio, it saves audio files for the browser to play which is no longer applicable
+- right clicking breaks past java 8
+- window insets on modern systems are causing the sides of the game to be cut off slightly
+- outside of windows it saves the cache to `/tmp` so every reboot you may have to redownload it
+- it only connects to localhost if it's not running as applet
+- server http port needs to be set to 80 (2004scape on linux defaults to 8888 right now to avoid sudo)
+- TODO confirm: to connect to local java servers on WSL from Windows you might need to add `-Djava.net.preferIPv6Addresses=true` when running client
+
 ## libraries
 * [micro-bunzip](https://landley.net/code/) | https://landley.net/code/bunzip-4.1.c
 * [isaac](https://burtleburtle.net/bob/rand/isaacafa.html) | https://burtleburtle.net/bob/c/readable.c
@@ -255,10 +252,6 @@ TODO: save all button states to stop repeated button presses
 
 ## optional libraries
 * [OpenSSL](https://github.com/openssl/openssl) | https://wiki.openssl.org/index.php/Binaries
-
-32 bit libeay32.dll from: [gnuwin32](https://gnuwin32.sourceforge.net/packages/openssl.htm)
-
-emcc libcrypto.a from: [get-openssl-wasm.sh](bin/get-openssl-wasm.sh)
 
 * [SDL-1.2](https://github.com/libsdl-org/SDL-1.2) | [SDL-2/SDL-3](https://github.com/libsdl-org/SDL) | https://libsdl.org/release/
 
@@ -274,3 +267,4 @@ Latest SDL1 already contains the tcc fix but they don't make new releases for it
 * [kallistios](https://github.com/KallistiOS/KallistiOS) | [mkdcdisc](https://gitlab.com/simulant/mkdcdisc)
 * [nxdk](https://github.com/XboxDev/nxdk)
 * [android command line tools](https://developer.android.com/studio)
+* [v86](https://github.com/copy/v86.git) | https://copy.sh/v86/

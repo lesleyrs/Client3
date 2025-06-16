@@ -15,27 +15,19 @@ SANITIZE ?= 0
 MODERN_POSIX ?= 1
 # RSA bits divided by 4? 128 for 512, 256 for 1024
 RSA_LENGTH ?= 128
+WITH_OPENSSL ?= 1
+WITH_LIBTOM ?= 1
 
 ifeq ($(basename $(notdir $(CC))),emcc)
 # TODO: JS_BIGINT disabled for closure compiler, can be fixed?
 # WITH_JS_BIGINT ?= 1
 # getnameinfo does nothing with emscripten so use old api
 MODERN_POSIX = 0
-# we don't use SDL by default to avoid Firefox lag without having to use requestAnimationFrame if focussed
-# SDL = 2
 else ifeq ($(findstring i686-w64-mingw32-gcc,$(CC)),i686-w64-mingw32-gcc)
-# sdl1 dll is the only one guaranteed to be 32 bits, others can be found in bin
+# SDL1 guaranteed to be 32 bits and runs on windows 95
 SDL = 1
 else
 SDL ?= 2
-endif
-
-# we only include 32 bit libcrypto to simplify building for legacy systems
-ifeq ($(CC),x86_64-w64-mingw32-gcc)
-WITH_OPENSSL = 0
-else
-# WITH_OPENSSL ?= 1
-WITH_LIBTOM ?= 1
 endif
 
 ifeq ($(ENTRY),midi)
@@ -87,18 +79,8 @@ CFLAGS += -DWITH_RSA_LIBTOM
 # LDFLAGS += $(shell pkg-config --libs libtommath)
 else ifeq ($(WITH_OPENSSL), 1)
 CFLAGS += -DWITH_RSA_OPENSSL
-ifeq ($(basename $(notdir $(CC))),emcc)
-CFLAGS += -Ibin/openssl-web/include
-LDFLAGS += -Lbin/openssl-web -lcrypto
-# CFLAGS += $(shell pkg-config --cflags openssl/libcrypto.pc)
-# LDFLAGS += $(shell pkg-config --libs openssl/libcrypto.pc)
-else ifeq ($(findstring -w64-mingw32-gcc,$(CC)),-w64-mingw32-gcc)
-CFLAGS += -Ibin/openssl-0.9.8h-1-lib/include
-LDFLAGS += -Lbin/openssl-0.9.8h-1-lib/lib -lcrypto
-else
 CFLAGS += $(shell pkg-config --cflags libcrypto)
 LDFLAGS += $(shell pkg-config --libs libcrypto)
-endif
 endif
 
 ifeq ($(basename $(notdir $(CC))),emcc)
@@ -159,7 +141,7 @@ endif
 endif
 
 ifeq ($(findstring -w64-mingw32-gcc,$(CC)),-w64-mingw32-gcc)
-LDFLAGS += -lws2_32
+LDFLAGS += -lws2_32 -lwsock32
 DEBUG = 0
 endif
 
@@ -243,10 +225,10 @@ scan:
 	scan-build $(MAKE) -j$(shell nproc)
 
 san:
-	$(MAKE) -j$(shell nproc) WITH_OPENSSL=1 DEBUG=1 SANITIZE=1 run
+	$(MAKE) -j$(shell nproc) DEBUG=1 SANITIZE=1 run
 
 dev:
-	$(MAKE) -j$(shell nproc) WITH_OPENSSL=1 DEBUG=1 vg
+	$(MAKE) -j$(shell nproc) DEBUG=1 vg
 
 cursor:
 	convert bin/cursor.png -depth 8 rgba:- | xxd -i -n cursor

@@ -22,7 +22,7 @@ $mingw_inc = "bin\SDL2-2.30.9\x86_64-w64-mingw32\include\SDL2"
 $mingw_lib = "bin\SDL2-2.30.9\x86_64-w64-mingw32\lib"
 
 # TODO add -DSDL and -Dclient/midi/playground
-# TODO clean this file and update it with ssl/non-ssl versions, and debug/release
+# TODO clean this file + default to libtom + debug/release
 # TODO cl add -MT or -MD -DNDEBUG -O3 -fp:fast and debug: -MTd or -MDd -Zi -Od -RTC1
 # NOTE adding compiler to path after launching developer shell is not effective
 # NOTE for console subsystem SDL2main.lib and Shell32.lib are unneeded if include "SDL.h" is removed from client.c (sdl3 doesn't need it at all)
@@ -53,23 +53,14 @@ $src = (Get-ChildItem -Path "src" -Filter "*.c" -Recurse | ForEach-Object { $_.F
 # cl -D_CRT_SECURE_NO_WARNINGS -W3 -Zi -Feclient $src -I"$inc" -Dclient -DSDL=2 -DMODERN_POSIX -DWITH_RSA_OPENSSL -I"C:\Program Files\FireDaemon OpenSSL 3\include" -link -libpath:"C:\Program Files\FireDaemon OpenSSL 3\lib" -libpath:"$lib" -nologo libcrypto.lib SDL2.lib SDL2main.lib Shell32.lib Ws2_32.lib -subsystem:console && ./client.exe $args
 # cl -D_CRT_SECURE_NO_WARNINGS -W3 -Zi -Feclient $src -I"$inc" -link -libpath:"$lib" -nologo SDL2.lib SDL2main.lib Shell32.lib Ws2_32.lib -subsystem:console && ./client.exe $args
 
-# TODO make a release build
-# emcc -fwrapv -gsource-map --shell-file shell.html --preload-file cache/client --preload-file SCC1_Florestan.sf2 --preload-file Roboto @src -DWITH_RSA_BIGINT -Dclient -DSDL=2 --use-port=sdl2 -sALLOW_MEMORY_GROWTH -sINITIAL_HEAP=50MB -sSTACK_SIZE=1048576 -o index.html -sASYNCIFY -fsanitize=null -fsanitize-minimal-runtime -sSTRICT_JS -sDEFAULT_TO_CXX=0 && emrun --no-browser --hostname 0.0.0.0 .
-
-$sslinc = "bin/openssl-web/include"
-$ssllib = "bin/openssl-web"
-# emcc -fwrapv -gsource-map --shell-file shell.html --preload-file cache/client --preload-file SCC1_Florestan.sf2 --preload-file Roboto @src -I"$sslinc" -L"$ssllib" -lcrypto -DWITH_RSA_OPENSSL -Dclient -DSDL=2 --use-port=sdl2 -sALLOW_MEMORY_GROWTH -sINITIAL_HEAP=50MB -sSTACK_SIZE=1048576 -o index.html -sASYNCIFY -fsanitize=null -fsanitize-minimal-runtime -sSTRICT_JS -sDEFAULT_TO_CXX=0 && emrun --no-browser --hostname 0.0.0.0 .
-
 # windows 98 need to link sdlmain instead of -DSDL_main=main?
 $sdl12_inc = "bin\SDL-devel-1.2.15-VC\SDL-1.2.15\include"
 # tcc $src -std=c99 -Wall -Wimplicit-function-declaration -Wwrite-strings -I"$sdl12_inc" -lws2_32 "-Wl,-subsystem=console" -DSDL=1 -DWITH_RSA_OPENSSL -Ibin/openssl-0.9.8h-1-lib/include -v -o client.exe SDL.dll libeay32.dll $args
 # ..\tinycc\win32\tcc.exe $src -std=c99 -Wall -Werror -Wimplicit-function-declaration -Wwrite-strings -DSDL=1 -I"$sdl12_inc" "-Wl,-subsystem=console" -DSDL_main=main -v -o client.exe SDL.dll && ./client $args
 # ..\tinycc\win32\tcc.exe src/entry/midi.c src/packet.c src/lib/isaac.c src/lib/bzip.c -DSDL=1 -DMIDI -std=c99 -Wall -I"$sdl12_inc" -DSDL_main=main -v -o midi.exe SDL.dll $args
 
-# -march=pentiumpro -mtune=pentiumpro
 # gcc $src -s -O3 -ffast-math -std=c99 -Wall -Wimplicit-function-declaration -Wwrite-strings -DSDL=1 -I"$sdl12_inc" "-Wl,-subsystem=windows" -DSDL_main=main -o client.exe SDL.dll && ./client $args
 # gcc src/entry/midi.c src/packet.c src/lib/isaac.c src/lib/bzip.c -s -O3 -ffast-math -DSDL=1 -DMIDI -std=c99 -Wall -I"$sdl12_inc" "-Wl,-subsystem=console" -DSDL_main=main -o midi.exe SDL.dll $args
-
 
 # other entrypoints, needs updating
 # PLAYGROUND
