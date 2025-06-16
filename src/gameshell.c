@@ -306,7 +306,7 @@ void gameshell_draw_string(GameShell *shell, const char *str, int x, int y, int 
 #else
     FILE *file = NULL;
 #endif
-#if defined(_WIN32) || defined(_WIN64)
+#if defined(_WIN32)
     // c:/windows/fonts/ - arialbd
     file = fopen("c:/windows/fonts/arialbd.ttf", "rb");
 #elif defined(__linux__) && !defined(ANDROID)
@@ -320,7 +320,10 @@ void gameshell_draw_string(GameShell *shell, const char *str, int x, int y, int 
 #endif
 
     if (!file) {
-#ifdef NXDK
+#ifdef _WIN32
+        // fallback for windows 2000 and maybe other windows NT
+        file = fopen("c:/winnt/fonts/arialbd.ttf", "rb");
+#elif NXDK
         file = fopen("D:\\Roboto\\Roboto-Bold.ttf", "rb");
 #elif ANDROID
         file = SDL_RWFromFile("Roboto/Roboto-Bold.ttf", "rb");
@@ -328,9 +331,14 @@ void gameshell_draw_string(GameShell *shell, const char *str, int x, int y, int 
         file = fopen("Roboto/Roboto-Bold.ttf", "rb");
 #endif
         if (!file) {
-            // TODO: won't show errors on screen if no font, try use native text drawing for all platforms if no system font or embedded ttf
-            rs2_error("Failed to open font file\n");
-            return;
+#ifdef _WIN32
+            file = fopen("c:/reactos/fonts/arialbd.ttf", "rb");
+#endif
+            if (!file) {
+                // TODO: won't show errors on screen if no font, try use native text drawing for all platforms if no system font or embedded ttf
+                rs2_error("Failed to open font file\n");
+                return;
+            }
         }
     }
 

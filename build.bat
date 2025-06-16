@@ -58,7 +58,6 @@ if "%ENTRY%" == "midi" (
 	set SRC=src/entry/midi.c src/thirdparty/bzip.c -DSDL_main=main
 )
 
-REM are the mingw and VC dlls the same?
 if not exist SDL2.dll (
 	copy bin\SDL2-devel-2.30.9-VC\SDL2-2.30.9\lib\x86\SDL2.dll SDL2.dll
 )
@@ -67,11 +66,12 @@ if not exist SDL3.dll (
 	copy bin\SDL3-devel-3.1.6-VC\SDL3-3.1.6\lib\x86\SDL3.dll SDL3.dll
 )
 
+REM add emscripten debug
 if "%CC%" == "cl" (
 	echo TODO support some legacy version
 	exit /B 1
 ) else if "%CC%" == "emcc" (
-	%CC% %SRC% -fwrapv -gsource-map --use-port=sdl3 --shell-file shell.html -s -Oz -ffast-math -flto --closure 1 -std=c99 -DWITH_RSA_LIBTOM -D%ENTRY% -sALLOW_MEMORY_GROWTH -sINITIAL_HEAP=50MB -sSTACK_SIZE=1048576 -o index.html -sASYNCIFY -sSTRICT_JS -sDEFAULT_TO_CXX=0 && emrun --no-browser --hostname 0.0.0.0 .
+	%CC% %SRC% -fwrapv --use-port=sdl3 --shell-file shell.html -s -Oz -ffast-math -flto --closure 1 -std=c99 -DWITH_RSA_LIBTOM -D%ENTRY% -sALLOW_MEMORY_GROWTH -sINITIAL_HEAP=50MB -sSTACK_SIZE=1048576 -o index.html -sASYNCIFY -sSTRICT_JS -sDEFAULT_TO_CXX=0 && emrun --no-browser --hostname 0.0.0.0 .
 ) else if "%CC%" == "gcc" (
 	%CC% %SRC% -s -O3 -ffast-math -std=c99 -DSDL_main=main -DWITH_RSA_LIBTOM -D%ENTRY% %SDL% -lws2_32 -lwsock32 %OPT% -o %ENTRY%.exe SDL%VER%.dll
 ) else (
