@@ -7,7 +7,7 @@ Features:
 - should work on any 32 bit system with 64 MB of RAM on lowmem, networking and a (read-only) filesystem.
 - webassembly build to avoid javascript code being optimized out by the browser.
 - WIP ports for most game consoles from 1998 until 2013! Ones with incomplete input are set up to auto-connect.
-- optional [config.ini](config.ini.example) file to change client behaviour. Create an empty config.ini to avoid passing cli args.
+- optional [config.ini](example.ini) file to change client behaviour. Create an empty config.ini to avoid passing cli args.
 
 See [docs](/docs) for more info and media.
 
