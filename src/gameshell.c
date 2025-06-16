@@ -321,7 +321,7 @@ void gameshell_draw_string(GameShell *shell, const char *str, int x, int y, int 
 
     if (!file) {
 #ifdef _WIN32
-        // fallback for windows 2000 and maybe other windows NT
+        // fallback for windows 2000 and windows NT4
         file = fopen("c:/winnt/fonts/arialbd.ttf", "rb");
 #elif NXDK
         file = fopen("D:\\Roboto\\Roboto-Bold.ttf", "rb");
