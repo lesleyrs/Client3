@@ -40,6 +40,7 @@
 - global search TODO, NOTE, and all platform defines, change many funcs+prototypes to static, look for missing/dupe client struct members and client funcs with different casing, finish debug command or remove it.
 - playground models leak memory for some reason
 - fix component "indirect" leaks model/pix24: they get modified in packets so the global component doesn't own that memory anymore. Most leak messages aren't a leak though, since it has to live for the duration of the program.
+- cache/ and SCC1_Florestan.sf2 are copied into rom/ due to it being the root for most consoles, to clean up we have to chdir in sdl*.c only when just desktop makes use of it.
 ```
 
 ## Java and C differences + codestyle

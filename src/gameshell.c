@@ -335,9 +335,13 @@ void gameshell_draw_string(GameShell *shell, const char *str, int x, int y, int 
             file = fopen("c:/reactos/fonts/arialbd.ttf", "rb");
 #endif
             if (!file) {
-                // TODO: won't show errors on screen if no font, try use native text drawing for all platforms if no system font or embedded ttf
-                rs2_error("Failed to open font file\n");
-                return;
+                // last try for desktop without system fonts found, where /rom isn't root in romfs
+                file = fopen("rom/Roboto/Roboto-Bold.ttf", "rb");
+                if (!file) {
+                    // TODO: won't show errors on screen if no font, try use native text drawing for all platforms if no system font or Roboto
+                    rs2_error("Failed to open font file\n");
+                    return;
+                }
             }
         }
     }
