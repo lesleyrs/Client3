@@ -73,7 +73,7 @@ Makefile: gcc, clang, tcc, mingw-gcc, emcc
 If tcc from your package manager isn't working you should build latest [tcc](https://github.com/TinyCC/tinycc) from source
 
 ### FreeBSD
-Install sdl2 or sdl3+pkgconf and run `gmake CC=clang SDL=version`
+Install sdl2 or sdl3+pkgconf and run `gmake SDL=2/3`
 
 ### MacOS
 TODO
