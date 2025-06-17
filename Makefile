@@ -1,7 +1,7 @@
 # you can also use emcc with `emmake make`
 ifeq ($(CC),cc)
-CC = gcc
-# CC = clang
+# CC = gcc
+CC = clang
 # CC = i686-w64-mingw32-gcc
 # CC = x86_64-w64-mingw32-gcc
 # CC = tcc

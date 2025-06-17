@@ -10399,7 +10399,7 @@ int main(int argc, char **argv) {
     const char *_free = argv[4];
     _Client.members = !_free || strcmp(_free, "1") != 0;
 #else
-    if (load_ini_args()) {
+    if (argc == 1 && load_ini_args()) {
         _Client.lowmem ? client_set_lowmem() : client_set_highmem();
         goto init;
     }

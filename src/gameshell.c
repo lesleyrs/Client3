@@ -313,10 +313,10 @@ void gameshell_draw_string(GameShell *shell, const char *str, int x, int y, int 
     // /usr/share/fonts - dejavu/liberation sans
     // FILE *file = fopen("/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf", "rb");
     file = fopen("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", "rb");
+#elif defined(__FreeBSD__)
+    file = fopen("/usr/local/share/fonts/dejavu/DejaVuSans-Bold.ttf", "rb");
 #elif defined(__APPLE__) && defined(__MACH__)
 // /system/library/fonts/ - helvetica neue
-#elif defined(__FreeBSD__)
-// /usr/local/share/fonts/
 #endif
 
     if (!file) {

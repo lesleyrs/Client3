@@ -28,7 +28,6 @@
 
 ## TODO
 ```
-- add missing platforms: macos, bsds + anything else
 - copy original bzip from java maybe allows for O3 optimization on more consoles unlike current bzip?
 - tinysoundfont seems to break on powerpc cpus (wii, wiiu) and libtom specfically on wiiu only?
 - mapview from java client (change preload-file in makefile to cache/mapview for sdl2 emscripten)

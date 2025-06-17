@@ -72,6 +72,12 @@ Makefile: gcc, clang, tcc, mingw-gcc, emcc
 
 If tcc from your package manager isn't working you should build latest [tcc](https://github.com/TinyCC/tinycc) from source
 
+### FreeBSD
+Install sdl2 or sdl3+pkgconf and run `gmake CC=clang SDL=version`
+
+### MacOS
+TODO
+
 ### Web (Emscripten)
 install [emsdk](#tools)
 run `emmake make`/`make CC=emcc` or `build.bat -c emcc` for windows
