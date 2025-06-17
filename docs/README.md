@@ -38,6 +38,8 @@
 - check clientstream for accuracy and fix keycodes which are different for each platform (from rsc-c, EG non-emscripten single/double quotes + fkey keycodes are defined for emscripten only)
 - func args might partially differ in order to the Client repo due to being based off rs2-225: animbase, animframe, pix2d, pix3d, gameshell, jagfile, model, packet, pix8, pixfont, pixmap, redo them? inconsistent naming: used both world3d and scene for world3d, rename world3d to scene or at least for args?
 - global search TODO, NOTE, and all platform defines, change many funcs+prototypes to static, look for missing/dupe client struct members and client funcs with different casing, finish debug command or remove it.
+- playground models leak memory for some reason
+- fix component "indirect" leaks model/pix24: they get modified in packets so the global component doesn't own that memory anymore. Most leak messages aren't a leak though, since it has to live for the duration of the program.
 ```
 
 ## Java and C differences + codestyle

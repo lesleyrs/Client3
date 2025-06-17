@@ -10802,8 +10802,9 @@ Jagfile *load_archive(Client *c, const char *name, int crc, const char *display_
     int crc_value = rs_crc32(data, file_size);
     if (crc_value != crc) {
         rs2_error("%s archive CRC check failed\n", display_name);
-        free(data);
-        data = NULL;
+        // NOTE: we don't download cache on desktop but it's ok to ignore
+        // free(data);
+        // data = NULL;
     }
 
     return jagfile_new(data, file_size);

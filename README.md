@@ -9,21 +9,17 @@ Features:
 - WIP ports for most game consoles from 1998 until 2013! Ones with incomplete input are set up to auto-connect.
 - optional [config.ini](example.ini) file to change client behaviour. Create an empty config.ini to avoid passing cli args.
 
-See [docs](/docs) for more info and media.
+See [docs](/docs) for more info, media, and TODOs.
 
 ## known issues
 ```
-(outside of emscripten.c): server cache changes requires manual cache+checksums update in client for now, the server has an issue with client map crcs changing when only server maps get updated. Also textures were modified to make quests unhoverable since there are no journals + grayed out unfinished ones), remove original cache at bin/archives when the textures match.
+(non-emscripten): server cache changes requires manual cache+archive_checksums update in the client since it doesn't download, also the server has an issue with client map crcs changing when only server maps get updated.
 
-no midi fading, old js code for IE: https://github.com/2004Scape/Server/blob/61bf21fb3755c14b5cf6d47c9d974dee5783beda/view/javaclient.ejs new ts code: https://github.com/2004Scape/Client2/commit/92e74f1f134ea82e48dd608dcca3422777a7a986 (client-ts has more some fade fixes)
+no midi fading, old js code for IE: https://github.com/2004Scape/Server/blob/61bf21fb3755c14b5cf6d47c9d974dee5783beda/view/javaclient.ejs new ts code: https://github.com/2004Scape/Client2/commit/92e74f1f134ea82e48dd608dcca3422777a7a986 https://github.com/LostCityRS/Client-TS/pulls?q=is%3Apr+is%3Aclosed+midi
 
 wordfilter isn't ported yet, so you will see your own swear words but others don't as it gets filtered by the server still.
 
 locs like fires have no animations as pushLocs is disabled for now, it constantly allocates memory due to always calling model_copy_faces in loctype which requires a different approach. The leaks get worse if the dynamic model cache can't fit all sequences (animations) of the models in an area, disable the allocator to see origins.
-
-fix playground leaks, fix component "indirect" leaks model/pix24: they get modified in packets so the global component doesn't own that memory anymore.
-
-check docs for more TODOs
 ```
 
 ## quickstart for windows
@@ -50,6 +46,8 @@ When adding a new platform also add system ttf font closest to helvetica in game
 
 To be able to run some emulators on WSL you may need to prefix `MESA_GL_VERSION_OVERRIDE=4.6 MESA_GLSL_VERSION_OVERRIDE=460`.
 
+If tcc from your package manager isn't working you should build latest [tcc](#tools) from source
+
 [v86](#tools) is a x86 PC emulator running in the browser, including older windows.
 
 ### Windows 95 to Windows 11
@@ -57,20 +55,18 @@ build.bat(32 bit): tcc (included), mingw-gcc, emcc
 
 run.ps1: cl, clang, tcc, mingw-gcc, emcc
 
-You might want the updated [PowerShell](https://github.com/PowerShell/PowerShell) for run.ps1
+You might want the updated [PowerShell](#tools) for run.ps1
 
 ```
 TODO: add wav sfx to complete SDL1 platform for win9x
 TODO: make win9x compatible batch file (no delayed expansion?) right now needs to build from more modern system
 TODO: clean up ps1 script so it doesn't need to be modified
 
-NOTE: on v86 PC emulator the cursor flickers on win95, and both win9x colours are wrong? win2k is fine
+NOTE: on v86 PC emulator the cursor flickers on win95, and colours on win9x are wrong? win2k is fine
 ```
 
 ### Linux GNU or musl
 Makefile: gcc, clang, tcc, mingw-gcc, emcc
-
-If tcc from your package manager isn't working you should build latest [tcc](https://github.com/TinyCC/tinycc) from source
 
 ### FreeBSD
 Install sdl2 or sdl3+pkgconf and run `gmake SDL=2/3`
@@ -273,4 +269,5 @@ Latest SDL1 already contains the tcc fix but they don't make new releases for it
 * [kallistios](https://github.com/KallistiOS/KallistiOS) | [mkdcdisc](https://gitlab.com/simulant/mkdcdisc)
 * [nxdk](https://github.com/XboxDev/nxdk)
 * [android command line tools](https://developer.android.com/studio)
+* [powershell](https://github.com/PowerShell/PowerShell)
 * [v86](https://github.com/copy/v86.git) | https://copy.sh/v86/
