@@ -24,27 +24,25 @@ locs like fires have no animations as pushLocs is disabled for now, it constantl
 
 ## quickstart for windows
 All you need to build for 32 bit windows is included:
-* tinycc (C compiler, built with `TCC_C=..\tcc.c` env var and some removed libs for smaller distribution)
+* tinycc (C compiler, built with `TCC_C=..\tcc.c` env var and removed bcheck lib)
 * all 32 bit SDL dlls, only SDL1 works prior to windows XP and is always 32 bit unlike the others
 
-To build simply run `build.bat` in cmd to get the client.exe, it depends on the cache + SDL.dll, and optionally .sf2 soundfont/config.ini
-
-`build.bat -h` shows options, EG `-v 1|2|3` sets SDL version and `-c tcc|gcc|emcc` for system tcc, gcc, emcc
+To build simply run `build.bat` in cmd to get the client.exe, optionally set SDL ver `-v 1|2|3` and C compiler `-c tcc|gcc|emcc`.
 
 SDL1 is default for tcc and old mingw-gcc to target windows 9x, but only SDL2/3 have sfx right now. This (unofficial) release doesn't require msys install: https://github.com/fsb4000/gcc-for-Windows98/releases. mingw-gcc 11 optimizations seem to only be slightly faster than tcc though.
-
-type `::perf` command ingame to see fps and lrucache size
 
 If the client fails to start you either aren't passing cli args and don't have a config.ini OR you are using a SDL dll for the wrong architecture. Delete it and it'll be copied during next build
 
 ## Platforms and Compilers
-To move the executable you have to take the `cache/` and optionally `config.ini`, `SCC1_Florestan.sf2` and `Roboto/` along with it. The consoles will load it from sdcard if they don't embed the files already.
+To move the executable you have to take the correct `SDL.dll`, `cache/` and optionally `config.ini`, `SCC1_Florestan.sf2` and `Roboto/` along with it. The consoles will load it from sdcard if they don't embed the files already.
+
+type `::perf` command ingame to see fps and lrucache size
 
 all home consoles (wii, dreamcast, xbox) should be able to run the game at higher res or even full res on PAL TVs so you don't have to pan, but this isn't set up and emulators don't support many video modes.
 
 When adding a new platform also add system ttf font closest to helvetica in gameshell_draw_string when available to avoid Roboto dependency.
 
-To be able to run some emulators on WSL you may need to prefix `MESA_GL_VERSION_OVERRIDE=4.6 MESA_GLSL_VERSION_OVERRIDE=460`.
+To be able to run some emulators on WSL2 you may need to prefix `MESA_GL_VERSION_OVERRIDE=4.6 MESA_GLSL_VERSION_OVERRIDE=460`.
 
 If tcc from your package manager isn't working you should build latest [tcc](#tools) from source
 
@@ -69,7 +67,7 @@ NOTE: on v86 PC emulator the cursor flickers on win95, and colours on win9x are 
 Makefile: gcc, clang, tcc, mingw-gcc, emcc
 
 ### FreeBSD
-Install sdl2 or sdl3+pkgconf and run `gmake SDL=2/3`
+Install sdl1/sdl2 or sdl3+pkgconf and run `gmake SDL=1/2/3`
 
 ### MacOS
 TODO
@@ -87,14 +85,14 @@ The only needed files are the index.`html,js,wasm` and optionally the soundfont/
 enable cors in server web.ts with `res.setHeader('Access-Control-Allow-Origin', '*');`
 
 ```
+TODO: port to clang/xcc wasm target (halves wasm output size), use bigint+playwave from shell.html
 TODO: JSPI decreases output size a lot, but is locked behind browser flag for now
-TODO: midi fading + scape_main stutters so it's moved to post load + remove SDL2 dep for audio (check tinymidipcm) but it fixes inactive tab speedup too
+TODO: scape_main stutters during load so it's moved to post load + maybe replace SDL2 audio (check tinymidipcm)
 TODO: use emscriptens indexeddb api to store data files (add cacheload and cachesave)
 TODO: try adding web worker server compat again: https://emscripten.org/docs/api_reference/wasm_workers.html
 TODO: fullscreen option button
 TODO: mobile controls: touch + rotate + osk + mice, PWA manifest
-TODO: remove the full SDL targets for web due to settimeout lag use emscripten.c instead (then we can use SDL define again)
-TODO: fix closure undefined error? prefer SDL2 in emscripten.c with jsbigint+playwave for smaller size
+TODO: remove the full SDL targets for web due to settimeout lag use emscripten.c+remove emscripten+sdl checks
 
 NOTE: Windows and Linux output size might differ and sigint on Windows will cause terminate batch job message if using emrun.
 NOTE: SDL2/3 audio prevents the tab from speeding up when changing focus even in lowmem, the typescript client uses absolute time for idlecycles.
@@ -227,10 +225,12 @@ To run with xemu use `-dvd_path client.iso` as args.
 Controls: right analog stick to move the mouse, dpad to rotate camera, B = left click, A = right click, Y = control, X = toggle fps, back = logout, start = login, white = center screen pan, black = pan with right analog stick
 
 ```
-NOTE: local servers don't work on emulator? only remote servers work
-NOTE: default.xbe stays around in rom dir when it's junk for other consoles that embed that directory. Can remove it after building.
 TODO: fopen had to be separated due to the need for backwards slashes, also there's no chdir equivalent?
 TODO: save all button states to stop repeated button presses
+TODO: audio on highmem (for 128mb ram expansion?)
+
+NOTE: local servers don't work on emulator? only remote servers work
+NOTE: default.xbe stays around in rom dir when it's junk for other consoles that embed that directory. Can remove it after building.
 ```
 
 ## Java client
@@ -257,8 +257,7 @@ The 2004 jar is stored for comparisons, run with EG: `java -cp bin/runescape.jar
 
 * [SDL-1.2](https://github.com/libsdl-org/SDL-1.2) | [SDL-2/SDL-3](https://github.com/libsdl-org/SDL) | https://libsdl.org/release/
 
-Using prebuilt SDL releases but removed tests dir, removed dotfiles from mingw SDL1 and fixes in VC SDL1 for tcc.
-Latest SDL1 already contains the tcc fix but they don't make new releases for it.
+Using prebuilt SDL but removed tests, SDL1 mingw dotfiles + SDL1 tcc fixes in VC (fixed upstream but no new releases since 2012)
 
 ## tools
 * [tcc](https://github.com/TinyCC/tinycc) | https://bellard.org/tcc/
