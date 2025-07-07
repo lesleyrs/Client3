@@ -19,17 +19,6 @@ int __unordtf2(int64_t a, int64_t b, int64_t c, int64_t d) {
 
 uint8_t canvas[SCREEN_WIDTH * SCREEN_HEIGHT * 4];
 
-// little endian to "big endian" canvas
-static void rgba_to_canvas(PixMap *pixmap, int x, int y) {
-    for (int h = 0; h < pixmap->height; h++) {
-        for (int w = 0; w < pixmap->width; w++) {
-            uint32_t pixel = pixmap->pixels[h * pixmap->width + w];
-            pixel = ((pixel & 0xff0000) >> 16) | (pixel & 0x00ff00) | ((pixel & 0x0000ff) << 16) | 0xff000000;
-            ((uint32_t *)canvas)[(y + h) * SCREEN_FB_WIDTH + (x + w)] = pixel;
-        }
-    }
-}
-
 bool clientstream_init(void) { return true; }
 ClientStream *clientstream_new(void) { return 0; }
 ClientStream *clientstream_opensocket(int port) {
@@ -80,7 +69,14 @@ void platform_set_midi(const char *name, int crc, int len) {
 }
 void platform_stop_midi(void) {}
 void set_pixels(PixMap *pixmap, int x, int y) {
-    rgba_to_canvas(pixmap, x, y);
+    for (int h = 0; h < pixmap->height; h++) {
+        for (int w = 0; w < pixmap->width; w++) {
+            uint32_t pixel = pixmap->pixels[h * pixmap->width + w];
+            pixel = ((pixel & 0xff0000) >> 16) | (pixel & 0x00ff00) | ((pixel & 0x0000ff) << 16) | 0xff000000;
+            ((uint32_t *)canvas)[(y + h) * SCREEN_FB_WIDTH + (x + w)] = pixel;
+        }
+    }
+
     JS_setPixelsAlpha(canvas);
     platform_update_surface();
 }

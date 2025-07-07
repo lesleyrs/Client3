@@ -58,4 +58,4 @@
 // -USDL
 
 --target=wasm32
---sysroot=../../wasm/libc
+--sysroot=../wasm/libc

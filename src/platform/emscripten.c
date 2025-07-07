@@ -31,11 +31,11 @@ static double g_Msec;              // current playback time
 static tml_message *g_MidiMessage; // next message to be played
 
 EM_JS(void, draw_string_js, (const char *str, int x, int y, int color, bool bold, int size), {
-    var canvas = document.getElementById('canvas');
-    var ctx = canvas.getContext('2d');
-    var weight = bold ? 'bold ' : 'normal ';
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const weight = bold ? 'bold ' : 'normal ';
     ctx.font = weight + size + 'px helvetica, sans-serif';
-    let hexColor = '#' + ('000000' + color.toString(16)).slice(-6);
+    const hexColor = '#' + ('000000' + color.toString(16)).slice(-6);
     ctx.fillStyle = hexColor;
     if (x == Math.floor(canvas.width / 2)) {
         ctx.textAlign = 'center';
@@ -46,48 +46,48 @@ EM_JS(void, draw_string_js, (const char *str, int x, int y, int color, bool bold
 })
 
 EM_JS(void, draw_rect_js, (int x, int y, int w, int h, int color), {
-    var ctx = document.getElementById('canvas').getContext('2d');
-    let hexColor = '#' + ('000000' + color.toString(16)).slice(-6);
+    const ctx = document.getElementById('canvas').getContext('2d');
+    const hexColor = '#' + ('000000' + color.toString(16)).slice(-6);
     ctx.strokeStyle = hexColor;
     ctx.strokeRect(x, y, w, h);
 })
 
 EM_JS(void, fill_rect_js, (int x, int y, int w, int h, int color), {
-    var ctx = document.getElementById('canvas').getContext('2d');
-    let hexColor = '#' + ('000000' + color.toString(16)).slice(-6);
+    const ctx = document.getElementById('canvas').getContext('2d');
+    const hexColor = '#' + ('000000' + color.toString(16)).slice(-6);
     ctx.fillStyle = hexColor;
     ctx.fillRect(x, y, w, h);
 })
 
 EM_JS(float, frame_insets_left_js, (void), {
-    var canvas = document.getElementById('canvas');
-    var rect = canvas.getBoundingClientRect();
+    const canvas = document.getElementById('canvas');
+    const rect = canvas.getBoundingClientRect();
     return rect.left;
 })
 
 EM_JS(float, frame_insets_top_js, (void), {
-    var canvas = document.getElementById('canvas');
-    var rect = canvas.getBoundingClientRect();
+    const canvas = document.getElementById('canvas');
+    const rect = canvas.getBoundingClientRect();
     return rect.top;
 })
 
 EM_JS(void, set_pixels_js, (int x, int y, int width, int height, int *pixels), {
-    var imageData = new ImageData(width, height);
-    var data = new DataView(imageData.data.buffer);
+    const imageData = new ImageData(width, height);
+    const data = new DataView(imageData.data.buffer);
 
-    var pixelArray = new Uint32Array(HEAP32.buffer, pixels, width * height);
+    const pixelArray = new Uint32Array(HEAP32.buffer, pixels, width * height);
 
-    for (var h = 0; h < height; h++) {
-        for (var w = 0; w < width; w++) {
-            var idx = h * width + w;
-            var pixel = pixelArray[idx];
+    for (let h = 0; h < height; h++) {
+        for (let w = 0; w < width; w++) {
+            const idx = h * width + w;
+            let pixel = pixelArray[idx];
 
             pixel = ((pixel & 0xff0000) >> 16) | (pixel & 0x00ff00) | ((pixel & 0x0000ff) << 16) | 0xff000000;
             data.setUint32(idx * 4, pixel, true);
         }
     }
 
-    var ctx = document.getElementById('canvas').getContext('2d');
+    const ctx = document.getElementById('canvas').getContext('2d');
     ctx.putImageData(imageData, x, y);
 })
 

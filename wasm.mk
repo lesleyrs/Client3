@@ -1,5 +1,5 @@
 CC = clang
-CFLAGS = --target=wasm32 --sysroot=../../wasm/libc -nodefaultlibs -mbulk-memory
+CFLAGS = --target=wasm32 --sysroot=../wasm/libc -nodefaultlibs -mbulk-memory
 LDFLAGS = -Wl,--allow-undefined -lm -lc
 ENTRY ?= client
 # ENTRY ?= playground
@@ -46,6 +46,6 @@ run: all
 	$(RUN)
 
 # llvm-dwarfdump -a $(OUT) > $(OUT).dwarf
-# ../../emscripten/tools/wasm-sourcemap.py $(OUT) -w $(OUT) -p $(CURDIR) -s -u ./$(OUT).map -o $(OUT).map --dwarfdump-output=$(OUT).dwarf
+# ../emscripten/tools/wasm-sourcemap.py $(OUT) -w $(OUT) -p $(CURDIR) -s -u ./$(OUT).map -o $(OUT).map --dwarfdump-output=$(OUT).dwarf
 dump:
-	../../emscripten/tools/wasm-sourcemap.py $(OUT) -w $(OUT) -p $(CURDIR) -s -u ./$(OUT).map -o $(OUT).map --dwarfdump=/usr/bin/llvm-dwarfdump
+	../emscripten/tools/wasm-sourcemap.py $(OUT) -w $(OUT) -p $(CURDIR) -s -u ./$(OUT).map -o $(OUT).map --dwarfdump=/usr/bin/llvm-dwarfdump
