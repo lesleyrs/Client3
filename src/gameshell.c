@@ -9,6 +9,10 @@
 #include "pixmap.h"
 #include "platform.h"
 
+#if defined(__wasm) && !defined(__EMSCRIPTEN__)
+#include <js/glue.h>
+#endif
+
 extern InputTracking _InputTracking;
 
 GameShell *gameshell_new(void) {
@@ -278,7 +282,7 @@ int poll_key(GameShell *shell) {
     return key;
 }
 
-#if defined(__EMSCRIPTEN__) && (!defined(SDL) || SDL == 0)
+#if (defined(__EMSCRIPTEN__) && (!defined(SDL) || SDL == 0)) || defined(__wasm) && !defined(__EMSCRIPTEN__)
 void gameshell_draw_string(GameShell *shell, const char *str, int x, int y, int color, bool bold, int size) {
     (void)shell;
     platform_draw_string(str, x, y, color, bold, size);
@@ -421,6 +425,10 @@ void gameshell_draw_string(GameShell *shell, const char *str, int x, int y, int 
 #endif
 
 void gameshell_draw_progress(GameShell *shell, const char *message, int progress) {
+#if defined(__wasm) && !defined(__EMSCRIPTEN__)
+    JS_font("bold 13px helvetica, sans-serif");
+#endif
+
     // NOTE there's no update or paint to call refresh, only focus gained event
     if (shell->refresh) {
         platform_fill_rect(0, 0, shell->screen_width, shell->screen_height, BLACK);
@@ -434,7 +442,11 @@ void gameshell_draw_progress(GameShell *shell, const char *message, int progress
     platform_fill_rect(shell->screen_width / 2 - 150, y + 2, progress * 3, 30, PROGRESS_RED);
     platform_fill_rect(shell->screen_width / 2 + progress * 3 - 150, y + 2, 300 - progress * 3, 30, BLACK);
 
+#if defined(__wasm) && !defined(__EMSCRIPTEN__)
+    gameshell_draw_string(shell, message, (shell->screen_width - JS_measureTextWidth(message)) / 2, y + 22, WHITE, true, 13);
+#else
     gameshell_draw_string(shell, message, shell->screen_width / 2, y + 22, WHITE, true, 13);
+#endif
 
     platform_update_surface();
 }

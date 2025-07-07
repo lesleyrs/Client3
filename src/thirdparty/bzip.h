@@ -2,7 +2,9 @@
 #define _H_BZIP
 
 #include <limits.h>
+#if !defined(__wasm) || defined(__EMSCRIPTEN__)
 #include <setjmp.h>
+#endif
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,7 +14,11 @@
 #elif defined(_WIN32)
 #include <io.h>
 #else
+#if !defined(__wasm) || defined(__EMSCRIPTEN__)
 #include <unistd.h>
+#else
+int read(int fd, void *buf, size_t count);
+#endif
 #endif
 
 /* Constants for huffman coding */
@@ -67,7 +73,9 @@ typedef struct {
     struct group_data groups[MAX_GROUPS]; /* huffman coding tables */
 
     /* For I/O error handling */
+#if !defined(__wasm) || defined(__EMSCRIPTEN__)
     jmp_buf jmpbuf;
+#endif
 } bunzip_data;
 
 extern const char BZIP_HEADER[];

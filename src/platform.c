@@ -2,11 +2,11 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#ifndef _WIN32
-#include <strings.h>
-#endif
 #include <stdarg.h>
 #include <string.h>
+// #ifndef _WIN32
+// #include <strings.h>
+// #endif
 
 #include "platform.h"
 
@@ -131,11 +131,15 @@ bool strendswith(const char *str, const char *suffix) {
 }
 
 // Java equalsIgnoreCase
-int platform_strcasecmp(const char *str1, const char *str2) {
+int platform_strcasecmp(const char *_l, const char *_r) {
 #if defined(_WIN32) || defined(NXDK)
-    return _stricmp(str1, str2);
+    return _stricmp(_l, _r);
 #else
-    return strcasecmp(str1, str2);
+    // return strcasecmp(_l, _r);
+    // from musl
+	const unsigned char *l=(void *)_l, *r=(void *)_r;
+	for (; *l && *r && (*l == *r || tolower(*l) == tolower(*r)); l++, r++);
+	return tolower(*l) - tolower(*r);
 #endif
 }
 

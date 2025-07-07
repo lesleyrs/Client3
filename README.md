@@ -13,7 +13,7 @@ See [docs](/docs) for more info, media, and TODOs.
 
 ## known issues
 ```
-(non-emscripten): server cache changes requires manual cache+archive_checksums update in the client since it doesn't download, also the server has an issue with client map crcs changing when only server maps get updated.
+(non-wasm): server cache changes requires manual cache+archive_checksums update in the client since it doesn't download, also the server has an issue with client map crcs changing when only server maps get updated.
 
 no midi fading, old js code for IE: https://github.com/2004Scape/Server/blob/61bf21fb3755c14b5cf6d47c9d974dee5783beda/view/javaclient.ejs new ts code: https://github.com/2004Scape/Client2/commit/92e74f1f134ea82e48dd608dcca3422777a7a986 https://github.com/LostCityRS/Client-TS/pulls?q=is%3Apr+is%3Aclosed+midi
 
@@ -72,8 +72,24 @@ Install sdl1/sdl2 or sdl3+pkgconf and run `gmake SDL=1/2/3`
 ### MacOS
 TODO
 
-### Web (Emscripten)
-install [emsdk](#tools)
+### Web (clang)
+Install clang and git clone -redacted- (it'll be up soon)
+then run `make -f wasm.mk run DEBUG=0` with correct sysroot path.
+
+you must add `?client` to the URL and optionally append `&arg 1&arg 2&arg 3&arg 4`
+you can configure ip and port in config.ini
+The only needed files are the index.html + client.wasm and optionally the soundfont/config.ini relative to it.
+enable cors in server web.ts with `res.setHeader('Access-Control-Allow-Origin', '*');`
+
+```
+TODO link lib project to be able to build this
+TODO nuke emscripten full sdl2 targets defines+makefile+readme
+TODO add to build.bat/ps1
+TODO maybe support wcc compiler (no gotos)
+```
+
+### Web (emscripten)
+Install [emsdk](#tools)
 run `emmake make`/`make CC=emcc` or `build.bat -c emcc` for windows
 
 For make you can append `run` to start an http server and `DEBUG=0` to optimize.
@@ -85,14 +101,12 @@ The only needed files are the index.`html,js,wasm` and optionally the soundfont/
 enable cors in server web.ts with `res.setHeader('Access-Control-Allow-Origin', '*');`
 
 ```
-TODO: port to clang/xcc wasm target (halves wasm output size), use bigint+playwave from shell.html
-TODO: JSPI decreases output size a lot, but is locked behind browser flag for now
-TODO: scape_main stutters during load so it's moved to post load + maybe replace SDL2 audio (check tinymidipcm)
+TODO: JSPI decreases output size a lot, but is locked behind browser flag for now on for firefox
+TODO: midi fading + scape_main stutters during load so it's moved to post load + maybe replace SDL2 audio (check tinymidipcm) but it fixes inactive tab speedup
 TODO: use emscriptens indexeddb api to store data files (add cacheload and cachesave)
 TODO: try adding web worker server compat again: https://emscripten.org/docs/api_reference/wasm_workers.html
 TODO: fullscreen option button
 TODO: mobile controls: touch + rotate + osk + mice, PWA manifest
-TODO: remove the full SDL targets for web due to settimeout lag use emscripten.c+remove emscripten+sdl checks
 
 NOTE: Windows and Linux output size might differ and sigint on Windows will cause terminate batch job message if using emrun.
 NOTE: SDL2/3 audio prevents the tab from speeding up when changing focus even in lowmem, the typescript client uses absolute time for idlecycles.

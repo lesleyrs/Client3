@@ -155,13 +155,13 @@ void client_load(Client *c) {
     // 	return;
     // }
 
-#if defined(__EMSCRIPTEN__) && (!defined(SDL) || SDL == 0)
+#if defined(__EMSCRIPTEN__) && (!defined(SDL) || SDL == 0) || defined(__wasm) && !defined(__EMSCRIPTEN__)
     int retry = 5;
 #endif
     c->archive_checksum[8] = 0;
     while (c->archive_checksum[8] == 0) {
         client_draw_progress(c, "Connecting to fileserver", 10);
-#if defined(__EMSCRIPTEN__) && (!defined(SDL) || SDL == 0)
+#if (defined(__EMSCRIPTEN__) && (!defined(SDL) || SDL == 0)) || defined(__wasm) && !defined(__EMSCRIPTEN__)
         char message[PATH_MAX];
         sprintf(message, "crc%d", (int)(jrand() * 9.9999999e7));
         int size = 0;
@@ -10681,6 +10681,7 @@ Client *client_new(void) {
     return c;
 }
 
+#if defined(__EMSCRIPTEN__) && (!defined(SDL) || SDL == 0) || defined(__wasm) && !defined(__EMSCRIPTEN__)
 #if defined(__EMSCRIPTEN__) && (!defined(SDL) || SDL == 0)
 void *client_openurl(const char *name, int *size) {
     void *buffer = NULL;
@@ -10694,6 +10695,26 @@ void *client_openurl(const char *name, int *size) {
     }
     return buffer;
 }
+#elif defined(__wasm) && !defined(__EMSCRIPTEN__)
+void *client_openurl(const char *name, int *size) {
+    char url[PATH_MAX];
+    bool secured = false;
+    sprintf(url, "%s://%s:%d/%s", secured ? "https" : "http", _Client.socketip, _Custom.http_port, name);
+
+    FILE *file = fopen(url, "rb");
+    if (!file) {
+        rs2_error("Error downloading %s: %d\n", url);
+        return NULL;
+    }
+    // TODO this will break on updated caches
+    #define MAX_FETCH 1 << 20
+    uint8_t *buffer = malloc(MAX_FETCH);
+    *size = fread(buffer, 1, MAX_FETCH, file);
+    fclose(file);
+
+    return buffer;
+}
+#endif
 
 Jagfile *load_archive(Client *c, const char *name, int crc, const char *display_name, int progress) {
     int retry = 5;

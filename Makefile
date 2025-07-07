@@ -233,6 +233,9 @@ dev:
 cursor:
 	convert bin/cursor.png -depth 8 rgba:- | xxd -i -n cursor
 
+serve:
+	python3 -m http.server
+
 sdl32:
 	cp bin/SDL2-devel-2.30.9-VC/SDL2-2.30.9/lib/x86/SDL2.dll SDL2.dll
 	cp bin/SDL3-devel-3.1.6-VC/SDL3-3.1.6/lib/x86/SDL3.dll SDL3.dll

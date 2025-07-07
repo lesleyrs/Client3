@@ -1,3 +1,4 @@
+#if !defined(__wasm) || defined(__EMSCRIPTEN__)
 #include <errno.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -9,6 +10,7 @@
 #include "clientstream.h"
 #include "platform.h"
 
+#if !defined(__wasm) || defined(__EMSCRIPTEN__)
 #ifndef NXDK
 #include <fcntl.h>
 #endif
@@ -33,6 +35,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#endif
 #endif
 
 #ifdef __SWITCH__
@@ -539,3 +542,4 @@ const char *dnslookup(const char *hostname) {
     return host->h_name;
 #endif
 }
+#endif

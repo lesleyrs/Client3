@@ -41,7 +41,7 @@ void rs2_error(const char *format, ...);
 char *platform_strndup(const char *s, size_t len);
 char *platform_strdup(const char *s);
 // int platform_asprintf(char **str, const char *fmt, ...);
-int platform_strcasecmp(const char *str1, const char *str2);
+int platform_strcasecmp(const char *_l, const char *_r);
 void strtrim(char *s);
 void strtolower(char *s);
 void strtoupper(char *s);
@@ -63,7 +63,7 @@ void platform_set_midi(const char *name, int crc, int len);
 void platform_stop_midi(void);
 void set_pixels(PixMap *pixmap, int x, int y);
 void platform_poll_events(Client *c);
-#if defined(__EMSCRIPTEN__) && (!defined(SDL) || SDL == 0)
+#if (defined(__EMSCRIPTEN__) && (!defined(SDL) || SDL == 0)) || defined(__wasm) && !defined(__EMSCRIPTEN__)
 void platform_draw_string(const char *str, int x, int y, int color, bool bold, int size);
 #endif
 void platform_blit_surface(int x, int y, int w, int h, Surface *surface);
