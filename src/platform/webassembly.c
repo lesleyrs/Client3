@@ -17,7 +17,7 @@ int __unordtf2(int64_t a, int64_t b, int64_t c, int64_t d) {
     return 0;
 }
 
-uint8_t canvas[SCREEN_WIDTH * SCREEN_HEIGHT * 4];
+uint32_t canvas[SCREEN_WIDTH * SCREEN_HEIGHT];
 
 bool clientstream_init(void) { return true; }
 ClientStream *clientstream_new(void) { return 0; }
@@ -73,7 +73,7 @@ void set_pixels(PixMap *pixmap, int x, int y) {
         for (int w = 0; w < pixmap->width; w++) {
             uint32_t pixel = pixmap->pixels[h * pixmap->width + w];
             pixel = ((pixel & 0xff0000) >> 16) | (pixel & 0x00ff00) | ((pixel & 0x0000ff) << 16) | 0xff000000;
-            ((uint32_t *)canvas)[(y + h) * SCREEN_FB_WIDTH + (x + w)] = pixel;
+            canvas[(y + h) * SCREEN_FB_WIDTH + (x + w)] = pixel;
         }
     }
 
