@@ -1,5 +1,4 @@
-CC = clang
-CFLAGS = --target=wasm32 --sysroot=../wasm/libc -nodefaultlibs -mbulk-memory
+CC = clang --target=wasm32 --sysroot=../wasm/libc -nodefaultlibs -mbulk-memory
 LDFLAGS = -Wl,--allow-undefined -lm -lc
 ENTRY ?= client
 # ENTRY ?= playground
