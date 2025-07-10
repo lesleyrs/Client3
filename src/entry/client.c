@@ -7453,7 +7453,7 @@ void client_login(Client *c, const char *username, const char *password, bool re
         client_draw_title_screen(c);
     }
 
-#ifdef __EMSCRIPTEN__
+#ifdef __wasm
     c->stream = clientstream_opensocket(_Custom.http_port);
 #else
     c->stream = clientstream_opensocket(_Client.portoff + 43594);
