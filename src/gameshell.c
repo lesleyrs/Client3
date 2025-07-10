@@ -426,7 +426,7 @@ void gameshell_draw_string(GameShell *shell, const char *str, int x, int y, int 
 
 void gameshell_draw_progress(GameShell *shell, const char *message, int progress) {
 #if defined(__wasm) && !defined(__EMSCRIPTEN__)
-    JS_font("bold 13px helvetica, sans-serif");
+    JS_setFont("bold 13px helvetica, sans-serif");
 #endif
 
     // NOTE there's no update or paint to call refresh, only focus gained event

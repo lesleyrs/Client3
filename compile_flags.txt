@@ -5,47 +5,47 @@
 
 -D_CRT_SECURE_NO_WARNINGS
 -D_POSIX_C_SOURCE=200112L
-// -D_POSIX_C_SOURCE=200809L
+# -D_POSIX_C_SOURCE=200809L
 -DMODERN_POSIX
-// -DWITH_RSA_BIGINT
-// -DWITH_RSA_OPENSSL
+# -DWITH_RSA_BIGINT
+# -DWITH_RSA_OPENSSL
 -DWITH_RSA_LIBTOM
 
-// -DSDL=3
-// -Ibin/SDL3-devel-3.1.6-VC/SDL3-3.1.6/include
+# -DSDL=3
+# -Ibin/SDL3-devel-3.1.6-VC/SDL3-3.1.6/include
 
-// -Dplayground
-// -Dmidi
+# -Dplayground
+# -Dmidi
 -Dclient
 
-// -DSDL=1
-// -Ibin/SDL-devel-1.2.15-VC/SDL-1.2.15/include
-// -DSDL=2
-// -Ibin/SDL2-devel-2.30.9-VC/SDL2-2.30.9/include
+# -DSDL=1
+# -Ibin/SDL-devel-1.2.15-VC/SDL-1.2.15/include
+# -DSDL=2
+# -Ibin/SDL2-devel-2.30.9-VC/SDL2-2.30.9/include
 -DSDL=3
 -I/usr/local/include/
-// -D__WII__
-// -I/opt/devkitpro/libogc/include/
-// -D__3DS__
-// -I/opt/devkitpro/libctru/include/
-// -D__WIIU__
-// -I/opt/devkitpro/wut/include/
-// -D__SWITCH__
-// -I/opt/devkitpro/libnx/include/
-// -D__PSP__
-// -I/usr/local/pspdev/psp/sdk/include/
-// -D__vita__
-// -I/usr/local/vitasdk/arm-vita-eabi/include/
+# -D__WII__
+# -I/opt/devkitpro/libogc/include/
+# -D__3DS__
+# -I/opt/devkitpro/libctru/include/
+# -D__WIIU__
+# -I/opt/devkitpro/wut/include/
+# -D__SWITCH__
+# -I/opt/devkitpro/libnx/include/
+# -D__PSP__
+# -I/usr/local/pspdev/psp/sdk/include/
+# -D__vita__
+# -I/usr/local/vitasdk/arm-vita-eabi/include/
 
-// -D_arch_dreamcast
-// -I/opt/toolchains/dc/kos/include
-// -I/opt/toolchains/dc/kos/kernel/arch/dreamcast/include
+# -D_arch_dreamcast
+# -I/opt/toolchains/dc/kos/include
+# -I/opt/toolchains/dc/kos/kernel/arch/dreamcast/include
 
-// -D__NDS__
-// -DARM9
-// -DARM7
-// -I/opt/devkitpro/libnds/include/
-// -I/opt/devkitpro/calico/include/
+# -D__NDS__
+# -DARM9
+# -DARM7
+# -I/opt/devkitpro/libnds/include/
+# -I/opt/devkitpro/calico/include/
 
 # -DNXDK
 # -I/home/lesley/dev/c/nxdk/lib
@@ -53,9 +53,9 @@
 # -I/home/lesley/dev/c/nxdk/lib/net/lwip/src/include
 # -I/home/lesley/dev/c/nxdk/lib/sdl/SDL2/include
 
-// -D__EMSCRIPTEN__
-// -I/home/lesley/emsdk/upstream/emscripten/cache/sysroot/include
-// -USDL
+# -D__EMSCRIPTEN__
+# -I/home/lesley/emsdk/upstream/emscripten/cache/sysroot/include
+# -USDL
 
 --target=wasm32
 --sysroot=../wasm/libc

@@ -9,6 +9,12 @@
 #include "../defines.h"
 #include "../pixmap.h"
 #include "../platform.h"
+#include "../client.h"
+#include "../gameshell.h"
+#include "../inputtracking.h"
+
+extern ClientData _Client;
+extern InputTracking _InputTracking;
 
 // TODO missing clang compiler-rt stub
 int __unordtf2(int64_t a, int64_t b, int64_t c, int64_t d);
@@ -49,7 +55,8 @@ const char *dnslookup(const char *hostname) {
 
 bool platform_init(void) { return true; }
 void platform_new(int width, int height) {
-    JS_createCanvas(width, height, "Jagex");
+    JS_createCanvas(width, height);
+    JS_setTitle("Jagex");
 }
 void platform_free(void) {}
 void platform_set_wave_volume(int wavevol) {
@@ -80,7 +87,208 @@ void set_pixels(PixMap *pixmap, int x, int y) {
     JS_setPixelsAlpha(canvas);
     platform_update_surface();
 }
-void platform_poll_events(Client *c) { (void)c; }
+
+static bool onpointermove(void *user_data, int button, int x, int y) {
+    (void)button;
+    Client *c = (Client *)user_data;
+    c->shell->idle_cycles = 0;
+    c->shell->mouse_x = x;
+    c->shell->mouse_y = y;
+
+    if (_InputTracking.enabled) {
+        inputtracking_mouse_moved(&_InputTracking, x, y);
+    }
+    return 0;
+}
+
+static bool onpointerdown(void *user_data, int button, int x, int y) {
+    Client *c = (Client *)user_data;
+    c->shell->idle_cycles = 0;
+    c->shell->mouse_click_x = x;
+    c->shell->mouse_click_y = y;
+
+    if (button == 2) {
+        c->shell->mouse_click_button = 2;
+        c->shell->mouse_button = 2;
+    } else {
+        c->shell->mouse_click_button = 1;
+        c->shell->mouse_button = 1;
+    }
+
+    if (_InputTracking.enabled) {
+        inputtracking_mouse_pressed(&_InputTracking, x, y, button == 2 ? 1 : 0);
+    }
+    return 0;
+}
+
+static bool onpointerup(void *user_data, int button, int x, int y) {
+    (void)x, (void)y;
+    Client *c = (Client *)user_data;
+    c->shell->idle_cycles = 0;
+    c->shell->mouse_button = 0;
+
+    if (_InputTracking.enabled) {
+        inputtracking_mouse_released(&_InputTracking, (button == 2) != 0 ? 1 : 0);
+    }
+    return 0;
+}
+
+static void platform_get_keycodes(int key_code, bool ctrl_key, bool shift_key, int *code, unsigned char *ch) {
+    *code = key_code;
+    *ch = key_code;
+
+    if (!shift_key) {
+        if (*ch >= 'A' && *ch <= 'Z') {
+            *ch += 32;
+        }
+        switch (key_code) {
+        case 173:
+            *ch = '-';
+            break;
+        case 188:
+            *ch = ',';
+            break;
+        case 190:
+            *ch = '.';
+            break;
+        case 191:
+            *ch = '/';
+            break;
+        case 192: // '`'
+            *ch = -1;
+            break;
+        case 219:
+            *ch = '[';
+            break;
+        case 220:
+            *ch = '\\';
+            break;
+        case 221:
+            *ch = ']';
+            break;
+        case 222:
+            *ch = '\'';
+        }
+    } else {
+        switch (*ch) {
+        case '1':
+            *ch = '!';
+            break;
+        case '2':
+            *ch = '@';
+            break;
+        case '3':
+            *ch = '#';
+            break;
+        case '4':
+            *ch = '$';
+            break;
+        case '5':
+            *ch = '%';
+            break;
+        case '6':
+            *ch = '^';
+            break;
+        case '7':
+            *ch = '&';
+            break;
+        case '8':
+            *ch = '*';
+            break;
+        case '9':
+            *ch = '(';
+            break;
+        case '0':
+            *ch = ')';
+            break;
+        case ';':
+            *ch = ':';
+            break;
+        case '=':
+            *ch = '+';
+            break;
+        case 173:
+            *ch = '_';
+            break;
+        case 188:
+            *ch = '<';
+            break;
+        case 190:
+            *ch = '>';
+            break;
+        case 191:
+            *ch = '?';
+            break;
+        case 192:
+            *ch = '~';
+            break;
+        case 219:
+            *ch = '{';
+            break;
+        case 220:
+            *ch = '|';
+            break;
+        case 221:
+            *ch = '}';
+            break;
+        case 222:
+            *ch = '"';
+        }
+    }
+
+    // java ctrl key lowers char value
+    if (ctrl_key) {
+        if ((*ch >= 'A' && *ch <= ']') || *ch == '_') {
+            *ch -= 'A' - 1;
+        } else if (*ch >= 'a' && *ch <= 'z') {
+            *ch -= 'a' - 1;
+        }
+    }
+}
+
+static bool onkeydown(void *user_data, int key_code, bool ctrl_key, bool shift_key) {
+    Client *c = (Client *)user_data;
+
+    int code = -1;
+    unsigned char ch = -1;
+    platform_get_keycodes(key_code, ctrl_key, shift_key, &code, &ch);
+    key_pressed(c->shell, code, ch);
+
+    if (key_code == 116 || key_code == 122 || key_code == 123) {
+        return 0;
+    }
+    // returning 1 = preventDefault
+    return 1;
+}
+
+static bool onkeyup(void *user_data, int key_code, bool ctrl_key, bool shift_key) {
+    Client *c = (Client *)user_data;
+
+    int code = -1;
+    unsigned char ch = -1;
+    platform_get_keycodes(key_code, ctrl_key, shift_key, &code, &ch);
+    key_released(c->shell, code, ch);
+
+    if (key_code == 116 || key_code == 122 || key_code == 123) {
+        return 0;
+    }
+    // returning 1 = preventDefault
+    return 1;
+}
+
+void platform_poll_events(Client *c) {
+    static bool init;
+    if (!init) {
+        JS_addPointerMoveEventListener(false, c, onpointermove);
+        JS_addPointerDownEventListener(false, c, onpointerdown);
+        JS_addPointerUpEventListener(false, c, onpointerup);
+
+        JS_addKeyDownEventListener(false, c, onkeydown);
+        JS_addKeyUpEventListener(false, c, onkeyup);
+        init = true;
+    }
+}
+
 void platform_draw_string(const char *str, int x, int y, int color, bool bold, int size) {
     (void)bold, (void)size;
 
