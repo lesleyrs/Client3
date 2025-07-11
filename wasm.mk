@@ -1,4 +1,4 @@
-CC = clang --target=wasm32 --sysroot=../wasm/libc -nodefaultlibs -mbulk-memory
+CC = clang --target=wasm32 --sysroot=../wasmlite/libc -nodefaultlibs -mbulk-memory
 LDFLAGS = -Wl,--allow-undefined -Wl,--export-table -lm -lc
 ENTRY ?= client
 # ENTRY ?= playground
@@ -40,11 +40,10 @@ ifeq ($(DEBUG),0)
 else
 	$(CC) $(CFLAGS) $(SRC) $(LDFLAGS) -o $(OUT)
 endif
-
-run: all
-	$(RUN)
+	../emscripten/tools/wasm-sourcemap.py $(OUT) -w $(OUT) -p $(CURDIR) -s -u ./$(OUT).map -o $(OUT).map --dwarfdump=/usr/bin/llvm-dwarfdump
 
 # llvm-dwarfdump -a $(OUT) > $(OUT).dwarf
 # ../emscripten/tools/wasm-sourcemap.py $(OUT) -w $(OUT) -p $(CURDIR) -s -u ./$(OUT).map -o $(OUT).map --dwarfdump-output=$(OUT).dwarf
-dump:
-	../emscripten/tools/wasm-sourcemap.py $(OUT) -w $(OUT) -p $(CURDIR) -s -u ./$(OUT).map -o $(OUT).map --dwarfdump=/usr/bin/llvm-dwarfdump
+
+run: all
+	$(RUN)
