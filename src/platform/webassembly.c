@@ -88,7 +88,7 @@ void set_pixels(PixMap *pixmap, int x, int y) {
     platform_update_surface();
 }
 
-static bool onpointermove(void *user_data, int button, int x, int y) {
+static bool onmousemove(void *user_data, int button, int x, int y) {
     (void)button;
     Client *c = (Client *)user_data;
     c->shell->idle_cycles = 0;
@@ -101,7 +101,7 @@ static bool onpointermove(void *user_data, int button, int x, int y) {
     return 0;
 }
 
-static bool onpointerdown(void *user_data, int button, int x, int y) {
+static bool onmousedown(void *user_data, int button, int x, int y) {
     Client *c = (Client *)user_data;
     c->shell->idle_cycles = 0;
     c->shell->mouse_click_x = x;
@@ -121,7 +121,7 @@ static bool onpointerdown(void *user_data, int button, int x, int y) {
     return 0;
 }
 
-static bool onpointerup(void *user_data, int button, int x, int y) {
+static bool onmouseup(void *user_data, int button, int x, int y) {
     (void)x, (void)y;
     Client *c = (Client *)user_data;
     c->shell->idle_cycles = 0;
@@ -279,9 +279,9 @@ static bool onkeyup(void *user_data, int key_code, int modifiers) {
 void platform_poll_events(Client *c) {
     static bool init;
     if (!init) {
-        JS_addMouseMoveEventListener(c, onpointermove);
-        JS_addMouseDownEventListener(c, onpointerdown);
-        JS_addMouseUpEventListener(c, onpointerup);
+        JS_addMouseMoveEventListener(c, onmousemove);
+        JS_addMouseDownEventListener(c, onmousedown);
+        JS_addMouseUpEventListener(c, onmouseup);
 
         JS_addKeyDownEventListener(c, onkeydown);
         JS_addKeyUpEventListener(c, onkeyup);
