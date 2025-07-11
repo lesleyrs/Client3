@@ -279,12 +279,12 @@ static bool onkeyup(void *user_data, int key_code, int modifiers) {
 void platform_poll_events(Client *c) {
     static bool init;
     if (!init) {
-        JS_addPointerMoveEventListener(false, c, onpointermove);
-        JS_addPointerDownEventListener(false, c, onpointerdown);
-        JS_addPointerUpEventListener(false, c, onpointerup);
+        JS_addMouseMoveEventListener(c, onpointermove);
+        JS_addMouseDownEventListener(c, onpointerdown);
+        JS_addMouseUpEventListener(c, onpointerup);
 
-        JS_addKeyDownEventListener(false, c, onkeydown);
-        JS_addKeyUpEventListener(false, c, onkeyup);
+        JS_addKeyDownEventListener(c, onkeydown);
+        JS_addKeyUpEventListener(c, onkeyup);
         init = true;
     }
 }
