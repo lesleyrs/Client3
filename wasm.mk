@@ -1,5 +1,5 @@
 CC = clang --target=wasm32 --sysroot=../wasmlite/libc -nodefaultlibs -mbulk-memory
-LDFLAGS = -Wl,--allow-undefined -Wl,--export-table -lm -lc
+LDFLAGS = -Wl,--allow-undefined -Wl,--export-table -lm
 ENTRY ?= client
 # ENTRY ?= playground
 DEBUG ?= 1
@@ -26,8 +26,10 @@ CFLAGS += -DMP_NO_DEV_URANDOM
 ifeq ($(DEBUG),0)
 # TODO use -Oz or -O3?
 CFLAGS += -DNDEBUG -s -Oz -ffast-math -flto
+LDFLAGS += -lc
 else ifeq ($(DEBUG),1)
 CFLAGS += -g
+LDFLAGS += -lc-dbg
 endif
 
 OUT = $(ENTRY).wasm
@@ -35,12 +37,12 @@ RUN = python3 -m http.server
 
 .PHONY: all client playground midi
 all:
-ifeq ($(DEBUG),0)
-	$(CC) $(CFLAGS) $(SRC) $(LDFLAGS) -o $(OUT) && wasm-opt $(OUT) -o $(OUT) -Oz && wasm-strip $(OUT)
-else
 	$(CC) $(CFLAGS) $(SRC) $(LDFLAGS) -o $(OUT)
-endif
+ifeq ($(DEBUG),0)
+	wasm-opt $(OUT) -o $(OUT) -Oz && wasm-strip $(OUT)
+else
 	../emscripten/tools/wasm-sourcemap.py $(OUT) -w $(OUT) -p $(CURDIR) -s -u ./$(OUT).map -o $(OUT).map --dwarfdump=/usr/bin/llvm-dwarfdump
+endif
 
 # llvm-dwarfdump -a $(OUT) > $(OUT).dwarf
 # ../emscripten/tools/wasm-sourcemap.py $(OUT) -w $(OUT) -p $(CURDIR) -s -u ./$(OUT).map -o $(OUT).map --dwarfdump-output=$(OUT).dwarf
