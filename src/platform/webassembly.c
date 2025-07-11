@@ -133,11 +133,11 @@ static bool onpointerup(void *user_data, int button, int x, int y) {
     return 0;
 }
 
-static void platform_get_keycodes(int key_code, bool ctrl_key, bool shift_key, int *code, unsigned char *ch) {
+static void platform_get_keycodes(int key_code, int modifiers, int *code, unsigned char *ch) {
     *code = key_code;
     *ch = key_code;
 
-    if (!shift_key) {
+    if (!(modifiers & JS_MOD_SHIFT)) {
         if (*ch >= 'A' && *ch <= 'Z') {
             *ch += 32;
         }
@@ -237,7 +237,7 @@ static void platform_get_keycodes(int key_code, bool ctrl_key, bool shift_key, i
     }
 
     // java ctrl key lowers char value
-    if (ctrl_key) {
+    if (modifiers & JS_MOD_CTRL) {
         if ((*ch >= 'A' && *ch <= ']') || *ch == '_') {
             *ch -= 'A' - 1;
         } else if (*ch >= 'a' && *ch <= 'z') {
@@ -246,12 +246,12 @@ static void platform_get_keycodes(int key_code, bool ctrl_key, bool shift_key, i
     }
 }
 
-static bool onkeydown(void *user_data, int key_code, bool ctrl_key, bool shift_key) {
+static bool onkeydown(void *user_data, int key_code, int modifiers) {
     Client *c = (Client *)user_data;
 
     int code = -1;
     unsigned char ch = -1;
-    platform_get_keycodes(key_code, ctrl_key, shift_key, &code, &ch);
+    platform_get_keycodes(key_code, modifiers, &code, &ch);
     key_pressed(c->shell, code, ch);
 
     if (key_code == 116 || key_code == 122 || key_code == 123) {
@@ -261,12 +261,12 @@ static bool onkeydown(void *user_data, int key_code, bool ctrl_key, bool shift_k
     return 1;
 }
 
-static bool onkeyup(void *user_data, int key_code, bool ctrl_key, bool shift_key) {
+static bool onkeyup(void *user_data, int key_code, int modifiers) {
     Client *c = (Client *)user_data;
 
     int code = -1;
     unsigned char ch = -1;
-    platform_get_keycodes(key_code, ctrl_key, shift_key, &code, &ch);
+    platform_get_keycodes(key_code, modifiers, &code, &ch);
     key_released(c->shell, code, ch);
 
     if (key_code == 116 || key_code == 122 || key_code == 123) {

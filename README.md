@@ -86,6 +86,7 @@ TODO link lib project to be able to build this
 TODO nuke emscripten full sdl2 targets defines+makefile+readme
 TODO add to build.bat/ps1
 TODO maybe support wcc compiler (no gotos)
+TODO audio, networking, rsa: (use bigint and playwave) + fix emscripten defines to apply to just wasm
 ```
 
 ### Web (emscripten)
