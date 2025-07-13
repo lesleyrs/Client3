@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include <js/glue.h>
+#include <js/key_codes.h>
 
 #include "../clientstream.h"
 #include "../defines.h"
@@ -254,7 +255,7 @@ static bool onkeydown(void *user_data, int key_code, int modifiers) {
     platform_get_keycodes(key_code, modifiers, &code, &ch);
     key_pressed(c->shell, code, ch);
 
-    if (key_code == 116 || key_code == 122 || key_code == 123) {
+    if (key_code == DOM_VK_F5 || key_code == DOM_VK_F11 || key_code == DOM_VK_F12) {
         return 0;
     }
     // returning 1 = preventDefault
@@ -269,7 +270,7 @@ static bool onkeyup(void *user_data, int key_code, int modifiers) {
     platform_get_keycodes(key_code, modifiers, &code, &ch);
     key_released(c->shell, code, ch);
 
-    if (key_code == 116 || key_code == 122 || key_code == 123) {
+    if (key_code == DOM_VK_F5 || key_code == DOM_VK_F11 || key_code == DOM_VK_F12) {
         return 0;
     }
     // returning 1 = preventDefault
