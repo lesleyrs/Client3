@@ -1,5 +1,5 @@
 CC = clang --target=wasm32 --sysroot=../wasmlite/libc -nodefaultlibs -mbulk-memory
-LDFLAGS = -Wl,--allow-undefined -Wl,--export-table -lm
+LDFLAGS = -Wl,--export-table -lm
 ENTRY ?= client
 # ENTRY ?= playground
 DEBUG ?= 1

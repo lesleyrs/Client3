@@ -138,7 +138,7 @@ static int convert_pk(GameShell *shell, int ch, int code, int modifiers, bool do
     shell->idle_cycles = 0;
 
     // java ctrl key lowers char value
-    if (modifiers & JS_MOD_CTRL) {
+    if (modifiers & KMOD_CTRL) {
         if ((ch >= 'A' && ch <= ']') || ch == '_') {
             ch -= 'A' - 1;
         } else if (ch >= 'a' && ch <= 'z') {
