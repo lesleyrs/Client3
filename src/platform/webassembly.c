@@ -4,7 +4,7 @@
 #include <string.h>
 
 #include <js/glue.h>
-#include <js/key_codes.h>
+#include <js/dom_pk_codes.h>
 
 #include "../clientstream.h"
 #include "../defines.h"
@@ -134,147 +134,117 @@ static bool onmouseup(void *user_data, int button, int x, int y) {
     return 0;
 }
 
-static void platform_get_keycodes(int key_code, int modifiers, int *code, unsigned char *ch) {
-    *code = key_code;
-    *ch = key_code;
-
-    if (!(modifiers & JS_MOD_SHIFT)) {
-        if (*ch >= 'A' && *ch <= 'Z') {
-            *ch += 32;
-        }
-        switch (key_code) {
-        case 173:
-            *ch = '-';
-            break;
-        case 188:
-            *ch = ',';
-            break;
-        case 190:
-            *ch = '.';
-            break;
-        case 191:
-            *ch = '/';
-            break;
-        case 192: // '`'
-            *ch = -1;
-            break;
-        case 219:
-            *ch = '[';
-            break;
-        case 220:
-            *ch = '\\';
-            break;
-        case 221:
-            *ch = ']';
-            break;
-        case 222:
-            *ch = '\'';
-        }
-    } else {
-        switch (*ch) {
-        case '1':
-            *ch = '!';
-            break;
-        case '2':
-            *ch = '@';
-            break;
-        case '3':
-            *ch = '#';
-            break;
-        case '4':
-            *ch = '$';
-            break;
-        case '5':
-            *ch = '%';
-            break;
-        case '6':
-            *ch = '^';
-            break;
-        case '7':
-            *ch = '&';
-            break;
-        case '8':
-            *ch = '*';
-            break;
-        case '9':
-            *ch = '(';
-            break;
-        case '0':
-            *ch = ')';
-            break;
-        case ';':
-            *ch = ':';
-            break;
-        case '=':
-            *ch = '+';
-            break;
-        case 173:
-            *ch = '_';
-            break;
-        case 188:
-            *ch = '<';
-            break;
-        case 190:
-            *ch = '>';
-            break;
-        case 191:
-            *ch = '?';
-            break;
-        case 192:
-            *ch = '~';
-            break;
-        case 219:
-            *ch = '{';
-            break;
-        case 220:
-            *ch = '|';
-            break;
-        case 221:
-            *ch = '}';
-            break;
-        case 222:
-            *ch = '"';
-        }
-    }
+static int convert_pk(GameShell *shell, int ch, int code, int modifiers, bool down) {
+    shell->idle_cycles = 0;
 
     // java ctrl key lowers char value
     if (modifiers & JS_MOD_CTRL) {
-        if ((*ch >= 'A' && *ch <= ']') || *ch == '_') {
-            *ch -= 'A' - 1;
-        } else if (*ch >= 'a' && *ch <= 'z') {
-            *ch -= 'a' - 1;
+        if ((ch >= 'A' && ch <= ']') || ch == '_') {
+            ch -= 'A' - 1;
+        } else if (ch >= 'a' && ch <= 'z') {
+            ch -= 'a' - 1;
         }
     }
-}
 
-static bool onkeydown(void *user_data, int key_code, int modifiers) {
-    Client *c = (Client *)user_data;
+    if (ch < 30) {
+        ch = 0;
+    }
 
-    int code = -1;
-    unsigned char ch = -1;
-    platform_get_keycodes(key_code, modifiers, &code, &ch);
-    key_pressed(c->shell, code, ch);
+    switch (code) {
+    case DOM_PK_ARROW_LEFT:
+        ch = 1;
+        break;
+    case DOM_PK_ARROW_RIGHT:
+        ch = 2;
+        break;
+    case DOM_PK_ARROW_UP:
+        ch = 3;
+        break;
+    case DOM_PK_ARROW_DOWN:
+        ch = 4;
+        break;
+    case DOM_PK_CONTROL_LEFT:
+    case DOM_PK_CONTROL_RIGHT:
+        ch = 5;
+        break;
+    case DOM_PK_SHIFT_LEFT:
+    case DOM_PK_SHIFT_RIGHT:
+        ch = 6; // (custom)
+        break;
+    case DOM_PK_ALT_LEFT:
+    case DOM_PK_ALT_RIGHT:
+        ch = 7; // (custom)
+        break;
+    case DOM_PK_BACKSPACE:
+        ch = 8;
+        break;
+    case DOM_PK_DELETE:
+        ch = 8;
+        break;
+    case DOM_PK_TAB:
+        ch = 9;
+        break;
+    case DOM_PK_ENTER:
+        ch = 10;
+        break;
+    case DOM_PK_HOME:
+        ch = 1000;
+        break;
+    case DOM_PK_END:
+        ch = 1001;
+        break;
+    case DOM_PK_PAGE_UP:
+        ch = 1002;
+        break;
+    case DOM_PK_PAGE_DOWN:
+        ch = 1003;
+        break;
+    }
 
-    if (key_code == DOM_VK_F5 || key_code == DOM_VK_F11 || key_code == DOM_VK_F12) {
+    // no f11/f12 (not right after f10 in mapping, but also not used)
+    if (code >= DOM_PK_F1 && code <= DOM_PK_F10) {
+        ch = code + 1008 - DOM_PK_F1;
+    }
+
+    if (ch > 0 && ch < 128) {
+        shell->action_key[ch] = down;
+    }
+
+    if (down) {
+        if (ch > 4) {
+            shell->key_queue[shell->key_queue_write_pos] = ch;
+            shell->key_queue_write_pos = shell->key_queue_write_pos + 1 & 0x7f;
+        }
+    }
+
+    // allow default browser action
+    if (code == DOM_PK_F5 || code == DOM_PK_F11 || code == DOM_PK_F12) {
         return 0;
     }
-    // returning 1 = preventDefault
+    // return 1 for preventDefault()
     return 1;
 }
 
-static bool onkeyup(void *user_data, int key_code, int modifiers) {
+static bool onkeydown(void *user_data, int key, int code, int modifiers) {
     Client *c = (Client *)user_data;
 
-    int code = -1;
-    unsigned char ch = -1;
-    platform_get_keycodes(key_code, modifiers, &code, &ch);
-    key_released(c->shell, code, ch);
+    int rc = convert_pk(c->shell, key, code, modifiers, true);
 
-    if (key_code == DOM_VK_F5 || key_code == DOM_VK_F11 || key_code == DOM_VK_F12) {
-        return 0;
+    if (_InputTracking.enabled) {
+        inputtracking_key_pressed(&_InputTracking, key);
     }
-    // returning 1 = preventDefault
-    return 1;
+    return rc;
+}
+
+static bool onkeyup(void *user_data, int key, int code, int modifiers) {
+    Client *c = (Client *)user_data;
+
+    int rc = convert_pk(c->shell, key, code, modifiers, false);
+
+    if (_InputTracking.enabled) {
+        inputtracking_key_released(&_InputTracking, key);
+    }
+    return rc;
 }
 
 void platform_poll_events(Client *c) {
