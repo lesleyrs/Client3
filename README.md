@@ -73,7 +73,7 @@ Install sdl1/sdl2 or sdl3+pkgconf and run `gmake SDL=1/2/3`
 TODO
 
 ### Web (clang)
-Install clang and git clone -redacted- (it'll be up soon)
+Install clang and get [wasmlite](#tools)
 then run `make -f wasm.mk run DEBUG=0` with correct sysroot path.
 
 you must add `?client` to the URL and optionally append `&arg 1&arg 2&arg 3&arg 4`
@@ -82,10 +82,8 @@ The only needed files are the index.html + client.wasm and optionally the soundf
 enable cors in server web.ts with `res.setHeader('Access-Control-Allow-Origin', '*');`
 
 ```
-TODO link lib project to be able to build this
 TODO nuke emscripten full sdl2 targets defines+makefile+readme
 TODO add to build.bat/ps1
-TODO maybe support wcc compiler (no gotos)
 TODO audio, networking, rsa: (use bigint and playwave) + fix emscripten defines to apply to just wasm
 ```
 
@@ -285,3 +283,4 @@ Using prebuilt SDL but removed tests, SDL1 mingw dotfiles + SDL1 tcc fixes in VC
 * [android command line tools](https://developer.android.com/studio)
 * [powershell](https://github.com/PowerShell/PowerShell)
 * [v86](https://github.com/copy/v86.git) | https://copy.sh/v86/
+* [wasmlite](https://github.com/lesleyrs/wasmlite)
