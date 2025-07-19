@@ -89,8 +89,7 @@ void set_pixels(PixMap *pixmap, int x, int y) {
     platform_update_surface();
 }
 
-static bool onmousemove(void *user_data, int button, int x, int y) {
-    (void)button;
+static bool onmousemove(void *user_data, int x, int y) {
     Client *c = (Client *)user_data;
     c->shell->idle_cycles = 0;
     c->shell->mouse_x = x;
@@ -102,34 +101,31 @@ static bool onmousemove(void *user_data, int button, int x, int y) {
     return 0;
 }
 
-static bool onmousedown(void *user_data, int button, int x, int y) {
+static bool onmouse(void *user_data, bool pressed, int button) {
     Client *c = (Client *)user_data;
     c->shell->idle_cycles = 0;
-    c->shell->mouse_click_x = x;
-    c->shell->mouse_click_y = y;
 
-    if (button == 2) {
-        c->shell->mouse_click_button = 2;
-        c->shell->mouse_button = 2;
+    if (pressed) {
+        c->shell->mouse_click_x = c->shell->mouse_x;
+        c->shell->mouse_click_y = c->shell->mouse_x;
+
+        if (button == 2) {
+            c->shell->mouse_click_button = 2;
+            c->shell->mouse_button = 2;
+        } else {
+            c->shell->mouse_click_button = 1;
+            c->shell->mouse_button = 1;
+        }
+
+        if (_InputTracking.enabled) {
+            inputtracking_mouse_pressed(&_InputTracking, c->shell->mouse_x, c->shell->mouse_y, button == 2 ? 1 : 0);
+        }
     } else {
-        c->shell->mouse_click_button = 1;
-        c->shell->mouse_button = 1;
-    }
+        c->shell->mouse_button = 0;
 
-    if (_InputTracking.enabled) {
-        inputtracking_mouse_pressed(&_InputTracking, x, y, button == 2 ? 1 : 0);
-    }
-    return 0;
-}
-
-static bool onmouseup(void *user_data, int button, int x, int y) {
-    (void)x, (void)y;
-    Client *c = (Client *)user_data;
-    c->shell->idle_cycles = 0;
-    c->shell->mouse_button = 0;
-
-    if (_InputTracking.enabled) {
-        inputtracking_mouse_released(&_InputTracking, (button == 2) != 0 ? 1 : 0);
+        if (_InputTracking.enabled) {
+            inputtracking_mouse_released(&_InputTracking, (button == 2) != 0 ? 1 : 0);
+        }
     }
     return 0;
 }
@@ -225,24 +221,17 @@ static int convert_pk(GameShell *shell, int ch, int code, int modifiers, bool do
     return 1;
 }
 
-static bool onkeydown(void *user_data, int key, int code, int modifiers) {
+static bool onkey(void *user_data, bool pressed, int key, int code, int modifiers) {
     Client *c = (Client *)user_data;
 
-    int rc = convert_pk(c->shell, key, code, modifiers, true);
+    int rc = convert_pk(c->shell, key, code, modifiers, pressed);
 
     if (_InputTracking.enabled) {
-        inputtracking_key_pressed(&_InputTracking, key);
-    }
-    return rc;
-}
-
-static bool onkeyup(void *user_data, int key, int code, int modifiers) {
-    Client *c = (Client *)user_data;
-
-    int rc = convert_pk(c->shell, key, code, modifiers, false);
-
-    if (_InputTracking.enabled) {
-        inputtracking_key_released(&_InputTracking, key);
+        if (pressed) {
+            inputtracking_key_pressed(&_InputTracking, key);
+        } else {
+            inputtracking_key_released(&_InputTracking, key);
+        }
     }
     return rc;
 }
@@ -251,11 +240,9 @@ void platform_poll_events(Client *c) {
     static bool init;
     if (!init) {
         JS_addMouseMoveEventListener(c, onmousemove);
-        JS_addMouseDownEventListener(c, onmousedown);
-        JS_addMouseUpEventListener(c, onmouseup);
+        JS_addMouseEventListener(c, onmouse);
 
-        JS_addKeyDownEventListener(c, onkeydown);
-        JS_addKeyUpEventListener(c, onkeyup);
+        JS_addKeyEventListener(c, onkey);
         init = true;
     }
 }
