@@ -107,7 +107,7 @@ static bool onmouse(void *user_data, bool pressed, int button) {
 
     if (pressed) {
         c->shell->mouse_click_x = c->shell->mouse_x;
-        c->shell->mouse_click_y = c->shell->mouse_x;
+        c->shell->mouse_click_y = c->shell->mouse_y;
 
         if (button == 2) {
             c->shell->mouse_click_button = 2;
