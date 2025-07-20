@@ -24,10 +24,9 @@ CFLAGS += -DMP_NO_DEV_URANDOM
 # endif
 
 ifeq ($(DEBUG),0)
-# TODO use -Oz or -O3?
 CFLAGS += -DNDEBUG -s -Oz -ffast-math -flto
 LDFLAGS += -lc
-else ifeq ($(DEBUG),1)
+else
 CFLAGS += -g
 LDFLAGS += -lc-dbg
 endif

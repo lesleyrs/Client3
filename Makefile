@@ -147,7 +147,6 @@ endif
 
 ifeq ($(DEBUG),0)
 ifeq ($(basename $(notdir $(CC))),emcc)
-# TODO use -Oz or -O3?
 CFLAGS += -DNDEBUG -s -Oz -ffast-math
 ifeq ($(SDL),)
 CFLAGS += --closure 1
