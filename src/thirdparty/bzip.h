@@ -17,7 +17,9 @@
 #if !defined(__wasm) || defined(__EMSCRIPTEN__)
 #include <unistd.h>
 #else
-int read(int fd, void *buf, size_t count);
+typedef long ssize_t;
+__attribute__((import_module("env"), import_name("read")))
+extern ssize_t read( int fd, void * buf, size_t count );
 #endif
 #endif
 
