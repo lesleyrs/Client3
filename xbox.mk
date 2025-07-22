@@ -3,10 +3,10 @@ NXDK_DIR ?= $(CURDIR)/../nxdk
 
 DEBUG = 0
 
-ifeq ($(DEBUG),0)
-CFLAGS += -O2
-else
+ifeq ($(DEBUG),1)
 DEBUG = y
+else
+CFLAGS += -O2
 endif
 
 XBE_TITLE = client

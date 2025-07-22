@@ -261,8 +261,11 @@ void platform_poll_events(Client *c) {
                 case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
                     key_pressed(c->shell, K_DOWN, -1);
                     break;
-                case SDL_CONTROLLER_BUTTON_Y:
+                case SDL_CONTROLLER_BUTTON_X:
                     key_pressed(c->shell, K_CONTROL, -1);
+                    break;
+                case SDL_CONTROLLER_BUTTON_Y:
+                    _Custom.showPerformance = !_Custom.showPerformance;
                     break;
                 case SDL_CONTROLLER_BUTTON_BACK:
                     if (c->ingame) client_logout(c);
@@ -275,9 +278,6 @@ void platform_poll_events(Client *c) {
                     screen_offset_x = -8;
                     screen_offset_y = -11;
                     c->redraw_background = true;
-                    break;
-                case SDL_CONTROLLER_BUTTON_X:
-                    _Custom.showPerformance = !_Custom.showPerformance;
                     break;
                 case SDL_CONTROLLER_BUTTON_A:
                 case SDL_CONTROLLER_BUTTON_B:
@@ -312,7 +312,7 @@ void platform_poll_events(Client *c) {
                 case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
                     key_released(c->shell, K_DOWN, -1);
                     break;
-                case SDL_CONTROLLER_BUTTON_Y:
+                case SDL_CONTROLLER_BUTTON_X:
                     key_released(c->shell, K_CONTROL, -1);
                     break;
                 case SDL_CONTROLLER_BUTTON_A:
