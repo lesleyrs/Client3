@@ -31,6 +31,8 @@ static int screen_offset_y = INITIAL_SCREEN_Y;
 
 #define CURSOR_W 12
 #define CURSOR_H 18
+#define CURSOR_SENSITIVITY 5000
+
 static const unsigned char cursor[] = {
     0x00, 0x00, 0x01, 0xff, 0x00, 0x00, 0x01, 0xff, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -237,76 +239,102 @@ void platform_poll_events(Client *c) {
 
     SDL_GameControllerUpdate();
 
-    // TODO need to save button states to avoid repeated presses happening
-    if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_DPAD_LEFT)) {
-        key_pressed(c->shell, K_LEFT, -1);
+    static uint8_t prev_buttons[SDL_CONTROLLER_BUTTON_MAX];
+    uint8_t current_buttons[SDL_CONTROLLER_BUTTON_MAX];
+
+    for (int i = 0; i < SDL_CONTROLLER_BUTTON_MAX; ++i) {
+        current_buttons[i] = SDL_GameControllerGetButton(pad, i);
     }
 
-    if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_DPAD_RIGHT)) {
-        key_pressed(c->shell, K_RIGHT, -1);
-    }
+    for (int i = 0; i < SDL_CONTROLLER_BUTTON_MAX; ++i) {
+        if (current_buttons[i] && !prev_buttons[i]) {
+            switch (i) {
+                case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
+                    key_pressed(c->shell, K_LEFT, -1);
+                    break;
+                case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
+                    key_pressed(c->shell, K_RIGHT, -1);
+                    break;
+                case SDL_CONTROLLER_BUTTON_DPAD_UP:
+                    key_pressed(c->shell, K_UP, -1);
+                    break;
+                case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
+                    key_pressed(c->shell, K_DOWN, -1);
+                    break;
+                case SDL_CONTROLLER_BUTTON_Y:
+                    key_pressed(c->shell, K_CONTROL, -1);
+                    break;
+                case SDL_CONTROLLER_BUTTON_BACK:
+                    if (c->ingame) client_logout(c);
+                    break;
+                case SDL_CONTROLLER_BUTTON_START:
+                    if (!c->ingame) client_login(c, c->username, c->password, false);
+                    break;
+                case SDL_CONTROLLER_BUTTON_LEFTSHOULDER:
+                    // viewport start
+                    screen_offset_x = -8;
+                    screen_offset_y = -11;
+                    c->redraw_background = true;
+                    break;
+                case SDL_CONTROLLER_BUTTON_X:
+                    _Custom.showPerformance = !_Custom.showPerformance;
+                    break;
+                case SDL_CONTROLLER_BUTTON_A:
+                case SDL_CONTROLLER_BUTTON_B:
+                    c->shell->idle_cycles = 0;
+                    c->shell->mouse_click_x = cursor_x;
+                    c->shell->mouse_click_y = cursor_y;
 
-    if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_DPAD_UP)) {
-        key_pressed(c->shell, K_UP, -1);
-    }
+                    if (i == SDL_CONTROLLER_BUTTON_A) {
+                        c->shell->mouse_click_button = 2;
+                        c->shell->mouse_button = 2;
+                    } else {
+                        c->shell->mouse_click_button = 1;
+                        c->shell->mouse_button = 1;
+                    }
 
-    if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_DPAD_DOWN)) {
-        key_pressed(c->shell, K_DOWN, -1);
-    }
+                    if (_InputTracking.enabled) {
+                        inputtracking_mouse_pressed(&_InputTracking, cursor_x, cursor_y, i == SDL_CONTROLLER_BUTTON_A ? 1 : 0);
+                    }
+                    break;
+            }
+        } else if (!current_buttons[i] && prev_buttons[i]) {
+            switch (i) {
+                case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
+                    key_released(c->shell, K_LEFT, -1);
+                    break;
+                case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
+                    key_released(c->shell, K_RIGHT, -1);
+                    break;
+                case SDL_CONTROLLER_BUTTON_DPAD_UP:
+                    key_released(c->shell, K_UP, -1);
+                    break;
+                case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
+                    key_released(c->shell, K_DOWN, -1);
+                    break;
+                case SDL_CONTROLLER_BUTTON_Y:
+                    key_released(c->shell, K_CONTROL, -1);
+                    break;
+                case SDL_CONTROLLER_BUTTON_A:
+                case SDL_CONTROLLER_BUTTON_B:
+                    c->shell->idle_cycles = 0;
+                    c->shell->mouse_button = 0;
 
-    if (!SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_DPAD_LEFT)) {
-        key_released(c->shell, K_LEFT, -1);
-    }
-
-    if (!SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_DPAD_RIGHT)) {
-        key_released(c->shell, K_RIGHT, -1);
-    }
-
-    if (!SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_DPAD_UP)) {
-        key_released(c->shell, K_UP, -1);
-    }
-
-    if (!SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_DPAD_DOWN)) {
-        key_released(c->shell, K_DOWN, -1);
-    }
-
-    if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_Y)) {
-        key_pressed(c->shell, K_CONTROL, -1);
-    }
-
-    if (!SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_Y)) {
-        key_released(c->shell, K_CONTROL, -1);
-    }
-
-    if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_BACK)) {
-        if (c->ingame) {
-            client_logout(c);
+                    if (_InputTracking.enabled) {
+                        inputtracking_mouse_released(&_InputTracking, i == SDL_CONTROLLER_BUTTON_A ? 1 : 0);
+                    }
+                    break;
+            }
         }
     }
 
-    if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_START)) {
-        if (!c->ingame) {
-            client_login(c, c->username, c->password, false);
-        }
-    }
-
-    if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_LEFTSHOULDER)) {
-        // viewport start
-        screen_offset_x = -8;
-        screen_offset_y = -11;
-        c->redraw_background = true;
-    }
-
-    if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_X)) {
-        _Custom.showPerformance = !_Custom.showPerformance;
-    }
+    memcpy(prev_buttons, current_buttons, sizeof(prev_buttons));
 
     // TODO might not work on real hw and unused: SDL_CONTROLLER_AXIS_LEFTX, SDL_CONTROLLER_AXIS_LEFTY
     if (SDL_GameControllerGetAxis(pad, SDL_CONTROLLER_AXIS_RIGHTX) != 0 || SDL_GameControllerGetAxis(pad, SDL_CONTROLLER_AXIS_RIGHTY) != 0 || SDL_GameControllerGetAxis(pad, SDL_CONTROLLER_AXIS_RIGHTY) != -1) {
         c->redraw_background = true;
 
-#define CURSOR_SENSITIVITY 5000
-        // TODO allow changing cursor sensitivity, don't move cursor while panning
+        // TODO allow changing cursor sensitivity, don't move cursor while panning, this still moves cursor if unable to pan though
         if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER)) {
             screen_offset_x = MAX(SCREEN_FB_WIDTH - SCREEN_WIDTH, MIN(screen_offset_x - SDL_GameControllerGetAxis(pad, SDL_CONTROLLER_AXIS_RIGHTX) / CURSOR_SENSITIVITY, 0));
             screen_offset_y = MAX(SCREEN_FB_HEIGHT - SCREEN_HEIGHT, MIN(screen_offset_y - SDL_GameControllerGetAxis(pad, SDL_CONTROLLER_AXIS_RIGHTY) / CURSOR_SENSITIVITY, 0));
@@ -328,39 +356,6 @@ void platform_poll_events(Client *c) {
         }
     }
 
-    static bool was_pressed = false;
-    // TODO these send wrong inputtracking, need to check individual button
-    if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_A) || SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_B)) {
-        was_pressed = true;
-        int x = cursor_x;
-        int y = cursor_y;
-
-        c->shell->idle_cycles = 0;
-        c->shell->mouse_click_x = x;
-        c->shell->mouse_click_y = y;
-
-        if (SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_A)) {
-            c->shell->mouse_click_button = 2;
-            c->shell->mouse_button = 2;
-        } else {
-            c->shell->mouse_click_button = 1;
-            c->shell->mouse_button = 1;
-        }
-
-        if (_InputTracking.enabled) {
-            inputtracking_mouse_pressed(&_InputTracking, x, y, SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_A) ? 1 : 0);
-        }
-    }
-
-    if (was_pressed) {
-        was_pressed = false;
-        c->shell->idle_cycles = 0;
-        c->shell->mouse_button = 0;
-
-        if (_InputTracking.enabled) {
-            inputtracking_mouse_released(&_InputTracking, SDL_GameControllerGetButton(pad, SDL_CONTROLLER_BUTTON_A) ? 1 : 0);
-        }
-    }
 }
 void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
 }

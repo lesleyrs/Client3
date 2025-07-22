@@ -238,12 +238,11 @@ To run with xemu use `-dvd_path client.iso` as args.
 Controls: right analog stick to move the mouse, dpad to rotate camera, B = left click, A = right click, Y = control, X = toggle fps, back = logout, start = login, white = center screen pan, black = pan with right analog stick
 
 ```
-TODO: fopen had to be separated due to the need for backwards slashes, also there's no chdir equivalent?
-TODO: save all button states to stop repeated button presses
 TODO: audio on highmem (for 128mb ram expansion?)
 
 NOTE: local servers don't work on emulator? only remote servers work
 NOTE: default.xbe stays around in rom dir when it's junk for other consoles that embed that directory. Can remove it after building.
+NOTE: fopen had to be separated due to the need for backwards slashes, also there's no chdir equivalent?
 ```
 
 ## Java client

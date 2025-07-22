@@ -48,10 +48,10 @@
 # -I/opt/devkitpro/calico/include/
 
 # -DNXDK
-# -I/home/lesley/dev/c/nxdk/lib
-# -I/home/lesley/dev/c/nxdk/lib/winapi
-# -I/home/lesley/dev/c/nxdk/lib/net/lwip/src/include
-# -I/home/lesley/dev/c/nxdk/lib/sdl/SDL2/include
+# -I../nxdk/lib
+# -I../nxdk/lib/winapi
+# -I../nxdk/lib/net/lwip/src/include
+# -I../nxdk/lib/sdl/SDL2/include
 
 # -D__EMSCRIPTEN__
 # -I/home/lesley/emsdk/upstream/emscripten/cache/sysroot/include

@@ -1,12 +1,20 @@
 # eval "$(../nxdk/bin/activate -s)"
+NXDK_DIR ?= $(CURDIR)/../nxdk
+
+DEBUG = 0
+
+ifeq ($(DEBUG),0)
+CFLAGS += -O2
+else
+DEBUG = y
+endif
 
 XBE_TITLE = client
 GEN_XISO = $(XBE_TITLE).iso
 SRCS := $(shell find src -type f -name '*.c')
-NXDK_DIR ?= $(CURDIR)/../nxdk
 OUTPUT_DIR = rom
 LTO = y
-CFLAGS = -Wall -Dclient -O2
+CFLAGS += -Wall -Dclient
 CFLAGS += -DWITH_RSA_LIBTOM -DMP_NO_DEV_URANDOM -U_WIN32
 NXDK_SDL = y
 

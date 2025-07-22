@@ -183,7 +183,7 @@ CFLAGS += -fno-omit-frame-pointer -g -O2 -fno-inline -ffast-math
 endif
 
 ifeq ($(basename $(notdir $(CC))),emcc)
-OUT = index.html
+OUT = $(ENTRY).html
 RUN = emrun --no-browser --hostname 0.0.0.0 .
 else
 OUT = $(if $(findstring client,$(ENTRY)),client,$(ENTRY))

@@ -34,7 +34,7 @@
 /*.js
 /*.wasm
 /*.data
-/index.html
+/*.html
 
 # consoles
 /client.elf
