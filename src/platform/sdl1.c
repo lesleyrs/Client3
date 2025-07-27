@@ -177,7 +177,7 @@ void platform_set_midi(const char *name, int crc, int len) {
     if (data && crc != 12345678) {
         int data_crc = rs_crc32(data, len);
         if (data_crc != crc) {
-            rs2_error("%s midi CRC check failed\n", name);
+            rs2_log("%s midi CRC check failed\n", name);
             free(data);
             data = NULL;
         }

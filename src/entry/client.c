@@ -4859,7 +4859,7 @@ bool client_read(Client *c) {
                 if (data) {
                     if (rs_crc32(data, size) != landCrc) {
                         // NOTE: requires manual update since it doesn't dl/save
-                        // rs2_error("mapdata CRC check failed\n");
+                        // rs2_log("mapdata CRC check failed\n");
                         free(data);
                         data = NULL;
                     }
@@ -4924,7 +4924,7 @@ bool client_read(Client *c) {
                 if (data) {
                     if (rs_crc32(data, size) != locCrc) {
                         // NOTE: requires manual update since it doesn't dl/save
-                        // rs2_error("mapdata CRC check failed\n");
+                        // rs2_log("mapdata CRC check failed\n");
                         free(data);
                         data = NULL;
                     }
@@ -10725,7 +10725,7 @@ Jagfile *load_archive(Client *c, const char *name, int crc, const char *display_
     if (data) {
         int crc_value = rs_crc32(data, size);
         if (crc_value != crc) {
-            rs2_error("%s archive CRC check failed\n", display_name);
+            rs2_log("%s archive CRC check failed\n", display_name);
             free(data);
             data = NULL;
             size = 0;
@@ -10823,7 +10823,7 @@ Jagfile *load_archive(Client *c, const char *name, int crc, const char *display_
 
     int crc_value = rs_crc32(data, file_size);
     if (crc_value != crc) {
-        rs2_error("%s archive CRC check failed\n", display_name);
+        rs2_log("%s archive CRC check failed\n", display_name);
         // NOTE: we don't download cache on desktop but it's ok to ignore
         // free(data);
         // data = NULL;
