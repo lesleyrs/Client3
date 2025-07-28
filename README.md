@@ -73,7 +73,7 @@ Install sdl1/sdl2 or sdl3+pkgconf and run `gmake SDL=1/2/3`
 TODO
 
 ### Web (clang)
-Install clang and get [wasmlite](#tools)
+Install clang and get [wasmlite](#tools) (you need the libc and generated index.html)
 then run `make -f wasm.mk run DEBUG=0` with correct sysroot path.
 
 you must add `?client` to the URL and optionally append `&arg 1&arg 2&arg 3&arg 4`
