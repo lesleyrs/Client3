@@ -109,7 +109,6 @@ TODO: use emscriptens indexeddb api to store data files (add cacheload and cache
 TODO: try adding web worker server compat again: https://emscripten.org/docs/api_reference/wasm_workers.html
 TODO: fullscreen option button
 TODO: mobile controls: touch + rotate + osk + mice, PWA manifest
-TODO: fix colon for chat commands
 
 NOTE: Windows and Linux output size might differ and sigint on Windows will cause terminate batch job message if using emrun.
 NOTE: SDL2/3 audio prevents the tab from speeding up when changing focus even in lowmem, the typescript client uses absolute time for idlecycles.

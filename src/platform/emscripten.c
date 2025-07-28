@@ -542,7 +542,6 @@ static void platform_get_keycodes(const EmscriptenKeyboardEvent *e, int *code, u
     }
 }
 
-// TODO fix colon for chat commands
 static bool onkeydown(int event_type, const EmscriptenKeyboardEvent *e, void *user_data) {
     (void)event_type;
     GameShell *shell = user_data;
