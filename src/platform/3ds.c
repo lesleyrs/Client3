@@ -45,8 +45,8 @@ bool platform_init(void) {
     return true;
 }
 
-void platform_new(int width, int height) {
-    (void)width, (void)height;
+void platform_new(GameShell *shell) {
+    (void)shell;
     atexit(soc_shutdown);
 
     // NOTE we could use romfs, but we need sdcard to store the 3dsx anyway?

@@ -26,8 +26,8 @@ bool platform_init(void) {
     return true;
 }
 
-void platform_new(int width, int height) {
-    (void)width, (void)height;
+void platform_new(GameShell *shell) {
+    (void)shell;
     mutex = sceKernelCreateMutex("fb_mutex", 0, 0, NULL);
     displayblock = sceKernelAllocMemBlock("display", SCE_KERNEL_MEMBLOCK_TYPE_USER_CDRAM_RW, SCREEN_FB_SIZE, NULL);
     if (displayblock < 0)

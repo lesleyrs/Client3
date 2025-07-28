@@ -305,8 +305,8 @@ bool platform_init(void) {
     lcdMainOnBottom();
     return true;
 }
-void platform_new(int width, int height) {
-    (void)width, (void)height;
+void platform_new(GameShell *shell) {
+    (void)shell;
 }
 void platform_free(void) {
     Wifi_DisconnectAP();

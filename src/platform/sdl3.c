@@ -134,7 +134,7 @@ bool platform_init(void) {
     return true;
 }
 
-void platform_new(int width, int height) {
+void platform_new(GameShell *shell) {
     int init = SDL_INIT_VIDEO;
     if (!_Client.lowmem) {
         init |= SDL_INIT_AUDIO;
@@ -147,7 +147,7 @@ void platform_new(int width, int height) {
     if (_Custom.resizable) {
         win_flags |= SDL_WINDOW_RESIZABLE;
     }
-    window = SDL_CreateWindow("Jagex", width, height, win_flags);
+    window = SDL_CreateWindow("Jagex", shell->screen_width, shell->screen_height, win_flags);
     if (!window) {
         rs2_error("SDL3: window creation failed: %s\n", SDL_GetError());
         SDL_Quit();
@@ -163,7 +163,7 @@ void platform_new(int width, int height) {
             return;
         }
     } else {
-        window_surface = SDL_CreateSurface(width, height, SDL_GetPixelFormatForMasks(32, 0xff0000, 0x00ff00, 0x0000ff, 0));
+        window_surface = SDL_CreateSurface(shell->screen_width, shell->screen_height, SDL_GetPixelFormatForMasks(32, 0xff0000, 0x00ff00, 0x0000ff, 0));
         if (!window_surface) {
             rs2_error("SDL2: surface creation failed: %s\n", SDL_GetError());
             SDL_DestroyWindow(window);
@@ -201,7 +201,7 @@ void platform_new(int width, int height) {
         }
         rs2_log("SDL renderers: [%s]\n", renderers);
 
-        texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_XRGB8888, SDL_TEXTUREACCESS_STREAMING, width, height);
+        texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_XRGB8888, SDL_TEXTUREACCESS_STREAMING, shell->screen_width, shell->screen_height);
         if (!texture) {
             rs2_error("SDL3: texture creation failed: %s\n", SDL_GetError());
             SDL_DestroyWindow(window);

@@ -1,4 +1,3 @@
-#if !defined(__wasm) || defined(__EMSCRIPTEN__)
 #include <errno.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -10,12 +9,30 @@
 #include "clientstream.h"
 #include "platform.h"
 
-#if !defined(__wasm) || defined(__EMSCRIPTEN__)
+#if defined(__wasm) && !defined(__EMSCRIPTEN__)
+#include <js/glue.h>
+#include <js/websocket.h>
+
+#define close closesocket
+
+static void onopen(void *userdata) {
+    ClientStream *stream = userdata;
+    rs2_log("socket %d open\n", stream->socket);
+}
+static void onerror(void *userdata) {
+    ClientStream *stream = userdata;
+    rs2_error("socket %d error\n", stream->socket);
+}
+static void onclose(void *userdata) {
+    ClientStream *stream = userdata;
+    rs2_log("socket %d closed\n", stream->socket);
+}
+#else
 #ifndef NXDK
 #include <fcntl.h>
 #endif
 
-#ifdef __WII__
+#if defined(__WII__)
 #include <network.h>
 #elif defined(NXDK)
 #include <lwip/netdb.h>
@@ -36,7 +53,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #endif
-#endif
+#endif // __wasm
 
 #ifdef __SWITCH__
 #include <switch.h>
@@ -196,6 +213,21 @@ ClientStream *clientstream_new(void) {
     return stream;
 }
 
+#if defined(__wasm) && !defined(__EMSCRIPTEN__)
+ClientStream *clientstream_opensocket(int port) {
+    ClientStream *stream = clientstream_new();
+    char url[PATH_MAX];
+    bool secured = false;
+    sprintf(url, "%s://%s:%d", secured ? "wss" : "ws", _Client.socketip, port);
+
+    stream->socket = socket();
+    int ret = connect(stream->socket, url, stream, onopen, NULL, onerror, onclose);
+    if (ret < 0) {
+        return NULL;
+    }
+    return stream;
+}
+#else
 ClientStream *clientstream_opensocket(int port) {
     ClientStream *stream = clientstream_new();
 
@@ -395,6 +427,7 @@ ClientStream *clientstream_opensocket(int port) {
 
     return stream;
 }
+#endif
 
 void clientstream_close(ClientStream *stream) {
     if (stream->socket > -1) {
@@ -494,7 +527,7 @@ int clientstream_read_bytes(ClientStream *stream, int8_t *dst, int off, int len)
 
 int clientstream_write(ClientStream *stream, const int8_t *src, int len, int off) {
     if (!stream->closed) {
-#if defined(_WIN32) || defined(__SWITCH__) || defined(__NDS__)
+#if defined(_WIN32) || defined(__SWITCH__) || defined(__NDS__) || (defined(__wasm) && !defined(__EMSCRIPTEN__))
         return send(stream->socket, (const char *)src + off, len, 0);
 #else
         return write(stream->socket, src + off, len);
@@ -506,20 +539,8 @@ int clientstream_write(ClientStream *stream, const int8_t *src, int len, int off
 
 // TODO test this when adding new platforms due to localhost not showing welcome screen by default
 const char *dnslookup(const char *hostname) {
-#ifdef __WII__
-    u32 ip = net_gethostip();
-
-    ip = ntohl(ip);
-
-    struct in_addr addr;
-    addr.s_addr = ip;
-    char *ip_str = inet_ntoa(addr);
-    if (!ip_str) {
-        return "unknown";
-    }
-    return ip_str;
-#elif defined(_arch_dreamcast) || defined(NXDK) || defined(__NDS__)
-    return "unknown";
+#if defined(_arch_dreamcast) || defined(NXDK) || defined(__NDS__) || defined(__WII__) || defined(__wasm)
+    return platform_strdup(hostname);
 #elif defined(MODERN_POSIX)
     struct sockaddr_in client_addr = {0};
     client_addr.sin_family = AF_INET;
@@ -542,4 +563,3 @@ const char *dnslookup(const char *hostname) {
     return host->h_name;
 #endif
 }
-#endif

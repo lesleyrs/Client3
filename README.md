@@ -82,16 +82,19 @@ The only needed files are the index.html + client.wasm and optionally the soundf
 enable cors in server web.ts with `res.setHeader('Access-Control-Allow-Origin', '*');`
 
 ```
-TODO nuke emscripten full sdl2 targets defines+makefile+readme
+TODO nuke emscripten full sdl2 targets makefile+readme+fix emscripten defines to apply to just wasm
+TODO midi+playwave
+TODO js issues: game speedup when tabbed out, wrong fps, reconnect on dc, each refresh increases memory?
+
 TODO add to build.bat/ps1
-TODO audio, networking, rsa: (use bigint and playwave) + fix emscripten defines to apply to just wasm
+NOTE: wasm output can be made smaller by using js bigints instead of mpi.c
 ```
 
 ### Web (emscripten)
 Install [emsdk](#tools)
 run `emmake make`/`make CC=emcc` or `build.bat -c emcc` for windows
 
-For make you can append `run` to start an http server and `DEBUG=0` to optimize.
+For make you can append `run` to start a http server and `DEBUG=0` to optimize. Then go to `ip:port/client.html` (or another entrypoint)
 
 Pass 4 args in shell.html to use the ip + port from URL instead of config, otherwise set http_port to 8888 in config for linux servers.
 
@@ -106,6 +109,7 @@ TODO: use emscriptens indexeddb api to store data files (add cacheload and cache
 TODO: try adding web worker server compat again: https://emscripten.org/docs/api_reference/wasm_workers.html
 TODO: fullscreen option button
 TODO: mobile controls: touch + rotate + osk + mice, PWA manifest
+TODO: fix colon for chat commands
 
 NOTE: Windows and Linux output size might differ and sigint on Windows will cause terminate batch job message if using emrun.
 NOTE: SDL2/3 audio prevents the tab from speeding up when changing focus even in lowmem, the typescript client uses absolute time for idlecycles.

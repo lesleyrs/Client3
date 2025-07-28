@@ -53,7 +53,7 @@ char *substring(const char *src, size_t start, size_t length);
 double jrand(void);
 
 bool platform_init(void);
-void platform_new(int width, int height);
+void platform_new(GameShell *shell);
 void platform_free(void);
 void platform_set_wave_volume(int wavevol);
 void platform_play_wave(int8_t *src, int length);

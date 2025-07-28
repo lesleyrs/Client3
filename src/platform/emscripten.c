@@ -187,8 +187,46 @@ bool platform_init(void) {
     return true;
 }
 
-void platform_new(int width, int height) {
-    emscripten_set_canvas_element_size("#canvas", width, height);
+static bool onmousemove(int event_type, const EmscriptenMouseEvent *e, void *user_data);
+static bool onmousedown(int event_type, const EmscriptenMouseEvent *e, void *user_data);
+static bool onmouseup(int event_type, const EmscriptenMouseEvent *e, void *user_data);
+static bool onmouseenter(int event_type, const EmscriptenMouseEvent *e, void *user_data);
+static bool onmouseleave(int event_type, const EmscriptenMouseEvent *e, void *user_data);
+static bool onfocus(int event_type, const EmscriptenFocusEvent *e, void *user_data);
+static bool onblur(int event_type, const EmscriptenFocusEvent *e, void *user_data);
+static bool onkeydown(int event_type, const EmscriptenKeyboardEvent *e, void *user_data);
+static bool onkeyup(int event_type, const EmscriptenKeyboardEvent *e, void *user_data);
+
+void platform_new(GameShell *shell) {
+    emscripten_set_canvas_element_size("#canvas", shell->screen_width, shell->screen_height);
+
+    emscripten_set_mousemove_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, shell, false, onmousemove);
+    emscripten_set_mousedown_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, shell, false, onmousedown);
+    emscripten_set_mouseup_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, shell, false, onmouseup);
+
+    emscripten_set_keydown_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, shell, false, onkeydown);
+    emscripten_set_keyup_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, shell, false, onkeyup);
+
+    emscripten_set_mouseenter_callback("#canvas", shell, false, onmouseenter);
+    emscripten_set_mouseleave_callback("#canvas", shell, false, onmouseleave);
+
+    emscripten_set_focus_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, shell, false, onfocus);
+    emscripten_set_blur_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, shell, false, onblur);
+
+    // emscripten_set_touchstart_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, Emscripten_HandleTouch);
+    // emscripten_set_touchend_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, Emscripten_HandleTouch);
+    // emscripten_set_touchmove_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, Emscripten_HandleTouch);
+    // emscripten_set_touchcancel_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, Emscripten_HandleTouch);
+
+    // emscripten_set_wheel_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, Emscripten_HandleWheel);
+
+    // emscripten_set_fullscreenchange_callback(EMSCRIPTEN_EVENT_TARGET_DOCUMENT, c, false, Emscripten_HandleFullscreenChange);
+
+    // emscripten_set_resize_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, Emscripten_HandleResize);
+
+    // emscripten_set_visibilitychange_callback(c, false, Emscripten_HandleVisibilityChange);
+
+    // emscripten_set_beforeunload_callback(c, Emscripten_HandleBeforeUnload);
 
     if (_Client.lowmem) {
         return;
@@ -296,13 +334,13 @@ void set_pixels(PixMap *pixmap, int x, int y) {
 
 static bool onmousemove(int event_type, const EmscriptenMouseEvent *e, void *user_data) {
     (void)event_type;
-    Client *c = (Client *)user_data;
+    GameShell *shell = user_data;
     int x = e->clientX - frame_insets_left_js();
     int y = e->clientY - frame_insets_top_js();
 
-    c->shell->idle_cycles = 0;
-    c->shell->mouse_x = x;
-    c->shell->mouse_y = y;
+    shell->idle_cycles = 0;
+    shell->mouse_x = x;
+    shell->mouse_y = y;
 
     if (_InputTracking.enabled) {
         inputtracking_mouse_moved(&_InputTracking, x, y);
@@ -312,20 +350,20 @@ static bool onmousemove(int event_type, const EmscriptenMouseEvent *e, void *use
 
 static bool onmousedown(int event_type, const EmscriptenMouseEvent *e, void *user_data) {
     (void)event_type;
-    Client *c = (Client *)user_data;
+    GameShell *shell = user_data;
     int x = e->clientX - frame_insets_left_js();
     int y = e->clientY - frame_insets_top_js();
 
-    c->shell->idle_cycles = 0;
-    c->shell->mouse_click_x = x;
-    c->shell->mouse_click_y = y;
+    shell->idle_cycles = 0;
+    shell->mouse_click_x = x;
+    shell->mouse_click_y = y;
 
     if (e->button == 2) {
-        c->shell->mouse_click_button = 2;
-        c->shell->mouse_button = 2;
+        shell->mouse_click_button = 2;
+        shell->mouse_button = 2;
     } else {
-        c->shell->mouse_click_button = 1;
-        c->shell->mouse_button = 1;
+        shell->mouse_click_button = 1;
+        shell->mouse_button = 1;
     }
 
     if (_InputTracking.enabled) {
@@ -336,9 +374,9 @@ static bool onmousedown(int event_type, const EmscriptenMouseEvent *e, void *use
 
 static bool onmouseup(int event_type, const EmscriptenMouseEvent *e, void *user_data) {
     (void)event_type;
-    Client *c = (Client *)user_data;
-    c->shell->idle_cycles = 0;
-    c->shell->mouse_button = 0;
+    GameShell *shell = user_data;
+    shell->idle_cycles = 0;
+    shell->mouse_button = 0;
 
     if (_InputTracking.enabled) {
         inputtracking_mouse_released(&_InputTracking, (e->button == 2) != 0 ? 1 : 0);
@@ -364,12 +402,12 @@ static bool onmouseleave(int event_type, const EmscriptenMouseEvent *e, void *us
 
 static bool onfocus(int event_type, const EmscriptenFocusEvent *e, void *user_data) {
     (void)event_type, (void)e;
-    Client *c = (Client *)user_data;
+    GameShell *shell = user_data;
 
-    c->shell->has_focus = true; // mapview applet
-    c->shell->refresh = true;
+    shell->has_focus = true; // mapview applet
+    shell->refresh = true;
 #ifdef client
-    c->redraw_background = true;
+    // c->redraw_background = true; NOTE: is this really needed
 #endif
 #ifdef mapview
 // TODO add mapview refresh
@@ -382,9 +420,9 @@ static bool onfocus(int event_type, const EmscriptenFocusEvent *e, void *user_da
 
 static bool onblur(int event_type, const EmscriptenFocusEvent *e, void *user_data) {
     (void)event_type, (void)e;
-    Client *c = (Client *)user_data;
+    GameShell *shell = user_data;
 
-    c->shell->has_focus = false; // mapview applet
+    shell->has_focus = false; // mapview applet
     if (_InputTracking.enabled) {
         inputtracking_focus_lost(&_InputTracking);
     }
@@ -504,14 +542,15 @@ static void platform_get_keycodes(const EmscriptenKeyboardEvent *e, int *code, u
     }
 }
 
+// TODO fix colon for chat commands
 static bool onkeydown(int event_type, const EmscriptenKeyboardEvent *e, void *user_data) {
     (void)event_type;
-    Client *c = (Client *)user_data;
+    GameShell *shell = user_data;
 
     int code = -1;
     unsigned char ch = -1;
     platform_get_keycodes(e, &code, &ch);
-    key_pressed(c->shell, code, ch);
+    key_pressed(shell, code, ch);
 
     if (strcmp(e->key, "F5") == 0 || strcmp(e->key, "F11") == 0 || strcmp(e->key, "F12") == 0) {
         return 0;
@@ -522,12 +561,12 @@ static bool onkeydown(int event_type, const EmscriptenKeyboardEvent *e, void *us
 
 static bool onkeyup(int event_type, const EmscriptenKeyboardEvent *e, void *user_data) {
     (void)event_type;
-    Client *c = (Client *)user_data;
+    GameShell *shell = user_data;
 
     int code = -1;
     unsigned char ch = -1;
     platform_get_keycodes(e, &code, &ch);
-    key_released(c->shell, code, ch);
+    key_released(shell, code, ch);
 
     if (strcmp(e->key, "F5") == 0 || strcmp(e->key, "F11") == 0 || strcmp(e->key, "F12") == 0) {
         return 0;
@@ -536,39 +575,8 @@ static bool onkeyup(int event_type, const EmscriptenKeyboardEvent *e, void *user
     return 1;
 }
 
-static bool init;
 void platform_poll_events(Client *c) {
-    if (!init) {
-        emscripten_set_mousemove_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, onmousemove);
-        emscripten_set_mousedown_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, onmousedown);
-        emscripten_set_mouseup_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, onmouseup);
-
-        emscripten_set_keydown_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, onkeydown);
-        emscripten_set_keyup_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, onkeyup);
-
-        emscripten_set_mouseenter_callback("#canvas", c, false, onmouseenter);
-        emscripten_set_mouseleave_callback("#canvas", c, false, onmouseleave);
-
-        emscripten_set_focus_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, onfocus);
-        emscripten_set_blur_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, onblur);
-
-        // emscripten_set_touchstart_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, Emscripten_HandleTouch);
-        // emscripten_set_touchend_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, Emscripten_HandleTouch);
-        // emscripten_set_touchmove_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, Emscripten_HandleTouch);
-        // emscripten_set_touchcancel_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, Emscripten_HandleTouch);
-
-        // emscripten_set_wheel_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, Emscripten_HandleWheel);
-
-        // emscripten_set_fullscreenchange_callback(EMSCRIPTEN_EVENT_TARGET_DOCUMENT, c, false, Emscripten_HandleFullscreenChange);
-
-        // emscripten_set_resize_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, Emscripten_HandleResize);
-
-        // emscripten_set_visibilitychange_callback(c, false, Emscripten_HandleVisibilityChange);
-
-        // emscripten_set_beforeunload_callback(c, Emscripten_HandleBeforeUnload);
-
-        init = true;
-    }
+    (void)c;
 }
 // NOTE: unused for web since we draw strings in js
 void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {

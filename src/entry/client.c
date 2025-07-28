@@ -10707,7 +10707,7 @@ void *client_openurl(const char *name, int *size) {
         rs2_error("Error downloading %s: %d\n", url);
         return NULL;
     }
-    // TODO this will break on updated caches
+    // TODO this will break on newer caches
     #define MAX_FETCH 1 << 20
     uint8_t *buffer = malloc(MAX_FETCH);
     *size = fread(buffer, 1, MAX_FETCH, file);

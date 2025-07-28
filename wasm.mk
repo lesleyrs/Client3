@@ -1,5 +1,6 @@
-CC = clang --target=wasm32 --sysroot=../wasmlite/libc -nodefaultlibs -mbulk-memory
-LDFLAGS = -Wl,--export-table -lm
+LIBC = ../wasmlite/libc
+CC = clang --target=wasm32 --sysroot=$(LIBC) -nodefaultlibs -mbulk-memory -fno-builtin
+LDFLAGS = -Wl,--export-table -Wl,--stack-first -Wl,--error-limit=0 -lm
 ENTRY ?= client
 # ENTRY ?= playground
 DEBUG ?= 1
@@ -16,12 +17,15 @@ CFLAGS += -fwrapv -std=c99 -Wall -Wpedantic -Wvla -Wshadow -Wmissing-prototypes 
 CFLAGS += -Wextra
 CFLAGS += -Wno-null-pointer-subtraction
 
-# TODO
 CFLAGS += -DMP_NO_DEV_URANDOM
-# WITH_LIBTOM ?= 1
-# ifeq ($(WITH_JS_BIGINT), 1)
-# CFLAGS += -DWITH_RSA_BIGINT
-# endif
+WITH_LIBTOM ?= 1
+# TODO js bigints
+# WITH_JS_BIGINT ?= 1
+ifeq ($(WITH_JS_BIGINT), 1)
+CFLAGS += -DWITH_RSA_BIGINT
+else ifeq ($(WITH_LIBTOM), 1)
+CFLAGS += -DWITH_RSA_LIBTOM
+endif
 
 ifeq ($(DEBUG),0)
 CFLAGS += -DNDEBUG -s -Oz -ffast-math -flto

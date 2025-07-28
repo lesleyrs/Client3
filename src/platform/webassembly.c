@@ -24,40 +24,19 @@ int __unordtf2(int64_t a, int64_t b, int64_t c, int64_t d) {
     return 0;
 }
 
+static bool onmousemove(void *userdata, int x, int y);
+static bool onmouse(void *userdata, bool pressed, int button);
+static bool onkey(void *userdata, bool pressed, int key, int code, int modifiers);
+
 uint32_t canvas[SCREEN_WIDTH * SCREEN_HEIGHT];
 
-bool clientstream_init(void) { return true; }
-ClientStream *clientstream_new(void) { return 0; }
-ClientStream *clientstream_opensocket(int port) {
-    (void)port;
-    return NULL;
-}
-void clientstream_close(ClientStream *stream) { (void)stream; }
-int clientstream_available(ClientStream *stream, int length) {
-    (void)stream, (void)length;
-    return 0;
-}
-int clientstream_read_byte(ClientStream *stream) {
-    (void)stream;
-    return 0;
-}
-int clientstream_read_bytes(ClientStream *stream, int8_t *dst, int off, int len) {
-    (void)stream, (void)dst, (void)off, (void)len;
-    return 0;
-}
-int clientstream_write(ClientStream *stream, const int8_t *src, int len, int off) {
-    (void)stream, (void)src, (void)len, (void)off;
-    return 0;
-}
-const char *dnslookup(const char *hostname) {
-    (void)hostname;
-    return NULL;
-}
-
 bool platform_init(void) { return true; }
-void platform_new(int width, int height) {
-    JS_createCanvas(width, height);
+void platform_new(GameShell *shell) {
+    JS_createCanvas(shell->screen_width, shell->screen_height);
     JS_setTitle("Jagex");
+    JS_addMouseMoveEventListener(shell, onmousemove);
+    JS_addMouseEventListener(shell, onmouse);
+    JS_addKeyEventListener(shell, onkey);
 }
 void platform_free(void) {}
 void platform_set_wave_volume(int wavevol) {
@@ -89,11 +68,11 @@ void set_pixels(PixMap *pixmap, int x, int y) {
     platform_update_surface();
 }
 
-static bool onmousemove(void *user_data, int x, int y) {
-    Client *c = (Client *)user_data;
-    c->shell->idle_cycles = 0;
-    c->shell->mouse_x = x;
-    c->shell->mouse_y = y;
+static bool onmousemove(void *userdata, int x, int y) {
+    GameShell *shell = userdata;
+    shell->idle_cycles = 0;
+    shell->mouse_x = x;
+    shell->mouse_y = y;
 
     if (_InputTracking.enabled) {
         inputtracking_mouse_moved(&_InputTracking, x, y);
@@ -101,27 +80,27 @@ static bool onmousemove(void *user_data, int x, int y) {
     return 0;
 }
 
-static bool onmouse(void *user_data, bool pressed, int button) {
-    Client *c = (Client *)user_data;
-    c->shell->idle_cycles = 0;
+static bool onmouse(void *userdata, bool pressed, int button) {
+    GameShell *shell = userdata;
+    shell->idle_cycles = 0;
 
     if (pressed) {
-        c->shell->mouse_click_x = c->shell->mouse_x;
-        c->shell->mouse_click_y = c->shell->mouse_y;
+        shell->mouse_click_x = shell->mouse_x;
+        shell->mouse_click_y = shell->mouse_y;
 
         if (button == 2) {
-            c->shell->mouse_click_button = 2;
-            c->shell->mouse_button = 2;
+            shell->mouse_click_button = 2;
+            shell->mouse_button = 2;
         } else {
-            c->shell->mouse_click_button = 1;
-            c->shell->mouse_button = 1;
+            shell->mouse_click_button = 1;
+            shell->mouse_button = 1;
         }
 
         if (_InputTracking.enabled) {
-            inputtracking_mouse_pressed(&_InputTracking, c->shell->mouse_x, c->shell->mouse_y, button == 2 ? 1 : 0);
+            inputtracking_mouse_pressed(&_InputTracking, shell->mouse_x, shell->mouse_y, button == 2 ? 1 : 0);
         }
     } else {
-        c->shell->mouse_button = 0;
+        shell->mouse_button = 0;
 
         if (_InputTracking.enabled) {
             inputtracking_mouse_released(&_InputTracking, (button == 2) != 0 ? 1 : 0);
@@ -221,10 +200,10 @@ static int convert_pk(GameShell *shell, int ch, int code, int modifiers, bool do
     return 1;
 }
 
-static bool onkey(void *user_data, bool pressed, int key, int code, int modifiers) {
-    Client *c = (Client *)user_data;
+static bool onkey(void *userdata, bool pressed, int key, int code, int modifiers) {
+    GameShell *shell = userdata;
 
-    int rc = convert_pk(c->shell, key, code, modifiers, pressed);
+    int rc = convert_pk(shell, key, code, modifiers, pressed);
 
     if (_InputTracking.enabled) {
         if (pressed) {
@@ -237,14 +216,7 @@ static bool onkey(void *user_data, bool pressed, int key, int code, int modifier
 }
 
 void platform_poll_events(Client *c) {
-    static bool init;
-    if (!init) {
-        JS_addMouseMoveEventListener(c, onmousemove);
-        JS_addMouseEventListener(c, onmouse);
-
-        JS_addKeyEventListener(c, onkey);
-        init = true;
-    }
+    (void)c;
 }
 
 void platform_draw_string(const char *str, int x, int y, int color, bool bold, int size) {

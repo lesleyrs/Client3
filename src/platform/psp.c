@@ -157,8 +157,8 @@ bool platform_init(void) {
     return true;
 }
 
-void platform_new(int width, int height) {
-    (void)width, (void)height;
+void platform_new(GameShell *shell) {
+    (void)shell;
     sceDisplaySetFrameBuf(fb, VRAM_STRIDE, PSP_DISPLAY_PIXEL_FORMAT_565, PSP_DISPLAY_SETBUF_NEXTFRAME);
     sceCtrlSetSamplingCycle(0);
     sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);

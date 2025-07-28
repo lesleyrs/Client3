@@ -79,7 +79,7 @@ bool platform_init(void) {
     return true;
 }
 
-void platform_new(int width, int height) {
+void platform_new(GameShell *shell) {
     int init = SDL_INIT_VIDEO;
     if (!_Client.lowmem) {
         init |= SDL_INIT_AUDIO;
@@ -92,8 +92,8 @@ void platform_new(int width, int height) {
     SDL_EnableUNICODE(1);
     SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
     SDL_WM_SetCaption("Jagex", NULL);
-    // window_surface = SDL_SetVideoMode(width, height, 32, SDL_HWSURFACE | SDL_RESIZABLE);
-    window_surface = SDL_SetVideoMode(width, height, 32, SDL_SWSURFACE);
+    // window_surface = SDL_SetVideoMode(shell->screen_width, shell->screen_height, 32, SDL_HWSURFACE | SDL_RESIZABLE);
+    window_surface = SDL_SetVideoMode(shell->screen_width, shell->screen_height, 32, SDL_SWSURFACE);
 
     if (_Client.lowmem) {
         return;
