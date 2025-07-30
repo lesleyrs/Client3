@@ -76,9 +76,12 @@ TODO
 Install clang and get [wasmlite](#tools) (you need the libc and generated index.html)
 then run `make -f wasm.mk run DEBUG=0` with correct sysroot path.
 
-you must add `?client` to the URL and optionally append `&arg 1&arg 2&arg 3&arg 4`
-you can configure ip and port in config.ini
+You must add `?client` to the URL and optionally append `&arg 1&arg 2&arg 3&arg 4`.
+
+You can configure ip and port in config.ini.
+
 The only needed files are the index.html + client.wasm and optionally the soundfont/config.ini relative to it.
+
 enable cors in server web.ts with `res.setHeader('Access-Control-Allow-Origin', '*');`
 
 ```
