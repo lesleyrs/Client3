@@ -27,6 +27,7 @@ int __unordtf2(int64_t a, int64_t b, int64_t c, int64_t d) {
 static bool onmousemove(void *userdata, int x, int y);
 static bool onmouse(void *userdata, bool pressed, int button);
 static bool onkey(void *userdata, bool pressed, int key, int code, int modifiers);
+static void onblur(void *userdata);
 
 uint32_t canvas[SCREEN_WIDTH * SCREEN_HEIGHT];
 
@@ -34,9 +35,9 @@ bool platform_init(void) { return true; }
 void platform_new(GameShell *shell) {
     JS_createCanvas(shell->screen_width, shell->screen_height);
     JS_setTitle("Jagex");
-    JS_addMouseMoveEventListener(shell, onmousemove);
-    JS_addMouseEventListener(shell, onmouse);
+    JS_addMouseEventListener(shell, onmouse, onmousemove);
     JS_addKeyEventListener(shell, onkey);
+    JS_addBlurEventListener(shell, onblur);
 }
 void platform_free(void) {}
 void platform_set_wave_volume(int wavevol) {
@@ -213,6 +214,13 @@ static bool onkey(void *userdata, bool pressed, int key, int code, int modifiers
         }
     }
     return rc;
+}
+
+static void onblur(void *userdata) {
+    GameShell *shell = userdata;
+    for (int i = 0; i < 128; i++) {
+        shell->action_key[i] = 0;
+    }
 }
 
 void platform_poll_events(Client *c) {
