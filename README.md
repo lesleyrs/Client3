@@ -86,8 +86,7 @@ enable cors in server web.ts with `res.setHeader('Access-Control-Allow-Origin', 
 
 ```
 TODO nuke emscripten full sdl2 targets makefile+readme+fix emscripten defines to apply to just wasm
-TODO midi+playwave
-TODO js issues: game speedup when tabbed out, wrong fps, reconnect on dc, each refresh increases memory?
+TODO midi+playwave, game speedup when tabbed out, wrong fps?, reconnect on dc
 
 TODO add to build.bat/ps1
 NOTE: wasm output can be made smaller by using js bigints instead of mpi.c
