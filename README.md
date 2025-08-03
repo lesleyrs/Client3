@@ -166,6 +166,10 @@ TODO: add game offset expected for real hardware?
 #### 3DS
 in citra emulator click `file>open citra folder` for sdmc dir https://citra-emulator.com/wiki/user-directory/
 
+on real hardware move the contents of the rom/ dir next to the 3dsx file.
+
+TODO: fix loading issue on hw
+
 Controls: Touch to left click, L + touch to right click, Dpad for arrow keys, X for control
 
 ```
