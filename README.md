@@ -149,8 +149,6 @@ TODO: long press right click? click on touch release? hold in viewport to rotate
 ### Nintendo consoles (devkitPro)
 Install [devkitpro](#tools) with (nds/wii/3ds/wiiu/switch)-dev package and run `make -f (nds/wii/3ds/wiiu/switch).mk -j$(nproc) -B`.
 
-The NDS target only works on 3DS with DSI emulation as it should have 32MB RAM there (untested, melonDS doesn't emulate extra ram yet).
-
 Wii U and Switch also need the (wiiu/switch)-sdl2 package.
 
 #### Wii
@@ -162,6 +160,13 @@ Controls: wiimote IR pointer works as mouse, A for left click, B for right click
 TODO: support usb keyboard (dolphin doesn't emulate it yet)
 TODO: add game offset expected for real hardware?
 ```
+
+#### NDS (not yet functional)
+The NDS target only works on a 2DS/3DS using `TWiLight Menu++` as it exposes the additional 16 MB of RAM.
+
+melonDS doesn't yet emulate 3ds/debugger ram.
+
+TODO: make nds playable by manually writing to 0x0D000000-0x0E000000 on client_load https://blocksds.skylyrac.net/docs/technical/memory_map/#4-main-ram
 
 #### 3DS
 in citra emulator click `file>open citra folder` for sdmc dir https://citra-emulator.com/wiki/user-directory/
