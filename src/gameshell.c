@@ -9,6 +9,10 @@
 #include "pixmap.h"
 #include "platform.h"
 
+#ifdef __3DS__
+#include <3ds.h>
+#endif
+
 extern InputTracking _InputTracking;
 
 GameShell *gameshell_new(void) {
@@ -60,6 +64,11 @@ void gameshell_run(Client *c) {
     }
     uint64_t ntime;
     while (c->shell->state >= 0) {
+#ifdef __3DS__
+        if (!aptMainLoop()) {
+            return;
+        }
+#endif
         if (c->shell->state > 0) {
             c->shell->state--;
             if (c->shell->state == 0) {

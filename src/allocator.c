@@ -4,6 +4,10 @@
 #include "allocator.h"
 #include "platform.h"
 
+#ifdef __3DS__
+#include <3ds.h>
+#endif
+
 typedef struct {
     int8_t *data;
     int capacity;
@@ -23,7 +27,17 @@ int bump_allocator_capacity(void) {
 }
 
 bool bump_allocator_init(int capacity) {
+#ifdef __3DS__
+    // this large malloc fails on 3ds, so we use linearAlloc
+    rs2_log("Free linear space: %d\n", linearSpaceFree());
+    alloc.data = linearAlloc(capacity * sizeof(int8_t));
+    rs2_log("Free linear space: %d\n", linearSpaceFree());
+    if (alloc.data) {
+        memset(alloc.data, 0, capacity);
+    }
+#else
     alloc.data = calloc(capacity, sizeof(int8_t));
+#endif
     if (!alloc.data) {
         rs2_error("Failed to init allocator with size of: %d", capacity);
         return false;
@@ -34,7 +48,11 @@ bool bump_allocator_init(int capacity) {
 }
 
 void bump_allocator_free(void) {
+#ifdef __3DS__
+    linearFree(alloc.data);
+#else
     free(alloc.data);
+#endif
 }
 
 void bump_allocator_reset(void) {

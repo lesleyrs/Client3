@@ -11,9 +11,11 @@
 #include "../inputtracking.h"
 #include "../pixmap.h"
 #include "../platform.h"
+#include "../custom.h"
 
 extern ClientData _Client;
 extern InputTracking _InputTracking;
+extern Custom _Custom;
 
 static u32 *SOC_buffer = NULL;
 #define SOC_ALIGN 0x1000
@@ -40,7 +42,7 @@ bool platform_init(void) {
 
     gfxInit(GSP_RGBA8_OES, GSP_RGBA8_OES, 0);
     // gfxInitDefault();
-    /* uncomment and disable draw_top_background to see stdout */
+    /* uncomment consoleInit and comment out fb_top to see stdout */
     // consoleInit(GFX_TOP, NULL);
     return true;
 }
@@ -219,15 +221,19 @@ void platform_poll_events(Client *c) {
         key_released(c->shell, K_CONTROL, -1);
     }
 
+    if (keys_down & KEY_L) {
+        _Custom.showPerformance = !_Custom.showPerformance;
+    }
+
     touchPosition touch = {0};
     hidTouchRead(&touch);
 
     static bool right_touch = false;
-    if (keys_down & KEY_L) {
+    if (keys_down & KEY_R) {
         right_touch = true;
     }
 
-    if (keys_up & KEY_L) {
+    if (keys_up & KEY_R) {
         right_touch = false;
     }
 
@@ -247,7 +253,6 @@ void platform_poll_events(Client *c) {
         int x = touch.px - screen_offset_x;
         int y = touch.py - screen_offset_y;
 
-        // TODO: custom but has issue where it sometimes doesn't click or uses last pos
         c->shell->idle_cycles = 0;
         c->shell->mouse_x = x;
         c->shell->mouse_y = y;

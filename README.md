@@ -173,14 +173,12 @@ in citra emulator click `file>open citra folder` for sdmc dir https://citra-emul
 
 on real hardware move the contents of the rom/ dir next to the 3dsx file.
 
-TODO: fix loading issue on hw
-
-Controls: Touch to left click, L + touch to right click, Dpad for arrow keys, X for control
+Controls: Touch to left click, L + touch to right click, Dpad for arrow keys, X for control, R to toggle ::perf
 
 ```
-TODO: undo touch changes in 3ds.c depending how it works on real hardware (vita seems to work fine on hw)
+TODO: somehow make it playable with screen panning
+TODO: possible to toggle top screen console?
 TODO: The "New" 3ds/2ds line for higher cpu clock rate does not seem to make much difference in citra?
-TODO: add panning for both 3ds and nds, also allow toggling what's on top screen (maybe a separately panned view)
 ```
 
 #### Wii U
