@@ -221,7 +221,7 @@ void platform_poll_events(Client *c) {
         key_released(c->shell, K_CONTROL, -1);
     }
 
-    if (keys_down & KEY_L) {
+    if (keys_down & KEY_R) {
         _Custom.showPerformance = !_Custom.showPerformance;
     }
 
@@ -229,11 +229,11 @@ void platform_poll_events(Client *c) {
     hidTouchRead(&touch);
 
     static bool right_touch = false;
-    if (keys_down & KEY_R) {
+    if (keys_down & KEY_L) {
         right_touch = true;
     }
 
-    if (keys_up & KEY_R) {
+    if (keys_up & KEY_L) {
         right_touch = false;
     }
 
