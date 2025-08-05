@@ -85,8 +85,8 @@ The only needed files are the index.html + client.wasm and optionally the soundf
 enable cors in server web.ts with `res.setHeader('Access-Control-Allow-Origin', '*');`
 
 ```
-TODO nuke emscripten full sdl2 targets makefile+readme+fix emscripten defines to apply to just wasm
-TODO midi+playwave, game speedup when tabbed out, wrong fps?
+TODO nuke emscripten full sdl2 targets makefile+readme+fix emscripten defines to apply to just wasm not sdl
+TODO midi+playwave, game speedup onblur (how to make wasm not pause with current jspi setup)
 
 TODO add to build.bat/ps1
 NOTE: wasm output can be made smaller by using js bigints instead of mpi.c

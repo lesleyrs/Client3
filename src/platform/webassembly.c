@@ -66,7 +66,6 @@ void set_pixels(PixMap *pixmap, int x, int y) {
     }
 
     JS_setPixelsAlpha(canvas);
-    platform_update_surface();
 }
 
 static bool onmousemove(void *userdata, int x, int y) {
@@ -239,7 +238,7 @@ void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
     (void)x, (void)y, (void)w, (void)w, (void)h, (void)surface;
 }
 void platform_update_surface(void) {
-    JS_requestAnimationFrame();
+    rs2_sleep(0); // return a slice of time to the main loop so it can update the progress bar
 }
 void platform_draw_rect(int x, int y, int w, int h, int color) {
     char buf[8];

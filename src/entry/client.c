@@ -10927,7 +10927,7 @@ void client_draw_progress(Client *c, const char *message, int progress) {
         }
     }
 
-#ifdef __EMSCRIPTEN__
+#ifdef __wasm
     platform_update_surface();
 #endif
 }
