@@ -27,7 +27,7 @@ static void onclose(void *userdata) {
     ClientStream *stream = userdata;
     rs2_log("socket %d closed\n", stream->socket);
 }
-#else
+#else // __wasm
 #ifndef NXDK
 #include <fcntl.h>
 #endif
