@@ -17,7 +17,7 @@
 #if !defined(__wasm) || defined(__EMSCRIPTEN__)
 #include <unistd.h>
 #else
-#include <js/glue.h>
+#include <js/syscalls.h>
 #endif
 #endif
 

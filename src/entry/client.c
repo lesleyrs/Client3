@@ -7208,6 +7208,7 @@ void updateVarp(Client *c, int id) {
 
         lrucache_clear(_ObjType.iconCache);
         c->redraw_background = true;
+    // NOTE all volume values are inauthentic
     } else if (clientcode == 3) {
         bool lastMidiActive = c->midiActive;
         if (value == 0) {
@@ -7238,7 +7239,7 @@ void updateVarp(Client *c, int id) {
     } else if (clientcode == 4) {
         if (value == 0) {
             c->wave_enabled = true;
-            platform_set_wave_volume(128);
+            platform_set_wave_volume(127);
         } else if (value == 1) {
             c->wave_enabled = true;
             platform_set_wave_volume(96);

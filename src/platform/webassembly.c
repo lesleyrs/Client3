@@ -5,6 +5,7 @@
 
 #include <js/glue.h>
 #include <js/dom_pk_codes.h>
+#include <js/audio.h>
 
 #include "../clientstream.h"
 #include "../defines.h"
@@ -41,10 +42,10 @@ void platform_new(GameShell *shell) {
 }
 void platform_free(void) {}
 void platform_set_wave_volume(int wavevol) {
-    (void)wavevol;
+    JS_setAudioVolume((float)wavevol / INT8_MAX);
 }
 void platform_play_wave(int8_t *src, int length) {
-    (void)src, (void)length;
+    JS_startAudio((uint8_t*)src, length);
 }
 void platform_set_midi_volume(float midivol) {
     (void)midivol;
