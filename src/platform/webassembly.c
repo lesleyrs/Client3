@@ -18,55 +18,13 @@
 extern ClientData _Client;
 extern InputTracking _InputTracking;
 
+uint32_t canvas[SCREEN_WIDTH * SCREEN_HEIGHT];
+
 // TODO missing clang compiler-rt stub
 int __unordtf2(int64_t a, int64_t b, int64_t c, int64_t d);
 int __unordtf2(int64_t a, int64_t b, int64_t c, int64_t d) {
     (void)a, (void)b, (void)c, (void)d;
     return 0;
-}
-
-static bool onmousemove(void *userdata, int x, int y);
-static bool onmouse(void *userdata, bool pressed, int button);
-static bool onkey(void *userdata, bool pressed, int key, int code, int modifiers);
-static void onblur(void *userdata);
-
-uint32_t canvas[SCREEN_WIDTH * SCREEN_HEIGHT];
-
-bool platform_init(void) { return true; }
-void platform_new(GameShell *shell) {
-    JS_createCanvas(shell->screen_width, shell->screen_height);
-    JS_setTitle("Jagex");
-    JS_addMouseEventListener(shell, onmouse, onmousemove);
-    JS_addKeyEventListener(shell, onkey);
-    JS_addBlurEventListener(shell, onblur);
-}
-void platform_free(void) {}
-void platform_set_wave_volume(int wavevol) {
-    JS_setAudioVolume((float)wavevol / INT8_MAX);
-}
-void platform_play_wave(int8_t *src, int length) {
-    JS_startAudio((uint8_t*)src, length);
-}
-void platform_set_midi_volume(float midivol) {
-    (void)midivol;
-}
-void platform_set_jingle(int8_t *src, int len) {
-    (void)src, (void)len;
-}
-void platform_set_midi(const char *name, int crc, int len) {
-    (void)name, (void)crc, (void)len;
-}
-void platform_stop_midi(void) {}
-void set_pixels(PixMap *pixmap, int x, int y) {
-    for (int h = 0; h < pixmap->height; h++) {
-        for (int w = 0; w < pixmap->width; w++) {
-            uint32_t pixel = pixmap->pixels[h * pixmap->width + w];
-            pixel = ((pixel & 0xff0000) >> 16) | (pixel & 0x00ff00) | ((pixel & 0x0000ff) << 16) | 0xff000000;
-            canvas[(y + h) * SCREEN_FB_WIDTH + (x + w)] = pixel;
-        }
-    }
-
-    JS_setPixelsAlpha(canvas);
 }
 
 static bool onmousemove(void *userdata, int x, int y) {
@@ -221,6 +179,43 @@ static void onblur(void *userdata) {
     for (int i = 0; i < 128; i++) {
         shell->action_key[i] = 0;
     }
+}
+
+bool platform_init(void) { return true; }
+void platform_new(GameShell *shell) {
+    JS_createCanvas(shell->screen_width, shell->screen_height);
+    JS_setTitle("Jagex");
+    JS_addMouseEventListener(shell, onmouse, onmousemove, NULL);
+    JS_addKeyEventListener(shell, onkey);
+    JS_addBlurEventListener(shell, onblur);
+}
+void platform_free(void) {}
+void platform_set_wave_volume(int wavevol) {
+    JS_setAudioVolume((float)wavevol / INT8_MAX);
+}
+void platform_play_wave(int8_t *src, int length) {
+    JS_startAudio((uint8_t*)src, length);
+}
+void platform_set_midi_volume(float midivol) {
+    (void)midivol;
+}
+void platform_set_jingle(int8_t *src, int len) {
+    (void)src, (void)len;
+}
+void platform_set_midi(const char *name, int crc, int len) {
+    (void)name, (void)crc, (void)len;
+}
+void platform_stop_midi(void) {}
+void set_pixels(PixMap *pixmap, int x, int y) {
+    for (int h = 0; h < pixmap->height; h++) {
+        for (int w = 0; w < pixmap->width; w++) {
+            uint32_t pixel = pixmap->pixels[h * pixmap->width + w];
+            pixel = ((pixel & 0xff0000) >> 16) | (pixel & 0x00ff00) | ((pixel & 0x0000ff) << 16) | 0xff000000;
+            canvas[(y + h) * SCREEN_FB_WIDTH + (x + w)] = pixel;
+        }
+    }
+
+    JS_setPixelsAlpha(canvas);
 }
 
 void platform_poll_events(Client *c) {
