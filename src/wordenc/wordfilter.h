@@ -15,4 +15,5 @@ typedef struct {
 } WordFilter;
 
 void wordfilter_unpack(Jagfile *jag);
-char *wordfilter_filter(char *input);
+void wordfilter_filter(char *input);
+void wordfilter_free_global(void);

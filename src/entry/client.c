@@ -3783,7 +3783,7 @@ static void handleInputKey(Client *c) {
                             wordpack_pack(c->out, c->social_input);
                             psize1(c->out, c->out->pos - start);
                             jstring_to_sentence_case(c->social_input);
-                            strcpy(c->social_input, wordfilter_filter(c->social_input));
+                            wordfilter_filter(c->social_input);
                             client_add_message(c, 6, c->social_input, jstring_format_name(jstring_from_base37(c->social_name37)));
                             if (c->private_chat_setting == 2) {
                                 c->private_chat_setting = 1;
@@ -3972,7 +3972,7 @@ static void handleInputKey(Client *c) {
                             psize1(c->out, c->out->pos - start);
 
                             jstring_to_sentence_case(c->chat_typed);
-                            strcpy(c->chat_typed, wordfilter_filter(c->chat_typed));
+                            wordfilter_filter(c->chat_typed);
                             strcpy(c->local_player->pathing_entity.chat, c->chat_typed);
                             c->local_player->pathing_entity.chatColor = color;
                             c->local_player->pathing_entity.chatStyle = effect;
@@ -5515,11 +5515,11 @@ bool client_read(Client *c) {
             c->messageIds[c->privateMessageCount] = messageId;
             c->privateMessageCount = (c->privateMessageCount + 1) % 100;
             char *uncompressed = wordpack_unpack(c->in, c->packet_size - 13);
-            char* filtered = wordfilter_filter(uncompressed);
+            wordfilter_filter(uncompressed);
             if (staffModLevel > 1) {
-                client_add_message(c, 7, filtered, jstring_format_name(jstring_from_base37(from)));
+                client_add_message(c, 7, uncompressed, jstring_format_name(jstring_from_base37(from)));
             } else {
-                client_add_message(c, 3, filtered, jstring_format_name(jstring_from_base37(from)));
+                client_add_message(c, 3, uncompressed, jstring_format_name(jstring_from_base37(from)));
             }
             // } catch (@Pc(2752) Exception ex) {
             // 	signlink.reporterror("cde1");
@@ -6108,15 +6108,15 @@ void getPlayerExtended2(Client *c, PlayerEntity *player, int index, int mask, Pa
             if (!ignored && c->overrideChat == 0) {
                 // try {
                 char *uncompressed = wordpack_unpack(buf, length);
-                char* filtered = wordfilter_filter(uncompressed);
-                strcpy(player->pathing_entity.chat, filtered);
+                wordfilter_filter(uncompressed);
+                strcpy(player->pathing_entity.chat, uncompressed);
                 player->pathing_entity.chatColor = colorEffect >> 8;
                 player->pathing_entity.chatStyle = colorEffect & 0xff;
                 player->pathing_entity.chatTimer = 150;
                 if (type > 1) {
-                    client_add_message(c, 1, filtered, player->name);
+                    client_add_message(c, 1, uncompressed, player->name);
                 } else {
-                    client_add_message(c, 2, filtered, player->name);
+                    client_add_message(c, 2, uncompressed, player->name);
                 }
                 // } catch (Exception ex) {
                 // 	signlink.reporterror("cde2");
@@ -10334,6 +10334,7 @@ void client_unload(Client *c) {
     flotype_free_global();
     packet_free_global();
     world3d_free_global();
+    wordfilter_free_global();
 
     client_free(c);
 }

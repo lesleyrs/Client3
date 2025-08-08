@@ -48,12 +48,36 @@ static int *combos_count = NULL;
 
 WordFilter _WordFilter;
 
+void wordfilter_free_global(void) {
+	free(combos_count);
+	for (int i = 0; i < badwords_count; i++) {
+		free(_WordFilter.badCombinations[i]);
+		free(_WordFilter.badWords[i]);
+	}
+	free(_WordFilter.badCombinations);
+	free(_WordFilter.badWords);
+	for (int i = 0; i < domains_count; i++) {
+		free(_WordFilter.domains[i]);
+	}
+	free(_WordFilter.domains);
+	free(_WordFilter.tldType);
+	for (int i = 0; i < tlds_count; i++) {
+		free(_WordFilter.tlds[i]);
+	}
+	free(_WordFilter.tlds);
+	free(_WordFilter.fragments);
+}
+
 void wordfilter_unpack(Jagfile *jag) {
 	Packet *fragments = jagfile_to_packet(jag, "fragmentsenc.txt");
 	Packet *bad = jagfile_to_packet(jag, "badenc.txt");
 	Packet *domain = jagfile_to_packet(jag, "domainenc.txt");
 	Packet *tld = jagfile_to_packet(jag, "tldlist.txt");
 	wordfilter_read(bad, domain, fragments, tld);
+	packet_free(fragments);
+	packet_free(bad);
+	packet_free(domain);
+	packet_free(tld);
 }
 
 static void wordfilter_read(Packet *bad, Packet *domain, Packet *fragments, Packet *tld) {
@@ -109,12 +133,12 @@ static void readBadCombinations(Packet *buf, char **badwords, int8_t (**badCombi
 		}
 		badwords[i] = badword;
 		combos_count[i] = g1(buf);
-		int8_t (*combination)[2] = calloc(combos_count[i], sizeof(*combination));
-		for (int j = 0; j < combos_count[i]; j++) {
-			combination[j][0] = (int8_t) g1(buf);
-			combination[j][1] = (int8_t) g1(buf);
-		}
 		if (combos_count[i] > 0) {
+			int8_t (*combination)[2] = calloc(combos_count[i], sizeof(*combination));
+			for (int j = 0; j < combos_count[i]; j++) {
+				combination[j][0] = (int8_t) g1(buf);
+				combination[j][1] = (int8_t) g1(buf);
+			}
 			badCombinations[i] = combination;
 		}
 	}
@@ -154,12 +178,14 @@ static bool allowCharacter(char c) {
 	// return c >= ' ' && c <= '\u007f' || c == ' ' || c == '\n' || c == '\t' || c == '£' || c == '€';
 }
 
-char* wordfilter_filter(char* input) {
+void wordfilter_filter(char* input) {
 	// uint64_t start = rs2_now();
 	filterCharacters(input);
 	strtrim(input);
+
 	char *trimmed = malloc(strlen(input) + 1);
 	strcpy(trimmed, input);
+
 	strtolower(input);
 	filterTld(input);
 	filterBad(input);
@@ -174,10 +200,10 @@ char* wordfilter_filter(char* input) {
 		}
 	}
 	replaceUpperCases(input, trimmed);
+	free(trimmed);
 	formatUpperCases(input);
 	// uint64_t end = rs2_now();
 	strtrim(input);
-	return platform_strdup(input);
 }
 
 static void replaceUpperCases(char *in, char *unfiltered) {
@@ -227,6 +253,8 @@ static void filterDomains(char *in) {
 	for (int i = domains_count - 1; i >= 0; i--) {
 		filterDomain(filteredDot, filteredAt, _WordFilter.domains[i], in);
 	}
+	free(filteredAt);
+	free(filteredDot);
 }
 
 static void filterDomain(char *filteredDot, char *filteredAt, char *domain, char *in) {
@@ -360,6 +388,8 @@ static void filterTld(char *in) {
 	for (int i = 0; i < tlds_count; i++) {
 		filterTld2(filteredSlash, _WordFilter.tldType[i], in, _WordFilter.tlds[i], filteredDot);
 	}
+	free(filteredDot);
+	free(filteredSlash);
 }
 
 static void filterTld2(char *filteredSlash, int type, char *chars, char *tld, char *filteredDot) {
