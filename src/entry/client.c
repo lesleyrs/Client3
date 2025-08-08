@@ -429,8 +429,7 @@ void client_load(Client *c) {
 
     world3d_init(512, 334, 500, 800, distance);
     free(distance);
-    // TODO wordfilter
-    // wordfilter_unpack(wordenc);
+    wordfilter_unpack(wordenc);
 
     pix24_free(backleft1);
     pix24_free(backleft2);
@@ -3784,8 +3783,7 @@ static void handleInputKey(Client *c) {
                             wordpack_pack(c->out, c->social_input);
                             psize1(c->out, c->out->pos - start);
                             jstring_to_sentence_case(c->social_input);
-                            // TODO
-                            // c->social_input = wordfilter_filter(c->social_input);
+                            strcpy(c->social_input, wordfilter_filter(c->social_input));
                             client_add_message(c, 6, c->social_input, jstring_format_name(jstring_from_base37(c->social_name37)));
                             if (c->private_chat_setting == 2) {
                                 c->private_chat_setting = 1;
@@ -3974,8 +3972,7 @@ static void handleInputKey(Client *c) {
                             psize1(c->out, c->out->pos - start);
 
                             jstring_to_sentence_case(c->chat_typed);
-                            // TODO
-                            // c->chat_typed = wordfilter_filter(c->chat_typed);
+                            strcpy(c->chat_typed, wordfilter_filter(c->chat_typed));
                             strcpy(c->local_player->pathing_entity.chat, c->chat_typed);
                             c->local_player->pathing_entity.chatColor = color;
                             c->local_player->pathing_entity.chatStyle = effect;
@@ -5518,9 +5515,7 @@ bool client_read(Client *c) {
             c->messageIds[c->privateMessageCount] = messageId;
             c->privateMessageCount = (c->privateMessageCount + 1) % 100;
             char *uncompressed = wordpack_unpack(c->in, c->packet_size - 13);
-            char *filtered = uncompressed; // TODO remove
-            // TODO wordfilter
-            // char* filtered = wordfilter_filter(uncompressed);
+            char* filtered = wordfilter_filter(uncompressed);
             if (staffModLevel > 1) {
                 client_add_message(c, 7, filtered, jstring_format_name(jstring_from_base37(from)));
             } else {
@@ -6113,8 +6108,7 @@ void getPlayerExtended2(Client *c, PlayerEntity *player, int index, int mask, Pa
             if (!ignored && c->overrideChat == 0) {
                 // try {
                 char *uncompressed = wordpack_unpack(buf, length);
-                char *filtered = uncompressed; // TODO remove
-                // char* filtered = WordFilter.filter(uncompressed);
+                char* filtered = wordfilter_filter(uncompressed);
                 strcpy(player->pathing_entity.chat, filtered);
                 player->pathing_entity.chatColor = colorEffect >> 8;
                 player->pathing_entity.chatStyle = colorEffect & 0xff;

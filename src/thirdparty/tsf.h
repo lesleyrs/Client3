@@ -346,11 +346,11 @@ struct tsf
 #ifndef TSF_NO_STDIO
 #ifdef ANDROID
 #include <SDL.h>
-static int tsf_stream_stdio_read(SDL_RWops* f, void* ptr, unsigned int size) { return (int)SDL_RWread(f, ptr, 1, size); }
-static int tsf_stream_stdio_skip(SDL_RWops* f, unsigned int count) { return SDL_RWseek(f, count, SEEK_CUR) != -1; }
+static int tsf_stream_stdio_read(void* f, void* ptr, unsigned int size) { return (int)SDL_RWread((SDL_RWops*)f, ptr, 1, size); }
+static int tsf_stream_stdio_skip(void* f, unsigned int count) { return SDL_RWseek((SDL_RWops*)f, count, SEEK_CUR) != -1; }
 #else
-static int tsf_stream_stdio_read(FILE* f, void* ptr, unsigned int size) { return (int)fread(ptr, 1, size, f); }
-static int tsf_stream_stdio_skip(FILE* f, unsigned int count) { return !fseek(f, count, SEEK_CUR); }
+static int tsf_stream_stdio_read(void* f, void* ptr, unsigned int size) { return (int)fread(ptr, 1, size, (FILE*)f); }
+static int tsf_stream_stdio_skip(void* f, unsigned int count) { return !fseek((FILE*)f, count, SEEK_CUR); }
 #endif
 TSFDEF tsf* tsf_load_filename(const char* filename)
 {

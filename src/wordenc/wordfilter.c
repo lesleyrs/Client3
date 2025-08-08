@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -10,7 +11,7 @@ static void readTld(Packet *buf);
 static void readBadWords(Packet *buf);
 static void readDomains(Packet *buf);
 static void readFragments(Packet *buf);
-static void readBadCombinations(Packet *buf, char **badwords, int8_t ***badCombinations);
+static void readBadCombinations(Packet *buf, char **badwords, int8_t (**badCombinations)[2]);
 static void readDomain(Packet *buf, char **domains);
 static void filterCharacters(char *in);
 static bool allowCharacter(char c);
@@ -20,33 +21,30 @@ static void filterBad(char *in);
 static void filterDomains(char *in);
 static void filterDomain(char *filteredDot, char *filteredAt, char *domain, char *in);
 static int getDomainAtFilterStatus(int end, char *a, char *b);
-static int getDomainDotFilterStatus(char *a, char *b, int start);
+static int getDomainDotFilterStatus(char *a, char *b, size_t start);
 static void filterTld(char *in);
 static void filterTld2(char *filteredSlash, int type, char *chars, char *tld, char *filteredDot);
 static int getTldDotFilterStatus(char *a, char *b, int start);
-static int getTldSlashFilterStatus(char *b, int end, char *a);
-static void filter(int8_t **badCombinations, char *chars, char *fragment);
-static bool comboMatches(int8_t a, int8_t **combos, int8_t b);
+static int getTldSlashFilterStatus(char *b, size_t end, char *a);
+static void filter(int combos_count, int8_t (*badCombinations)[2], char *chars, char *fragment);
+static bool comboMatches(int8_t a, int8_t (*combos)[2], int combos_count, int8_t b);
 static int getEmulatedDomainCharSize(char c, char a, char b);
 static int getEmulatedSize(char c, char a, char b);
 static int8_t getIndex(char c);
 static void filterFragments(char *chars);
 static int indexOfNumber(char *input, int off);
 static int indexOfNonNumber(int off, char *input);
-static bool isSymbol(char c);
 static bool isLowerCaseAlpha(char c);
-static bool isAlpha(char c);
-static bool isNumber(char c);
-static bool isLowerCase(char c);
-static bool isUpperCase(char c);
 static bool isBadFragment(char *input);
 static int firstFragmentId(char *chars);
 
 static const char* ALLOWLIST[] = { "cook", "cook's", "cooks", "seeks", "sheet" };
 #define ALLOWLIST_COUNT 5
-static int domains_count = 0;
 static int badwords_count = 0;
-static int domain_count = 0;
+static int domains_count = 0;
+static int fragments_count = 0;
+static int tlds_count = 0;
+static int *combos_count = NULL;
 
 WordFilter _WordFilter;
 
@@ -66,13 +64,13 @@ static void wordfilter_read(Packet *bad, Packet *domain, Packet *fragments, Pack
 }
 
 static void readTld(Packet *buf) {
-	int count = g4(buf);
-	_WordFilter.tlds = calloc(count, sizeof(char*));
-	_WordFilter.tldType = calloc(count, sizeof(int));
-	for (int i = 0; i < count; i++) {
+	tlds_count = g4(buf);
+	_WordFilter.tlds = calloc(tlds_count, sizeof(char*));
+	_WordFilter.tldType = calloc(tlds_count, sizeof(int));
+	for (int i = 0; i < tlds_count; i++) {
 		_WordFilter.tldType[i] = g1(buf);
 		int tld_count = g1(buf);
-		char *tld = calloc(tld_count, sizeof(char));
+		char *tld = calloc(tld_count + 1, sizeof(char));
 		for (int j = 0; j < tld_count; j++) {
 			tld[j] = (char) g1(buf);
 		}
@@ -81,9 +79,10 @@ static void readTld(Packet *buf) {
 }
 
 static void readBadWords(Packet *buf) {
-	int count = g4(buf);
-	_WordFilter.badWords = calloc(count, sizeof(char*));
-	_WordFilter.badCombinations = calloc(count, sizeof(int8_t**));
+	badwords_count = g4(buf);
+	combos_count = calloc(badwords_count, sizeof(int));
+	_WordFilter.badWords = calloc(badwords_count, sizeof(char*));
+	_WordFilter.badCombinations = calloc(badwords_count, sizeof(_WordFilter.badCombinations));
 	readBadCombinations(buf, _WordFilter.badWords, _WordFilter.badCombinations);
 }
 
@@ -94,29 +93,28 @@ static void readDomains(Packet *buf) {
 }
 
 static void readFragments(Packet *buf) {
-	int fragments_count = g4(buf);
+	fragments_count = g4(buf);
 	_WordFilter.fragments = calloc(fragments_count, sizeof(int));
 	for (int i = 0; i < fragments_count; i++) {
 		_WordFilter.fragments[i] = g2(buf);
 	}
 }
 
-static void readBadCombinations(Packet *buf, char **badwords, int8_t ***badCombinations) {
+static void readBadCombinations(Packet *buf, char **badwords, int8_t (**badCombinations)[2]) {
 	for (int i = 0; i < badwords_count; i++) {
 		int badword_count = g1(buf);
-		char *badword = calloc(badword_count, sizeof(char));
+		char *badword = calloc(badword_count + 1, sizeof(char));
 		for (int j = 0; j < badword_count; j++) {
 			badword[j] = (char) g1(buf);
 		}
 		badwords[i] = badword;
-		int combination_count = g1(buf);
-		int8_t **combination = calloc(combination_count, sizeof(int8_t*));
-		for (int j = 0; j < combination_count; j++) {
-			combination[j] = calloc(2, sizeof(int8_t));
+		combos_count[i] = g1(buf);
+		int8_t (*combination)[2] = calloc(combos_count[i], sizeof(*combination));
+		for (int j = 0; j < combos_count[i]; j++) {
 			combination[j][0] = (int8_t) g1(buf);
 			combination[j][1] = (int8_t) g1(buf);
 		}
-		if (combination_count > 0) {
+		if (combos_count[i] > 0) {
 			badCombinations[i] = combination;
 		}
 	}
@@ -124,8 +122,8 @@ static void readBadCombinations(Packet *buf, char **badwords, int8_t ***badCombi
 
 static void readDomain(Packet *buf, char **domains) {
 	for (int i = 0; i < domains_count; i++) {
-		domain_count = g1(buf);
-		char *domain = calloc(domain_count, sizeof(char));
+		int domain_count = g1(buf);
+		char *domain = calloc(domain_count + 1, sizeof(char));
 		for (int j = 0; j < domain_count; j++) {
 			domain[j] = (char) g1(buf);
 		}
@@ -134,8 +132,9 @@ static void readDomain(Packet *buf, char **domains) {
 }
 
 static void filterCharacters(char *in) {
+	size_t len = strlen(in);
 	int pos = 0;
-	for (int i = 0; i < in.length; i++) {
+	for (size_t i = 0; i < len; i++) {
 		if (allowCharacter(in[i])) {
 			in[pos] = in[i];
 		} else {
@@ -145,19 +144,22 @@ static void filterCharacters(char *in) {
 			pos++;
 		}
 	}
-	for (int i = pos; i < in.length; i++) {
+	for (size_t i = pos; i < len; i++) {
 		in[i] = ' ';
 	}
 }
 
 static bool allowCharacter(char c) {
-	return c >= ' ' && c <= '\u007f' || c == ' ' || c == '\n' || c == '\t' || c == '£' || c == '€';
+	return isprint(c) || isspace(c);
+	// return c >= ' ' && c <= '\u007f' || c == ' ' || c == '\n' || c == '\t' || c == '£' || c == '€';
 }
 
-const char* wordfilter_filter(char* input) {
-	uint64_t start = rs2_now();
+char* wordfilter_filter(char* input) {
+	// uint64_t start = rs2_now();
 	filterCharacters(input);
 	strtrim(input);
+	char *trimmed = malloc(strlen(input) + 1);
+	strcpy(trimmed, input);
 	strtolower(input);
 	filterTld(input);
 	filterBad(input);
@@ -171,32 +173,34 @@ const char* wordfilter_filter(char* input) {
 			memcpy(input + j, allowed, strlen(allowed));
 		}
 	}
-	replaceUpperCases(input);
+	replaceUpperCases(input, trimmed);
 	formatUpperCases(input);
-	uint64_t end = rs2_now();
+	// uint64_t end = rs2_now();
 	strtrim(input);
 	return platform_strdup(input);
 }
 
 static void replaceUpperCases(char *in, char *unfiltered) {
-	for (int i = 0; i < unfiltered_count; i++) {
-		if (in[i] != '*' && isUpperCase(unfiltered[i])) {
+	int len = strlen(unfiltered);
+	for (int i = 0; i < len; i++) {
+		if (in[i] != '*' && isupper(unfiltered[i])) {
 			in[i] = unfiltered[i];
 		}
 	}
 }
 
 static void formatUpperCases(char *in) {
+	int len = strlen(in);
 	bool upper = true;
-	for (int i = 0; i < in.length; i++) {
+	for (int i = 0; i < len; i++) {
 		char c = in[i];
-		if (!isAlpha(c)) {
+		if (!isalpha(c)) {
 			upper = true;
 		} else if (upper) {
-			if (isLowerCase(c)) {
+			if (islower(c)) {
 				upper = false;
 			}
-		} else if (isUpperCase(c)) {
+		} else if (isupper(c)) {
 			in[i] = (char) (c + 'a' - 65);
 		}
 	}
@@ -205,50 +209,55 @@ static void formatUpperCases(char *in) {
 static void filterBad(char *in) {
 	for (int passes = 0; passes < 2; passes++) {
 		for (int i = badwords_count - 1; i >= 0; i--) {
-			filter(_WordFilter.badCombinations[i], in, _WordFilter.badWords[i]);
+			filter(combos_count[i], _WordFilter.badCombinations[i], in, _WordFilter.badWords[i]);
 		}
 	}
 }
 
 static void filterDomains(char *in) {
-	char *filteredAt = (char[]) in.clone();
-	char at[] = { '(', 'a', ')' };
-	filter(NULL, filteredAt, at);
-	char *filteredDot = (char[]) in.clone();
-	char dot[] = { 'd', 'o', 't' };
-	filter(NULL, filteredDot, dot);
+	size_t len = strlen(in);
+	char *filteredAt = malloc(len + 1);
+	strcpy(filteredAt, in);
+	char at[] = { '(', 'a', ')', '\0' };
+	filter(0, NULL, filteredAt, at);
+	char *filteredDot = malloc(len + 1);
+	strcpy(filteredDot, in);
+	char dot[] = { 'd', 'o', 't', '\0' };
+	filter(0, NULL, filteredDot, dot);
 	for (int i = domains_count - 1; i >= 0; i--) {
 		filterDomain(filteredDot, filteredAt, _WordFilter.domains[i], in);
 	}
 }
 
 static void filterDomain(char *filteredDot, char *filteredAt, char *domain, char *in) {
-	if (domain_count <= in.length) {
+	size_t in_len = strlen(in);
+	size_t domain_len = strlen(domain);
+
+	if (domain_len <= in_len) {
 		int stride;
-		for (int start = 0; start <= in.length - domain_count; start += stride) {
-			int end = start;
-			int offset = 0;
+		for (size_t start = 0; start <= in_len - domain_len; start += stride) {
+			size_t end = start;
+			size_t offset = 0;
 			stride = 1;
 			bool match;
-			filter_pass:
 			while (true) {
 				while (true) {
-					if (end >= in.length) {
-						break filter_pass;
+					if (end >= in_len) {
+						goto filter_pass;
 					}
 					match = false;
 					char b = in[end];
 					char c = 0;
-					if (end + 1 < in.length) {
+					if (end + 1 < in_len) {
 						c = in[end + 1];
 					}
 					int charSize;
-					if (offset < domain.length && (charSize = getEmulatedDomainCharSize(c, domain[offset], b)) > 0) {
+					if (offset < domain_len && (charSize = getEmulatedDomainCharSize(c, domain[offset], b)) > 0) {
 						end += charSize;
 						offset++;
 					} else {
 						if (offset == 0) {
-							break filter_pass;
+							goto filter_pass;
 						}
 						int charSize2;
 						if ((charSize2 = getEmulatedDomainCharSize(c, domain[offset - 1], b)) > 0) {
@@ -257,15 +266,16 @@ static void filterDomain(char *filteredDot, char *filteredAt, char *domain, char
 								stride++;
 							}
 						} else {
-							if (offset >= domain.length || !isSymbol(b)) {
-								break filter_pass;
+							if (offset >= domain_len || isalnum(b)) {
+								goto filter_pass;
 							}
 							end++;
 						}
 					}
 				}
 			}
-			if (offset >= domain.length) {
+			filter_pass:
+			if (offset >= domain_len) {
 				match = false;
 				int atFilter = getDomainAtFilterStatus(start, in, filteredAt);
 				int dotFilter = getDomainDotFilterStatus(in, filteredDot, end - 1);
@@ -273,7 +283,7 @@ static void filterDomain(char *filteredDot, char *filteredAt, char *domain, char
 					match = true;
 				}
 				if (match) {
-					for (int i = start; i < end; i++) {
+					for (size_t i = start; i < end; i++) {
 						in[i] = '*';
 					}
 				}
@@ -286,33 +296,34 @@ static int getDomainAtFilterStatus(int end, char *a, char *b) {
 	if (end == 0) {
 		return 2;
 	}
-	for (int i = end - 1; i >= 0 && isSymbol(a[i]); i--) {
+	for (int i = end - 1; i >= 0 && !isalnum(a[i]); i--) {
 		if (a[i] == '@') {
 			return 3;
 		}
 	}
 	int asteriskCount = 0;
-	for (int i = end - 1; i >= 0 && isSymbol(b[i]); i--) {
+	for (int i = end - 1; i >= 0 && !isalnum(b[i]); i--) {
 		if (b[i] == '*') {
 			asteriskCount++;
 		}
 	}
 	if (asteriskCount >= 3) {
 		return 4;
-	} else if (isSymbol(a[end - 1])) {
+	} else if (!isalnum(a[end - 1])) {
 		return 1;
 	} else {
 		return 0;
 	}
 }
 
-static int getDomainDotFilterStatus(char *a, char *b, int start) {
-	if (start + 1 == a.length) {
+static int getDomainDotFilterStatus(char *a, char *b, size_t start) {
+	size_t len = strlen(a);
+	if (start + 1 == len) {
 		return 2;
 	} else {
-		int i = start + 1;
+		size_t i = start + 1;
 		while (true) {
-			if (i < a.length && isSymbol(a[i])) {
+			if (i < len && !isalnum(a[i])) {
 				if (a[i] != '.' && a[i] != ',') {
 					i++;
 					continue;
@@ -320,7 +331,7 @@ static int getDomainDotFilterStatus(char *a, char *b, int start) {
 				return 3;
 			}
 			int asteriskCount = 0;
-			for (int j = start + 1; j < a.length && isSymbol(b[j]); j++) {
+			for (size_t j = start + 1; j < len && !isalnum(b[j]); j++) {
 				if (b[j] == '*') {
 					asteriskCount++;
 				}
@@ -328,7 +339,7 @@ static int getDomainDotFilterStatus(char *a, char *b, int start) {
 			if (asteriskCount >= 3) {
 				return 4;
 			}
-			if (isSymbol(a[start + 1])) {
+			if (!isalnum(a[start + 1])) {
 				return 1;
 			}
 			return 0;
@@ -337,45 +348,49 @@ static int getDomainDotFilterStatus(char *a, char *b, int start) {
 }
 
 static void filterTld(char *in) {
-	char *filteredDot = (char[]) in.clone();
-	char *dot = new char[] { 'd', 'o', 't' };
-	filter(null, filteredDot, dot);
-	char *filteredSlash = (char[]) in.clone();
-	char *slash = new char[] { 's', 'l', 'a', 's', 'h' };
-	filter(null, filteredSlash, slash);
-	for (int i = 0; i < tlds.length; i++) {
-		filterTld2(filteredSlash, tldType[i], in, tlds[i], filteredDot);
+	size_t in_len = strlen(in);
+	char *filteredDot = malloc(in_len + 1);
+	strcpy(filteredDot, in);
+	char dot[] = { 'd', 'o', 't', '\0' };
+	filter(0, NULL, filteredDot, dot);
+	char *filteredSlash = malloc(in_len + 1);
+	strcpy(filteredSlash, in);
+	char slash[] = { 's', 'l', 'a', 's', 'h', '\0' };
+	filter(0, NULL, filteredSlash, slash);
+	for (int i = 0; i < tlds_count; i++) {
+		filterTld2(filteredSlash, _WordFilter.tldType[i], in, _WordFilter.tlds[i], filteredDot);
 	}
 }
 
 static void filterTld2(char *filteredSlash, int type, char *chars, char *tld, char *filteredDot) {
+	size_t chars_len = strlen(chars);
+	size_t tld_len = strlen(tld);
 	int stride;
-	if (tld.length <= chars.length) {
-		bool compare = true;
-		for (int start = 0; start <= chars.length - tld.length; start += stride) {
-			int end = start;
-			int offset = 0;
+	if (tld_len <= chars_len) {
+		// bool compare = true;
+		for (size_t start = 0; start <= chars_len - tld_len; start += stride) {
+			size_t end = start;
+			size_t offset = 0;
 			stride = 1;
 			bool match;
-			filter_pass:
 			while (true) {
 				while (true) {
-					if (end >= chars.length) {
-						break filter_pass;
+					if (end >= chars_len) {
+						goto filter_pass;
 					}
 					match = false;
 					char b = chars[end];
 					char c = 0;
-					if (end + 1 < chars.length) {
+					if (end + 1 < chars_len) {
 						c = chars[end + 1];
 					}
 					int charLen;
-					if (offset < tld.length && (charLen = getEmulatedDomainCharSize(c, tld[offset], b)) > 0) {
+					if (offset < tld_len && (charLen = getEmulatedDomainCharSize(c, tld[offset], b)) > 0) {
 						end += charLen;
 						offset++;
 					} else {
 						if (offset == 0) {
-							break filter_pass;
+							goto filter_pass;
 						}
 						int charLen2;
 						if ((charLen2 = getEmulatedDomainCharSize(c, tld[offset - 1], b)) > 0) {
@@ -384,28 +399,29 @@ static void filterTld2(char *filteredSlash, int type, char *chars, char *tld, ch
 								stride++;
 							}
 						} else {
-							if (offset >= tld.length || !isSymbol(b)) {
-								break filter_pass;
+							if (offset >= tld_len || isalnum(b)) {
+								goto filter_pass;
 							}
 							end++;
 						}
 					}
 				}
 			}
-			if (offset >= tld.length) {
+			filter_pass:
+			if (offset >= tld_len) {
 				match = false;
 				int status0 = getTldDotFilterStatus(chars, filteredDot, start);
 				int status1 = getTldSlashFilterStatus(filteredSlash, end - 1, chars);
 				if (type == 1 && status0 > 0 && status1 > 0) {
 					match = true;
 				}
-				if (type == 2 && (status0 > 2 && status1 > 0 || status0 > 0 && status1 > 2)) {
+				if (type == 2 && ((status0 > 2 && status1 > 0) || (status0 > 0 && status1 > 2))) {
 					match = true;
 				}
 				if (type == 3 && status0 > 0 && status1 > 2) {
 					match = true;
 				}
-				bool lastCheck = type == 3 && status0 > 2 && status1 > 0;
+				// bool lastCheck = type == 3 && status0 > 2 && status1 > 0;
 				if (match) {
 					int first = start;
 					int last = end - 1;
@@ -429,11 +445,11 @@ static void filterTld2(char *filteredSlash, int type, char *chars, char *tld, ch
 						findStart = false;
 						for (i = first - 1; i >= 0; i--) {
 							if (findStart) {
-								if (isSymbol(chars[i])) {
+								if (!isalnum(chars[i])) {
 									break;
 								}
 								first = i;
-							} else if (!isSymbol(chars[i])) {
+							} else if (isalnum(chars[i])) {
 								findStart = true;
 								first = i;
 							}
@@ -442,7 +458,7 @@ static void filterTld2(char *filteredSlash, int type, char *chars, char *tld, ch
 					if (status1 > 2) {
 						if (status1 == 4) {
 							findStart = false;
-							for (i = last + 1; i < chars.length; i++) {
+							for (i = last + 1; i < (int)chars_len; i++) {
 								if (findStart) {
 									if (filteredSlash[i] != '*') {
 										break;
@@ -455,13 +471,13 @@ static void filterTld2(char *filteredSlash, int type, char *chars, char *tld, ch
 							}
 						}
 						findStart = false;
-						for (i = last + 1; i < chars.length; i++) {
+						for (i = last + 1; i < (int)chars_len; i++) {
 							if (findStart) {
-								if (isSymbol(chars[i])) {
+								if (!isalnum(chars[i])) {
 									break;
 								}
 								last = i;
-							} else if (!isSymbol(chars[i])) {
+							} else if (isalnum(chars[i])) {
 								findStart = true;
 								last = i;
 							}
@@ -482,7 +498,7 @@ static int getTldDotFilterStatus(char *a, char *b, int start) {
 	}
 	int i = start - 1;
 	while (true) {
-		if (i >= 0 && isSymbol(a[i])) {
+		if (i >= 0 && !isalnum(a[i])) {
 			if (a[i] != ',' && a[i] != '.') {
 				i--;
 				continue;
@@ -491,7 +507,7 @@ static int getTldDotFilterStatus(char *a, char *b, int start) {
 		}
 		int asteriskCount = 0;
 		int j;
-		for (j = start - 1; j >= 0 && isSymbol(b[j]); j--) {
+		for (j = start - 1; j >= 0 && !isalnum(b[j]); j--) {
 			if (b[j] == '*') {
 				asteriskCount++;
 			}
@@ -499,20 +515,21 @@ static int getTldDotFilterStatus(char *a, char *b, int start) {
 		if (asteriskCount >= 3) {
 			return 4;
 		}
-		if (isSymbol(a[start - 1])) {
+		if (!isalnum(a[start - 1])) {
 			return 1;
 		}
 		return 0;
 	}
 }
 
-static int getTldSlashFilterStatus(char *b, int end, char *a) {
-	if (end + 1 == a.length) {
+static int getTldSlashFilterStatus(char *b, size_t end, char *a) {
+	size_t len = strlen(a);
+	if (end + 1 == len) {
 		return 2;
 	}
-	int i = end + 1;
+	size_t i = end + 1;
 	while (true) {
-		if (i < a.length && isSymbol(a[i])) {
+		if (i < len && !isalnum(a[i])) {
 			if (a[i] != '\\' && a[i] != '/') {
 				i++;
 				continue;
@@ -520,7 +537,7 @@ static int getTldSlashFilterStatus(char *b, int end, char *a) {
 			return 3;
 		}
 		int asteriskCount = 0;
-		for (int j = end + 1; j < a.length && isSymbol(b[j]); j++) {
+		for (size_t j = end + 1; j < len && !isalnum(b[j]); j++) {
 			if (b[j] == '*') {
 				asteriskCount++;
 			}
@@ -528,20 +545,22 @@ static int getTldSlashFilterStatus(char *b, int end, char *a) {
 		if (asteriskCount >= 5) {
 			return 4;
 		}
-		if (isSymbol(a[end + 1])) {
+		if (!isalnum(a[end + 1])) {
 			return 1;
 		}
 		return 0;
 	}
 }
 
-static void filter(int8_t **badCombinations, char *chars, char *fragment) {
-	if (fragment.length <= chars.length) {
-		bool compare = true;
+static void filter(int combos_count_index, int8_t (*badCombinations)[2], char *chars, char *fragment) {
+	size_t chars_len = strlen(chars);
+	size_t fragment_len = strlen(fragment);
+	if (fragment_len <= chars_len) {
+		// bool compare = true;
 		int stride;
-		for (int start = 0; start <= chars.length - fragment.length; start += stride) {
-			int end = start;
-			int fragOff = 0;
+		for (int start = 0; start <= (int)(chars_len - fragment_len); start += stride) {
+			size_t end = start;
+			size_t fragOff = 0;
 			int iterations = 0;
 			stride = 1;
 			bool isSymbol = false;
@@ -550,31 +569,30 @@ static void filter(int8_t **badCombinations, char *chars, char *fragment) {
 			bool bad;
 			char b;
 			char c;
-			label163:
 			while (true) {
 				while (true) {
-					if (end >= chars.length || isEmulated && isNumeral) {
-						break label163;
+					if (end >= chars_len || (isEmulated && isNumeral)) {
+						goto label163;
 					}
 					bad = false;
 					b = chars[end];
 					c = '\0';
-					if (end + 1 < chars.length) {
+					if (end + 1 < chars_len) {
 						c = chars[end + 1];
 					}
 					int charLen;
-					if (fragOff < fragment.length && (charLen = getEmulatedSize(c, fragment[fragOff], b)) > 0) {
-						if (charLen == 1 && isNumber(b)) {
+					if (fragOff < fragment_len && (charLen = getEmulatedSize(c, fragment[fragOff], b)) > 0) {
+						if (charLen == 1 && isdigit(b)) {
 							isEmulated = true;
 						}
-						if (charLen == 2 && (isNumber(b) || isNumber(c))) {
+						if (charLen == 2 && (isdigit(b) || isdigit(c))) {
 							isEmulated = true;
 						}
 						end += charLen;
 						fragOff++;
 					} else {
 						if (fragOff == 0) {
-							break label163;
+							goto label163;
 						}
 						int charLen2;
 						if ((charLen2 = getEmulatedSize(c, fragment[fragOff - 1], b)) > 0) {
@@ -583,34 +601,35 @@ static void filter(int8_t **badCombinations, char *chars, char *fragment) {
 								stride++;
 							}
 						} else {
-							if (fragOff >= fragment.length || !isLowerCaseAlpha(b)) {
-								break label163;
+							if (fragOff >= fragment_len || !isLowerCaseAlpha(b)) {
+								goto label163;
 							}
-							if (isSymbol(b) && b != '\'') {
+							if (!isalnum(b) && b != '\'') {
 								isSymbol = true;
 							}
-							if (isNumber(b)) {
+							if (isdigit(b)) {
 								isNumeral = true;
 							}
 							end++;
 							iterations++;
 							if (iterations * 100 / (end - start) > 90) {
-								break label163;
+								goto label163;
 							}
 						}
 					}
 				}
 			}
-			if (fragOff >= fragment.length && (!isEmulated || !isNumeral)) {
+			label163:
+			if (fragOff >= fragment_len && (!isEmulated || !isNumeral)) {
 				bad = true;
 				int cur;
 				if (isSymbol) {
 					bool badCurrent = false;
 					bool badNext = false;
-					if (start - 1 < 0 || isSymbol(chars[start - 1]) && chars[start - 1] != '\'') {
+					if (start - 1 < 0 || (!isalnum(chars[start - 1]) && chars[start - 1] != '\'')) {
 						badCurrent = true;
 					}
-					if (end >= chars.length || isSymbol(chars[end]) && chars[end] != '\'') {
+					if (end >= chars_len || (!isalnum(chars[end]) && chars[end] != '\'')) {
 						badNext = true;
 					}
 					if (!badCurrent || !badNext) {
@@ -619,15 +638,15 @@ static void filter(int8_t **badCombinations, char *chars, char *fragment) {
 						if (badCurrent) {
 							cur = start;
 						}
-						while (!good && cur < end) {
-							if (cur >= 0 && (!isSymbol(chars[cur]) || chars[cur] == '\'')) {
-								char *frag = new char[3];
+						while (!good && cur < (int)end) {
+							if (cur >= 0 && (isalnum(chars[cur]) || chars[cur] == '\'')) {
+								char frag[3];
 								int off;
-								for (off = 0; off < 3 && cur + off < chars.length && (!isSymbol(chars[cur + off]) || chars[cur + off] == '\''); off++) {
+								for (off = 0; off < 3 && cur + off < (int)chars_len && (isalnum(chars[cur + off]) || chars[cur + off] == '\''); off++) {
 									frag[off] = chars[cur + off];
 								}
 								bool valid = off != 0;
-								if (off < 3 && cur - 1 >= 0 && (!isSymbol(chars[cur - 1]) || chars[cur - 1] == '\'')) {
+								if (off < 3 && cur - 1 >= 0 && (isalnum(chars[cur - 1]) || chars[cur - 1] == '\'')) {
 									valid = false;
 								}
 								if (valid && !isBadFragment(frag)) {
@@ -646,27 +665,27 @@ static void filter(int8_t **badCombinations, char *chars, char *fragment) {
 						b = chars[start - 1];
 					}
 					c = ' ';
-					if (end < chars.length) {
+					if (end < chars_len) {
 						c = chars[end];
 					}
 					int8_t bIndex = getIndex(b);
 					int8_t cIndex = getIndex(c);
-					if (badCombinations != null && comboMatches(bIndex, badCombinations, cIndex)) {
+					if (badCombinations && comboMatches(bIndex, badCombinations, combos_count_index, cIndex)) {
 						bad = false;
 					}
 				}
 				if (bad) {
 					int numeralCount = 0;
 					int alphaCount = 0;
-					for (int n = start; n < end; n++) {
-						if (isNumber(chars[n])) {
+					for (size_t n = start; n < end; n++) {
+						if (isdigit(chars[n])) {
 							numeralCount++;
-						} else if (isAlpha(chars[n])) {
+						} else if (isalpha(chars[n])) {
 							alphaCount++;
 						}
 					}
 					if (numeralCount <= alphaCount) {
-						for (cur = start; cur < end; cur++) {
+						for (cur = start; cur < (int)end; cur++) {
 							chars[cur] = '*';
 						}
 					}
@@ -676,12 +695,12 @@ static void filter(int8_t **badCombinations, char *chars, char *fragment) {
 	}
 }
 
-static bool comboMatches(int8_t a, int8_t **combos, int8_t b) {
+static bool comboMatches(int8_t a, int8_t (*combos)[2], int combos_count_index, int8_t b) {
 	int first = 0;
 	if (combos[first][0] == a && combos[first][1] == b) {
 		return true;
 	}
-	int last = combos.length - 1;
+	int last = combos_count_index - 1;
 	if (combos[last][0] == a && combos[last][1] == b) {
 		return true;
 	}
@@ -690,7 +709,7 @@ static bool comboMatches(int8_t a, int8_t **combos, int8_t b) {
 		if (combos[middle][0] == a && combos[middle][1] == b) {
 			return true;
 		}
-		if (a < combos[middle][0] || a == combos[middle][0] && b < combos[middle][1]) {
+		if (a < combos[middle][0] || (a == combos[middle][0] && b < combos[middle][1])) {
 			last = middle;
 		} else {
 			first = middle;
@@ -708,7 +727,7 @@ static int getEmulatedDomainCharSize(char c, char a, char b) {
 		return 2;
 	} else if (a == 'c' && (b == '(' || b == '<' || b == '[')) {
 		return 1;
-	} else if (a == 'e' && b == '€') {
+	} else if (a == 'e' /* && b == '€' */) {
 		return 1;
 	} else if (a == 's' && b == '$') {
 		return 1;
@@ -755,7 +774,7 @@ static int getEmulatedSize(char c, char a, char b) {
 			return 0;
 		}
 		if (a == 'e') {
-			if (b != '3' && b != '€') {
+			if (b != '3' /* && b != '€' */) {
 				return 0;
 			}
 			return 1;
@@ -764,9 +783,9 @@ static int getEmulatedSize(char c, char a, char b) {
 			if (b == 'p' && c == 'h') {
 				return 2;
 			}
-			if (b == '£') {
-				return 1;
-			}
+			// if (b == '£') {
+			// 	return 1;
+			// }
 			return 0;
 		}
 		if (a == 'g') {
@@ -841,7 +860,7 @@ static int getEmulatedSize(char c, char a, char b) {
 			if (b == 'v') {
 				return 1;
 			}
-			if (b == '\\' && c == '/' || b == '\\' && c == '|' || b == '|' && c == '/') {
+			if ((b == '\\' && c == '/') || (b == '\\' && c == '|') || (b == '|' && c == '/')) {
 				return 2;
 			}
 			return 0;
@@ -909,7 +928,7 @@ static int8_t getIndex(char c) {
 }
 
 static void filterFragments(char *chars) {
-	bool compare = false;
+	// bool compare = false;
 	int end = 0;
 	int count = 0;
 	int start = 0;
@@ -921,7 +940,7 @@ static void filterFragments(char *chars) {
 			}
 			bool foundLowercase = false;
 			for (int i = end; i >= 0 && i < index && !foundLowercase; i++) {
-				if (!isSymbol(chars[i]) && !isLowerCaseAlpha(chars[i])) {
+				if (isalnum(chars[i]) && !isLowerCaseAlpha(chars[i])) {
 					foundLowercase = true;
 				}
 			}
@@ -950,7 +969,8 @@ static void filterFragments(char *chars) {
 }
 
 static int indexOfNumber(char *input, int off) {
-	for (int i = off; i < input.length && i >= 0; i++) {
+	size_t input_len = strlen(input);
+	for (int i = off; i < (int)input_len && i >= 0; i++) {
 		if (input[i] >= '0' && input[i] <= '9') {
 			return i;
 		}
@@ -959,21 +979,18 @@ static int indexOfNumber(char *input, int off) {
 }
 
 static int indexOfNonNumber(int off, char *input) {
+	size_t input_len = strlen(input);
 	int i = off;
 	while (true) {
-		if (i < input.length && i >= 0) {
+		if (i < (int)input_len && i >= 0) {
 			if (input[i] >= '0' && input[i] <= '9') {
 				i++;
 				continue;
 			}
 			return i;
 		}
-		return input.length;
+		return input_len;
 	}
-}
-
-static bool isSymbol(char c) {
-	return !isAlpha(c) && !isNumber(c);
 }
 
 static bool isLowerCaseAlpha(char c) {
@@ -984,26 +1001,11 @@ static bool isLowerCaseAlpha(char c) {
 	}
 }
 
-static bool isAlpha(char c) {
-	return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z';
-}
-
-static bool isNumber(char c) {
-	return c >= '0' && c <= '9';
-}
-
-static bool isLowerCase(char c) {
-	return c >= 'a' && c <= 'z';
-}
-
-static bool isUpperCase(char c) {
-	return c >= 'A' && c <= 'Z';
-}
-
 static bool isBadFragment(char *input) {
+	size_t input_len = strlen(input);
 	bool skip = true;
-	for (int i = 0; i < input.length; i++) {
-		if (!isNumber(input[i]) && input[i] != '\0') {
+	for (size_t i = 0; i < input_len; i++) {
+		if (!isdigit(input[i]) && input[i] != '\0') {
 			skip = false;
 			break;
 		}
@@ -1014,16 +1016,16 @@ static bool isBadFragment(char *input) {
 	int i = firstFragmentId(input);
 	int start = 0;
 	int end;
-	end = fragments.length - 1;
-	if (i == fragments[start] || i == fragments[end]) {
+	end = fragments_count - 1;
+	if (i == _WordFilter.fragments[start] || i == _WordFilter.fragments[end]) {
 		return true;
 	}
 	do {
 		int middle = (start + end) / 2;
-		if (i == fragments[middle]) {
+		if (i == _WordFilter.fragments[middle]) {
 			return true;
 		}
-		if (i < fragments[middle]) {
+		if (i < _WordFilter.fragments[middle]) {
 			end = middle;
 		} else {
 			start = middle;
@@ -1033,12 +1035,13 @@ static bool isBadFragment(char *input) {
 }
 
 static int firstFragmentId(char *chars) {
-	if (chars.length > 6) {
+	size_t chars_len = strlen(chars);
+	if (chars_len > 6) {
 		return 0;
 	}
 	int value = 0;
-	for (int i = 0; i < chars.length; i++) {
-		char c = chars[chars.length - i - 1];
+	for (size_t i = 0; i < chars_len; i++) {
+		char c = chars[chars_len - i - 1];
 		if (c >= 'a' && c <= 'z') {
 			value = value * 38 + c + 1 - 'a';
 		} else if (c == '\'') {

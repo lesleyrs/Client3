@@ -8,11 +8,11 @@
 typedef struct {
     int *fragments;
     char **badWords;
-    int8_t ***badCombinations;
+    int8_t (**badCombinations)[2];
     char **domains;
     char **tlds;
     int *tldType;
 } WordFilter;
 
 void wordfilter_unpack(Jagfile *jag);
-const char *wordfilter_filter(char *input);
+char *wordfilter_filter(char *input);
