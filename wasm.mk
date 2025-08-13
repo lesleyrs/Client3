@@ -1,5 +1,5 @@
 LIBC = ../wasmlite/libc
-CC = clang --target=wasm32 --sysroot=$(LIBC) -nodefaultlibs -mbulk-memory -fno-builtin
+CC = clang --target=wasm32 --sysroot=$(LIBC) -nodefaultlibs -mbulk-memory -fno-builtin-pow -fno-builtin-cos -fno-builtin-sin
 LDFLAGS = -Wl,--export-table -Wl,--stack-first -Wl,--error-limit=0 -lm
 ENTRY ?= client
 # ENTRY ?= playground
