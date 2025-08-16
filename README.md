@@ -84,9 +84,9 @@ enable cors in server web.ts with `res.setHeader('Access-Control-Allow-Origin', 
 
 ```
 TODO midi, game speedup onblur (how to make wasm not pause with current jspi setup)
-
+TODO fwrite maps like emscripten somehow
 TODO add to build.bat/ps1
-NOTE: wasm output can be made smaller by using js bigints instead of mpi.c
+TODO: wasm output can be made smaller by using js bigints instead of mpi.c
 ```
 
 ### Web (emscripten)
