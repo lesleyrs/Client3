@@ -42,26 +42,6 @@ static SDL_Renderer *renderer;
 
 static void platform_get_keycodes(SDL_Keysym *keysym, int *code, char *ch);
 
-#ifdef __EMSCRIPTEN__
-#include "emscripten.h"
-
-EM_JS(void, set_wave_volume_js, (int wavevol), {
-    setWaveVolume(wavevol);
-})
-
-EM_JS(void, play_wave_js, (int8_t * src, int length), {
-    playWave(HEAP8.subarray(src, src + length));
-})
-
-void platform_set_wave_volume(int wavevol) {
-    set_wave_volume_js(wavevol);
-}
-
-void platform_play_wave(int8_t *src, int length) {
-    play_wave_js(src, length);
-}
-
-#else
 static SDL_AudioDeviceID device;
 static int g_wavevol = 128;
 
@@ -98,7 +78,6 @@ void platform_play_wave(int8_t *src, int length) {
     }
     SDL_FreeWAV(wavBuffer);
 }
-#endif /* not EMSCRIPTEN */
 
 // TODO separate sdl1? or separate midi
 static void midi_callback(void *data, uint8_t *stream, int len) {
@@ -286,7 +265,6 @@ void platform_new(GameShell *shell) {
         SDL_PauseAudio(0);
     }
 
-#ifndef __EMSCRIPTEN__
     SDL_AudioSpec wavSpec;
     wavSpec.freq = 22050;
     wavSpec.format = AUDIO_U8;
@@ -298,7 +276,6 @@ void platform_new(GameShell *shell) {
     if (!device) {
         rs2_error("SDL_OpenAudioDevice(): %s\n", SDL_GetError());
     }
-#endif
 }
 
 void platform_free(void) {
@@ -434,12 +411,6 @@ void platform_update_surface(void) {
 }
 
 void platform_draw_rect(int x, int y, int w, int h, int color) {
-#ifdef __EMSCRIPTEN__
-    if (!_Custom.resizable) {
-        color = ((color & 0xff0000) >> 16) | (color & 0x00ff00) | ((color & 0x0000ff) << 16);
-    }
-#endif
-
     uint32_t *pixels = (uint32_t *)window_surface->pixels;
     int width = window_surface->pitch / sizeof(uint32_t); // SCREEN_WIDTH
 
@@ -459,12 +430,6 @@ void platform_draw_rect(int x, int y, int w, int h, int color) {
 }
 
 void platform_fill_rect(int x, int y, int w, int h, int color) {
-#ifdef __EMSCRIPTEN__
-    if (!_Custom.resizable) {
-        color = ((color & 0xff0000) >> 16) | (color & 0x00ff00) | ((color & 0x0000ff) << 16);
-    }
-#endif
-
     SDL_Rect rect = {x, y, w, h};
     SDL_FillRect(window_surface, &rect, color);
 

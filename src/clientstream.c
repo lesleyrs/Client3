@@ -527,7 +527,7 @@ int clientstream_read_bytes(ClientStream *stream, int8_t *dst, int off, int len)
 
 int clientstream_write(ClientStream *stream, const int8_t *src, int len, int off) {
     if (!stream->closed) {
-#if defined(_WIN32) || defined(__SWITCH__) || defined(__NDS__) || (defined(__wasm) && !defined(__EMSCRIPTEN__))
+#if defined(_WIN32) || defined(__SWITCH__) || defined(__NDS__) || defined(__wasm)
         return send(stream->socket, (const char *)src + off, len, 0);
 #else
         return write(stream->socket, src + off, len);

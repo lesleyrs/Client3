@@ -83,7 +83,6 @@ The only needed files are the index.html + client.wasm and optionally the soundf
 enable cors in server web.ts with `res.setHeader('Access-Control-Allow-Origin', '*');`
 
 ```
-TODO nuke emscripten full sdl2 targets makefile+readme+fix emscripten defines to apply to just wasm not sdl
 TODO midi, game speedup onblur (how to make wasm not pause with current jspi setup)
 
 TODO add to build.bat/ps1
@@ -103,7 +102,6 @@ The only needed files are the index.`html,js,wasm` and optionally the soundfont/
 enable cors in server web.ts with `res.setHeader('Access-Control-Allow-Origin', '*');`
 
 ```
-TODO: JSPI decreases output size a lot, but is locked behind browser flag for now on for firefox
 TODO: midi fading + scape_main stutters during load so it's moved to post load + maybe replace SDL2 audio (check tinymidipcm) but it fixes inactive tab speedup
 TODO: use emscriptens indexeddb api to store data files (add cacheload and cachesave)
 TODO: try adding web worker server compat again: https://emscripten.org/docs/api_reference/wasm_workers.html
@@ -112,8 +110,8 @@ TODO: mobile controls: touch + rotate + osk + mice, PWA manifest
 
 NOTE: Windows and Linux output size might differ and sigint on Windows will cause terminate batch job message if using emrun.
 NOTE: SDL2/3 audio prevents the tab from speeding up when changing focus even in lowmem, the typescript client uses absolute time for idlecycles.
-NOTE: SDL2/3 emscripten ports have setTimeout lag issues, block browser shortcuts in generated js, and memleaks on firefox that get cleaned up by pressing GC in about:memory but why does this happen? (not if only using audio)
 NOTE: maybe bring back worldlist loading in [shell.html](https://github.com/lesleyrs/Client3/commit/5da924b9f766005e82163d899e52a5df2f771584#diff-c878553ed816480a5e85ff602ff3c5d38788ca1d21095cd8f8ebc36a4dbc07ee) if it gets re-added for live servers
+NOTE: JSPI decreases output size a lot, but asyncify can be used for older browser compatibility.
 ```
 
 ### Android

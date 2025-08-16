@@ -19,8 +19,6 @@ WITH_OPENSSL ?= 1
 WITH_LIBTOM ?= 1
 
 ifeq ($(basename $(notdir $(CC))),emcc)
-# TODO: JS_BIGINT disabled for closure compiler, can be fixed?
-# WITH_JS_BIGINT ?= 1
 # getnameinfo does nothing with emscripten so use old api
 MODERN_POSIX = 0
 else ifeq ($(findstring i686-w64-mingw32-gcc,$(CC)),i686-w64-mingw32-gcc)
@@ -71,9 +69,7 @@ endif
 endif
 
 # Faster RSA encryption
-ifeq ($(WITH_JS_BIGINT), 1)
-CFLAGS += -DWITH_RSA_BIGINT
-else ifeq ($(WITH_LIBTOM), 1)
+ifeq ($(WITH_LIBTOM), 1)
 CFLAGS += -DWITH_RSA_LIBTOM
 # CFLAGS += $(shell pkg-config --cflags libtommath)
 # LDFLAGS += $(shell pkg-config --libs libtommath)
@@ -91,9 +87,7 @@ CFLAGS += -sSTACK_SIZE=1048576 -sINITIAL_HEAP=50MB
 CFLAGS += -sALLOW_MEMORY_GROWTH
 CFLAGS += -sDEFAULT_TO_CXX=0 -sENVIRONMENT=web
 # CFLAGS += -sWEBSOCKET_URL=wss://
-ifeq ($(SDL),)
 LDFLAGS += --use-port=sdl3
-endif
 endif
 
 ifeq ($(SDL),1)
@@ -114,10 +108,7 @@ CFLAGS += -DSDL_DISABLE_IMMINTRIN_H
 # sudo ln -s /usr/lib/x86_64-linux-gnu/pulseaudio/libpulsecommon-16.1.so /usr/lib/x86_64-linux-gnu/libpulsecommon-16.1.so
 endif
 
-ifeq ($(basename $(notdir $(CC))),emcc)
-CFLAGS += --preload-file cache/client --preload-file SCC1_Florestan.sf2 --preload-file rom/Roboto@Roboto
-LDFLAGS += --use-port=sdl2
-else ifeq ($(findstring -w64-mingw32-gcc,$(CC)),-w64-mingw32-gcc)
+ifeq ($(findstring -w64-mingw32-gcc,$(CC)),-w64-mingw32-gcc)
 CFLAGS += $(shell bin/SDL2-2.30.9/$(word 1, $(subst -, ,$(CC)))-w64-mingw32/bin/sdl2-config --cflags)
 LDFLAGS += $(shell bin/SDL2-2.30.9/$(word 1, $(subst -, ,$(CC)))-w64-mingw32/bin/sdl2-config --libs)
 else
@@ -127,10 +118,7 @@ endif
 endif
 
 ifeq ($(SDL),3)
-ifeq ($(basename $(notdir $(CC))),emcc)
-CFLAGS += --preload-file cache/client --preload-file SCC1_Florestan.sf2 --preload-file rom/Roboto@Roboto
-LDFLAGS += --use-port=sdl3
-else ifeq ($(findstring -w64-mingw32-gcc,$(CC)),-w64-mingw32-gcc)
+ifeq ($(findstring -w64-mingw32-gcc,$(CC)),-w64-mingw32-gcc)
 # NOTE: removed this for now to have a lighter repo
 CFLAGS += $(shell pkg-config bin/SDL3-3.1.6/$(word 1, $(subst -, ,$(CC)))-w64-mingw32/lib/pkgconfig/sdl3.pc --cflags)
 LDFLAGS += $(shell pkg-config bin/SDL3-3.1.6/$(word 1, $(subst -, ,$(CC)))-w64-mingw32/lib/pkgconfig/sdl3.pc --libs)
@@ -148,9 +136,7 @@ endif
 ifeq ($(DEBUG),0)
 ifeq ($(basename $(notdir $(CC))),emcc)
 CFLAGS += -DNDEBUG -s -Oz -ffast-math
-ifeq ($(SDL),)
 CFLAGS += --closure 1
-endif
 else
 CFLAGS += -DNDEBUG -s -O3 -ffast-math
 endif
@@ -162,7 +148,6 @@ endif
 else ifeq ($(DEBUG),1)
 ifeq ($(basename $(notdir $(CC))),emcc)
 CFLAGS += -gsource-map -sASSERTIONS=2
-# LDFLAGS += -sSOCKET_DEBUG -sRUNTIME_DEBUG=0
 SAN += -fsanitize=null -fsanitize-minimal-runtime
 # SAN += -fsanitize=undefined
 else

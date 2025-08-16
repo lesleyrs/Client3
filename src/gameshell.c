@@ -287,7 +287,7 @@ int poll_key(GameShell *shell) {
     return key;
 }
 
-#if (defined(__EMSCRIPTEN__) && (!defined(SDL) || SDL == 0)) || defined(__wasm) && !defined(__EMSCRIPTEN__)
+#ifdef __wasm
 void gameshell_draw_string(GameShell *shell, const char *str, int x, int y, int color, bool bold, int size) {
     (void)shell;
     platform_draw_string(str, x, y, color, bold, size);

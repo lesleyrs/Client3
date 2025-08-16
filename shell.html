@@ -1,119 +1,27 @@
 <!doctype html>
-<html lang="en-us">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>RuneScape Game</title>
-    <style>
-        html {
-            touch-action: manipulation;
-        }
+<head>
+<title>RuneScape Game</title>
+<style>
+    html {
+        touch-action: manipulation;
+    }
 
-      <!-- body { -->
-        <!-- margin: 0; -->
-      <!-- } -->
-      /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
-      canvas.emscripten {
+    body {
+        margin: 0;
+    }
+    /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
+    canvas.emscripten {
         padding-right: 0;
         margin-left: auto;
         margin-right: auto;
         display: block;
         border: 0px none;
         background-color: black;
-      }
-    </style>
-  </head>
-  <body>
+    }
+</style>
+</head>
+<body>
     <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
-    <script type='text/javascript'>
-    /*
-      window.AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (window.AudioContext) {
-          window.audioContext = new window.AudioContext();
-      }
-      let waveGain;
-
-      function setWaveVolume(vol) {
-          if (!waveGain) {
-              waveGain = window.audioContext.createGain();
-              waveGain.connect(window.audioContext.destination);
-          }
-
-          waveGain.gain.value = vol / 128;
-      }
-
-      async function playWave(data) {
-          try {
-              const audioBuffer = await window.audioContext.decodeAudioData(Uint8Array.from(data).buffer);
-              let bufferSource = window.audioContext.createBufferSource();
-              bufferSource.buffer = audioBuffer;
-              bufferSource.connect(waveGain);
-              bufferSource.start();
-          } catch (err) {
-              console.log(err);
-          }
-      }
-
-      function bytesToBigInt(bytes) {
-          let result = 0n;
-          for (let index = 0; index < bytes.length; index++) {
-              result = (result << 8n) | BigInt(bytes[index]);
-          }
-          return result;
-      }
-
-      function bigIntToBytes(bigInt) {
-          const bytes = [];
-          while (bigInt > 0n) {
-              bytes.unshift(Number(bigInt & 0xffn));
-              bigInt >>= 8n;
-          }
-
-          if (bytes[0] & 0x80) {
-              bytes.unshift(0);
-          }
-
-          return new Uint8Array(bytes);
-      }
-
-      function bigIntModPow(base, exponent, modulus) {
-          let result = 1n;
-          while (exponent > 0n) {
-              if (exponent % 2n === 1n) {
-                  result = (result * base) % modulus;
-              }
-              base = (base * base) % modulus;
-              exponent >>= 1n;
-          }
-          return result;
-      }
-
-      function getParameter(name) {
-          const urlParams = new URLSearchParams(window.location.search);
-          return urlParams.get(name) ?? '';
-      }
-
-      function setParameter(name, value) {
-          const url = new URL(window.location.toString());
-          url.searchParams.set(name, value);
-          window.history.pushState(null, '', url.toString());
-      }
-    */
-
-      var Module = {
-        arguments: [],
-        canvas: (() => {
-          var canvas = document.getElementById('canvas');
-
-          // As a default initial behavior, pop up an alert when webgl context is lost. To make your
-          // application robust, you may want to override this behavior before shipping!
-          // See http://www.khronos.org/registry/webgl/specs/latest/1.0/#5.15.2
-          canvas.addEventListener("webglcontextlost", (e) => { alert('WebGL context lost. You will need to reload the page.'); e.preventDefault(); }, false);
-
-          return canvas;
-        })(),
-      };
-    </script>
     {{{ SCRIPT }}}
-  </body>
+</body>
 </html>

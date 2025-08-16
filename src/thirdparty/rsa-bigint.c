@@ -5,6 +5,43 @@
 #ifdef WITH_RSA_BIGINT
 #include "emscripten.h"
 
+// NOTE: this code can no longer works when using closure compiler, could be used for clang wasm32 still
+// <script type="text/javascript">
+//     function bytesToBigInt(bytes) {
+//         let result = 0n;
+//         for (let index = 0; index < bytes.length; index++) {
+//             result = (result << 8n) | BigInt(bytes[index]);
+//         }
+//         return result;
+//     }
+
+//     function bigIntToBytes(bigInt) {
+//         const bytes = [];
+//         while (bigInt > 0n) {
+//             bytes.unshift(Number(bigInt & 0xffn));
+//             bigInt >>= 8n;
+//         }
+
+//         if (bytes[0] & 0x80) {
+//             bytes.unshift(0);
+//         }
+
+//         return new Uint8Array(bytes);
+//     }
+
+//     function bigIntModPow(base, exponent, modulus) {
+//         let result = 1n;
+//         while (exponent > 0n) {
+//             if (exponent % 2n === 1n) {
+//                 result = (result * base) % modulus;
+//             }
+//             base = (base * base) % modulus;
+//             exponent >>= 1n;
+//         }
+//         return result;
+//     }
+// </script>
+
 EM_JS(int, rsa_crypt_js, (const char* exp, const char* mod, void *temp, int length, void *enc), {
     const bigRaw = bytesToBigInt(HEAPU8.subarray(temp, temp + length));
     const bigEnc = bigIntModPow(bigRaw, BigInt(UTF8ToString(exp)), BigInt(UTF8ToString(mod)));

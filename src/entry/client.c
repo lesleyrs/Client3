@@ -155,13 +155,13 @@ void client_load(Client *c) {
     // 	return;
     // }
 
-#if defined(__EMSCRIPTEN__) && (!defined(SDL) || SDL == 0) || defined(__wasm) && !defined(__EMSCRIPTEN__)
+#ifdef __wasm
     int retry = 5;
 #endif
     c->archive_checksum[8] = 0;
     while (c->archive_checksum[8] == 0) {
         client_draw_progress(c, "Connecting to fileserver", 10);
-#if (defined(__EMSCRIPTEN__) && (!defined(SDL) || SDL == 0)) || defined(__wasm) && !defined(__EMSCRIPTEN__)
+#ifdef __wasm
         char message[PATH_MAX];
         sprintf(message, "crc%d", (int)(jrand() * 9.9999999e7));
         int size = 0;
@@ -4748,7 +4748,7 @@ bool client_read(Client *c) {
             }
         }
         if (index != -1) {
-#if defined(__EMSCRIPTEN__) && (!defined(SDL) || SDL == 0)
+#ifdef __EMSCRIPTEN__
             // TODO use indexeddb instead of emscripten memfs
             char filename[PATH_MAX];
             sprintf(filename, "m%d_%d", x, z);
@@ -4815,7 +4815,7 @@ bool client_read(Client *c) {
                 snprintf(filename, sizeof(filename), "cache/client/maps/m%d_%d.", mapsquareX, mapsquareZ);
 #elif defined(NXDK)
                 snprintf(filename, sizeof(filename), "D:\\cache\\client\\maps\\m%d_%d", mapsquareX, mapsquareZ);
-#elif defined(__EMSCRIPTEN__) && (!defined(SDL) || SDL == 0)
+#elif defined(__EMSCRIPTEN__)
                 snprintf(filename, sizeof(filename), "m%d_%d", mapsquareX, mapsquareZ);
 #else
                 snprintf(filename, sizeof(filename), "cache/client/maps/m%d_%d", mapsquareX, mapsquareZ);
@@ -4880,7 +4880,7 @@ bool client_read(Client *c) {
                 snprintf(filename, sizeof(filename), "cache/client/maps/l%d_%d.", mapsquareX, mapsquareZ);
 #elif defined(NXDK)
                 snprintf(filename, sizeof(filename), "D:\\cache\\client\\maps\\l%d_%d", mapsquareX, mapsquareZ);
-#elif defined(__EMSCRIPTEN__) && (!defined(SDL) || SDL == 0)
+#elif defined(__EMSCRIPTEN__)
             snprintf(filename, sizeof(filename), "l%d_%d", mapsquareX, mapsquareZ);
 #else
             snprintf(filename, sizeof(filename), "cache/client/maps/l%d_%d", mapsquareX, mapsquareZ);
@@ -5095,7 +5095,7 @@ bool client_read(Client *c) {
             }
         }
         if (index != -1) {
-#if defined(__EMSCRIPTEN__) && (!defined(SDL) || SDL == 0)
+#if defined(__EMSCRIPTEN__)
             // TODO use indexeddb instead of emscripten memfs
             char filename[PATH_MAX];
             sprintf(filename, "l%d_%d", x, z);
@@ -10678,8 +10678,8 @@ Client *client_new(void) {
     return c;
 }
 
-#if defined(__EMSCRIPTEN__) && (!defined(SDL) || SDL == 0) || defined(__wasm) && !defined(__EMSCRIPTEN__)
-#if defined(__EMSCRIPTEN__) && (!defined(SDL) || SDL == 0)
+#ifdef __wasm
+#ifdef __EMSCRIPTEN__
 void *client_openurl(const char *name, int *size) {
     void *buffer = NULL;
     int error = 0;
@@ -10692,7 +10692,7 @@ void *client_openurl(const char *name, int *size) {
     }
     return buffer;
 }
-#elif defined(__wasm) && !defined(__EMSCRIPTEN__)
+#else
 void *client_openurl(const char *name, int *size) {
     char url[PATH_MAX];
     bool secured = false;
