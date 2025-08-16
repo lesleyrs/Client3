@@ -200,12 +200,12 @@ static bool onkeyup(int event_type, const EmscriptenKeyboardEvent *e, void *user
 void platform_new(GameShell *shell) {
     emscripten_set_canvas_element_size("#canvas", shell->screen_width, shell->screen_height);
 
-    emscripten_set_mousemove_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, shell, false, onmousemove);
-    emscripten_set_mousedown_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, shell, false, onmousedown);
-    emscripten_set_mouseup_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, shell, false, onmouseup);
+    emscripten_set_mousemove_callback("#canvas", shell, false, onmousemove);
+    emscripten_set_mousedown_callback("#canvas", shell, false, onmousedown);
+    emscripten_set_mouseup_callback("#canvas", shell, false, onmouseup);
 
-    emscripten_set_keydown_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, shell, false, onkeydown);
-    emscripten_set_keyup_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, shell, false, onkeyup);
+    emscripten_set_keydown_callback("#canvas", shell, false, onkeydown);
+    emscripten_set_keyup_callback("#canvas", shell, false, onkeyup);
 
     emscripten_set_mouseenter_callback("#canvas", shell, false, onmouseenter);
     emscripten_set_mouseleave_callback("#canvas", shell, false, onmouseleave);
@@ -223,8 +223,6 @@ void platform_new(GameShell *shell) {
     // emscripten_set_fullscreenchange_callback(EMSCRIPTEN_EVENT_TARGET_DOCUMENT, c, false, Emscripten_HandleFullscreenChange);
 
     // emscripten_set_resize_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, c, false, Emscripten_HandleResize);
-
-    // emscripten_set_visibilitychange_callback(c, false, Emscripten_HandleVisibilityChange);
 
     // emscripten_set_beforeunload_callback(c, Emscripten_HandleBeforeUnload);
 
