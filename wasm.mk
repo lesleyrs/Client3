@@ -19,8 +19,8 @@ CFLAGS += -Wno-null-pointer-subtraction
 
 CFLAGS += -DMP_NO_DEV_URANDOM
 WITH_LIBTOM ?= 1
-# TODO js bigints
-# WITH_JS_BIGINT ?= 1
+WITH_JS_BIGINT ?= 1
+
 ifeq ($(WITH_JS_BIGINT), 1)
 CFLAGS += -DWITH_RSA_BIGINT
 else ifeq ($(WITH_LIBTOM), 1)
