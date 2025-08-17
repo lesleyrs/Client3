@@ -319,7 +319,7 @@ void platform_set_midi(const char *name, int crc, int len) {
     FILE *file = fopen(filename, "rb");
 #endif
     if (!file) {
-        rs2_error("Error loading midi file %s: %s (NOTE: authentic if empty?)\n", filename, strerror(errno));
+        rs2_error("Error loading midi file %s: %s (NOTE: authentic if empty when relogging?)\n", filename, strerror(errno));
         return;
     }
 

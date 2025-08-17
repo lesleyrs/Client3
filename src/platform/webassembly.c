@@ -14,8 +14,24 @@
 #include "../client.h"
 #include "../gameshell.h"
 #include "../inputtracking.h"
+#include "../custom.h"
+
+#include "../thirdparty/bzip.h"
+#define TSF_IMPLEMENTATION
+#include "../thirdparty/tsf.h"
+
+#define TML_IMPLEMENTATION
+#include "../thirdparty/tml.h"
+
+static tml_message *TinyMidiLoader;
+// Holds the global instance pointer
+static tsf *g_TinySoundFont;
+// Holds global MIDI playback state
+static double g_Msec;              // current playback time
+static tml_message *g_MidiMessage; // next message to be played
 
 extern ClientData _Client;
+extern Custom _Custom;
 extern InputTracking _InputTracking;
 
 uint32_t canvas[SCREEN_WIDTH * SCREEN_HEIGHT];
@@ -25,6 +41,44 @@ int __unordtf2(int64_t a, int64_t b, int64_t c, int64_t d);
 int __unordtf2(int64_t a, int64_t b, int64_t c, int64_t d) {
     (void)a, (void)b, (void)c, (void)d;
     return 0;
+}
+
+#define midi_samples 4096
+uint8_t midi_stream[midi_samples];
+
+static void midi_callback(void *userdata, uint8_t *stream, int len) {
+    (void)userdata;
+    // Number of samples to process
+    int SampleBlock, SampleCount = (len / (2 * sizeof(float))); // 2 output channels
+    for (SampleBlock = TSF_RENDER_EFFECTSAMPLEBLOCK; SampleCount; SampleCount -= SampleBlock, stream += (SampleBlock * (2 * sizeof(float)))) {
+        // We progress the MIDI playback and then process TSF_RENDER_EFFECTSAMPLEBLOCK samples at once
+        if (SampleBlock > SampleCount)
+            SampleBlock = SampleCount;
+
+        // Loop through all MIDI messages which need to be played up until the current playback time
+        for (g_Msec += SampleBlock * (1000.0 / JS_getSampleRate()); g_MidiMessage && g_Msec >= g_MidiMessage->time; g_MidiMessage = g_MidiMessage->next) {
+            switch (g_MidiMessage->type) {
+            case TML_PROGRAM_CHANGE: // channel program (preset) change (special handling for 10th MIDI channel with drums)
+                tsf_channel_set_presetnumber(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->program, (g_MidiMessage->channel == 9));
+                break;
+            case TML_NOTE_ON: // play a note
+                tsf_channel_note_on(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->key, g_MidiMessage->velocity / 127.0f);
+                break;
+            case TML_NOTE_OFF: // stop a note
+                tsf_channel_note_off(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->key);
+                break;
+            case TML_PITCH_BEND: // pitch wheel modification
+                tsf_channel_set_pitchwheel(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->pitch_bend);
+                break;
+            case TML_CONTROL_CHANGE: // MIDI controller messages
+                tsf_channel_midi_control(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->control, g_MidiMessage->control_value);
+                break;
+            }
+        }
+
+        // Render the block of audio samples in float format
+        tsf_render_float(g_TinySoundFont, (float *)stream, SampleBlock, 0);
+    }
 }
 
 static bool onmousemove(void *userdata, int x, int y) {
@@ -188,24 +242,94 @@ void platform_new(GameShell *shell) {
     JS_addMouseEventListener(shell, onmouse, onmousemove, NULL);
     JS_addKeyEventListener(shell, onkey);
     JS_addBlurEventListener(shell, onblur);
+
+    if (_Client.lowmem) {
+        return;
+    }
+
+    g_TinySoundFont = tsf_load_filename("SCC1_Florestan.sf2");
+    if (!g_TinySoundFont) {
+        rs2_error("Could not load SoundFont\n");
+    } else {
+        // Set the SoundFont rendering output mode
+        tsf_set_output(g_TinySoundFont, TSF_STEREO_INTERLEAVED, JS_getSampleRate(), 0.0f);
+        JS_streamAudio(midi_callback, NULL, midi_stream, midi_samples);
+    }
+
 }
-void platform_free(void) {}
+void platform_free(void) {
+    tsf_close(g_TinySoundFont);
+    tml_free(TinyMidiLoader);
+}
 void platform_set_wave_volume(int wavevol) {
-    JS_setAudioVolume((float)wavevol / INT8_MAX);
+    JS_setAudioVolume((double)wavevol / INT8_MAX);
 }
 void platform_play_wave(int8_t *src, int length) {
     JS_startAudio((uint8_t*)src, length);
 }
 void platform_set_midi_volume(float midivol) {
-    (void)midivol;
+    tsf_set_volume(g_TinySoundFont, midivol);
 }
 void platform_set_jingle(int8_t *src, int len) {
-    (void)src, (void)len;
+    platform_stop_midi();
+    tml_free(TinyMidiLoader);
+    TinyMidiLoader = tml_load_memory(src, len);
+    g_MidiMessage = TinyMidiLoader;
+    free(src);
 }
+// TODO add fade (always, not jingles)
 void platform_set_midi(const char *name, int crc, int len) {
-    (void)name, (void)crc, (void)len;
+    char filename[PATH_MAX];
+    snprintf(filename, sizeof(filename), "%s_%d.mid", name, crc);
+
+    // custom full url
+    bool secured = false;
+    char url[PATH_MAX];
+    sprintf(url, "%s://%s:%d/%s", secured ? "https" : "http", _Client.socketip, _Custom.http_port, filename);
+
+    FILE *file = fopen(url, "rb");
+    if (!file) {
+        rs2_error("Error loading midi file %s (NOTE: authentic if empty when relogging?)\n", filename);
+        return;
+    }
+
+    int8_t *data = malloc(len);
+    const size_t data_len = fread(data, 1, len, file);
+    if (data && crc != 12345678) {
+        int data_crc = rs_crc32(data, len);
+        if (data_crc != crc) {
+            rs2_log("%s midi CRC check failed\n", name);
+            free(data);
+            data = NULL;
+        }
+    }
+
+    Packet *packet = packet_new(data, 4);
+    const int uncompressed_length = g4(packet);
+    int8_t *uncompressed = malloc(uncompressed_length);
+    bzip_decompress(uncompressed, data, (int)data_len - 4, 4);
+
+    platform_stop_midi();
+    tml_free(TinyMidiLoader);
+    TinyMidiLoader = tml_load_memory(uncompressed, uncompressed_length);
+    g_MidiMessage = TinyMidiLoader;
+
+    packet_free(packet);
+    free(uncompressed);
+    fclose(file);
 }
-void platform_stop_midi(void) {}
+
+void platform_stop_midi(void) {
+    if (_Client.lowmem) {
+        return;
+    }
+
+    g_MidiMessage = NULL;
+    g_Msec = 0;
+    tsf_reset(g_TinySoundFont);
+    // Initialize preset on special 10th MIDI channel to use percussion sound bank (128) if available
+    tsf_channel_set_bank_preset(g_TinySoundFont, 9, 128, 0);
+}
 void set_pixels(PixMap *pixmap, int x, int y) {
     for (int h = 0; h < pixmap->height; h++) {
         for (int w = 0; w < pixmap->width; w++) {

@@ -123,7 +123,7 @@ void client_load(Client *c) {
 // }
 
 // NOTE: avoid blocking midi for emscripten due to slow loading on web
-#ifndef __EMSCRIPTEN__
+#ifndef __wasm
     if (!_Client.lowmem) {
         platform_set_midi("scape_main", 12345678, 40000);
     }
@@ -469,7 +469,7 @@ void client_load(Client *c) {
         c->error_loading = true;
     }
 
-#ifdef __EMSCRIPTEN__
+#ifdef __wasm__
     if (!_Client.lowmem) {
         platform_set_midi("scape_main", 12345678, 40000);
     }

@@ -83,8 +83,7 @@ The only needed files are the index.html + client.wasm and optionally the soundf
 enable cors in server web.ts with `res.setHeader('Access-Control-Allow-Origin', '*');`
 
 ```
-TODO midi + avoid game speedup onblur
-TODO fwrite maps like with emscripten
+TODO fwrite maps like emscripten
 TODO add to build.bat/ps1 to replace emscripten
 ```
 
