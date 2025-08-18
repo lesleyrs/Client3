@@ -122,12 +122,9 @@ void client_load(Client *c) {
 // 	super.mindel = 5;
 // }
 
-// NOTE: avoid blocking midi for emscripten due to slow loading on web
-#ifndef __wasm
     if (!_Client.lowmem) {
         platform_set_midi("scape_main", 12345678, 40000);
     }
-#endif
 
     if (_Client.started) {
         c->error_started = true;
@@ -468,12 +465,6 @@ void client_load(Client *c) {
     if (!clientstream_init()) {
         c->error_loading = true;
     }
-
-#ifdef __wasm__
-    if (!_Client.lowmem) {
-        platform_set_midi("scape_main", 12345678, 40000);
-    }
-#endif
 
 // TODO temp: wait for wiiu and switch touch input fixes, melonds 32mb emulation
 #if defined(__WIIU__) || defined(__SWITCH__) || defined(__NDS__)

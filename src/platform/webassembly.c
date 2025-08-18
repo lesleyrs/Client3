@@ -43,8 +43,9 @@ int __unordtf2(int64_t a, int64_t b, int64_t c, int64_t d) {
     return 0;
 }
 
-#define midi_samples 4096
-uint8_t midi_stream[midi_samples];
+// NOTE: using more samples to avoid starving the midi stream running on main thread
+#define MIDI_SAMPLES 4096 * 4
+uint8_t midi_stream[MIDI_SAMPLES];
 
 static void midi_callback(void *userdata, uint8_t *stream, int len) {
     (void)userdata;
@@ -253,9 +254,8 @@ void platform_new(GameShell *shell) {
     } else {
         // Set the SoundFont rendering output mode
         tsf_set_output(g_TinySoundFont, TSF_STEREO_INTERLEAVED, JS_getSampleRate(), 0.0f);
-        JS_streamAudio(midi_callback, NULL, midi_stream, midi_samples);
+        JS_resumeAudio();
     }
-
 }
 void platform_free(void) {
     tsf_close(g_TinySoundFont);
@@ -344,6 +344,7 @@ void set_pixels(PixMap *pixmap, int x, int y) {
 
 void platform_poll_events(Client *c) {
     (void)c;
+    JS_streamAudio(midi_callback, NULL, midi_stream, MIDI_SAMPLES);
 }
 
 void platform_draw_string(const char *str, int x, int y, int color, bool bold, int size) {
