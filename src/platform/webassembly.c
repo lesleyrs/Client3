@@ -44,7 +44,8 @@ int __unordtf2(int64_t a, int64_t b, int64_t c, int64_t d) {
 }
 
 // NOTE: using more samples to avoid starving the midi stream running on main thread
-#define MIDI_SAMPLES 4096 * 4
+#define MIDI_FREQ 44100
+#define MIDI_SAMPLES 4096
 uint8_t midi_stream[MIDI_SAMPLES];
 
 static void midi_callback(void *userdata, uint8_t *stream, int len) {
@@ -57,7 +58,7 @@ static void midi_callback(void *userdata, uint8_t *stream, int len) {
             SampleBlock = SampleCount;
 
         // Loop through all MIDI messages which need to be played up until the current playback time
-        for (g_Msec += SampleBlock * (1000.0 / JS_getSampleRate()); g_MidiMessage && g_Msec >= g_MidiMessage->time; g_MidiMessage = g_MidiMessage->next) {
+        for (g_Msec += SampleBlock * (1000.0 / MIDI_FREQ); g_MidiMessage && g_Msec >= g_MidiMessage->time; g_MidiMessage = g_MidiMessage->next) {
             switch (g_MidiMessage->type) {
             case TML_PROGRAM_CHANGE: // channel program (preset) change (special handling for 10th MIDI channel with drums)
                 tsf_channel_set_presetnumber(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->program, (g_MidiMessage->channel == 9));
@@ -253,8 +254,9 @@ void platform_new(GameShell *shell) {
         rs2_error("Could not load SoundFont\n");
     } else {
         // Set the SoundFont rendering output mode
-        tsf_set_output(g_TinySoundFont, TSF_STEREO_INTERLEAVED, JS_getSampleRate(), 0.0f);
-        JS_resumeAudio();
+        tsf_set_output(g_TinySoundFont, TSF_STEREO_INTERLEAVED, MIDI_FREQ, 0.0f);
+        JS_resumeAudio(MIDI_FREQ);
+        JS_pullSamples(midi_callback, NULL, midi_stream, MIDI_SAMPLES);
     }
 }
 void platform_free(void) {
@@ -344,7 +346,6 @@ void set_pixels(PixMap *pixmap, int x, int y) {
 
 void platform_poll_events(Client *c) {
     (void)c;
-    JS_streamAudio(midi_callback, NULL, midi_stream, MIDI_SAMPLES);
 }
 
 void platform_draw_string(const char *str, int x, int y, int color, bool bold, int size) {
