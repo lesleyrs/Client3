@@ -256,7 +256,7 @@ void platform_new(GameShell *shell) {
         // Set the SoundFont rendering output mode
         tsf_set_output(g_TinySoundFont, TSF_STEREO_INTERLEAVED, MIDI_FREQ, 0.0f);
         JS_resumeAudio(MIDI_FREQ);
-        JS_pullSamples(midi_callback, NULL, midi_stream, MIDI_SAMPLES);
+        JS_setAudioCallback(midi_callback, NULL, midi_stream, MIDI_SAMPLES);
     }
 }
 void platform_free(void) {
