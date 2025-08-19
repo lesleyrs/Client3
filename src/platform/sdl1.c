@@ -101,14 +101,9 @@ void platform_new(GameShell *shell) {
 
     SDL_AudioSpec midiSpec;
     midiSpec.freq = 44100;
-// TODO separate midi and rm from sdl2
-#if SDL == 1
     midiSpec.format = AUDIO_S16SYS;
-#else
-    midiSpec.format = AUDIO_F32;
-#endif
     midiSpec.channels = 2;
-    midiSpec.samples = 4096;
+    midiSpec.samples = 256;
     midiSpec.callback = midi_callback;
 
     g_TinySoundFont = tsf_load_filename("SCC1_Florestan.sf2");
@@ -129,7 +124,7 @@ void platform_new(GameShell *shell) {
     // wavSpec.freq = 22050;
     // wavSpec.format = AUDIO_U8;
     // wavSpec.channels = 1;
-    // wavSpec.samples = 4096;
+    // wavSpec.samples = 128;
     // wavSpec.callback = NULL;
 }
 
