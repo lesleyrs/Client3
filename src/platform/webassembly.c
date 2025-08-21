@@ -95,7 +95,7 @@ static bool onmousemove(void *userdata, int x, int y) {
     return 0;
 }
 
-static bool onmouse(void *userdata, bool pressed, int button) {
+static void onmouse(void *userdata, bool pressed, int button) {
     GameShell *shell = userdata;
     shell->idle_cycles = 0;
 
@@ -121,7 +121,6 @@ static bool onmouse(void *userdata, bool pressed, int button) {
             inputtracking_mouse_released(&_InputTracking, (button == 2) != 0 ? 1 : 0);
         }
     }
-    return 0;
 }
 
 static int convert_pk(GameShell *shell, int ch, int code, int modifiers, bool down) {
