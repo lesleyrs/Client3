@@ -31,7 +31,7 @@ static int screen_offset_y_top = 0;
 static int screen_offset_x = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2;
 static int screen_offset_y = -SCREEN_FB_HEIGHT;
 
-static bool touch_down = false;
+static bool update_touch = false;
 static int tmp_mouse_click_x = 0;
 static int tmp_mouse_click_y = 0;
 static int tmp_mouse_click_button = 0;
@@ -217,11 +217,12 @@ void set_pixels(PixMap *pixmap, int x, int y) {
 }
 
 void platform_update_touch(Client *c) {
-    if (touch_down) {
+    if (update_touch) {
         c->shell->mouse_click_x = tmp_mouse_click_x;
         c->shell->mouse_click_y = tmp_mouse_click_y;
         c->shell->mouse_click_button = tmp_mouse_click_button;
         c->shell->mouse_button = tmp_mouse_button;
+        update_touch = false;
     }
 }
 
@@ -339,6 +340,7 @@ void platform_poll_events(Client *c) {
         key_released(c->shell, K_CONTROL, -1);
     }
 
+    static bool touch_down = false;
     if (touch.px == 0 && touch.py == 0) {
         if (touch_down) {
             c->shell->idle_cycles = 0;
@@ -364,6 +366,8 @@ void platform_poll_events(Client *c) {
 
         if (!touch_down) {
             // c->shell->idle_cycles = 0;
+            update_touch = true;
+
             tmp_mouse_click_x = x;
             tmp_mouse_click_y = y;
 
