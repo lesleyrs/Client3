@@ -167,12 +167,18 @@ in citra emulator click `file>open citra folder` for sdmc dir https://citra-emul
 
 on real hardware move the contents of the rom/ dir next to the 3dsx file.
 
-Controls: Touch to left click, L + touch to right click, Dpad for arrow keys, X for control, R to toggle ::perf
+Controls:
+- Touch to left click + hold L to right click
+- Circle/Dpad for arrow keys + hold R to pan touch screen
+- B for control (run)
+- start to align bottom screen, select to toggle ::perf stats
 
 ```
-TODO: somehow make it playable with screen panning
-TODO: possible to toggle top screen console?
-TODO: The "New" 3ds/2ds line for higher cpu clock rate does not seem to make much difference in citra?
+TODO: fix touch input to always move first before click
+TODO: fix crashing sometimes on home button exit
+TODO: enable audio in lowmem, swkbd to type, backlight toggle?
+TODO: possible to toggle top screen console? right now requires 2 loc changes
+TODO: see new 2ds/3ds performance with higher cpu clock, old 2ds runs at ~10-20
 ```
 
 #### Wii U

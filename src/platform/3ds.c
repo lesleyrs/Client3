@@ -31,18 +31,49 @@ static int screen_offset_y_top = 0;
 static int screen_offset_x = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2;
 static int screen_offset_y = -SCREEN_FB_HEIGHT;
 
-static void soc_shutdown() {
-    socExit();
+// all arbitrary
+#define CURSOR_SENSITIVITY 20
+#define PAN_THRESHOLD 40
+#define MAX_CIRCLEPAD_POS 150 // real hw seems to report up to 168
 
-    // _3ds_toggle_top_screen(1);
+#define VIEWPORT_X_LEN 512
+#define VIEWPORT_Y_LEN 334
+#define VIEWPORT_X_OFF 8
+#define VIEWPORT_Y_OFF 11
+
+static void set_ingame_screen_pan(Client *c) {
+    screen_offset_x_top = (-VIEWPORT_X_LEN + SCREEN_FB_WIDTH_TOP) / 2 - VIEWPORT_X_OFF;
+    screen_offset_y_top = (-VIEWPORT_Y_LEN + SCREEN_FB_HEIGHT) / 2 - VIEWPORT_Y_OFF;
+
+    screen_offset_x = (-VIEWPORT_X_LEN + SCREEN_FB_WIDTH) / 2 - VIEWPORT_X_OFF;
+    screen_offset_y = (-VIEWPORT_Y_LEN + SCREEN_FB_HEIGHT) / 2 - VIEWPORT_Y_OFF;
+    c->redraw_background = true;
+}
+
+static void set_title_screen_pan(Client *c) {
+    screen_offset_x_top = (SCREEN_FB_WIDTH_TOP - SCREEN_WIDTH) / 2;
+    screen_offset_y_top = 0;
+
+    screen_offset_x = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2;
+    screen_offset_y = -SCREEN_FB_HEIGHT;
+    c->redraw_background = true;
+}
+
+static void clamp_screen(int xoff, int yoff) {
+    screen_offset_x = MAX(SCREEN_FB_WIDTH - SCREEN_WIDTH, MIN(screen_offset_x - xoff / CURSOR_SENSITIVITY, 0));
+    screen_offset_y = MAX(SCREEN_FB_HEIGHT - SCREEN_HEIGHT, MIN(screen_offset_y + yoff / CURSOR_SENSITIVITY, 0));
+}
+
+static void soc_shutdown(void) {
+    socExit();
 }
 
 bool platform_init(void) {
     osSetSpeedupEnable(true);
 
-    gfxInit(GSP_RGBA8_OES, GSP_RGBA8_OES, 0);
     // gfxInitDefault();
-    /* uncomment consoleInit and comment out fb_top to see stdout */
+    gfxInit(GSP_RGBA8_OES, GSP_RGBA8_OES, 0);
+    /* NOTE: uncomment consoleInit and comment out fb_top to see stdout */
     // consoleInit(GFX_TOP, NULL);
     return true;
 }
@@ -51,7 +82,7 @@ void platform_new(GameShell *shell) {
     (void)shell;
     atexit(soc_shutdown);
 
-    // NOTE we could use romfs, but we need sdcard to store the 3dsx anyway?
+    // NOTE could use romfs, but we want access to config
     /* Result romfs_res = romfsInit();
 
     if (romfs_res) {
@@ -175,27 +206,104 @@ void set_pixels(PixMap *pixmap, int x, int y) {
 }
 
 void platform_poll_events(Client *c) {
+    static bool ingame = false;
+    if (ingame && !c->ingame) {
+        set_title_screen_pan(c);
+    } else if (!ingame && c->ingame) {
+        set_ingame_screen_pan(c);
+    }
+    ingame = c->ingame;
+
     hidScanInput();
 
     u32 keys_down = hidKeysDown();
-
-    if (keys_down & KEY_LEFT) {
-        key_pressed(c->shell, K_LEFT, -1);
-    }
-
-    if (keys_down & KEY_RIGHT) {
-        key_pressed(c->shell, K_RIGHT, -1);
-    }
-
-    if (keys_down & KEY_UP) {
-        key_pressed(c->shell, K_UP, -1);
-    }
-
-    if (keys_down & KEY_DOWN) {
-        key_pressed(c->shell, K_DOWN, -1);
-    }
-
     u32 keys_up = hidKeysUp();
+    u32 keys_held = hidKeysHeld();
+
+    touchPosition touch = {0};
+    hidTouchRead(&touch);
+
+    circlePosition pos = {0};
+    hidCircleRead(&pos);
+
+    static bool L_down = false;
+    if (keys_down & KEY_L) {
+        L_down = true;
+    }
+
+    if (keys_up & KEY_L) {
+        L_down = false;
+    }
+
+    static bool R_down = false;
+    if (keys_down & KEY_R) {
+        R_down = true;
+    }
+
+    if (keys_up & KEY_R) {
+        R_down = false;
+    }
+
+    if (R_down) {
+        if (pos.dx < -PAN_THRESHOLD || pos.dx > PAN_THRESHOLD || pos.dy < -PAN_THRESHOLD || pos.dy > PAN_THRESHOLD) {
+            clamp_screen(pos.dx, pos.dy);
+            c->redraw_background = true;
+        } else {
+            if (keys_held & (KEY_LEFT | KEY_RIGHT | KEY_UP | KEY_DOWN)) {
+                int x = 0, y = 0;
+                if (keys_held & KEY_LEFT) {
+                    x -= MAX_CIRCLEPAD_POS;
+                }
+
+                if (keys_held & KEY_RIGHT) {
+                    x += MAX_CIRCLEPAD_POS;
+                }
+
+                if (keys_held & KEY_UP) {
+                    y += MAX_CIRCLEPAD_POS;
+                }
+
+                if (keys_held & KEY_DOWN) {
+                    y -= MAX_CIRCLEPAD_POS;
+                }
+                clamp_screen(x, y);
+                c->redraw_background = true;
+            }
+        }
+    } else {
+        if (keys_down & KEY_LEFT) {
+            key_pressed(c->shell, K_LEFT, -1);
+        }
+
+        if (keys_down & KEY_RIGHT) {
+            key_pressed(c->shell, K_RIGHT, -1);
+        }
+
+        if (keys_down & KEY_UP) {
+            key_pressed(c->shell, K_UP, -1);
+        }
+
+        if (keys_down & KEY_DOWN) {
+            key_pressed(c->shell, K_DOWN, -1);
+        }
+    }
+
+
+    if (keys_down & KEY_B) {
+        key_pressed(c->shell, K_CONTROL, -1);
+    }
+
+    if (keys_down & KEY_SELECT) {
+        _Custom.showPerformance = !_Custom.showPerformance;
+    }
+
+    if (keys_down & KEY_START) {
+        if (c->ingame) {
+            set_ingame_screen_pan(c);
+        } else {
+            set_title_screen_pan(c);
+        }
+    }
 
     if (keys_up & KEY_LEFT) {
         key_released(c->shell, K_LEFT, -1);
@@ -213,28 +321,8 @@ void platform_poll_events(Client *c) {
         key_released(c->shell, K_DOWN, -1);
     }
 
-    if (keys_down & KEY_X) {
-        key_pressed(c->shell, K_CONTROL, -1);
-    }
-
-    if (keys_up & KEY_X) {
+    if (keys_up & KEY_B) {
         key_released(c->shell, K_CONTROL, -1);
-    }
-
-    if (keys_down & KEY_R) {
-        _Custom.showPerformance = !_Custom.showPerformance;
-    }
-
-    touchPosition touch = {0};
-    hidTouchRead(&touch);
-
-    static bool right_touch = false;
-    if (keys_down & KEY_L) {
-        right_touch = true;
-    }
-
-    if (keys_up & KEY_L) {
-        right_touch = false;
     }
 
     static bool touch_down = false;
@@ -244,7 +332,7 @@ void platform_poll_events(Client *c) {
             c->shell->mouse_button = 0;
 
             if (_InputTracking.enabled) {
-                inputtracking_mouse_released(&_InputTracking, right_touch ? 1 : 0);
+                inputtracking_mouse_released(&_InputTracking, L_down ? 1 : 0);
             }
 
             touch_down = false;
@@ -266,7 +354,7 @@ void platform_poll_events(Client *c) {
             c->shell->mouse_click_x = x;
             c->shell->mouse_click_y = y;
 
-            if (right_touch) {
+            if (L_down) {
                 c->shell->mouse_click_button = 2;
                 c->shell->mouse_button = 2;
             } else {
@@ -275,7 +363,7 @@ void platform_poll_events(Client *c) {
             }
 
             if (_InputTracking.enabled) {
-                inputtracking_mouse_pressed(&_InputTracking, x, y, right_touch ? 1 : 0);
+                inputtracking_mouse_pressed(&_InputTracking, x, y, L_down ? 1 : 0);
             }
 
             touch_down = true;
