@@ -120,7 +120,7 @@ void gameshell_run(Client *c) {
         }
         client_draw(c);
         client_run_flames(c); // NOTE: random placement of run_flames
-#ifdef __3DS__ // TODO other touch screens all have same issue
+#ifdef __3DS__ // TODO other touch screens all have same issue (but not needed on mobile if click on release like client-ts for camera rot)
         void platform_update_touch(Client *c);
         platform_update_touch(c);
 #endif
