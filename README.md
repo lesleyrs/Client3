@@ -171,7 +171,7 @@ Controls:
 - Touch to left click + hold L to right click
 - Circle/Dpad for arrow keys + hold R to pan touch screen
 - B for control (run)
-- start to align bottom screen, select to toggle ::perf stats
+- Start to align bottom screen, Select to toggle ::perf stats
 
 ```
 TODO: fix touch input to always move first before click
