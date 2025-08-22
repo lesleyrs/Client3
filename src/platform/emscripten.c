@@ -579,6 +579,7 @@ void platform_poll_events(Client *c) {
 void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
     (void)x, (void)y, (void)w, (void)h, (void)surface;
 }
+void platform_draw_string(const char *str, int x, int y, int color, bool bold, int size);
 void platform_draw_string(const char *str, int x, int y, int color, bool bold, int size) {
     draw_string_js(str, x, y, color, bold, size);
 }

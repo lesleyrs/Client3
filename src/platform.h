@@ -63,9 +63,6 @@ void platform_set_midi(const char *name, int crc, int len);
 void platform_stop_midi(void);
 void set_pixels(PixMap *pixmap, int x, int y);
 void platform_poll_events(Client *c);
-#ifdef __wasm
-void platform_draw_string(const char *str, int x, int y, int color, bool bold, int size);
-#endif
 void platform_blit_surface(int x, int y, int w, int h, Surface *surface);
 void platform_update_surface(void);
 void platform_draw_rect(int x, int y, int w, int h, int color);

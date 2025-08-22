@@ -120,6 +120,10 @@ void gameshell_run(Client *c) {
         }
         client_draw(c);
         client_run_flames(c); // NOTE: random placement of run_flames
+#ifdef __3DS__ // TODO other touch screens all have same issue
+        void platform_update_touch(Client *c);
+        platform_update_touch(c);
+#endif
     }
     if (c->shell->state == -1) {
         gameshell_shutdown(c);
@@ -290,6 +294,7 @@ int poll_key(GameShell *shell) {
 #ifdef __wasm
 void gameshell_draw_string(GameShell *shell, const char *str, int x, int y, int color, bool bold, int size) {
     (void)shell;
+    void platform_draw_string(const char *str, int x, int y, int color, bool bold, int size);
     platform_draw_string(str, x, y, color, bold, size);
     return;
 }

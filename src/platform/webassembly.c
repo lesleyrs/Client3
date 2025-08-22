@@ -347,6 +347,7 @@ void platform_poll_events(Client *c) {
     (void)c;
 }
 
+void platform_draw_string(const char *str, int x, int y, int color, bool bold, int size);
 void platform_draw_string(const char *str, int x, int y, int color, bool bold, int size) {
     (void)bold, (void)size;
 

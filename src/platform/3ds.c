@@ -31,6 +31,12 @@ static int screen_offset_y_top = 0;
 static int screen_offset_x = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2;
 static int screen_offset_y = -SCREEN_FB_HEIGHT;
 
+static bool touch_down = false;
+static int tmp_mouse_click_x = 0;
+static int tmp_mouse_click_y = 0;
+static int tmp_mouse_click_button = 0;
+static int tmp_mouse_button = 0;
+
 // all arbitrary
 #define CURSOR_SENSITIVITY 20
 #define PAN_THRESHOLD 40
@@ -59,7 +65,12 @@ static void set_title_screen_pan(Client *c) {
     c->redraw_background = true;
 }
 
-static void clamp_screen(int xoff, int yoff) {
+static void clamp_top_screen(int xoff, int yoff) {
+    screen_offset_x_top = MAX(SCREEN_FB_WIDTH_TOP - SCREEN_WIDTH, MIN(screen_offset_x_top - xoff / CURSOR_SENSITIVITY, 0));
+    screen_offset_y_top = MAX(SCREEN_FB_HEIGHT - SCREEN_HEIGHT, MIN(screen_offset_y_top + yoff / CURSOR_SENSITIVITY, 0));
+}
+
+static void clamp_bottom_screen(int xoff, int yoff) {
     screen_offset_x = MAX(SCREEN_FB_WIDTH - SCREEN_WIDTH, MIN(screen_offset_x - xoff / CURSOR_SENSITIVITY, 0));
     screen_offset_y = MAX(SCREEN_FB_HEIGHT - SCREEN_HEIGHT, MIN(screen_offset_y + yoff / CURSOR_SENSITIVITY, 0));
 }
@@ -205,6 +216,15 @@ void set_pixels(PixMap *pixmap, int x, int y) {
     // gspWaitForVBlank();
 }
 
+void platform_update_touch(Client *c) {
+    if (touch_down) {
+        c->shell->mouse_click_x = tmp_mouse_click_x;
+        c->shell->mouse_click_y = tmp_mouse_click_y;
+        c->shell->mouse_click_button = tmp_mouse_click_button;
+        c->shell->mouse_button = tmp_mouse_button;
+    }
+}
+
 void platform_poll_events(Client *c) {
     static bool ingame = false;
     if (ingame && !c->ingame) {
@@ -226,27 +246,17 @@ void platform_poll_events(Client *c) {
     circlePosition pos = {0};
     hidCircleRead(&pos);
 
-    static bool L_down = false;
-    if (keys_down & KEY_L) {
-        L_down = true;
-    }
+    bool L_down = keys_held & KEY_L;
+    bool R_down = keys_held & KEY_R;
+    bool A_down = keys_held & KEY_A;
 
-    if (keys_up & KEY_L) {
-        L_down = false;
-    }
-
-    static bool R_down = false;
-    if (keys_down & KEY_R) {
-        R_down = true;
-    }
-
-    if (keys_up & KEY_R) {
-        R_down = false;
-    }
-
-    if (R_down) {
+    if (L_down || R_down) {
         if (pos.dx < -PAN_THRESHOLD || pos.dx > PAN_THRESHOLD || pos.dy < -PAN_THRESHOLD || pos.dy > PAN_THRESHOLD) {
-            clamp_screen(pos.dx, pos.dy);
+            if (L_down) {
+                clamp_top_screen(pos.dx, pos.dy);
+            } else {
+                clamp_bottom_screen(pos.dx, pos.dy);
+            }
             c->redraw_background = true;
         } else {
             if (keys_held & (KEY_LEFT | KEY_RIGHT | KEY_UP | KEY_DOWN)) {
@@ -266,7 +276,11 @@ void platform_poll_events(Client *c) {
                 if (keys_held & KEY_DOWN) {
                     y -= MAX_CIRCLEPAD_POS;
                 }
-                clamp_screen(x, y);
+                if (L_down) {
+                    clamp_top_screen(x, y);
+                } else {
+                    clamp_bottom_screen(x, y);
+                }
                 c->redraw_background = true;
             }
         }
@@ -325,14 +339,13 @@ void platform_poll_events(Client *c) {
         key_released(c->shell, K_CONTROL, -1);
     }
 
-    static bool touch_down = false;
     if (touch.px == 0 && touch.py == 0) {
         if (touch_down) {
             c->shell->idle_cycles = 0;
             c->shell->mouse_button = 0;
 
             if (_InputTracking.enabled) {
-                inputtracking_mouse_released(&_InputTracking, L_down ? 1 : 0);
+                inputtracking_mouse_released(&_InputTracking, A_down ? 1 : 0);
             }
 
             touch_down = false;
@@ -351,19 +364,19 @@ void platform_poll_events(Client *c) {
 
         if (!touch_down) {
             // c->shell->idle_cycles = 0;
-            c->shell->mouse_click_x = x;
-            c->shell->mouse_click_y = y;
+            tmp_mouse_click_x = x;
+            tmp_mouse_click_y = y;
 
-            if (L_down) {
-                c->shell->mouse_click_button = 2;
-                c->shell->mouse_button = 2;
+            if (A_down) {
+                tmp_mouse_click_button = 2;
+                tmp_mouse_button = 2;
             } else {
-                c->shell->mouse_click_button = 1;
-                c->shell->mouse_button = 1;
+                tmp_mouse_click_button = 1;
+                tmp_mouse_button = 1;
             }
 
             if (_InputTracking.enabled) {
-                inputtracking_mouse_pressed(&_InputTracking, x, y, L_down ? 1 : 0);
+                inputtracking_mouse_pressed(&_InputTracking, x, y, A_down ? 1 : 0);
             }
 
             touch_down = true;

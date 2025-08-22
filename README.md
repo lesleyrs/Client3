@@ -168,13 +168,12 @@ in citra emulator click `file>open citra folder` for sdmc dir https://citra-emul
 on real hardware move the contents of the rom/ dir next to the 3dsx file.
 
 Controls:
-- Touch to left click + hold L to right click
-- Circle/Dpad for arrow keys + hold R to pan touch screen
+- Touch to left click + hold A to right click
+- Circle/Dpad for arrow keys + hold L/R to pan top/bot screens
 - B for control (run)
 - Start to align bottom screen, Select to toggle ::perf stats
 
 ```
-TODO: fix touch input to always move first before click
 TODO: fix crashing sometimes on home button exit
 TODO: enable audio in lowmem, swkbd to type, backlight toggle?
 TODO: possible to toggle top screen console? right now requires 2 loc changes
