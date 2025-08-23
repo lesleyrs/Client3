@@ -100,16 +100,12 @@ The only needed files are the index.`html,js,wasm` and optionally the soundfont/
 enable cors in server web.ts with `res.setHeader('Access-Control-Allow-Origin', '*');`
 
 ```
-TODO: midi fading + scape_main stutters during load so it's moved to post load + maybe replace SDL2 audio (check tinymidipcm) but it fixes inactive tab speedup
-TODO: use emscriptens indexeddb api to store data files (add cacheload and cachesave)
-TODO: try adding web worker server compat again: https://emscripten.org/docs/api_reference/wasm_workers.html
-TODO: fullscreen option button
-TODO: mobile controls: touch + rotate + osk + mice, PWA manifest
+TODO: audio stream is pushed to on same thread causing scape_main stutters, and lowmem w/o audio speeds up (typescript client uses absolute time for idlecycles)
+TODO: use indexeddb (add cacheload and cachesave), and maybe add [web worker clientstream](https://emscripten.org/docs/api_reference/wasm_workers.html)
+TODO: mobile controls: touch on release + touch to rotate + osk + mouse+kbd, PWA manifest
 
-NOTE: Windows and Linux output size might differ and sigint on Windows will cause terminate batch job message if using emrun.
-NOTE: SDL2/3 audio prevents the tab from speeding up when changing focus even in lowmem, the typescript client uses absolute time for idlecycles.
-NOTE: maybe bring back worldlist loading in [shell.html](https://github.com/lesleyrs/Client3/commit/5da924b9f766005e82163d899e52a5df2f771584#diff-c878553ed816480a5e85ff602ff3c5d38788ca1d21095cd8f8ebc36a4dbc07ee) if it gets re-added for live servers
-NOTE: JSPI decreases output size a lot, but asyncify can be used for older browser compatibility.
+NOTE: JSPI decreases output size a lot, but asyncify can be used for older browser compatibility. Windows and Linux output size might differ and sigint on Windows will cause terminate batch job message if using emrun.
+NOTE: unused old worldlist code: [shell.html](https://github.com/lesleyrs/Client3/commit/5da924b9f766005e82163d899e52a5df2f771584#diff-c878553ed816480a5e85ff602ff3c5d38788ca1d21095cd8f8ebc36a4dbc07ee)
 ```
 
 ### Android
