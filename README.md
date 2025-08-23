@@ -104,6 +104,7 @@ TODO: audio stream is pushed to on same thread causing scape_main stutters, and 
 TODO: use indexeddb (add cacheload and cachesave), and maybe add [web worker clientstream](https://emscripten.org/docs/api_reference/wasm_workers.html)
 TODO: mobile controls: touch on release + touch to rotate + osk + mouse+kbd, PWA manifest
 
+NOTE: could replace sdl3 audio with https://emscripten.org/docs/api_reference/wasm_audio_worklets.html and decodeAudioData for wavs
 NOTE: JSPI decreases output size a lot, but asyncify can be used for older browser compatibility. Windows and Linux output size might differ and sigint on Windows will cause terminate batch job message if using emrun.
 NOTE: unused old worldlist code: [shell.html](https://github.com/lesleyrs/Client3/commit/5da924b9f766005e82163d899e52a5df2f771584#diff-c878553ed816480a5e85ff602ff3c5d38788ca1d21095cd8f8ebc36a4dbc07ee)
 ```
