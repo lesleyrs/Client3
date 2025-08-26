@@ -103,7 +103,7 @@ void platform_new(GameShell *shell) {
     midiSpec.freq = 44100;
     midiSpec.format = AUDIO_S16SYS;
     midiSpec.channels = 2;
-    midiSpec.samples = 256;
+    midiSpec.samples = 4096;
     midiSpec.callback = midi_callback;
 
     g_TinySoundFont = tsf_load_filename("SCC1_Florestan.sf2");

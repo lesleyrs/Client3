@@ -161,7 +161,7 @@ Controls:
 
 ```
 TODO: fix crashing sometimes on home button exit
-TODO: enable audio in lowmem, swkbd to type, backlight toggle?
+TODO: enable audio in lowmem, swkbd to type, backlight toggle? pica gpu hw accel
 TODO: possible to toggle top screen console? right now requires 2 loc changes
 TODO: see new 2ds/3ds performance with higher cpu clock, old 2ds runs at ~10-20
 ```
