@@ -123,21 +123,34 @@ void model_free_label_references(Model *m) {
     // m->label_vertices = NULL;
 }
 
-void model_free_copy_faces(Model *m, bool copyVertexY, bool copyFaces) {
-    if (copyVertexY) {
-        free(m->vertices_y);
-    }
+static void model_free_vertex_y(Model *m) {
+    free(m->vertices_y);
+}
 
-    if (copyFaces) {
-        free(m->face_color_a);
-        free(m->face_color_b);
-        free(m->face_color_c);
-        free(m->face_infos);
-        for (int v = 0; v < m->vertex_count; v++) {
-            free(m->vertex_normal[v]);
-        }
-        free(m->vertex_normal);
+static void model_free_faces(Model *m) {
+    free(m->face_color_a);
+    free(m->face_color_b);
+    free(m->face_color_c);
+    free(m->face_infos);
+    for (int v = 0; v < m->vertex_count; v++) {
+        free(m->vertex_normal[v]);
     }
+    free(m->vertex_normal);
+}
+
+static void model_free_copy_vertex_y(Model *m) {
+    model_free_vertex_y(m);
+    free(m);
+}
+
+static void model_free_copy_faces(Model *m) {
+    model_free_faces(m);
+    free(m);
+}
+
+static void model_free_copy(Model *m) {
+    model_free_vertex_y(m);
+    model_free_faces(m);
     free(m);
 }
 
@@ -766,6 +779,16 @@ Model *model_copy_faces(Model *src, bool copyVertexY, bool copyFaces, bool use_a
     new->vertex_count = src->vertex_count;
     new->face_count = src->face_count;
     new->textured_face_count = src->textured_face_count;
+
+    if (!use_allocator) {
+        if (copyVertexY && copyFaces) {
+            new->free_dynamic = model_free_copy;
+        } else if (copyVertexY) {
+            new->free_dynamic = model_free_copy_vertex_y;
+        } else if (copyFaces) {
+            new->free_dynamic = model_free_copy_faces;
+        }
+    }
 
     if (copyVertexY) {
         new->vertices_y = rs2_malloc(use_allocator, new->vertex_count * sizeof(int));

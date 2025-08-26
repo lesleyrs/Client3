@@ -17,7 +17,7 @@ static LocType *loctype_new(void) {
 
 void loctype_unpack(Jagfile *config) {
     _LocType.modelCacheStatic = lrucache_new(500);
-    _LocType.modelCacheDynamic = lrucache_new(30);
+    _LocType.modelCacheDynamic = lrucache_new(30*5); // TODO if dynamic cache size isn't big enough it'll leak in allocator
 
     _LocType.dat = jagfile_to_packet(config, "loc.dat");
     Packet *idx = jagfile_to_packet(config, "loc.idx");
@@ -256,7 +256,7 @@ Model *loctype_get_model(LocType *loc, int shape, int rotation, int heightmapSW,
         }
 
         if (loc->hillskew || loc->sharelight) {
-            cached = model_copy_faces(cached, loc->hillskew, loc->sharelight, true);
+            cached = model_copy_faces(cached, loc->hillskew, loc->sharelight, transformId == -1);
         }
 
         if (loc->hillskew) {
@@ -341,7 +341,7 @@ Model *loctype_get_model(LocType *loc, int shape, int rotation, int heightmapSW,
     lrucache_put(_LocType.modelCacheDynamic, bitset, &modified->link);
 
     if (loc->hillskew || loc->sharelight) {
-        modified = model_copy_faces(modified, loc->hillskew, loc->sharelight, true);
+        modified = model_copy_faces(modified, loc->hillskew, loc->sharelight, transformId == -1);
     }
 
     if (loc->hillskew) {

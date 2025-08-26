@@ -8820,8 +8820,10 @@ void client_draw_scene(Client *c) {
     pushNpcs(c);
     pushProjectiles(c);
     pushSpotanims(c);
-    // TODO re-add
-    // pushLocs(c);
+    // TODO see if defines are needed
+#if !defined(_arch_dreamcast) && !defined(__NDS__)
+    pushLocs(c);
+#endif
 
     if (!c->cutscene) {
         int pitch = c->orbit_camera_pitch;

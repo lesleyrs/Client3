@@ -13,6 +13,10 @@
 #include <3ds.h>
 #endif
 
+#if defined(__wasm) && !defined(__EMSCRIPTEN__)
+#include <js/glue.h>
+#endif
+
 extern InputTracking _InputTracking;
 
 GameShell *gameshell_new(void) {
@@ -432,10 +436,6 @@ void gameshell_draw_string(GameShell *shell, const char *str, int x, int y, int 
 
     free(buffer);
 }
-#endif
-
-#if defined(__wasm) && !defined(__EMSCRIPTEN__)
-#include <js/glue.h>
 #endif
 
 void gameshell_draw_progress(GameShell *shell, const char *message, int progress) {

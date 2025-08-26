@@ -563,6 +563,10 @@ void world3d_set_locmodel(World3D *world3d, int level, int x, int z, Model *mode
     for (int i = 0; i < tile->locCount; i++) {
         Location *loc = tile->locs[i];
         if ((loc->bitset >> 29 & 0x3) == 2) {
+            Model *m = loc->model;
+            if (m->free_dynamic) {
+                m->free_dynamic(m);
+            }
             loc->model = model;
             return;
         }
@@ -601,6 +605,11 @@ void world3d_set_walldecorationmodel(World3D *world3d, int level, int x, int z, 
         return;
     }
 
+    // Model *m = decor->model;
+    // if (m->free_dynamic) {
+    //     m->free_dynamic(m);
+    // }
+
     decor->model = model;
 }
 
@@ -618,6 +627,11 @@ void world3d_set_grounddecorationmodel(World3D *world3d, int level, int x, int z
     if (!decor) {
         return;
     }
+
+    // Model *m = decor->model;
+    // if (m->free_dynamic) {
+    //     m->free_dynamic(m);
+    // }
 
     decor->model = model;
 }
@@ -637,6 +651,11 @@ void world3d_set_wallmodel(World3D *world3d, int level, int x, int z, Model *mod
         return;
     }
 
+    // Model *m = wall->modelA;
+    // if (m->free_dynamic) {
+    //     m->free_dynamic(m);
+    // }
+
     wall->modelA = model;
 }
 
@@ -654,6 +673,15 @@ void world3d_set_wallmodels(World3D *world3d, int x, int z, int level, Model *mo
     if (!wall) {
         return;
     }
+
+    // Model *mA = wall->modelA;
+    // if (mA->free_dynamic) {
+    //     mA->free_dynamic(mA);
+    // }
+    // Model *mB = wall->modelB;
+    // if (mB->free_dynamic) {
+    //     mB->free_dynamic(mB);
+    // }
 
     wall->modelA = modelA;
     wall->modelB = modelB;
@@ -1593,13 +1621,11 @@ void world3d_draw_tile(World3D *world3d, Ground *next, bool checkAdjacent, int l
                     _free = true;
                 }
 
-                if (model) {
-                    if (!world3d_loc_visible(world3d, occludeLevel, farthest->minSceneTileX, farthest->maxSceneTileX, farthest->minSceneTileZ, farthest->maxSceneTileZ, model->max_y)) {
-                        model_draw(model, farthest->yaw, _World3D.sinEyePitch, _World3D.cosEyePitch, _World3D.sinEyeYaw, _World3D.cosEyeYaw, farthest->x - _World3D.eyeX, farthest->y - _World3D.eyeY, farthest->z - _World3D.eyeZ, farthest->bitset);
-                    }
-                    if (_free) {
-                        entity_draw_free(farthest->entity, model, loopCycle);
-                    }
+                if (!world3d_loc_visible(world3d, occludeLevel, farthest->minSceneTileX, farthest->maxSceneTileX, farthest->minSceneTileZ, farthest->maxSceneTileZ, model->max_y)) {
+                    model_draw(model, farthest->yaw, _World3D.sinEyePitch, _World3D.cosEyePitch, _World3D.sinEyeYaw, _World3D.cosEyeYaw, farthest->x - _World3D.eyeX, farthest->y - _World3D.eyeY, farthest->z - _World3D.eyeZ, farthest->bitset);
+                }
+                if (_free) {
+                    entity_draw_free(farthest->entity, model, loopCycle);
                 }
 
                 for (int x = farthest->minSceneTileX; x <= farthest->maxSceneTileX; x++) {

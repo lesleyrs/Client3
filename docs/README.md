@@ -29,6 +29,9 @@
 
 ## TODO
 ```
+- free dynamic models in world3d_draw_tile or world3d_set_ funcs?, and use original dynamic cache size
+- (non-wasm): server cache changes requires manual cache+archive_checksums update in the client since it doesn't download, also the server has an issue with client map crcs changing when only server maps get updated.
+- midi fading, old js code for IE: https://github.com/2004Scape/Server/blob/61bf21fb3755c14b5cf6d47c9d974dee5783beda/view/javaclient.ejs new ts code: https://github.com/2004Scape/Client2/commit/92e74f1f134ea82e48dd608dcca3422777a7a986 https://github.com/LostCityRS/Client-TS/pulls?q=is%3Apr+is%3Aclosed+midi
 - fix remaining touch screen platforms red clicks by copying the 3ds code (_Model.mouse_x/y are only updated in draw_scene after update())
 - copy original bzip from java maybe allows for O3 optimization on more consoles unlike current bzip?
 - tinysoundfont seems to break on powerpc cpus (wii, wiiu) and libtom specfically on wiiu only?
@@ -36,7 +39,7 @@
 - optional QOL changes from the java client teavm branch
 - icon/metadata/title etc for the different platforms: title+taskbar+desktop (see rsc-c for examples)
 - add CI: run make check/scan + artifacts
-- check clientstream for accuracy and fix keycodes which are different for each platform (from rsc-c, EG non-emscripten single/double quotes + fkey keycodes are defined for emscripten only)
+- clean up keycodes (from rsc-c, EG non-emscripten single/double quotes + fkey keycodes are defined for emscripten only)
 - func args might partially differ in order to the Client repo due to being based off rs2-225: animbase, animframe, pix2d, pix3d, gameshell, jagfile, model, packet, pix8, pixfont, pixmap, redo them? inconsistent naming: used both world3d and scene for world3d, rename world3d to scene or at least for args?
 - global search TODO, NOTE, and all platform defines, change many funcs+prototypes to static, look for missing/dupe client struct members and client funcs with different casing, finish debug command or remove it.
 - playground models leak memory for some reason

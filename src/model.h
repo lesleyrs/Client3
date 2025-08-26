@@ -31,7 +31,7 @@ typedef struct {
     int w;
 } VertexNormal;
 
-typedef struct {
+typedef struct Model {
     DoublyLinkable link;
     int vertex_count;
     int *vertices_x;
@@ -76,6 +76,9 @@ typedef struct {
     int label_faces_count;
     int *label_vertices_index_count;
     int *label_faces_index_count;
+
+    // TODO this is wasted memory on static models: maybe create a DynamicModel?
+    void (*free_dynamic)(struct Model *m); // frees partially copied model data
 } Model;
 
 typedef struct {
@@ -127,7 +130,6 @@ void model_free_global(void);
 void model_init_global(void);
 void model_free_calculate_normals(Model *m);
 void model_free_label_references(Model *m);
-void model_free_copy_faces(Model *m, bool copyVertexY, bool copyFaces);
 void model_free_share_colored(Model *m, bool shareColors, bool shareAlpha, bool shareVertices);
 void model_free_share_alpha(Model *m, bool shareAlpha);
 void model_free(Model *model);

@@ -6,19 +6,8 @@ Compatible with [2004Scape](https://github.com/2004Scape/Server), the most accur
 Features:
 - should work on any 32 bit system with 64 MB of RAM on lowmem, networking and a (read-only) filesystem.
 - webassembly build to avoid javascript code being optimized out by the browser.
-- WIP ports for most game consoles from 1998 until 2013! Ones with incomplete input are set up to auto-connect.
+- WIP ports for most game consoles from 1998 until 2013! See [docs](/docs) for images.
 - optional [config.ini](example.ini) file to change client behaviour. Create an empty config.ini to avoid passing cli args.
-
-See [docs](/docs) for more info, media, and TODOs.
-
-## known issues
-```
-(non-wasm): server cache changes requires manual cache+archive_checksums update in the client since it doesn't download, also the server has an issue with client map crcs changing when only server maps get updated.
-
-no midi fading, old js code for IE: https://github.com/2004Scape/Server/blob/61bf21fb3755c14b5cf6d47c9d974dee5783beda/view/javaclient.ejs new ts code: https://github.com/2004Scape/Client2/commit/92e74f1f134ea82e48dd608dcca3422777a7a986 https://github.com/LostCityRS/Client-TS/pulls?q=is%3Apr+is%3Aclosed+midi
-
-locs like fires have no animations as pushLocs is disabled for now, it constantly allocates memory due to always calling model_copy_faces in loctype which requires a different approach. The leaks get worse if the dynamic model cache can't fit all sequences (animations) of the models in an area, disable the allocator to see origins.
-```
 
 ## quickstart for windows
 All you need to build for 32 bit windows is included:

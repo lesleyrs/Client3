@@ -14,10 +14,10 @@
 #elif defined(_WIN32)
 #include <io.h>
 #else
-#if !defined(__wasm) || defined(__EMSCRIPTEN__)
-#include <unistd.h>
-#else
+#if defined(__wasm) && !defined(__EMSCRIPTEN__)
 #include <js/syscalls.h>
+#else
+#include <unistd.h>
 #endif
 #endif
 
