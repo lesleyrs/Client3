@@ -782,11 +782,11 @@ Model *model_copy_faces(Model *src, bool copyVertexY, bool copyFaces, bool use_a
 
     if (!use_allocator) {
         if (copyVertexY && copyFaces) {
-            new->free_dynamic = model_free_copy;
+            new->free_faces = model_free_copy;
         } else if (copyVertexY) {
-            new->free_dynamic = model_free_copy_vertex_y;
+            new->free_faces = model_free_copy_vertex_y;
         } else if (copyFaces) {
-            new->free_dynamic = model_free_copy_faces;
+            new->free_faces = model_free_copy_faces;
         }
     }
 

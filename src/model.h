@@ -78,7 +78,7 @@ typedef struct Model {
     int *label_faces_index_count;
 
     // TODO this is wasted memory on static models: maybe create a DynamicModel?
-    void (*free_dynamic)(struct Model *m); // frees partially copied model data
+    void (*free_faces)(struct Model *m); // frees partially copied model data
 } Model;
 
 typedef struct {

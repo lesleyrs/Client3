@@ -564,8 +564,8 @@ void world3d_set_locmodel(World3D *world3d, int level, int x, int z, Model *mode
         Location *loc = tile->locs[i];
         if ((loc->bitset >> 29 & 0x3) == 2) {
             Model *m = loc->model;
-            if (m->free_dynamic) {
-                m->free_dynamic(m);
+            if (m->free_faces) {
+                m->free_faces(m);
             }
             loc->model = model;
             return;
@@ -606,8 +606,8 @@ void world3d_set_walldecorationmodel(World3D *world3d, int level, int x, int z, 
     }
 
     // Model *m = decor->model;
-    // if (m->free_dynamic) {
-    //     m->free_dynamic(m);
+    // if (m->free_faces) {
+    //     m->free_faces(m);
     // }
 
     decor->model = model;
@@ -629,8 +629,8 @@ void world3d_set_grounddecorationmodel(World3D *world3d, int level, int x, int z
     }
 
     // Model *m = decor->model;
-    // if (m->free_dynamic) {
-    //     m->free_dynamic(m);
+    // if (m->free_faces) {
+    //     m->free_faces(m);
     // }
 
     decor->model = model;
@@ -652,8 +652,8 @@ void world3d_set_wallmodel(World3D *world3d, int level, int x, int z, Model *mod
     }
 
     // Model *m = wall->modelA;
-    // if (m->free_dynamic) {
-    //     m->free_dynamic(m);
+    // if (m->free_faces) {
+    //     m->free_faces(m);
     // }
 
     wall->modelA = model;
@@ -675,12 +675,12 @@ void world3d_set_wallmodels(World3D *world3d, int x, int z, int level, Model *mo
     }
 
     // Model *mA = wall->modelA;
-    // if (mA->free_dynamic) {
-    //     mA->free_dynamic(mA);
+    // if (mA->free_faces) {
+    //     mA->free_faces(mA);
     // }
     // Model *mB = wall->modelB;
-    // if (mB->free_dynamic) {
-    //     mB->free_dynamic(mB);
+    // if (mB->free_faces) {
+    //     mB->free_faces(mB);
     // }
 
     wall->modelA = modelA;
