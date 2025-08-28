@@ -212,10 +212,9 @@ void set_pixels(PixMap *pixmap, int x, int y) {
 
 void platform_update_touch(Client *c) {
     if (update_touch) {
-        c->shell->mouse_click_x = tmp_mouse_click_x;
-        c->shell->mouse_click_y = tmp_mouse_click_y;
-        c->shell->mouse_click_button = tmp_mouse_click_button;
-        c->shell->mouse_button = tmp_mouse_button;
+        c->shell->mouse_click_x = last_touch_x;
+        c->shell->mouse_click_y = last_touch_y;
+        c->shell->mouse_click_button = last_touch_button;
         update_touch = false;
     }
 }
@@ -362,15 +361,15 @@ void platform_poll_events(Client *c) {
             // c->shell->idle_cycles = 0;
             update_touch = true;
 
-            tmp_mouse_click_x = x;
-            tmp_mouse_click_y = y;
+            last_touch_x = x;
+            last_touch_y = y;
 
             if (A_down) {
-                tmp_mouse_click_button = 2;
-                tmp_mouse_button = 2;
+                last_touch_button = 2;
+                c->shell->mouse_button = 2;
             } else {
-                tmp_mouse_click_button = 1;
-                tmp_mouse_button = 1;
+                last_touch_button = 1;
+                c->shell->mouse_button = 1;
             }
 
             if (_InputTracking.enabled) {

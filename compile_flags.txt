@@ -26,8 +26,8 @@
 # -I/usr/local/include/
 # -D__WII__
 # -I/opt/devkitpro/libogc/include/
-# -D__3DS__
-# -I/opt/devkitpro/libctru/include/
+-D__3DS__
+-I/opt/devkitpro/libctru/include/
 # -D__WIIU__
 # -I/opt/devkitpro/wut/include/
 # -D__SWITCH__
