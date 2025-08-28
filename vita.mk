@@ -39,17 +39,16 @@ all: package
 
 package: $(PROJECT).vpk
 
-# TODO: why the hell does this break the command, but Roboto=Roboto works if it exists
-# --add Roboto=rom/Roboto \
 $(PROJECT).vpk: eboot.bin param.sfo
 	vita-pack-vpk -s param.sfo -b eboot.bin \
 		--add sce_sys/icon0.png=sce_sys/icon0.png \
 		--add sce_sys/livearea/contents/bg.png=sce_sys/livearea/contents/bg.png \
 		--add sce_sys/livearea/contents/startup.png=sce_sys/livearea/contents/startup.png \
 		--add sce_sys/livearea/contents/template.xml=sce_sys/livearea/contents/template.xml \
-		--add cache=rom/cache \
-		--add SCC1_Florestan.sf2=rom/SCC1_Florestan.sf2 \
-		--add config.ini=rom/config.ini \
+		--add rom/cache=cache \
+		--add rom/Roboto=Roboto \
+		--add rom/SCC1_Florestan.sf2=SCC1_Florestan.sf2 \
+		--add rom/config.ini=config.ini \
 	$(PROJECT).vpk
 
 eboot.bin: $(PROJECT).velf
