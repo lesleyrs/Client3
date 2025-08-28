@@ -861,7 +861,6 @@ void client_run_flames(Client *c) {
 }
 
 void client_update(Client *c) {
-    platform_poll_events(c);
     if (c->error_started || c->error_loading || c->error_host) {
         return;
     }

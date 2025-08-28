@@ -147,7 +147,7 @@ void platform_new(GameShell *shell) {
     if (_Custom.resizable) {
         win_flags |= SDL_WINDOW_RESIZABLE;
     }
-    window = SDL_CreateWindow("Jagex", shell->screen_width, shell->screen_height, win_flags);
+    window = SDL_CreateWindow("Jagex", SCREEN_FB_WIDTH, SCREEN_FB_HEIGHT, win_flags);
     if (!window) {
         rs2_error("SDL3: window creation failed: %s\n", SDL_GetError());
         SDL_Quit();
@@ -329,7 +329,8 @@ void set_pixels(PixMap *pixmap, int x, int y) {
 
 void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
     if (!_Custom.resizable) {
-        SDL_Rect dest = {x, y, w, h};
+        int hoff = (window_surface->w - SCREEN_WIDTH) / 2;
+        SDL_Rect dest = {hoff + x, y, w, h};
         // SDL_BlitSurfaceScaled(surface, NULL, window_surface, &dest, SDL_SCALEMODE_LINEAR);
         // SDL_BlitSurfaceScaled(surface, NULL, window_surface, &dest, SDL_SCALEMODE_NEAREST);
         SDL_BlitSurface(surface, NULL, window_surface, &dest);
@@ -640,6 +641,8 @@ static void platform_get_keycodes(const SDL_KeyboardEvent *e, int *code, char *c
 }
 
 void platform_poll_events(Client *c) {
+    int hoff = (window_surface->w - SCREEN_WIDTH) / 2;
+
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
         switch (e.type) {
@@ -667,7 +670,7 @@ void platform_poll_events(Client *c) {
                     break;
                 }
             }
-            int x = e.motion.x;
+            int x = e.motion.x - hoff;
             int y = e.motion.y;
 
             c->shell->idle_cycles = 0;
@@ -685,7 +688,7 @@ void platform_poll_events(Client *c) {
                     break;
                 }
             }
-            int x = e.button.x;
+            int x = e.button.x - hoff;
             int y = e.button.y;
 
             c->shell->idle_cycles = 0;

@@ -31,12 +31,6 @@ static int screen_offset_y_top = 0;
 static int screen_offset_x = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2;
 static int screen_offset_y = -SCREEN_FB_HEIGHT;
 
-static bool update_touch = false;
-static int tmp_mouse_click_x = 0;
-static int tmp_mouse_click_y = 0;
-static int tmp_mouse_click_button = 0;
-static int tmp_mouse_button = 0;
-
 // all arbitrary
 #define CURSOR_SENSITIVITY 20
 #define PAN_THRESHOLD 40

@@ -19,6 +19,20 @@
 
 extern InputTracking _InputTracking;
 
+bool update_touch = false;
+int last_touch_x = 0;
+int last_touch_y = 0;
+int last_touch_button = 0;
+
+static void gameshell_update_touch(Client *c) {
+    if (update_touch) {
+        c->shell->mouse_click_x = last_touch_x;
+        c->shell->mouse_click_y = last_touch_y;
+        c->shell->mouse_click_button = last_touch_button;
+        update_touch = false;
+    }
+}
+
 GameShell *gameshell_new(void) {
     GameShell *shell = calloc(1, sizeof(GameShell));
     shell->deltime = 20;
@@ -113,6 +127,7 @@ void gameshell_run(Client *c) {
 
         rs2_sleep(delta);
         while (count < 256) {
+            platform_poll_events(c);
             client_update(c);
             c->shell->mouse_click_button = 0;
             c->shell->key_queue_read_pos = c->shell->key_queue_write_pos;
@@ -124,10 +139,7 @@ void gameshell_run(Client *c) {
         }
         client_draw(c);
         client_run_flames(c); // NOTE: random placement of run_flames
-#ifdef __3DS__ // TODO other touch screens all have same issue (but not needed on mobile if click on release like client-ts for camera rot)
-        void platform_update_touch(Client *c);
-        platform_update_touch(c);
-#endif
+        gameshell_update_touch(c); // update mouse after client_draw_scene to fix model picking (not needed for touch on release like client-ts)
     }
     if (c->shell->state == -1) {
         gameshell_shutdown(c);

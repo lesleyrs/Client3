@@ -161,7 +161,7 @@ void platform_new(GameShell *shell) {
     if (_Custom.resizable) {
         window_flags |= SDL_WINDOW_RESIZABLE;
     }
-    window = SDL_CreateWindow("Jagex", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, shell->screen_width, shell->screen_height, window_flags);
+    window = SDL_CreateWindow("Jagex", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_FB_WIDTH, SCREEN_FB_HEIGHT, window_flags);
     if (!window) {
         rs2_error("SDL2: window creation failed: %s\n", SDL_GetError());
         SDL_Quit();
@@ -372,7 +372,8 @@ void set_pixels(PixMap *pixmap, int x, int y) {
 
 void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
     if (!_Custom.resizable) {
-        SDL_Rect dest = {x, y, w, h};
+        int hoff = (window_surface->w - SCREEN_WIDTH) / 2;
+        SDL_Rect dest = {hoff + x, y, w, h};
         // SDL_BlitScaled(surface, NULL, window_surface, &dest);
         SDL_BlitSurface(surface, NULL, window_surface, &dest);
     } else {
@@ -681,6 +682,8 @@ static void platform_get_keycodes(SDL_Keysym *keysym, int *code, char *ch) {
 }
 
 void platform_poll_events(Client *c) {
+    int hoff = (window_surface->w - SCREEN_WIDTH) / 2;
+
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
         switch (e.type) {
@@ -701,7 +704,6 @@ void platform_poll_events(Client *c) {
             key_released(c->shell, code, ch);
             break;
         }
-// TODO: apply touch to other consoles/mobile if needed
 #ifdef __vita__
         case SDL_JOYAXISMOTION: {
             // rs2_log("axis %d value %d\n", e.jaxis.axis, e.jaxis.value);
@@ -796,8 +798,8 @@ void platform_poll_events(Client *c) {
         } break;
 #endif
         case SDL_FINGERMOTION: {
-            int x = (int)(e.tfinger.x * SCREEN_FB_WIDTH);
-            int y = (int)(e.tfinger.y * SCREEN_FB_HEIGHT);
+            int x = (int)(e.tfinger.x * window_surface->w) - hoff;
+            int y = (int)(e.tfinger.y * window_surface->h);
 
             c->shell->idle_cycles = 0;
             c->shell->mouse_x = x;
@@ -808,26 +810,28 @@ void platform_poll_events(Client *c) {
             }
         } break;
         case SDL_FINGERDOWN: {
-            int x = (int)(e.tfinger.x * SCREEN_FB_WIDTH);
-            int y = (int)(e.tfinger.y * SCREEN_FB_HEIGHT);
+            update_touch = true;
+
+            int x = (int)(e.tfinger.x * window_surface->w) - hoff;
+            int y = (int)(e.tfinger.y * window_surface->h);
 
             c->shell->idle_cycles = 0;
             // set mouse pos here again due to no mouse movement
             c->shell->mouse_x = x;
             c->shell->mouse_y = y;
 
-            c->shell->mouse_click_x = x;
-            c->shell->mouse_click_y = y;
+            last_touch_x = x;
+            last_touch_y = y;
 
             if (insideMobileInputArea(c)) {
                 SDL_StartTextInput();
             }
 
             if (right_touch) {
-                c->shell->mouse_click_button = 2;
+                last_touch_button = 2;
                 c->shell->mouse_button = 2;
             } else {
-                c->shell->mouse_click_button = 1;
+                last_touch_button = 1;
                 c->shell->mouse_button = 1;
             }
 
@@ -845,7 +849,7 @@ void platform_poll_events(Client *c) {
             break;
         } break;
         case SDL_MOUSEMOTION: {
-            int x = e.motion.x;
+            int x = e.motion.x - hoff;
             int y = e.motion.y;
 
             c->shell->idle_cycles = 0;
@@ -857,7 +861,7 @@ void platform_poll_events(Client *c) {
             }
         } break;
         case SDL_MOUSEBUTTONDOWN: {
-            int x = e.button.x;
+            int x = e.button.x - hoff;
             int y = e.button.y;
 
             c->shell->idle_cycles = 0;

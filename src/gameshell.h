@@ -28,6 +28,11 @@ struct GameShell {
     bool has_focus;
 };
 
+extern bool update_touch;
+extern int last_touch_x;
+extern int last_touch_y;
+extern int last_touch_button;
+
 GameShell *gameshell_new(void);
 void gameshell_free(GameShell *shell);
 void gameshell_init_application(Client *c, int width, int height);
