@@ -124,7 +124,7 @@ https://github.com/libsdl-org/SDL/blob/SDL2/docs/README-android.md - from "For m
 
 https://github.com/libsdl-org/SDL/blob/SDL2/docs/README-touch.md
 ```
-TODO: long press right click? click on touch release? hold in viewport to rotate? share code with postmarketos/vita
+TODO: long press right click? click on touch release? hold in viewport to rotate? share code with postmarketos
 ```
 ### Nintendo consoles (devkitPro)
 Install [devkitpro](#tools) with (nds/wii/3ds/wiiu/switch)-dev package and run `make -f (nds/wii/3ds/wiiu/switch).mk -j$(nproc) -B`.
@@ -194,17 +194,14 @@ NOTE: Could add sfx and/or midi in lowmem, since it's the most important highmem
 ### Sony PS Vita
 Install [vitasdk](#tools) and run `make -f vita.mk -j$(nproc) -B`. Add `SDL=0` to use vita.c.
 
-can test with Vita3K, and to avoid waiting for the vpk to decompress all files you can just copy them manually
+can test with Vita3K, instead of decompressing the vpk you can copy just the eboot.bin after changes
 
 Controls: touch as mouse, X for right click, /\ for control, Dpad as arrow keys
 
 ```
-TODO: check if vita.c native touch fixes minimap offset, check if osk works on real hw
-TODO: find minimap touch offset issue, center game+offset touch input after.
 TODO: vitagl
-TODO: use touch input on the back?
-TODO: allow setting sdl version to 3 in makefile when sdl2 is complete
-TODO: update sce_sys assets
+TODO: add osk input, add sdl3/vita.c option to makefile
+TODO: update sce_sys assets, use backside touch input?
 ```
 
 ### Sega Dreamcast
