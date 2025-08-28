@@ -12,28 +12,37 @@ PROJECT_TITLE := Jagex
 PROJECT_TITLEID := VSDK20225
 
 PROJECT := client
-CFLAGS += -Wl,-q -I../common
 
+DEBUG ?= 0
 SDL ?= 2
-CFLAGS += -Dclient
-CFLAGS += -DSDL=$(SDL) $(shell $(VITASDK)/arm-vita-eabi/bin/sdl2-config --cflags)
-# CFLAGS += -DWITH_RSA_OPENSSL
-CFLAGS += -DWITH_RSA_LIBTOM
-DEBUG := 0
+WITH_OPENSSL ?= 0
+
 ifeq ($(DEBUG),1)
 CFLAGS += -g
 else
 CFLAGS += -s -O2 -ffast-math -flto=$(shell nproc)
 endif
-CXXFLAGS += -Wl,-q -std=c++11 -I../common
+
+ifeq ($(SDL),2)
+CFLAGS += -DSDL=$(SDL) $(shell $(VITASDK)/arm-vita-eabi/bin/sdl2-config --cflags)
+LIBS += $(shell $(VITASDK)/arm-vita-eabi/bin/sdl2-config --libs)
+endif
+
+ifeq ($(WITH_OPENSSL),1)
+CFLAGS += -DWITH_RSA_OPENSSL
+LIBS += -lcrypto
+else
+CFLAGS += -DWITH_RSA_LIBTOM
+endif
+
+CFLAGS += -D$(PROJECT)
+CXXFLAGS += -std=c++11
 
 SRC_C :=$(call rwildcard, src/, *.c)
 SRC_CPP :=$(call rwildcard, src/, *.cpp)
 
 OBJ_DIRS := $(sort $(addprefix out/, $(dir $(SRC_C:src/%.c=%.o))) $(addprefix out/, $(dir $(SRC_CPP:src/%.cpp=%.o))))
 OBJS := $(addprefix out/, $(SRC_C:src/%.c=%.o)) $(addprefix out/, $(SRC_CPP:src/%.cpp=%.o))
-
-LIBS += $(shell $(VITASDK)/arm-vita-eabi/bin/sdl2-config --libs) -lcrypto
 
 all: package
 
