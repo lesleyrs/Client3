@@ -27,7 +27,7 @@ ifeq ($(SDL),2)
 CFLAGS += -DSDL=$(SDL) $(shell $(VITASDK)/arm-vita-eabi/bin/sdl2-config --cflags)
 LIBS += $(shell $(VITASDK)/arm-vita-eabi/bin/sdl2-config --libs)
 else
-LIBS += -lSceDisplay_stub -lSceTouch_stub
+LIBS += -lSceDisplay_stub -lSceTouch_stub -lSceCtrl_stub
 endif
 
 ifeq ($(WITH_OPENSSL),1)

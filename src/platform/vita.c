@@ -2,6 +2,7 @@
 #include <malloc.h>
 #include <string.h>
 
+#include <psp2/ctrl.h>
 #include <psp2/display.h>
 #include <psp2/kernel/processmgr.h>
 #include <psp2/kernel/sysmem.h>
@@ -25,8 +26,8 @@ static void *base; // pointer to frame buffer
 static int mutex;
 static int xoff = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2;
 
-SceTouchData touch_old[SCE_TOUCH_PORT_MAX_NUM];
-SceTouchData touch[SCE_TOUCH_PORT_MAX_NUM];
+static SceTouchData touch[SCE_TOUCH_PORT_MAX_NUM], touch_old[SCE_TOUCH_PORT_MAX_NUM];
+static SceCtrlData ctrl, ctrl_old;
 
 bool platform_init(void) {
     return true;
@@ -44,6 +45,9 @@ void platform_new(GameShell *shell) {
 
     sceTouchSetSamplingState(SCE_TOUCH_PORT_FRONT, SCE_TOUCH_SAMPLING_STATE_START);
     // sceTouchSetSamplingState(SCE_TOUCH_PORT_BACK, SCE_TOUCH_SAMPLING_STATE_START);
+
+    // sceCtrlSetSamplingMode(SCE_CTRL_MODE_ANALOG);
+    sceCtrlSetSamplingMode(SCE_CTRL_MODE_DIGITAL);
 }
 
 void platform_free(void) {
@@ -78,7 +82,9 @@ void set_pixels(PixMap *pixmap, int x, int y) {
 }
 
 void platform_poll_events(Client *c) {
-    SceTouchPanelInfo info;
+    static bool right_click = false;
+
+    static SceTouchPanelInfo info;
     sceTouchGetPanelInfo(SCE_TOUCH_PORT_FRONT, &info);
 
     memcpy(touch_old, touch, sizeof(touch_old));
@@ -86,7 +92,6 @@ void platform_poll_events(Client *c) {
     for (int port = 0; port < 1 /* SCE_TOUCH_PORT_MAX_NUM */; port++) {
         sceTouchPeek(port, &touch[port], 1);
         for (int i = 0; i < 1 /* SCE_TOUCH_MAX_REPORT */; i++) {
-            static bool right_touch = false; // TODO add right touch button + rename it
             static bool touch_down = false;
             if (touch[port].reportNum > 0) {
                 int x = touch[port].report[i].x * SCREEN_FB_WIDTH / info.maxAaX - xoff;
@@ -111,7 +116,7 @@ void platform_poll_events(Client *c) {
                         // SDL_StartTextInput();
                     }
 
-                    if (right_touch) {
+                    if (right_click) {
                         last_touch_button = 2;
                         c->shell->mouse_button = 2;
                     } else {
@@ -120,7 +125,7 @@ void platform_poll_events(Client *c) {
                     }
 
                     if (_InputTracking.enabled) {
-                        inputtracking_mouse_pressed(&_InputTracking, x, y, right_touch ? 1 : 0);
+                        inputtracking_mouse_pressed(&_InputTracking, x, y, right_click ? 1 : 0);
                     }
                 }
             } else {
@@ -131,12 +136,99 @@ void platform_poll_events(Client *c) {
                     c->shell->mouse_button = 0;
 
                     if (_InputTracking.enabled) {
-                        inputtracking_mouse_released(&_InputTracking, right_touch ? 1 : 0);
+                        inputtracking_mouse_released(&_InputTracking, right_click ? 1 : 0);
                     }
                 }
             }
         }
     }
+
+    ctrl_old = ctrl;
+    sceCtrlPeekBufferPositive(0, &ctrl, 1);
+
+    int pressed = ctrl.buttons & ~ctrl_old.buttons;
+    int released = ~ctrl.buttons & ctrl_old.buttons;
+
+    if (pressed & SCE_CTRL_TRIANGLE) {
+        key_pressed(c->shell, K_CONTROL, -1);
+    }
+
+    if (pressed & SCE_CTRL_CIRCLE) {
+    }
+
+    if (pressed & SCE_CTRL_CROSS) {
+        right_click = true;
+    }
+
+    if (pressed & SCE_CTRL_SQUARE) {
+    }
+
+    if (pressed & SCE_CTRL_DOWN) {
+        key_pressed(c->shell, K_DOWN, -1);
+    }
+
+    if (pressed & SCE_CTRL_LEFT) {
+        key_pressed(c->shell, K_LEFT, -1);
+    }
+
+    if (pressed & SCE_CTRL_UP) {
+        key_pressed(c->shell, K_UP, -1);
+    }
+
+    if (pressed & SCE_CTRL_RIGHT) {
+        key_pressed(c->shell, K_RIGHT, -1);
+    }
+
+    if (pressed & SCE_CTRL_SELECT) {
+        _Custom.showPerformance = !_Custom.showPerformance;
+    }
+    if (pressed & SCE_CTRL_START) {
+    }
+    if (pressed & SCE_CTRL_L1) {
+    }
+    if (pressed & SCE_CTRL_R1) {
+    }
+
+    if (released & SCE_CTRL_TRIANGLE) {
+        key_released(c->shell, K_CONTROL, -1);
+    }
+
+    if (released & SCE_CTRL_CIRCLE) {
+    }
+
+    if (released & SCE_CTRL_CROSS) {
+        right_click = false;
+    }
+
+    if (released & SCE_CTRL_SQUARE) {
+    }
+
+    if (released & SCE_CTRL_DOWN) {
+        key_released(c->shell, K_DOWN, -1);
+    }
+
+    if (released & SCE_CTRL_LEFT) {
+        key_released(c->shell, K_LEFT, -1);
+    }
+
+    if (released & SCE_CTRL_UP) {
+        key_released(c->shell, K_UP, -1);
+    }
+
+    if (released & SCE_CTRL_RIGHT) {
+        key_released(c->shell, K_RIGHT, -1);
+    }
+
+    if (released & SCE_CTRL_SELECT) {
+    }
+    if (released & SCE_CTRL_START) {
+    }
+    if (released & SCE_CTRL_L1) {
+    }
+    if (released & SCE_CTRL_R1) {
+    }
+
+    // rs2_log("\e[m Stick:[%3i:%3i][%3i:%3i]\r", ctrl.lx,ctrl.ly, ctrl.rx,ctrl.ry);
 }
 void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
 }
