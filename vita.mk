@@ -36,7 +36,8 @@ CFLAGS += -DWITH_RSA_LIBTOM
 endif
 
 CFLAGS += -D$(PROJECT)
-CXXFLAGS += -std=c++11
+CFLAGS += -Wl,-q -std=c99
+CXXFLAGS += -Wl,-q -std=c++11
 
 SRC_C :=$(call rwildcard, src/, *.c)
 SRC_CPP :=$(call rwildcard, src/, *.cpp)
