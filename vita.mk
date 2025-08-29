@@ -14,7 +14,7 @@ PROJECT_TITLEID := VSDK20225
 PROJECT := client
 
 DEBUG ?= 0
-SDL ?= 2
+SDL ?= 0
 WITH_OPENSSL ?= 0
 
 ifeq ($(DEBUG),1)
@@ -26,6 +26,8 @@ endif
 ifeq ($(SDL),2)
 CFLAGS += -DSDL=$(SDL) $(shell $(VITASDK)/arm-vita-eabi/bin/sdl2-config --cflags)
 LIBS += $(shell $(VITASDK)/arm-vita-eabi/bin/sdl2-config --libs)
+else
+LIBS += -lSceDisplay_stub -lSceTouch_stub
 endif
 
 ifeq ($(WITH_OPENSSL),1)

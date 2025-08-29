@@ -192,16 +192,15 @@ NOTE: Could add sfx and/or midi in lowmem, since it's the most important highmem
 ```
 
 ### Sony PS Vita
-Install [vitasdk](#tools) and run `make -f vita.mk -j$(nproc) -B`. Add `SDL=0` to use vita.c.
+Install [vitasdk](#tools) and run `make -f vita.mk -j$(nproc) -B`.
 
 can test with Vita3K, instead of decompressing the vpk you can copy just the eboot.bin after changes
 
 Controls: touch as mouse, X for right click, /\ for control, Dpad as arrow keys
 
 ```
-TODO: vitagl
-TODO: add osk input, add sdl3/vita.c option to makefile
-TODO: update sce_sys assets, use backside touch input?
+TODO: vitagl, update sce_sys assets, backside touch input, osk input
+TODO: add sdl3 to makefile or remove sdl altogether, it annoyingly saves sdl logs
 ```
 
 ### Sega Dreamcast

@@ -372,8 +372,8 @@ void set_pixels(PixMap *pixmap, int x, int y) {
 
 void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
     if (!_Custom.resizable) {
-        int hoff = (window_surface->w - SCREEN_WIDTH) / 2;
-        SDL_Rect dest = {hoff + x, y, w, h};
+        int xoff = (window_surface->w - SCREEN_WIDTH) / 2;
+        SDL_Rect dest = {xoff + x, y, w, h};
         // SDL_BlitScaled(surface, NULL, window_surface, &dest);
         SDL_BlitSurface(surface, NULL, window_surface, &dest);
     } else {
@@ -682,7 +682,7 @@ static void platform_get_keycodes(SDL_Keysym *keysym, int *code, char *ch) {
 }
 
 void platform_poll_events(Client *c) {
-    int hoff = (window_surface->w - SCREEN_WIDTH) / 2;
+    int xoff = (window_surface->w - SCREEN_WIDTH) / 2;
 
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
@@ -798,7 +798,7 @@ void platform_poll_events(Client *c) {
         } break;
 #endif
         case SDL_FINGERMOTION: {
-            int x = (int)(e.tfinger.x * window_surface->w) - hoff;
+            int x = (int)(e.tfinger.x * window_surface->w) - xoff;
             int y = (int)(e.tfinger.y * window_surface->h);
 
             c->shell->idle_cycles = 0;
@@ -812,7 +812,7 @@ void platform_poll_events(Client *c) {
         case SDL_FINGERDOWN: {
             update_touch = true;
 
-            int x = (int)(e.tfinger.x * window_surface->w) - hoff;
+            int x = (int)(e.tfinger.x * window_surface->w) - xoff;
             int y = (int)(e.tfinger.y * window_surface->h);
 
             c->shell->idle_cycles = 0;
@@ -849,7 +849,7 @@ void platform_poll_events(Client *c) {
             break;
         } break;
         case SDL_MOUSEMOTION: {
-            int x = e.motion.x - hoff;
+            int x = e.motion.x - xoff;
             int y = e.motion.y;
 
             c->shell->idle_cycles = 0;
@@ -861,7 +861,7 @@ void platform_poll_events(Client *c) {
             }
         } break;
         case SDL_MOUSEBUTTONDOWN: {
-            int x = e.button.x - hoff;
+            int x = e.button.x - xoff;
             int y = e.button.y;
 
             c->shell->idle_cycles = 0;
