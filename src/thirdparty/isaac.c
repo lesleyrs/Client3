@@ -134,7 +134,7 @@ int main()
     for (j=0; j<256; ++j)
     {
       printf("%.8lx",randrsl[j]);
-      if ((j&7)==7) mud_log("\n");
+      if ((j&7)==7) printf("\n");
     }
   }
 }
