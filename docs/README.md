@@ -33,7 +33,7 @@
 - (non-wasm): server cache changes requires manual cache+archive_checksums update in the client since it doesn't download, also the server has an issue with client map crcs changing when only server maps get updated.
 - midi fading, old js code for IE: https://github.com/2004Scape/Server/blob/61bf21fb3755c14b5cf6d47c9d974dee5783beda/view/javaclient.ejs new ts code: https://github.com/2004Scape/Client2/commit/92e74f1f134ea82e48dd608dcca3422777a7a986 https://github.com/LostCityRS/Client-TS/pulls?q=is%3Apr+is%3Aclosed+midi
 - fix remaining touch screen platforms red clicks by copying the 3ds code (_Model.mouse_x/y are only updated in draw_scene after update())
-- copy original bzip from java maybe allows for O3 optimization on more consoles unlike current bzip?
+- changing bzip_decompress + stbi_load_from_memory for other libs would allow for O3 optimization on consoles
 - tinysoundfont seems to break on powerpc cpus (wii, wiiu) and libtom specfically on wiiu only?
 - mapview from java client (change preload-file in makefile to cache/mapview for sdl2 emscripten)
 - optional QOL changes from the java client teavm branch
