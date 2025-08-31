@@ -775,7 +775,7 @@ void gouraudTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int colorA,
     }
 }
 
-void gouraudRaster(int x0, int x1, int color0, int color1, int *dst, int offset, int length) {
+static void gouraudRaster(int x0, int x1, int color0, int color1, int *dst, int offset, int length) {
     int rgb;
 
     if (_Pix3D.jagged) {
@@ -1266,7 +1266,7 @@ void flatTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int color) {
     }
 }
 
-void flatRaster(int x0, int x1, int *dst, int offset, int rgb) {
+static void flatRaster(int x0, int x1, int *dst, int offset, int rgb) {
     if (_Pix3D.clipX) {
         if (x1 > _Pix2D.bound_x) {
             x1 = _Pix2D.bound_x;
@@ -1887,7 +1887,7 @@ void textureTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int shadeA,
     }
 }
 
-void textureRaster(int xA, int xB, int *dst, int offset, int *texels, int curU, int curV, int u, int v, int w, int uStride, int vStride, int wStride, int shadeA, int shadeB) {
+static void textureRaster(int xA, int xB, int *dst, int offset, int *texels, int curU, int curV, int u, int v, int w, int uStride, int vStride, int wStride, int shadeA, int shadeB) {
     if (xA >= xB) {
         return;
     }
