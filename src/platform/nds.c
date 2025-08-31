@@ -359,10 +359,6 @@ void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
 }
 void platform_update_surface(void) {
 }
-void platform_draw_rect(int x, int y, int w, int h, int color) {
-}
-void platform_fill_rect(int x, int y, int w, int h, int color) {
-}
 // TODO: timers are untested
 #define timers2ms(tlow, thigh) (tlow | (thigh << 16)) >> 5
 uint64_t rs2_now(void) {

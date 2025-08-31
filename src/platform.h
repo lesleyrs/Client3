@@ -30,6 +30,8 @@ typedef struct PixMap PixMap;
 #endif
 
 void platform_draw_string(const char *str, int x, int y, int color, bool bold, int size);
+void platform_draw_rect(int x, int y, int w, int h, int color);
+void platform_fill_rect(int x, int y, int w, int h, int color);
 Surface *platform_create_surface(int *pixels, int width, int height, int alpha);
 void platform_free_surface(Surface *surface);
 void rs2_log(const char *format, ...);
@@ -61,7 +63,5 @@ void set_pixels(PixMap *pixmap, int x, int y);
 void platform_poll_events(Client *c);
 void platform_blit_surface(int x, int y, int w, int h, Surface *surface);
 void platform_update_surface(void);
-void platform_draw_rect(int x, int y, int w, int h, int color);
-void platform_fill_rect(int x, int y, int w, int h, int color);
 uint64_t rs2_now(void);
 void rs2_sleep(int ms);

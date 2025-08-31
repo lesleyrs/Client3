@@ -219,26 +219,6 @@ void platform_update_surface(void) {
     SDL_Flip(window_surface);
 }
 
-void platform_draw_rect(int x, int y, int w, int h, int color) {
-    uint32_t *pixels = (uint32_t *)window_surface->pixels;
-    int width = window_surface->pitch / sizeof(uint32_t); // SCREEN_WIDTH
-
-    for (int i = 0; i < w; i++) {
-        pixels[y * width + x + i] = color;             // top
-        pixels[((y + h - 1) * width) + x + i] = color; // bottom
-    }
-
-    for (int i = 0; i < h; i++) {
-        pixels[(y + i) * width + x] = color;         // left
-        pixels[(y + i) * width + x + w - 1] = color; // right
-    }
-}
-
-void platform_fill_rect(int x, int y, int w, int h, int color) {
-    SDL_Rect rect = {x, y, w, h};
-    SDL_FillRect(window_surface, &rect, color);
-}
-
 static void platform_get_keycodes(SDL_keysym *keysym, int *code, char *ch) {
     *code = -1;
     *ch = -1;

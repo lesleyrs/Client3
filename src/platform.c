@@ -1,16 +1,16 @@
-#include <errno.h>
 #include <ctype.h>
+#include <errno.h>
+#include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
 #include <string.h>
 // #ifndef _WIN32
 // #include <strings.h>
 // #endif
 
-#include "platform.h"
 #include "defines.h"
+#include "platform.h"
 
 #if SDL == 3
 #include "SDL3/SDL.h"
@@ -19,58 +19,42 @@
 #include "SDL.h"
 #endif
 
-Surface *platform_create_surface(int *pixels, int width, int height, int alpha) {
-#if SDL == 3
-    return SDL_CreateSurfaceFrom(width, height, SDL_GetPixelFormatForMasks(32, 0xff0000, 0x00ff00, 0x0000ff, alpha), pixels, width * sizeof(int));
-#elif SDL == 2 || SDL == 1
-    return SDL_CreateRGBSurfaceFrom(pixels, width, height, 32, width * sizeof(int), 0xff0000, 0x00ff00, 0x0000ff, alpha);
-#else
-    (void)width, (void)height, (void)alpha;
-    Surface *surface = calloc(1, sizeof(Surface));
-    surface->pixels = pixels;
-    return surface;
-#endif
-}
-
-void platform_free_surface(Surface *surface) {
-#if SDL == 3
-    SDL_DestroySurface(surface);
-#elif SDL == 2 || SDL == 1
-    SDL_FreeSurface(surface);
-#else
-    free(surface);
-#endif
-}
-
-void rs2_log(const char *format, ...) {
-    va_list args;
-    va_start(args, format);
-
-#if SDL > 1
-    SDL_LogMessageV(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO, format,
-                    args);
-#else
-    vprintf(format, args);
-#endif
-
-    va_end(args);
-}
-
-void rs2_error(const char *format, ...) {
-    va_list args;
-    va_start(args, format);
-
-#if SDL > 1
-    SDL_LogMessageV(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_ERROR,
-                    format, args);
-#else
-    vfprintf(stderr, format, args);
-#endif
-
-    va_end(args);
-}
-
 #ifndef __wasm
+void platform_draw_rect(int x, int y, int w, int h, int color) {
+    int *pixels = calloc(w * h, sizeof(int));
+    Surface *rect = platform_create_surface(pixels, w, h, false);
+
+    for (int i = 0; i < w; i++) {
+        pixels[i] = color;                 // top
+        pixels[((h - 1) * w) + i] = color; // bottom
+    }
+
+    for (int i = 0; i < h; i++) {
+        pixels[i * w] = color;         // left
+        pixels[i * w + w - 1] = color; // right
+    }
+
+    platform_blit_surface(x, y, w, h, rect);
+    platform_free_surface(rect);
+    free(pixels);
+}
+
+void platform_fill_rect(int x, int y, int w, int h, int color) {
+    int *pixels = calloc(w * h, sizeof(int));
+    Surface *rect = platform_create_surface(pixels, w, h, false);
+
+    for (int j = 0; j < h; j++) {
+        int *row = pixels + j * w;
+        for (int i = 0; i < w; i++) {
+            row[i] = color;
+        }
+    }
+
+    platform_blit_surface(x, y, w, h, rect);
+    platform_free_surface(rect);
+    free(pixels);
+}
+
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "thirdparty/stb_truetype.h"
 
@@ -206,6 +190,57 @@ void platform_draw_string(const char *str, int x, int y, int color, bool bold, i
 }
 #endif
 
+Surface *platform_create_surface(int *pixels, int width, int height, int alpha) {
+#if SDL == 3
+    return SDL_CreateSurfaceFrom(width, height, SDL_GetPixelFormatForMasks(32, 0xff0000, 0x00ff00, 0x0000ff, alpha), pixels, width * sizeof(int));
+#elif SDL == 2 || SDL == 1
+    return SDL_CreateRGBSurfaceFrom(pixels, width, height, 32, width * sizeof(int), 0xff0000, 0x00ff00, 0x0000ff, alpha);
+#else
+    (void)width, (void)height, (void)alpha;
+    Surface *surface = calloc(1, sizeof(Surface));
+    surface->pixels = pixels;
+    return surface;
+#endif
+}
+
+void platform_free_surface(Surface *surface) {
+#if SDL == 3
+    SDL_DestroySurface(surface);
+#elif SDL == 2 || SDL == 1
+    SDL_FreeSurface(surface);
+#else
+    free(surface);
+#endif
+}
+
+void rs2_log(const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+
+#if SDL > 1
+    SDL_LogMessageV(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO, format,
+                    args);
+#else
+    vprintf(format, args);
+#endif
+
+    va_end(args);
+}
+
+void rs2_error(const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+
+#if SDL > 1
+    SDL_LogMessageV(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_ERROR,
+                    format, args);
+#else
+    vfprintf(stderr, format, args);
+#endif
+
+    va_end(args);
+}
+
 // Java Math.random, rand requires + 1 to never reach 1 else it'll overflow on update_flame_buffer
 #ifdef USE_FLOATS
 double jrand(void) {
@@ -275,9 +310,10 @@ int platform_strcasecmp(const char *_l, const char *_r) {
 #else
     // return strcasecmp(_l, _r);
     // from musl
-	const unsigned char *l=(void *)_l, *r=(void *)_r;
-	for (; *l && *r && (*l == *r || tolower(*l) == tolower(*r)); l++, r++);
-	return tolower(*l) - tolower(*r);
+    const unsigned char *l = (void *)_l, *r = (void *)_r;
+    for (; *l && *r && (*l == *r || tolower(*l) == tolower(*r)); l++, r++)
+        ;
+    return tolower(*l) - tolower(*r);
 #endif
 }
 

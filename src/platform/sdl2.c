@@ -406,34 +406,6 @@ void platform_update_surface(void) {
     }
 }
 
-void platform_draw_rect(int x, int y, int w, int h, int color) {
-    uint32_t *pixels = (uint32_t *)window_surface->pixels;
-    int width = window_surface->pitch / sizeof(uint32_t); // SCREEN_WIDTH
-
-    for (int i = 0; i < w; i++) {
-        pixels[y * width + x + i] = color;             // top
-        pixels[((y + h - 1) * width) + x + i] = color; // bottom
-    }
-
-    for (int i = 0; i < h; i++) {
-        pixels[(y + i) * width + x] = color;         // left
-        pixels[(y + i) * width + x + w - 1] = color; // right
-    }
-
-    if (_Custom.resizable) {
-        platform_blit_surface(0, 0, window_surface->w, window_surface->h, window_surface);
-    }
-}
-
-void platform_fill_rect(int x, int y, int w, int h, int color) {
-    SDL_Rect rect = {x, y, w, h};
-    SDL_FillRect(window_surface, &rect, color);
-
-    if (_Custom.resizable) {
-        platform_blit_surface(0, 0, window_surface->w, window_surface->h, window_surface);
-    }
-}
-
 static void platform_get_keycodes(SDL_Keysym *keysym, int *code, char *ch) {
     *ch = -1;
 

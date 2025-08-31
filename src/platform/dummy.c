@@ -33,12 +33,6 @@ void platform_update_surface(void) {
 void platform_poll_events(Client *c) {
 }
 
-void platform_draw_rect(int x, int y, int w, int h, int color) {
-}
-
-void platform_fill_rect(int x, int y, int w, int h, int color) {
-}
-
 uint64_t rs2_now(void) {
     return 0;
 }
