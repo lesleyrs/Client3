@@ -41,6 +41,7 @@
 - add CI: run make check/scan + artifacts
 - clean up keycodes (from rsc-c, EG non-emscripten single/double quotes + fkey keycodes are defined for emscripten only)
 - func args might partially differ in order to the Client repo due to being based off rs2-225: animbase, animframe, pix2d, pix3d, gameshell, jagfile, model, packet, pix8, pixfont, pixmap, redo them? inconsistent naming: used both world3d and scene for world3d, rename world3d to scene or at least for args?
+- x11 and win32 targets without sdl dependency
 - global search TODO, NOTE, and all platform defines, change many funcs+prototypes to static, look for missing/dupe client struct members and client funcs with different casing, finish debug command or remove it.
 - playground models leak memory for some reason
 - fix component "indirect" leaks model/pix24: they get modified in packets so the global component doesn't own that memory anymore. Most leak messages aren't a leak though, since it has to live for the duration of the program.
@@ -83,7 +84,7 @@
 - replaced labelled break/continue with goto
 - removed explicit null checks with with var and !var
 - prefixed function names with the struct they take as first arg
-- signed integer underflow/overflow is undefined (-fwrapv doesn't exist for cl/tcc, but there's no known issue) loopcycle should be ok
+- signed integer underflow/overflow is undefined (-fwrapv doesn't exist for cl/tcc, so there is UB but doesn't seem to cause issues)
 
 - msvc doesn't support VLAs (variable length arrays), use heap allocations
 - all the casts to char* and int in clientstream are just to stop windows warnings

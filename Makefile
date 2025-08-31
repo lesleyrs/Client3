@@ -17,15 +17,16 @@ MODERN_POSIX ?= 1
 RSA_LENGTH ?= 128
 WITH_OPENSSL ?= 1
 WITH_LIBTOM ?= 1
+SDL ?= 2
 
 ifeq ($(basename $(notdir $(CC))),emcc)
 # getnameinfo does nothing with emscripten so use old api
 MODERN_POSIX = 0
-else ifeq ($(findstring i686-w64-mingw32-gcc,$(CC)),i686-w64-mingw32-gcc)
+endif
+
+ifeq ($(findstring i686-w64-mingw32-gcc,$(CC)),i686-w64-mingw32-gcc)
 # SDL1 guaranteed to be 32 bits and runs on windows 95
 SDL = 1
-else
-SDL ?= 2
 endif
 
 ifeq ($(ENTRY),midi)
@@ -35,18 +36,20 @@ else
 
 SRC = $(wildcard src/*.c src/thirdparty/*.c src/datastruct/*.c src/sound/*.c src/wordenc/*.c)
 SRC += src/entry/$(ENTRY).c
+ifeq ($(basename $(notdir $(CC))),emcc)
+SRC += src/platform/emscripten.c
+else
 ifdef SDL
 SRC += src/platform/sdl$(SDL).c
-else ifeq ($(basename $(notdir $(CC))),emcc)
-SRC += src/platform/emscripten.c
+CFLAGS += -DSDL=$(SDL)
+else
+SRC += src/platform/dummy.c
+CFLAGS += -DDUMMY
+endif
 endif
 endif
 
-CFLAGS += -D$(ENTRY)
-ifdef SDL
-CFLAGS += -DSDL=$(SDL)
-endif
-CFLAGS += -fwrapv -std=c99 -Wall -Wpedantic -Wvla -Wshadow -Wmissing-prototypes -Wstrict-prototypes -Wmissing-declarations -Wredundant-decls
+CFLAGS += -D$(ENTRY) -fwrapv -std=c99 -Wall -Wpedantic -Wvla -Wshadow -Wmissing-prototypes -Wstrict-prototypes -Wmissing-declarations -Wredundant-decls
 CFLAGS += -Wextra
 
 ifeq ($(findstring gcc,$(CC)),gcc)
@@ -90,6 +93,7 @@ CFLAGS += -sDEFAULT_TO_CXX=0 -sENVIRONMENT=web
 LDFLAGS += --use-port=sdl3
 endif
 
+ifneq ($(basename $(notdir $(CC))),emcc)
 ifeq ($(SDL),1)
 ifeq ($(findstring -w64-mingw32-gcc,$(CC)),-w64-mingw32-gcc)
 CFLAGS += -D_WIN32_WINNT=0x0501
@@ -97,7 +101,7 @@ CFLAGS += -I"bin/SDL-1.2.15/include/SDL" -D_GNU_SOURCE=1 -Dmain=SDL_main
 LDFLAGS += -L"bin/SDL-1.2.15/lib" -lmingw32 -lSDLmain -lSDL -mwindows
 else
 CFLAGS += $(shell sdl-config --cflags)
-LDFLAGS += $(shell sdl-config --libs) -lm
+LDFLAGS += $(shell sdl-config --libs)
 endif
 endif
 
@@ -113,7 +117,7 @@ CFLAGS += $(shell bin/SDL2-2.30.9/$(word 1, $(subst -, ,$(CC)))-w64-mingw32/bin/
 LDFLAGS += $(shell bin/SDL2-2.30.9/$(word 1, $(subst -, ,$(CC)))-w64-mingw32/bin/sdl2-config --libs)
 else
 CFLAGS += $(shell sdl2-config --cflags)
-LDFLAGS += $(shell sdl2-config --libs) -lm
+LDFLAGS += $(shell sdl2-config --libs)
 endif
 endif
 
@@ -124,9 +128,12 @@ CFLAGS += $(shell pkg-config bin/SDL3-3.1.6/$(word 1, $(subst -, ,$(CC)))-w64-mi
 LDFLAGS += $(shell pkg-config bin/SDL3-3.1.6/$(word 1, $(subst -, ,$(CC)))-w64-mingw32/lib/pkgconfig/sdl3.pc --libs)
 else
 CFLAGS += $(shell pkg-config sdl3 --cflags)
-LDFLAGS += $(shell pkg-config sdl3 --libs) -lm
+LDFLAGS += $(shell pkg-config sdl3 --libs)
 endif
 endif
+endif # emcc
+
+LDFLAGS += -lm
 
 ifeq ($(findstring -w64-mingw32-gcc,$(CC)),-w64-mingw32-gcc)
 LDFLAGS += -lws2_32 -lwsock32

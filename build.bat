@@ -73,7 +73,7 @@ if "%CC%" == "cl" (
 	REM add emscripten debug
 	%CC% %SRC% -fwrapv --use-port=sdl3 --shell-file shell.html -s -Oz -ffast-math -flto --closure 1 -std=c99 -DWITH_RSA_LIBTOM -D%ENTRY% -sALLOW_MEMORY_GROWTH -sINITIAL_HEAP=50MB -sSTACK_SIZE=1048576 -o index.html -sASYNCIFY -sSTRICT_JS -sDEFAULT_TO_CXX=0 && emrun --no-browser --hostname 0.0.0.0 .
 ) else if "%CC%" == "gcc" (
-	%CC% %SRC% -s -O3 -ffast-math -std=c99 -DSDL_main=main -DWITH_RSA_LIBTOM -D%ENTRY% %SDL% -lws2_32 -lwsock32 %OPT% -o %ENTRY%.exe SDL%VER%.dll
+	%CC% %SRC% -fwrapv -s -O3 -ffast-math -std=c99 -DSDL_main=main -DWITH_RSA_LIBTOM -D%ENTRY% %SDL% -lws2_32 -lwsock32 %OPT% -o %ENTRY%.exe SDL%VER%.dll
 ) else (
 	REM if using your own tcc you could also add -b for better errors (SLOW, and libs not stored in repo)
 	REM need to add else branch for now to add -bt until SRC is changed

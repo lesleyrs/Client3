@@ -238,7 +238,20 @@ void draw_info_overlay(Client *c) {
         drawStringRight(c->font_plain11, x, y, buf, YELLOW, true);
         y += 13;
 #if defined(__WII__) || defined(__PSP__)
+        int get_free_mem(void);
         sprintf(buf, "Free: %dK", get_free_mem() >> 10);
+        drawStringRight(c->font_plain11, x, y, buf, YELLOW, true);
+        y += 13;
+#endif
+#if defined(__vita__)
+#include <psp2/power.h>
+        sprintf(buf, "BAT: %d%%", scePowerGetBatteryLifePercent());
+        drawStringRight(c->font_plain11, x, y, buf, YELLOW, true);
+        y += 13;
+        sprintf(buf, "CPU: %d MHz", scePowerGetArmClockFrequency());
+        drawStringRight(c->font_plain11, x, y, buf, YELLOW, true);
+        y += 13;
+        sprintf(buf, "GPU: %d MHz", scePowerGetGpuClockFrequency());
         drawStringRight(c->font_plain11, x, y, buf, YELLOW, true);
         y += 13;
 #endif

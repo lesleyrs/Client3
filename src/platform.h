@@ -29,11 +29,7 @@ typedef struct PixMap PixMap;
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 #endif
 
-// TODO rm temp func
-#if defined(__WII__) || defined(__PSP__)
-int get_free_mem(void);
-#endif
-
+void platform_draw_string(const char *str, int x, int y, int color, bool bold, int size);
 Surface *platform_create_surface(int *pixels, int width, int height, int alpha);
 void platform_free_surface(Surface *surface);
 void rs2_log(const char *format, ...);

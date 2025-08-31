@@ -10164,6 +10164,10 @@ void client_draw_error(Client *c) {
         c->flame_active = false;
         int y = 35;
 
+#if defined(__wasm) && !defined(__EMSCRIPTEN__)
+#include <js/glue.h>
+        JS_setFont("bold 16px helvetica, sans-serif");
+#endif
         color = YELLOW;
         gameshell_draw_string(c->shell, "Sorry, an error has occured whilst loading RuneScape", 30, y, color, true, 16);
         y += 50;
@@ -10172,6 +10176,10 @@ void client_draw_error(Client *c) {
         gameshell_draw_string(c->shell, "To fix this try the following (in order):", 30, y, color, true, 16);
         y += 50;
 
+        color = WHITE;
+#if defined(__wasm) && !defined(__EMSCRIPTEN__)
+        JS_setFont("bold 12px helvetica, sans-serif");
+#endif
         gameshell_draw_string(c->shell, "1: Try closing ALL open web-browser windows, and reloading", 30, y, color, true, 12);
         y += 30;
 
