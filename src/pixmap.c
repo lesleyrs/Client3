@@ -29,5 +29,5 @@ void pixmap_bind(PixMap *pixmap) {
 }
 
 void pixmap_draw(PixMap *pixmap, int x, int y) {
-    set_pixels(pixmap, x, y);
+    platform_blit_surface(pixmap->image, x, y);
 }

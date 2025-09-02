@@ -34,7 +34,7 @@ void platform_draw_rect(int x, int y, int w, int h, int color) {
         pixels[i * w + w - 1] = color; // right
     }
 
-    platform_blit_surface(x, y, w, h, rect);
+    platform_blit_surface(rect, x, y);
     platform_free_surface(rect);
     free(pixels);
 }
@@ -50,7 +50,7 @@ void platform_fill_rect(int x, int y, int w, int h, int color) {
         }
     }
 
-    platform_blit_surface(x, y, w, h, rect);
+    platform_blit_surface(rect, x, y);
     platform_free_surface(rect);
     free(pixels);
 }
@@ -172,7 +172,8 @@ void platform_draw_string(const char *str, int x, int y, int color, bool bold, i
             pixels[i] = (pixels[i] & 0xff000000) | (pixels[i] & color);
         }
 
-        platform_blit_surface(x + (int)xpos + x0, y + y0, width, height, surface);
+        // NOTE this inaccurately draws 1 character per surface, noticeable in sdl
+        platform_blit_surface(surface, x + (int)xpos + x0, y + y0);
 
         stbtt_FreeBitmap(bitmap, NULL);
         platform_free_surface(surface);
@@ -196,9 +197,11 @@ Surface *platform_create_surface(int *pixels, int width, int height, int alpha) 
 #elif SDL == 2 || SDL == 1
     return SDL_CreateRGBSurfaceFrom(pixels, width, height, 32, width * sizeof(int), 0xff0000, 0x00ff00, 0x0000ff, alpha);
 #else
-    (void)width, (void)height, (void)alpha;
+    (void)alpha;
     Surface *surface = calloc(1, sizeof(Surface));
     surface->pixels = pixels;
+    surface->w = width;
+    surface->h = height;
     return surface;
 #endif
 }

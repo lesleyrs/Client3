@@ -323,29 +323,6 @@ void platform_set_midi(const char *name, int crc, int len) {
 }
 void platform_stop_midi(void) {
 }
-void set_pixels(PixMap *pixmap, int x, int y) {
-    for (int row = 0; row < pixmap->height; row++) {
-        int screen_y = y + row + screen_offset_y;
-        if (screen_y < 0)
-            continue;
-        if (screen_y >= SCREEN_FB_HEIGHT)
-            break;
-
-        for (int col = 0; col < pixmap->width; col++) {
-            int screen_x = x + col + screen_offset_x;
-            if (screen_x < 0)
-                continue;
-            if (screen_x >= SCREEN_FB_WIDTH)
-                break;
-
-            int pixel = pixmap->pixels[row * pixmap->width + col];
-            uint8_t r = (pixel >> 16) & 0xff;
-            uint8_t g = (pixel >> 8) & 0xff;
-            uint8_t b = pixel & 0xff;
-            fb[screen_y * SCREEN_FB_WIDTH + screen_x] = RGB8(r, g, b);
-        }
-    }
-}
 void platform_poll_events(Client *c) {
     // while (pmMainLoop()) {
     //     swiWaitForVBlank();
@@ -355,7 +332,28 @@ void platform_poll_events(Client *c) {
     //         break;
     // }
 }
-void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
+void platform_blit_surface(Surface *surface, int x, int y) {
+    for (int row = 0; row < surface->h; row++) {
+        int screen_y = y + row + screen_offset_y;
+        if (screen_y < 0)
+            continue;
+        if (screen_y >= SCREEN_FB_HEIGHT)
+            break;
+
+        for (int col = 0; col < surface->w; col++) {
+            int screen_x = x + col + screen_offset_x;
+            if (screen_x < 0)
+                continue;
+            if (screen_x >= SCREEN_FB_WIDTH)
+                break;
+
+            int pixel = surface->pixels[row * surface->w + col];
+            uint8_t r = (pixel >> 16) & 0xff;
+            uint8_t g = (pixel >> 8) & 0xff;
+            uint8_t b = pixel & 0xff;
+            fb[screen_y * SCREEN_FB_WIDTH + screen_x] = RGB8(r, g, b);
+        }
+    }
 }
 void platform_update_surface(void) {
 }

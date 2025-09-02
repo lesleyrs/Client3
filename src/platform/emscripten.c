@@ -326,10 +326,6 @@ void platform_stop_midi(void) {
         tsf_channel_set_bank_preset(g_TinySoundFont, 9, 128, 0);
     }
 }
-void set_pixels(PixMap *pixmap, int x, int y) {
-    set_pixels_js(x, y, pixmap->width, pixmap->height, pixmap->pixels);
-}
-
 static bool onmousemove(int event_type, const EmscriptenMouseEvent *e, void *user_data) {
     (void)event_type;
     GameShell *shell = user_data;
@@ -575,11 +571,9 @@ static bool onkeyup(int event_type, const EmscriptenKeyboardEvent *e, void *user
 void platform_poll_events(Client *c) {
     (void)c;
 }
-// NOTE: unused for web since we draw strings in js
-void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
-    (void)x, (void)y, (void)w, (void)h, (void)surface;
+void platform_blit_surface(Surface *surface, int x, int y) {
+    set_pixels_js(x, y, surface->w, surface->h, surface->pixels);
 }
-void platform_draw_string(const char *str, int x, int y, int color, bool bold, int size);
 void platform_draw_string(const char *str, int x, int y, int color, bool bold, int size) {
     draw_string_js(str, x, y, color, bold, size);
 }

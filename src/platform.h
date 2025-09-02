@@ -9,6 +9,7 @@ typedef struct SDL_Surface Surface;
 #else
 typedef struct Surface {
     int *pixels;
+    int w, h;
 } Surface;
 #endif
 
@@ -59,9 +60,8 @@ void platform_set_midi_volume(float midivol);
 void platform_set_jingle(int8_t *src, int len);
 void platform_set_midi(const char *name, int crc, int len);
 void platform_stop_midi(void);
-void set_pixels(PixMap *pixmap, int x, int y);
 void platform_poll_events(Client *c);
-void platform_blit_surface(int x, int y, int w, int h, Surface *surface);
+void platform_blit_surface(Surface *surface, int x, int y);
 void platform_update_surface(void);
 uint64_t rs2_now(void);
 void rs2_sleep(int ms);

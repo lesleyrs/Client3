@@ -10221,8 +10221,6 @@ void client_draw_error(Client *c) {
         gameshell_draw_string(c->shell, "2: Try rebooting your computer, and reloading", 30, y, color, true, 12);
         y += 30;
     }
-
-    platform_update_surface();
 }
 
 void client_draw_title_screen(Client *c) {

@@ -184,55 +184,6 @@ void platform_set_midi(const char *name, int crc, int len) {
 }
 void platform_stop_midi(void) {
 }
-void set_pixels(PixMap *pixmap, int x, int y) {
-    int relative_x = cursor_x + screen_offset_x;
-    int relative_y = cursor_y + screen_offset_y;
-
-    uint16_t *fb_ptr = (uint16_t *)fb + (y * VRAM_STRIDE + x);
-    for (int row = 0; row < pixmap->height; row++) {
-        int screen_y = y + row + screen_offset_y;
-        if (screen_y < 0)
-            continue;
-        if (screen_y >= SCREEN_FB_HEIGHT)
-            break;
-        for (int col = 0; col < pixmap->width; col++) {
-            int screen_x = x + col + screen_offset_x;
-            if (screen_x < 0)
-                continue;
-            if (screen_x >= SCREEN_FB_WIDTH)
-                break;
-
-            int src_offset = row * pixmap->width + col;
-
-            int pixel = pixmap->pixels[src_offset];
-
-            // draw cursor in here + redraw_background in poll_events
-            int cx = screen_x - relative_x;
-            int cy = screen_y - relative_y;
-            if (cx >= 0 && cy >= 0 && cx < CURSOR_W && cy < CURSOR_H) {
-                int i = (cy * CURSOR_W + cx) * 4;
-                uint8_t a = cursor[i + 3];
-                if (a > 0) {
-                    uint8_t r = cursor[i];
-                    uint8_t g = cursor[i + 1];
-                    uint8_t b = cursor[i + 2];
-                    pixel = (r << 16) | (g << 8) | b;
-                }
-            }
-
-            uint8_t b = (pixel >> 16) & 0xff;
-            uint8_t g = (pixel >> 8) & 0xff;
-            uint8_t r = pixel & 0xff;
-
-            uint16_t rgb565 = ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3);
-
-            fb_ptr[(row + screen_offset_y) * VRAM_STRIDE + (col + screen_offset_x)] = rgb565;
-        }
-    }
-    // sceDisplayWaitVblankStart();
-    // sceDisplaySetFrameBuf(fb, VRAM_STRIDE, PSP_DISPLAY_PIXEL_FORMAT_565, PSP_DISPLAY_SETBUF_NEXTFRAME);
-}
-
 void platform_poll_events(Client *c) {
     sceCtrlPeekBufferPositive(&pad, 1);
 
@@ -359,7 +310,53 @@ void platform_poll_events(Client *c) {
 
     last_pad = pad;
 }
-void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
+void platform_blit_surface(Surface *surface, int x, int y) {
+    int relative_x = cursor_x + screen_offset_x;
+    int relative_y = cursor_y + screen_offset_y;
+
+    uint16_t *fb_ptr = (uint16_t *)fb + (y * VRAM_STRIDE + x);
+    for (int row = 0; row < surface->h; row++) {
+        int screen_y = y + row + screen_offset_y;
+        if (screen_y < 0)
+            continue;
+        if (screen_y >= SCREEN_FB_HEIGHT)
+            break;
+        for (int col = 0; col < surface->w; col++) {
+            int screen_x = x + col + screen_offset_x;
+            if (screen_x < 0)
+                continue;
+            if (screen_x >= SCREEN_FB_WIDTH)
+                break;
+
+            int src_offset = row * surface->w + col;
+
+            int pixel = surface->pixels[src_offset];
+
+            // draw cursor in here + redraw_background in poll_events
+            int cx = screen_x - relative_x;
+            int cy = screen_y - relative_y;
+            if (cx >= 0 && cy >= 0 && cx < CURSOR_W && cy < CURSOR_H) {
+                int i = (cy * CURSOR_W + cx) * 4;
+                uint8_t a = cursor[i + 3];
+                if (a > 0) {
+                    uint8_t r = cursor[i];
+                    uint8_t g = cursor[i + 1];
+                    uint8_t b = cursor[i + 2];
+                    pixel = (r << 16) | (g << 8) | b;
+                }
+            }
+
+            uint8_t b = (pixel >> 16) & 0xff;
+            uint8_t g = (pixel >> 8) & 0xff;
+            uint8_t r = pixel & 0xff;
+
+            uint16_t rgb565 = ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3);
+
+            fb_ptr[(row + screen_offset_y) * VRAM_STRIDE + (col + screen_offset_x)] = rgb565;
+        }
+    }
+    // sceDisplayWaitVblankStart();
+    // sceDisplaySetFrameBuf(fb, VRAM_STRIDE, PSP_DISPLAY_PIXEL_FORMAT_565, PSP_DISPLAY_SETBUF_NEXTFRAME);
 }
 void platform_update_surface(void) {
 }

@@ -21,13 +21,10 @@ void platform_new(GameShell *shell) {
 void platform_free(void) {
 }
 
-void set_pixels(PixMap *pixmap, int x, int y) {
-}
-
-void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
-}
-
 void platform_update_surface(void) {
+}
+
+void platform_blit_surface(Surface *surface, int x, int y) {
 }
 
 void platform_poll_events(Client *c) {

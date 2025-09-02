@@ -205,14 +205,10 @@ void platform_stop_midi(void) {
         tsf_channel_set_bank_preset(g_TinySoundFont, 9, 128, 0);
     }
 }
-void set_pixels(PixMap *pixmap, int x, int y) {
-    platform_blit_surface(x, y, pixmap->width, pixmap->height, pixmap->image);
-    platform_update_surface();
-}
-
-void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
-    SDL_Rect dest = {x, y, w, h};
+void platform_blit_surface(Surface *surface, int x, int y) {
+    SDL_Rect dest = {x, y, surface->w, surface->h};
     SDL_BlitSurface(surface, NULL, window_surface, &dest);
+    platform_update_surface();
 }
 
 void platform_update_surface(void) {

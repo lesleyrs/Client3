@@ -179,44 +179,6 @@ void platform_set_midi(const char *name, int crc, int len) {
 }
 void platform_stop_midi(void) {
 }
-void set_pixels(PixMap *pixmap, int x, int y) {
-    int relative_x = cursor_x + screen_offset_x;
-    int relative_y = cursor_y + screen_offset_y;
-
-    for (int h = 0; h < pixmap->height; h++) {
-        int screen_y = y + h + screen_offset_y;
-        if (screen_y < 0)
-            continue;
-        if (screen_y >= SCREEN_FB_HEIGHT)
-            break;
-        for (int w = 0; w < pixmap->width; w++) {
-            int screen_x = x + w + screen_offset_x;
-            if (screen_x < 0)
-                continue;
-            if (screen_x >= SCREEN_FB_WIDTH)
-                break;
-
-            int color = pixmap->pixels[h * pixmap->width + w];
-
-            // draw cursor in here + redraw_background in poll_events
-            int cx = screen_x - relative_x;
-            int cy = screen_y - relative_y;
-            if (cx >= 0 && cy >= 0 && cx < CURSOR_W && cy < CURSOR_H) {
-                int i = (cy * CURSOR_W + cx) * 4;
-                uint8_t a = cursor[i + 3];
-                if (a > 0) {
-                    uint8_t r = cursor[i];
-                    uint8_t g = cursor[i + 1];
-                    uint8_t b = cursor[i + 2];
-                    color = (r << 16) | (g << 8) | b;
-                }
-            }
-
-            rgbx[screen_y * SCREEN_FB_WIDTH + screen_x] = color;
-        }
-    }
-}
-
 void platform_poll_events(Client *c) {
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
@@ -357,7 +319,42 @@ void platform_poll_events(Client *c) {
     }
 
 }
-void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
+void platform_blit_surface(Surface *surface, int x, int y) {
+    int relative_x = cursor_x + screen_offset_x;
+    int relative_y = cursor_y + screen_offset_y;
+
+    for (int h = 0; h < surface->h; h++) {
+        int screen_y = y + h + screen_offset_y;
+        if (screen_y < 0)
+            continue;
+        if (screen_y >= SCREEN_FB_HEIGHT)
+            break;
+        for (int w = 0; w < surface->w; w++) {
+            int screen_x = x + w + screen_offset_x;
+            if (screen_x < 0)
+                continue;
+            if (screen_x >= SCREEN_FB_WIDTH)
+                break;
+
+            int color = surface->pixels[h * surface->w + w];
+
+            // draw cursor in here + redraw_background in poll_events
+            int cx = screen_x - relative_x;
+            int cy = screen_y - relative_y;
+            if (cx >= 0 && cy >= 0 && cx < CURSOR_W && cy < CURSOR_H) {
+                int i = (cy * CURSOR_W + cx) * 4;
+                uint8_t a = cursor[i + 3];
+                if (a > 0) {
+                    uint8_t r = cursor[i];
+                    uint8_t g = cursor[i + 1];
+                    uint8_t b = cursor[i + 2];
+                    color = (r << 16) | (g << 8) | b;
+                }
+            }
+
+            rgbx[screen_y * SCREEN_FB_WIDTH + screen_x] = color;
+        }
+    }
 }
 void platform_update_surface(void) {
 }

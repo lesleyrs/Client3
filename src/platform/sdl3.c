@@ -322,15 +322,10 @@ void platform_stop_midi(void) {
     }
 }
 
-void set_pixels(PixMap *pixmap, int x, int y) {
-    platform_blit_surface(x, y, pixmap->width, pixmap->height, pixmap->image);
-    platform_update_surface();
-}
-
-void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
+void platform_blit_surface(Surface *surface, int x, int y) {
     if (!_Custom.resizable) {
         int xoff = (window_surface->w - SCREEN_WIDTH) / 2;
-        SDL_Rect dest = {xoff + x, y, w, h};
+        SDL_Rect dest = {xoff + x, y, surface->w, surface->h};
         // SDL_BlitSurfaceScaled(surface, NULL, window_surface, &dest, SDL_SCALEMODE_LINEAR);
         // SDL_BlitSurfaceScaled(surface, NULL, window_surface, &dest, SDL_SCALEMODE_NEAREST);
         SDL_BlitSurface(surface, NULL, window_surface, &dest);
@@ -341,18 +336,19 @@ void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
             rs2_error("SDL3: SDL_LockTexture failed: %s\n", SDL_GetError());
             return;
         }
-        int row_size = w * sizeof(int);
+        int row_size = surface->w * sizeof(int);
         int *src_pixels = (int *)surface->pixels;
-        for (int src_y = y; src_y < (y + h); src_y++) {
+        for (int src_y = y; src_y < (y + surface->h); src_y++) {
             // Compute the starting index for the destination row
             int *dest_row = &pix_write[(src_y * SCREEN_WIDTH) + x];
 
             // Copy a row of pixels
-            memcpy(dest_row, &src_pixels[(src_y - y) * w], row_size);
+            memcpy(dest_row, &src_pixels[(src_y - y) * surface->w], row_size);
         }
         SDL_UnlockTexture(texture);
         SDL_RenderTexture(renderer, texture, NULL, NULL);
     }
+    platform_update_surface();
 }
 
 void platform_update_surface(void) {

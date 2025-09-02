@@ -331,23 +331,10 @@ void platform_stop_midi(void) {
     // Initialize preset on special 10th MIDI channel to use percussion sound bank (128) if available
     tsf_channel_set_bank_preset(g_TinySoundFont, 9, 128, 0);
 }
-void set_pixels(PixMap *pixmap, int x, int y) {
-    for (int h = 0; h < pixmap->height; h++) {
-        for (int w = 0; w < pixmap->width; w++) {
-            uint32_t pixel = pixmap->pixels[h * pixmap->width + w];
-            pixel = ((pixel & 0xff0000) >> 16) | (pixel & 0x00ff00) | ((pixel & 0x0000ff) << 16) | 0xff000000;
-            canvas[(y + h) * SCREEN_FB_WIDTH + (x + w)] = pixel;
-        }
-    }
-
-    JS_setPixelsAlpha(canvas);
-}
-
 void platform_poll_events(Client *c) {
     (void)c;
 }
 
-void platform_draw_string(const char *str, int x, int y, int color, bool bold, int size);
 void platform_draw_string(const char *str, int x, int y, int color, bool bold, int size) {
     (void)bold, (void)size;
 
@@ -356,11 +343,18 @@ void platform_draw_string(const char *str, int x, int y, int color, bool bold, i
     JS_fillStyle(buf);
     JS_fillText(str, x, y);
 }
-void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
-    (void)x, (void)y, (void)w, (void)w, (void)h, (void)surface;
+void platform_blit_surface(Surface *surface, int x, int y) {
+    for (int h = 0; h < surface->h; h++) {
+        for (int w = 0; w < surface->w; w++) {
+            uint32_t pixel = surface->pixels[h * surface->w + w];
+            pixel = ((pixel & 0xff0000) >> 16) | (pixel & 0x00ff00) | ((pixel & 0x0000ff) << 16) | 0xff000000;
+            canvas[(y + h) * SCREEN_FB_WIDTH + (x + w)] = pixel;
+        }
+    }
+
+    JS_setPixelsAlpha(canvas);
 }
 void platform_update_surface(void) {
-    rs2_sleep(0); // return a slice of time to the main loop so it can update the progress bar
 }
 void platform_draw_rect(int x, int y, int w, int h, int color) {
     char buf[8];

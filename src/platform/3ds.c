@@ -158,58 +158,6 @@ void platform_set_midi(const char *name, int crc, int len) {
 }
 void platform_stop_midi(void) {
 }
-void set_pixels(PixMap *pixmap, int x, int y) {
-    uint32_t *fb32_top = (uint32_t *)fb_top;
-    uint32_t *fb32_bottom = (uint32_t *)fb_bottom;
-
-    for (int row = 0; row < pixmap->height; row++) {
-        int screen_y = y + row + screen_offset_y;
-        if (screen_y < 0)
-            continue;
-        if (screen_y >= SCREEN_FB_HEIGHT)
-            break;
-
-        for (int col = 0; col < pixmap->width; col++) {
-            int screen_x = x + col + screen_offset_x;
-            if (screen_x < 0)
-                continue;
-            if (screen_x >= SCREEN_FB_WIDTH)
-                break;
-
-            int pixel = pixmap->pixels[row * pixmap->width + col];
-            int dst = screen_x * SCREEN_FB_HEIGHT + (SCREEN_FB_HEIGHT - 1 - screen_y);
-
-            fb32_bottom[dst] = pixel << 8;
-        }
-    }
-
-    if (fb_top) {
-        for (int row = 0; row < pixmap->height; row++) {
-            int screen_y = y + row + screen_offset_y_top;
-            if (screen_y < 0)
-                continue;
-            if (screen_y >= SCREEN_FB_HEIGHT)
-                break;
-
-            for (int col = 0; col < pixmap->width; col++) {
-                int screen_x = x + col + screen_offset_x_top;
-                if (screen_x < 0)
-                    continue;
-                if (screen_x >= SCREEN_FB_WIDTH_TOP)
-                    break;
-
-                int pixel = pixmap->pixels[row * pixmap->width + col];
-                int dst = screen_x * SCREEN_FB_HEIGHT + (SCREEN_FB_HEIGHT - 1 - screen_y);
-
-                fb32_top[dst] = pixel << 8;
-            }
-        }
-    }
-    // gfxFlushBuffers();
-    // gfxSwapBuffers();
-    // gspWaitForVBlank();
-}
-
 void platform_update_touch(Client *c) {
     if (update_touch) {
         c->shell->mouse_click_x = last_touch_x;
@@ -380,7 +328,56 @@ void platform_poll_events(Client *c) {
         }
     }
 }
-void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
+void platform_blit_surface(Surface *surface, int x, int y) {
+    uint32_t *fb32_top = (uint32_t *)fb_top;
+    uint32_t *fb32_bottom = (uint32_t *)fb_bottom;
+
+    for (int row = 0; row < surface->h; row++) {
+        int screen_y = y + row + screen_offset_y;
+        if (screen_y < 0)
+            continue;
+        if (screen_y >= SCREEN_FB_HEIGHT)
+            break;
+
+        for (int col = 0; col < surface->w; col++) {
+            int screen_x = x + col + screen_offset_x;
+            if (screen_x < 0)
+                continue;
+            if (screen_x >= SCREEN_FB_WIDTH)
+                break;
+
+            int pixel = surface->pixels[row * surface->w + col];
+            int dst = screen_x * SCREEN_FB_HEIGHT + (SCREEN_FB_HEIGHT - 1 - screen_y);
+
+            fb32_bottom[dst] = pixel << 8;
+        }
+    }
+
+    if (fb_top) {
+        for (int row = 0; row < surface->h; row++) {
+            int screen_y = y + row + screen_offset_y_top;
+            if (screen_y < 0)
+                continue;
+            if (screen_y >= SCREEN_FB_HEIGHT)
+                break;
+
+            for (int col = 0; col < surface->w; col++) {
+                int screen_x = x + col + screen_offset_x_top;
+                if (screen_x < 0)
+                    continue;
+                if (screen_x >= SCREEN_FB_WIDTH_TOP)
+                    break;
+
+                int pixel = surface->pixels[row * surface->w + col];
+                int dst = screen_x * SCREEN_FB_HEIGHT + (SCREEN_FB_HEIGHT - 1 - screen_y);
+
+                fb32_top[dst] = pixel << 8;
+            }
+        }
+    }
+    // gfxFlushBuffers();
+    // gfxSwapBuffers();
+    // gspWaitForVBlank();
 }
 void platform_update_surface(void) {
 }

@@ -67,20 +67,6 @@ void platform_set_midi(const char *name, int crc, int len) {
 }
 void platform_stop_midi(void) {
 }
-void set_pixels(PixMap *pixmap, int x, int y) {
-    x += xoff;
-
-    sceKernelLockMutex(mutex, 1, NULL);
-    for (int h = 0; h < pixmap->height; h++) {
-        for (int w = 0; w < pixmap->width; w++) {
-            uint32_t pixel = pixmap->pixels[h * pixmap->width + w];
-            pixel = ((pixel & 0xff0000) >> 16) | (pixel & 0x00ff00) | ((pixel & 0x0000ff) << 16);
-            ((uint32_t *)base)[(y + h) * SCREEN_FB_WIDTH + (x + w)] = pixel;
-        }
-    }
-    sceKernelUnlockMutex(mutex, 1);
-}
-
 void platform_poll_events(Client *c) {
     static bool right_click = false;
 
@@ -230,7 +216,18 @@ void platform_poll_events(Client *c) {
 
     // rs2_log("\e[m Stick:[%3i:%3i][%3i:%3i]\r", ctrl.lx,ctrl.ly, ctrl.rx,ctrl.ry);
 }
-void platform_blit_surface(int x, int y, int w, int h, Surface *surface) {
+void platform_blit_surface(Surface *surface, int x, int y) {
+    x += xoff;
+
+    sceKernelLockMutex(mutex, 1, NULL);
+    for (int h = 0; h < surface->h; h++) {
+        for (int w = 0; w < surface->w; w++) {
+            uint32_t pixel = surface->pixels[h * surface->w + w];
+            pixel = ((pixel & 0xff0000) >> 16) | (pixel & 0x00ff00) | ((pixel & 0x0000ff) << 16);
+            ((uint32_t *)base)[(y + h) * SCREEN_FB_WIDTH + (x + w)] = pixel;
+        }
+    }
+    sceKernelUnlockMutex(mutex, 1);
 }
 void platform_update_surface(void) {
 }
