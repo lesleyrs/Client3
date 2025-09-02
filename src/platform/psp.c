@@ -35,7 +35,7 @@ PSP_MAIN_THREAD_ATTR(PSP_THREAD_ATTR_USER);
 #define INITIAL_X_OFFSET (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2
 #define INITIAL_Y_OFFSET (SCREEN_FB_HEIGHT - SCREEN_HEIGHT) / 2
 
-static uint16_t *fb = (uint16_t *)0x04000000; // vram start
+static uint32_t *fb = (uint32_t *)0x04000000; // vram start
 static SceCtrlData pad, last_pad;
 static int cursor_x = SCREEN_FB_WIDTH / 2;
 static int cursor_y = SCREEN_FB_HEIGHT / 2;
@@ -118,10 +118,6 @@ static const unsigned char cursor[] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0xff, 0x00, 0x00, 0x01, 0xff,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-int get_free_mem(void) {
-    return pspSdkTotalFreeUserMemSize();
-}
-
 int exit_callback(int arg1, int arg2, void *common) {
     sceKernelExitGame();
     return 0;
@@ -159,7 +155,7 @@ bool platform_init(void) {
 
 void platform_new(GameShell *shell) {
     (void)shell;
-    sceDisplaySetFrameBuf(fb, VRAM_STRIDE, PSP_DISPLAY_PIXEL_FORMAT_565, PSP_DISPLAY_SETBUF_NEXTFRAME);
+    sceDisplaySetFrameBuf(fb, VRAM_STRIDE, PSP_DISPLAY_PIXEL_FORMAT_8888, PSP_DISPLAY_SETBUF_NEXTFRAME);
     sceCtrlSetSamplingCycle(0);
     sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
 }
@@ -314,7 +310,7 @@ void platform_blit_surface(Surface *surface, int x, int y) {
     int relative_x = cursor_x + screen_offset_x;
     int relative_y = cursor_y + screen_offset_y;
 
-    uint16_t *fb_ptr = (uint16_t *)fb + (y * VRAM_STRIDE + x);
+    uint32_t *fb_ptr = fb + (y * VRAM_STRIDE + x);
     for (int row = 0; row < surface->h; row++) {
         int screen_y = y + row + screen_offset_y;
         if (screen_y < 0)
@@ -346,17 +342,12 @@ void platform_blit_surface(Surface *surface, int x, int y) {
                 }
             }
 
-            uint8_t b = (pixel >> 16) & 0xff;
-            uint8_t g = (pixel >> 8) & 0xff;
-            uint8_t r = pixel & 0xff;
-
-            uint16_t rgb565 = ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3);
-
-            fb_ptr[(row + screen_offset_y) * VRAM_STRIDE + (col + screen_offset_x)] = rgb565;
+            pixel = ((pixel & 0xff0000) >> 16) | (pixel & 0x00ff00) | ((pixel & 0x0000ff) << 16);
+            fb_ptr[(row + screen_offset_y) * VRAM_STRIDE + (col + screen_offset_x)] = pixel;
         }
     }
     // sceDisplayWaitVblankStart();
-    // sceDisplaySetFrameBuf(fb, VRAM_STRIDE, PSP_DISPLAY_PIXEL_FORMAT_565, PSP_DISPLAY_SETBUF_NEXTFRAME);
+    // sceDisplaySetFrameBuf(fb, VRAM_STRIDE, PSP_DISPLAY_PIXEL_FORMAT_8888, PSP_DISPLAY_SETBUF_NEXTFRAME);
 }
 void platform_update_surface(void) {
 }

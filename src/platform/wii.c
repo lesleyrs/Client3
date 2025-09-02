@@ -127,10 +127,6 @@ static u32 rgb2yuv(u8 r1, u8 g1, u8 b1, u8 r2, u8 g2, u8 b2) {
     return (y1 << 24) | (cb << 16) | (y2 << 8) | cr;
 }
 
-int get_free_mem(void) {
-    return SYS_GetArena1Hi() - SYS_GetArena1Lo() + SYS_GetArena2Hi() - SYS_GetArena2Lo();
-}
-
 bool platform_init(void) {
     VIDEO_Init();
     rmode = VIDEO_GetPreferredMode(NULL);
