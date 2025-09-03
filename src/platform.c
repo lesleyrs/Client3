@@ -25,7 +25,7 @@ void platform_set_pixels(uint32_t *restrict dst, Surface *restrict surface, int 
     for (int row = 0; row < surface->h; row++) {
         for (int col = 0; col < surface->w; col++) {
             uint32_t pixel = ((uint32_t*)surface->pixels)[row * surface->w + col];
-            // TODO add screen limits?
+            // TODO add screen limits+interleaved cursor if not double buffering consoles?
             if (argb) {
 #ifdef __wasm
                 pixel = ((pixel >> 16) & 0xff) | (pixel & 0xff00) | ((pixel & 0xff) << 16) | 0xff000000;
