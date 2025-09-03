@@ -344,14 +344,7 @@ void platform_draw_string(const char *str, int x, int y, int color, bool bold, i
     JS_fillText(str, x, y);
 }
 void platform_blit_surface(Surface *surface, int x, int y) {
-    for (int h = 0; h < surface->h; h++) {
-        for (int w = 0; w < surface->w; w++) {
-            uint32_t pixel = surface->pixels[h * surface->w + w];
-            pixel = ((pixel & 0xff0000) >> 16) | (pixel & 0x00ff00) | ((pixel & 0x0000ff) << 16) | 0xff000000;
-            canvas[(y + h) * SCREEN_FB_WIDTH + (x + w)] = pixel;
-        }
-    }
-
+    platform_set_pixels(canvas, surface, x, y, true);
     JS_setPixelsAlpha(canvas);
 }
 void platform_update_surface(void) {

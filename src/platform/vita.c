@@ -220,13 +220,7 @@ void platform_blit_surface(Surface *surface, int x, int y) {
     x += xoff;
 
     sceKernelLockMutex(mutex, 1, NULL);
-    for (int h = 0; h < surface->h; h++) {
-        for (int w = 0; w < surface->w; w++) {
-            uint32_t pixel = surface->pixels[h * surface->w + w];
-            pixel = ((pixel & 0xff0000) >> 16) | (pixel & 0x00ff00) | ((pixel & 0x0000ff) << 16);
-            ((uint32_t *)base)[(y + h) * SCREEN_FB_WIDTH + (x + w)] = pixel;
-        }
-    }
+    platform_set_pixels(base, surface, x, y, true);
     sceKernelUnlockMutex(mutex, 1);
 }
 void platform_update_surface(void) {

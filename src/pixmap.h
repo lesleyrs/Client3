@@ -14,3 +14,4 @@ void pixmap_free(PixMap *pixmap);
 void pixmap_clear(PixMap *pixmap);
 void pixmap_bind(PixMap *pixmap);
 void pixmap_draw(PixMap *pixmap, int x, int y);
+void pixmap_set_pixels(uint32_t *restrict dst, Surface *restrict surface, int x, int y, bool argb);

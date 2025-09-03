@@ -19,6 +19,25 @@
 #include "SDL.h"
 #endif
 
+void platform_set_pixels(uint32_t *restrict dst, Surface *restrict surface, int x, int y, bool argb) {
+    if (!dst) return;
+
+    for (int row = 0; row < surface->h; row++) {
+        for (int col = 0; col < surface->w; col++) {
+            uint32_t pixel = ((uint32_t*)surface->pixels)[row * surface->w + col];
+            // TODO add screen limits?
+            if (argb) {
+#ifdef __wasm
+                pixel = ((pixel >> 16) & 0xff) | (pixel & 0xff00) | ((pixel & 0xff) << 16) | 0xff000000;
+#else
+                pixel = ((pixel >> 16) & 0xff) | (pixel & 0xff00) | ((pixel & 0xff) << 16);
+#endif
+            }
+            dst[(y + row) * SCREEN_FB_WIDTH + (x + col)] = pixel;
+        }
+    }
+}
+
 #ifndef __wasm
 void platform_draw_rect(int x, int y, int w, int h, int color) {
     int *pixels = calloc(w * h, sizeof(int));
