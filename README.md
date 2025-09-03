@@ -130,6 +130,7 @@ https://github.com/libsdl-org/SDL/blob/SDL2/docs/README-android.md - from "For m
 https://github.com/libsdl-org/SDL/blob/SDL2/docs/README-touch.md
 ```
 TODO: long press right click? click on touch release? hold in viewport to rotate? share code with postmarketos
+TODO: osk by adding using custom.c funcs (move them to gameshell?)
 ```
 ### Nintendo consoles (devkitPro)
 Install [devkitpro](#tools) with (nds/wii/3ds/wiiu/switch)-dev package and run `make -f (nds/wii/3ds/wiiu/switch).mk -j$(nproc) -B`.
