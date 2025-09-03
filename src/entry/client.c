@@ -7435,6 +7435,7 @@ void client_login(Client *c, const char *username, const char *password, bool re
         c->login_message1 = "Connecting to server...";
         client_draw_title_screen(c);
     }
+    platform_update_surface();
 
 #ifdef __wasm
     c->stream = clientstream_opensocket(_Custom.http_port);
