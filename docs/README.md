@@ -29,23 +29,21 @@
 
 ## TODO
 ```
-- free dynamic models in world3d_draw_tile or world3d_set_ funcs?, and use original dynamic cache size + maybe create dynamicmodel struct for saving memory with func ptrs
 - (non-wasm): server cache changes requires manual cache+archive_checksums update in the client since it doesn't download, also the server has an issue with client map crcs changing when only server maps get updated.
 - midi fading, old js code for IE: https://github.com/2004Scape/Server/blob/61bf21fb3755c14b5cf6d47c9d974dee5783beda/view/javaclient.ejs new ts code: https://github.com/2004Scape/Client2/commit/92e74f1f134ea82e48dd608dcca3422777a7a986 https://github.com/LostCityRS/Client-TS/pulls?q=is%3Apr+is%3Aclosed+midi
-- fix remaining touch screen platforms red clicks by copying the 3ds code (_Model.mouse_x/y are only updated in draw_scene after update())
+- finish mobile support like client-ts (sdl2 and sdl3 for postmarketos/android, emscripten and webassembly for browser)
+- x11 and win32 targets without sdl dependency
 - changing bzip_decompress + stbi_load_from_memory for other libs would allow for O3 optimization on consoles, maybe port jagex bzip2 too
 - tinysoundfont seems to break on powerpc cpus (wii, wiiu) and libtom specfically on wiiu only?
-- mapview from java client (change preload-file in makefile to cache/mapview for sdl2 emscripten)
-- optional QOL changes from the java client teavm branch
+- mapview from java client and optional QOL changes from the java client teavm branch
 - icon/metadata/title etc for the different platforms: title+taskbar+desktop (see rsc-c for examples)
 - add CI: run make check/scan + artifacts
 - clean up keycodes (from rsc-c, EG non-emscripten single/double quotes + fkey keycodes are defined for emscripten only)
 - func args might partially differ in order to the Client repo due to being based off rs2-225: animbase, animframe, pix2d, pix3d, gameshell, jagfile, model, packet, pix8, pixfont, pixmap, redo them? inconsistent naming: used both world3d and scene for world3d, rename world3d to scene or at least for args?
-- x11 and win32 targets without sdl dependency
 - global search TODO, NOTE, and all platform defines, change many funcs+prototypes to static, look for missing/dupe client struct members and client funcs with different casing, finish debug command or remove it.
 - playground models leak memory for some reason
+- probably need ref counting to free dynamic models in world3d_draw_tile and world3d_set_ funcs, instead of using increased modelcachedynamic size + maybe create dynamicmodel struct for saving memory with func ptrs
 - fix component "indirect" leaks model/pix24: they get modified in packets so the global component doesn't own that memory anymore. Most leak messages aren't a leak though, since it has to live for the duration of the program.
-- cache/ and SCC1_Florestan.sf2 are copied into rom/ due to it being the root for most consoles, to clean up we have to chdir in sdl*.c only when just desktop makes use of it.
 ```
 
 ## Java and C differences + codestyle

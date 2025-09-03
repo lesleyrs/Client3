@@ -125,10 +125,6 @@ static void midi_callback(void *data, uint8_t *stream, int len) {
 }
 
 bool platform_init(void) {
-    return true;
-}
-
-void platform_new(GameShell *shell) {
     SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
     if (_Custom.resizable) {
         SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"); // Linear scaling
@@ -150,8 +146,12 @@ void platform_new(GameShell *shell) {
 #endif
     if (SDL_Init(init) < 0) {
         rs2_error("SDL_Init failed: %s\n", SDL_GetError());
-        return;
+        return false;
     }
+    return true;
+}
+
+void platform_new(GameShell *shell) {
 #ifdef __vita__
     SDL_JoystickEventState(SDL_ENABLE);
     joystick = SDL_JoystickOpen(0);
@@ -247,7 +247,7 @@ void platform_new(GameShell *shell) {
     midiSpec.samples = 4096;
     midiSpec.callback = midi_callback;
 
-    g_TinySoundFont = tsf_load_filename("SCC1_Florestan.sf2");
+    g_TinySoundFont = tsf_load_filename("rom/SCC1_Florestan.sf2");
     if (!g_TinySoundFont) {
         rs2_error("Could not load SoundFont\n");
     } else {
@@ -307,7 +307,7 @@ void platform_set_jingle(int8_t *src, int len) {
 // TODO add fade (always, not jingles)
 void platform_set_midi(const char *name, int crc, int len) {
     char filename[PATH_MAX];
-    snprintf(filename, sizeof(filename), "cache/client/songs/%s.mid", name);
+    snprintf(filename, sizeof(filename), "rom/cache/client/songs/%s.mid", name);
 #ifdef ANDROID
     SDL_RWops *file = SDL_RWFromFile(filename, "rb");
 #else
@@ -391,7 +391,6 @@ void platform_blit_surface(Surface *surface, int x, int y) {
         SDL_UnlockTexture(texture);
         SDL_RenderCopy(renderer, texture, NULL, NULL);
     }
-    platform_update_surface();
 }
 
 void platform_update_surface(void) {

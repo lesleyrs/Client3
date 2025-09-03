@@ -240,7 +240,7 @@ void platform_new(GameShell *shell) {
     void *buffer = NULL;
     int size = 0;
     int error = 0;
-    emscripten_wget_data("SCC1_Florestan.sf2", &buffer, &size, &error);
+    emscripten_wget_data("rom/SCC1_Florestan.sf2", &buffer, &size, &error);
     if (error) {
         rs2_error("Error downloading SoundFont: %d\n", error);
     }
@@ -578,6 +578,7 @@ void platform_draw_string(const char *str, int x, int y, int color, bool bold, i
     draw_string_js(str, x, y, color, bold, size);
 }
 void platform_update_surface(void) {
+    rs2_sleep(0); // return a slice of time to the main loop so it can update the progress bar
 }
 void platform_draw_rect(int x, int y, int w, int h, int color) {
     draw_rect_js(x, y, w, h, color);

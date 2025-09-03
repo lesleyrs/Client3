@@ -18,10 +18,10 @@ tml_message *TinyMidiLoader = NULL;
 
 void set_midi(const char *name, int crc, int length, bool fade) {
     char filename[250];
-    snprintf(filename, sizeof(filename), "cache/client/songs/%s.mid", name);
+    snprintf(filename, sizeof(filename), "rom/cache/client/songs/%s.mid", name);
     FILE *file = fopen(filename, "rb");
     if (!file) {
-        snprintf(filename, sizeof(filename), "cache/client/jingles/%s.mid", name);
+        snprintf(filename, sizeof(filename), "rom/cache/client/jingles/%s.mid", name);
         file = fopen(filename, "rb");
         if (!file) {
             printf("Error loading midi file: %s\n", filename, strerror(errno));
@@ -134,7 +134,7 @@ int main(int argc, char **argv) {
 
     // Load the SoundFont from a file
     g_TinySoundFont = tsf_load_filename(
-        (argc > 2 ? argv[2] : "SCC1_Florestan.sf2"));
+        (argc > 2 ? argv[2] : "rom/SCC1_Florestan.sf2"));
     if (!g_TinySoundFont) {
         fprintf(stderr, "Could not load SoundFont\n");
         return 1;

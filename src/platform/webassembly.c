@@ -248,7 +248,7 @@ void platform_new(GameShell *shell) {
         return;
     }
 
-    g_TinySoundFont = tsf_load_filename("SCC1_Florestan.sf2");
+    g_TinySoundFont = tsf_load_filename("rom/SCC1_Florestan.sf2");
     if (!g_TinySoundFont) {
         rs2_error("Could not load SoundFont\n");
     } else {
@@ -348,6 +348,7 @@ void platform_blit_surface(Surface *surface, int x, int y) {
     JS_setPixelsAlpha(canvas);
 }
 void platform_update_surface(void) {
+    rs2_sleep(0); // return a slice of time to the main loop so it can update the progress bar
 }
 void platform_draw_rect(int x, int y, int w, int h, int color) {
     char buf[8];

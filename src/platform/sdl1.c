@@ -76,19 +76,19 @@ static void midi_callback(void *data, Uint8 *stream, int len) {
 }
 
 bool platform_init(void) {
-    return true;
-}
-
-void platform_new(GameShell *shell) {
     int init = SDL_INIT_VIDEO;
     if (!_Client.lowmem) {
         init |= SDL_INIT_AUDIO;
     }
     if (SDL_Init(init) < 0) {
         rs2_error("SDL_Init failed: %s\n", SDL_GetError());
-        return;
+        return false;
     }
 
+    return true;
+}
+
+void platform_new(GameShell *shell) {
     SDL_EnableUNICODE(1);
     SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
     SDL_WM_SetCaption("Jagex", NULL);
@@ -106,7 +106,7 @@ void platform_new(GameShell *shell) {
     midiSpec.samples = 4096;
     midiSpec.callback = midi_callback;
 
-    g_TinySoundFont = tsf_load_filename("SCC1_Florestan.sf2");
+    g_TinySoundFont = tsf_load_filename("rom/SCC1_Florestan.sf2");
     if (!g_TinySoundFont) {
         rs2_error("Could not load SoundFont\n");
     } else {
@@ -160,7 +160,7 @@ void platform_set_jingle(int8_t *src, int len) {
 // TODO add fade (always, not jingles)
 void platform_set_midi(const char *name, int crc, int len) {
     char filename[PATH_MAX];
-    snprintf(filename, sizeof(filename), "cache/client/songs/%s.mid", name);
+    snprintf(filename, sizeof(filename), "rom/cache/client/songs/%s.mid", name);
     FILE *file = fopen(filename, "rb");
     if (!file) {
         rs2_error("Error loading midi file %s: %s (NOTE: authentic if empty when relogging?)\n", filename, strerror(errno));
@@ -208,7 +208,6 @@ void platform_stop_midi(void) {
 void platform_blit_surface(Surface *surface, int x, int y) {
     SDL_Rect dest = {x, y, surface->w, surface->h};
     SDL_BlitSurface(surface, NULL, window_surface, &dest);
-    platform_update_surface();
 }
 
 void platform_update_surface(void) {

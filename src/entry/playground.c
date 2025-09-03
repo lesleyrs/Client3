@@ -295,7 +295,7 @@ Jagfile *load_archive_simple(const char *name, int crc, const char *display_name
     int8_t *data = NULL;
     int8_t *header = malloc(6);
     char filename[PATH_MAX];
-    snprintf(filename, sizeof(filename), "cache/client/%s", name);
+    snprintf(filename, sizeof(filename), "rom/cache/client/%s", name);
     rs2_log("Loading %s\n", filename);
 
     FILE *file = fopen(filename, "rb");
@@ -324,8 +324,8 @@ Jagfile *load_archive_simple(const char *name, int crc, const char *display_name
 
     int crc_value = rs_crc32(data, file_size);
     if (crc_value != crc) {
-        free(data);
-        data = NULL;
+        // free(data);
+        // data = NULL;
     }
 
     return jagfile_new(data, file_size);

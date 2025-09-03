@@ -131,18 +131,18 @@ static void midi_callback(void *data, SDL_AudioStream *stream, int additional_am
 }
 
 bool platform_init(void) {
-    return true;
-}
-
-void platform_new(GameShell *shell) {
     int init = SDL_INIT_VIDEO;
     if (!_Client.lowmem) {
         init |= SDL_INIT_AUDIO;
     }
     if (!SDL_Init(init)) {
         rs2_error("SDL3: SDL_Init failed: %s\n", SDL_GetError());
-        return;
+        return false;
     }
+    return true;
+}
+
+void platform_new(GameShell *shell) {
     int win_flags = 0;
     if (_Custom.resizable) {
         win_flags |= SDL_WINDOW_RESIZABLE;
@@ -218,7 +218,7 @@ void platform_new(GameShell *shell) {
     // Create MIDI audio stream:
     const SDL_AudioSpec midi_spec = {.format = SDL_AUDIO_F32, .channels = 2, .freq = 44100};
 
-    g_TinySoundFont = tsf_load_filename("SCC1_Florestan.sf2");
+    g_TinySoundFont = tsf_load_filename("rom/SCC1_Florestan.sf2");
     if (!g_TinySoundFont) {
         rs2_error("Could not load SoundFont\n");
     } else {
@@ -276,7 +276,7 @@ void platform_set_jingle(int8_t *src, int len) {
 // TODO add fade (always, not jingles)
 void platform_set_midi(const char *name, int crc, int len) {
     char filename[PATH_MAX];
-    snprintf(filename, sizeof(filename), "cache/client/songs/%s.mid", name);
+    snprintf(filename, sizeof(filename), "rom/cache/client/songs/%s.mid", name);
     FILE *file = fopen(filename, "rb");
     if (!file) {
         rs2_error("Error loading midi file %s: %s (NOTE: authentic if empty when relogging?)\n", filename, strerror(errno));
@@ -348,7 +348,6 @@ void platform_blit_surface(Surface *surface, int x, int y) {
         SDL_UnlockTexture(texture);
         SDL_RenderTexture(renderer, texture, NULL, NULL);
     }
-    platform_update_surface();
 }
 
 void platform_update_surface(void) {

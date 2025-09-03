@@ -4808,7 +4808,7 @@ bool client_read(Client *c) {
 #elif defined(__EMSCRIPTEN__)
                 snprintf(filename, sizeof(filename), "m%d_%d", mapsquareX, mapsquareZ);
 #else
-                snprintf(filename, sizeof(filename), "cache/client/maps/m%d_%d", mapsquareX, mapsquareZ);
+                snprintf(filename, sizeof(filename), "rom/cache/client/maps/m%d_%d", mapsquareX, mapsquareZ);
 #endif
 
 #if ANDROID
@@ -4872,7 +4872,7 @@ bool client_read(Client *c) {
 #elif defined(__EMSCRIPTEN__)
             snprintf(filename, sizeof(filename), "l%d_%d", mapsquareX, mapsquareZ);
 #else
-            snprintf(filename, sizeof(filename), "cache/client/maps/l%d_%d", mapsquareX, mapsquareZ);
+            snprintf(filename, sizeof(filename), "rom/cache/client/maps/l%d_%d", mapsquareX, mapsquareZ);
 #endif
 
 #if ANDROID
@@ -10772,7 +10772,7 @@ Jagfile *load_archive(Client *c, const char *name, int crc, const char *display_
 #elif defined(NXDK)
     snprintf(filename, sizeof(filename), "D:\\cache\\client\\%s", name);
 #else
-    snprintf(filename, sizeof(filename), "cache/client/%s", name);
+    snprintf(filename, sizeof(filename), "rom/cache/client/%s", name);
 #endif
     // rs2_log("Loading %s\n", filename);
     // TODO: add load messages?
@@ -10923,8 +10923,6 @@ void client_draw_progress(Client *c, const char *message, int progress) {
         }
     }
 
-#ifdef __wasm
-    rs2_sleep(0); // return a slice of time to the main loop so it can update the progress bar
-#endif
+    platform_update_surface();
 }
 #endif

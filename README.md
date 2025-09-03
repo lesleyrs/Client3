@@ -21,7 +21,7 @@ SDL1 is default for tcc and old mingw-gcc to target windows 9x, but only SDL2/3 
 If the client fails to start you either aren't passing cli args and don't have a config.ini OR you are using a SDL dll for the wrong architecture. Delete it and it'll be copied during next build
 
 ## Platforms and Compilers
-To move the executable you have to take the correct `SDL.dll`, `cache/` and optionally `config.ini`, `SCC1_Florestan.sf2` and `Roboto/` along with it. The consoles will load it from sdcard if they don't embed the files already.
+To move the executable you have to take the correct `SDL.dll`, `config.ini`, and the `rom/` directory along with it. The consoles will load it from sdcard if they don't embed the files already.
 
 type `::perf` command ingame to see fps and lrucache size
 
@@ -52,6 +52,11 @@ NOTE: on v86 PC emulator the cursor flickers on win95, and colours on win9x are 
 
 ### Linux GNU or musl
 Makefile: gcc, clang, tcc, mingw-gcc, emcc
+
+arm+musl platforms like postmarketOS can use tcc but it requires some small tweaks:
+- comment out wchar_t in include/stddef.h
+- build with: https://lists.gnu.org/archive/html/tinycc-devel/2022-02/msg00038.html
+TODO SDL3 fails to init?
 
 ### FreeBSD
 Install sdl1/sdl2 or sdl3+pkgconf and run `gmake SDL=1/2/3`
