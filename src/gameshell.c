@@ -325,7 +325,6 @@ void gameshell_draw_progress(GameShell *shell, const char *message, int progress
     #include <js/glue.h>
     JS_setFont("bold 13px helvetica, sans-serif");
     gameshell_draw_string(shell, message, (shell->screen_width - JS_measureTextWidth(message)) / 2, y + 22, WHITE, true, 13);
-    rs2_sleep(0); // return a slice of time to the main loop so it can update the progress bar
 #else
     gameshell_draw_string(shell, message, shell->screen_width / 2, y + 22, WHITE, true, 13);
 #endif

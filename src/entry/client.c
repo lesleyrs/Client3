@@ -10924,7 +10924,7 @@ void client_draw_progress(Client *c, const char *message, int progress) {
     }
 
 #ifdef __wasm
-    platform_update_surface();
+    rs2_sleep(0); // return a slice of time to the main loop so it can update the progress bar
 #endif
 }
 #endif
