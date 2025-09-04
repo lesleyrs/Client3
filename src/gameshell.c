@@ -32,8 +32,7 @@ GameShell *gameshell_new(void) {
     shell->deltime = 20;
     shell->mindel = 1;
     shell->otim = calloc(10, sizeof(uint64_t));
-    // TODO remove?
-    // shell->sprite_cache = calloc(6, sizeof(Sprite));
+    // shell->sprite_cache = calloc(6, sizeof(Pix24));
     shell->refresh = true;
     shell->action_key = calloc(128, sizeof(int));
     shell->key_queue = calloc(128, sizeof(int));
@@ -74,7 +73,7 @@ void gameshell_run(Client *c) {
     for (int i = 0; i < 10; i++) {
         c->shell->otim[i] = rs2_now();
     }
-    uint64_t ntime;
+    int64_t ntime;
     while (c->shell->state >= 0) {
 #ifdef __3DS__
         if (!aptMainLoop()) {
@@ -104,7 +103,7 @@ void gameshell_run(Client *c) {
         }
         if (ratio > 256) {
             ratio = 256;
-            delta = (int)((uint64_t)c->shell->deltime - (ntime - c->shell->otim[opos]) / 10L);
+            delta = (int)((int64_t)c->shell->deltime - (ntime - c->shell->otim[opos]) / 10L);
         }
         c->shell->otim[opos] = ntime;
         opos = (opos + 1) % 10;
@@ -132,7 +131,7 @@ void gameshell_run(Client *c) {
             c->shell->fps = ratio * 1000 / (c->shell->deltime * 256);
         }
         client_draw(c);
-        client_run_flames(c); // NOTE: random placement of run_flames
+        client_run_flames(c);      // NOTE: random placement of run_flames
         gameshell_update_touch(c); // update mouse after client_draw_scene to fix model picking (not needed for touch on release like client-ts)
         platform_update_surface();
     }
@@ -302,31 +301,26 @@ int poll_key(GameShell *shell) {
     return key;
 }
 
-void gameshell_draw_string(GameShell *shell, const char *str, int x, int y, int color, bool bold, int size) {
-    (void)shell;
-    platform_draw_string(str, x, y, color, bold, size);
-    return;
-}
-
 void gameshell_draw_progress(GameShell *shell, const char *message, int progress) {
     // NOTE there's no update or paint to call refresh, only focus gained event
     if (shell->refresh) {
-        platform_fill_rect(0, 0, shell->screen_width, shell->screen_height, BLACK);
+        platform_set_color(BLACK);
+        platform_fill_rect(0, 0, shell->screen_width, shell->screen_height);
         shell->refresh = false;
     }
 
     int y = shell->screen_height / 2 - 18;
 
     // rgb 140, 17, 17 but we only take hex for simplicity
-    platform_draw_rect(shell->screen_width / 2 - 152, y, 304, 34, PROGRESS_RED);
-    platform_fill_rect(shell->screen_width / 2 - 150, y + 2, progress * 3, 30, PROGRESS_RED);
-    platform_fill_rect(shell->screen_width / 2 + progress * 3 - 150, y + 2, 300 - progress * 3, 30, BLACK);
+    platform_set_color(PROGRESS_RED);
+    platform_draw_rect(shell->screen_width / 2 - 152, y, 304, 34);
+    platform_fill_rect(shell->screen_width / 2 - 150, y + 2, progress * 3, 30);
+    platform_set_color(BLACK);
+    platform_fill_rect(shell->screen_width / 2 + progress * 3 - 150, y + 2, 300 - progress * 3, 30);
 
-#if defined(__wasm) && !defined(__EMSCRIPTEN__)
-    #include <js/glue.h>
-    JS_setFont("bold 13px helvetica, sans-serif");
-    gameshell_draw_string(shell, message, (shell->screen_width - JS_measureTextWidth(message)) / 2, y + 22, WHITE, true, 13);
-#else
-    gameshell_draw_string(shell, message, shell->screen_width / 2, y + 22, WHITE, true, 13);
-#endif
+    platform_set_font("Helvetica", true, 13);
+    platform_set_color(WHITE);
+    platform_draw_string(message, (shell->screen_width - platform_string_width(message)) / 2, y + 22);
+
+    platform_update_surface();
 }

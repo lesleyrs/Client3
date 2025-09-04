@@ -334,13 +334,21 @@ void platform_stop_midi(void) {
 void platform_poll_events(Client *c) {
     (void)c;
 }
-
-void platform_draw_string(const char *str, int x, int y, int color, bool bold, int size) {
-    (void)bold, (void)size;
-
+void platform_set_color(int color) {
     char buf[8];
     snprintf(buf, sizeof(buf), "#%06x", color);
     JS_fillStyle(buf);
+    JS_strokeStyle(buf);
+}
+void platform_set_font(const char* name, bool bold, int size) {
+    char buf[MAX_STR];
+    sprintf(buf, "%s %dpx %s, sans-serif", bold ? "bold" : "normal", size, name);
+    JS_setFont(buf);
+}
+int platform_string_width(const char *str) {
+    return JS_measureTextWidth(str);
+}
+void platform_draw_string(const char *str, int x, int y) {
     JS_fillText(str, x, y);
 }
 void platform_blit_surface(Surface *surface, int x, int y) {
@@ -350,16 +358,10 @@ void platform_blit_surface(Surface *surface, int x, int y) {
 void platform_update_surface(void) {
     rs2_sleep(0); // return a slice of time to the main loop so it can update the progress bar
 }
-void platform_draw_rect(int x, int y, int w, int h, int color) {
-    char buf[8];
-    snprintf(buf, sizeof(buf), "#%06x", color);
-    JS_strokeStyle(buf);
+void platform_draw_rect(int x, int y, int w, int h) {
     JS_strokeRect(x, y, w, h);
 }
-void platform_fill_rect(int x, int y, int w, int h, int color) {
-    char buf[8];
-    snprintf(buf, sizeof(buf), "#%06x", color);
-    JS_fillStyle(buf);
+void platform_fill_rect(int x, int y, int w, int h) {
     JS_fillRect(x, y, w, h);
 }
 uint64_t rs2_now(void) {

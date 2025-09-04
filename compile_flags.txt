@@ -57,7 +57,7 @@
 # -I/home/lesley/emsdk/upstream/emscripten/cache/sysroot/include
 # -USDL
 
---target=wasm32
---sysroot=../wasmlite/libc
+# --target=wasm32
+# --sysroot=../wasmlite/libc
 
 -DDUMMY

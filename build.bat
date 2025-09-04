@@ -67,7 +67,6 @@ if not exist SDL3.dll (
 )
 
 if "%CC%" == "cl" (
-	echo TODO support some legacy version
 	exit /B 1
 ) else if "%CC%" == "emcc" (
 	REM add emscripten debug

@@ -259,7 +259,6 @@ void client_unload(Client *c) {
 }
 
 int main(int argc, char **argv) {
-    // TODO
     (void)argc, (void)argv;
     srand(0);
     Client *c = client_new();
@@ -285,12 +284,10 @@ Client *client_new(void) {
     Client *c = calloc(1, sizeof(Client));
 
     c->shell = gameshell_new();
-    _Client.lowmem = false; // TODO init others?
     return c;
 }
 
 Jagfile *load_archive_simple(const char *name, int crc, const char *display_name, int progress) {
-    // TODO
     (void)display_name, (void)progress;
     int8_t *data = NULL;
     int8_t *header = malloc(6);

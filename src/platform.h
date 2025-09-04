@@ -31,9 +31,13 @@ typedef struct PixMap PixMap;
 #endif
 
 void platform_set_pixels(uint32_t *restrict dst, Surface *restrict surface, int x, int y, bool argb);
-void platform_draw_string(const char *str, int x, int y, int color, bool bold, int size);
-void platform_draw_rect(int x, int y, int w, int h, int color);
-void platform_fill_rect(int x, int y, int w, int h, int color);
+int platform_string_width(const char *str);
+void platform_draw_string(const char *str, int x, int y);
+void platform_set_color(int color);
+void platform_free_font(void);
+void platform_set_font(const char* name, bool bold, int size);
+void platform_draw_rect(int x, int y, int w, int h);
+void platform_fill_rect(int x, int y, int w, int h);
 Surface *platform_create_surface(int *pixels, int width, int height, int alpha);
 void platform_free_surface(Surface *surface);
 void rs2_log(const char *format, ...);

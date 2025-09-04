@@ -30,32 +30,40 @@ static tsf *g_TinySoundFont;
 static double g_Msec;              // current playback time
 static tml_message *g_MidiMessage; // next message to be played
 
-EM_JS(void, draw_string_js, (const char *str, int x, int y, int color, bool bold, int size), {
+EM_JS(void, set_font_js, (const char* name, bool bold, int size), {
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     const weight = bold ? 'bold ' : 'normal ';
-    ctx.font = weight + size + 'px helvetica, sans-serif';
+    ctx.font = weight + size + 'px Helvetica, sans-serif';
+})
+
+EM_JS(void, set_color_js, (int color), {
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
     const hexColor = '#' + ('000000' + color.toString(16)).slice(-6);
     ctx.fillStyle = hexColor;
-    if (x == Math.floor(canvas.width / 2)) {
-        ctx.textAlign = 'center';
-    } else {
-        ctx.textAlign = 'left';
-    }
+    ctx.strokeStyle = hexColor;
+})
+
+EM_JS(int, string_width_js, (const char* str), {
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    return ctx.measureText(UTF8ToString(str)).width;
+})
+
+EM_JS(void, draw_string_js, (const char *str, int x, int y), {
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
     ctx.fillText(UTF8ToString(str), x, y);
 })
 
-EM_JS(void, draw_rect_js, (int x, int y, int w, int h, int color), {
+EM_JS(void, draw_rect_js, (int x, int y, int w, int h), {
     const ctx = document.getElementById('canvas').getContext('2d');
-    const hexColor = '#' + ('000000' + color.toString(16)).slice(-6);
-    ctx.strokeStyle = hexColor;
     ctx.strokeRect(x, y, w, h);
 })
 
-EM_JS(void, fill_rect_js, (int x, int y, int w, int h, int color), {
+EM_JS(void, fill_rect_js, (int x, int y, int w, int h), {
     const ctx = document.getElementById('canvas').getContext('2d');
-    const hexColor = '#' + ('000000' + color.toString(16)).slice(-6);
-    ctx.fillStyle = hexColor;
     ctx.fillRect(x, y, w, h);
 })
 
@@ -293,6 +301,11 @@ void platform_set_midi(const char *name, int crc, int len) {
     int data_len = 0;
     snprintf(filename, sizeof(filename), "%s_%d.mid", name, crc);
     data = client_openurl(filename, &data_len);
+    if (!data) {
+        rs2_error("Error loading midi file %s (NOTE: authentic if empty when relogging?)\n", filename);
+        return;
+    }
+
     if (data && crc != 12345678) {
         int data_crc = rs_crc32(data, len);
         if (data_crc != crc) {
@@ -574,17 +587,26 @@ void platform_poll_events(Client *c) {
 void platform_blit_surface(Surface *surface, int x, int y) {
     set_pixels_js(x, y, surface->w, surface->h, surface->pixels);
 }
-void platform_draw_string(const char *str, int x, int y, int color, bool bold, int size) {
-    draw_string_js(str, x, y, color, bold, size);
+int platform_string_width(const char* str) {
+    return string_width_js(str);
+}
+void platform_set_color(int color) {
+    set_color_js(color);
+}
+void platform_set_font(const char* name, bool bold, int size) {
+    set_font_js(name, bold, size);
+}
+void platform_draw_string(const char *str, int x, int y) {
+    draw_string_js(str, x, y);
 }
 void platform_update_surface(void) {
     rs2_sleep(0); // return a slice of time to the main loop so it can update the progress bar
 }
-void platform_draw_rect(int x, int y, int w, int h, int color) {
-    draw_rect_js(x, y, w, h, color);
+void platform_draw_rect(int x, int y, int w, int h) {
+    draw_rect_js(x, y, w, h);
 }
-void platform_fill_rect(int x, int y, int w, int h, int color) {
-    fill_rect_js(x, y, w, h, color);
+void platform_fill_rect(int x, int y, int w, int h) {
+    fill_rect_js(x, y, w, h);
 }
 uint64_t rs2_now(void) {
     return emscripten_get_now();

@@ -20,11 +20,12 @@
 #endif
 
 void platform_set_pixels(uint32_t *restrict dst, Surface *restrict surface, int x, int y, bool argb) {
-    if (!dst) return;
+    if (!dst)
+        return;
 
     for (int row = 0; row < surface->h; row++) {
         for (int col = 0; col < surface->w; col++) {
-            uint32_t pixel = ((uint32_t*)surface->pixels)[row * surface->w + col];
+            uint32_t pixel = ((uint32_t *)surface->pixels)[row * surface->w + col];
             // TODO add screen limits+interleaved cursor if not double buffering consoles?
             if (argb) {
 #ifdef __wasm
@@ -38,19 +39,26 @@ void platform_set_pixels(uint32_t *restrict dst, Surface *restrict surface, int 
     }
 }
 
-#ifndef __wasm
-void platform_draw_rect(int x, int y, int w, int h, int color) {
+#ifdef __wasm
+void platform_free_font(void) {}
+#else
+static int draw_color = WHITE;
+
+void platform_set_color(int color) {
+    draw_color = color;
+}
+void platform_draw_rect(int x, int y, int w, int h) {
     int *pixels = calloc(w * h, sizeof(int));
     Surface *rect = platform_create_surface(pixels, w, h, false);
 
     for (int i = 0; i < w; i++) {
-        pixels[i] = color;                 // top
-        pixels[((h - 1) * w) + i] = color; // bottom
+        pixels[i] = draw_color;                 // top
+        pixels[((h - 1) * w) + i] = draw_color; // bottom
     }
 
     for (int i = 0; i < h; i++) {
-        pixels[i * w] = color;         // left
-        pixels[i * w + w - 1] = color; // right
+        pixels[i * w] = draw_color;         // left
+        pixels[i * w + w - 1] = draw_color; // right
     }
 
     platform_blit_surface(rect, x, y);
@@ -58,14 +66,14 @@ void platform_draw_rect(int x, int y, int w, int h, int color) {
     free(pixels);
 }
 
-void platform_fill_rect(int x, int y, int w, int h, int color) {
+void platform_fill_rect(int x, int y, int w, int h) {
     int *pixels = calloc(w * h, sizeof(int));
     Surface *rect = platform_create_surface(pixels, w, h, false);
 
     for (int j = 0; j < h; j++) {
         int *row = pixels + j * w;
         for (int i = 0; i < w; i++) {
-            row[i] = color;
+            row[i] = draw_color;
         }
     }
 
@@ -76,20 +84,18 @@ void platform_fill_rect(int x, int y, int w, int h, int color) {
 
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "thirdparty/stb_truetype.h"
+static stbtt_fontinfo font;
+static bool font_bold = false;
+static int font_size = false;
 
-static int ttf_string_width(stbtt_fontinfo *font, const char *message, float scale) {
-    int string_width = 0;
-    while (*message) {
-        int advanceWidth, leftSideBearing;
-        stbtt_GetCodepointHMetrics(font, *message, &advanceWidth, &leftSideBearing);
-        string_width += (int)(advanceWidth * scale);
-        message++;
-    }
-    return string_width;
+void platform_free_font(void) {
+    free(font.data);
+    font.data = NULL;
 }
 
-void platform_draw_string(const char *str, int x, int y, int color, bool bold, int size) {
-    (void)bold; // TODO: add regular fonts for mapview too
+void platform_set_font(const char *name, bool bold, int size) {
+    (void)name;
+    // TODO: add regular fonts for mapview too
 #ifdef ANDROID
     SDL_RWops *file = NULL;
 #else
@@ -158,55 +164,78 @@ void platform_draw_string(const char *str, int x, int y, int color, bool bold, i
     fclose(file);
 #endif
 
-    stbtt_fontinfo font;
-    stbtt_InitFont(&font, buffer, stbtt_GetFontOffsetForIndex(buffer, 0));
-
-    float scale = stbtt_ScaleForPixelHeight(&font, (float)size);
-    bool centered = x == SCREEN_WIDTH / 2;
-    if (centered) {
-        // TODO: is this centering correct? maybe few pixels to the left?
-        x = (SCREEN_WIDTH - ttf_string_width(&font, str, scale)) / 2;
+    if (font.data) {
+        free(font.data);
     }
+    stbtt_InitFont(&font, buffer, stbtt_GetFontOffsetForIndex(buffer, 0));
+    font_bold = bold;
+    font_size = size;
+}
 
-    float xpos = 0;
-    int ch = 0;
-    // TODO: this could probably be improved a lot by drawing text in one go
-    while (str[ch]) {
-        int advance, lsb, x0, y0, x1, y1;
+int platform_string_width(const char *str) {
+    float scale = stbtt_ScaleForPixelHeight(&font, font_size);
+    float xpos = 0.0f;
+    for (int ch = 0; str[ch]; ++ch) {
+        int advance;
+        stbtt_GetCodepointHMetrics(&font, str[ch], &advance, 0);
+        xpos += advance * scale;
+        if (str[ch + 1])
+            xpos += scale * stbtt_GetCodepointKernAdvance(&font, str[ch], str[ch + 1]);
+    }
+    return ceilf(xpos);
+}
+
+void platform_draw_string(const char *str, int x, int y) {
+    float scale = stbtt_ScaleForPixelHeight(&font, font_size);
+    int ascent, descent, line_gap;
+    stbtt_GetFontVMetrics(&font, &ascent, &descent, &line_gap);
+    int baseline = ascent * scale;
+
+    int width = platform_string_width(str);
+    int height = (ascent - descent) * scale;
+    int *pixels = calloc(width * height, sizeof(int));
+    Surface *surface = platform_create_surface(pixels, width, height, 0xff000000);
+
+    int r = (draw_color >> 16) & 0xff;
+    int g = (draw_color >> 8) & 0xff;
+    int b = draw_color & 0xff;
+
+    float xpos = 0.0f;
+    for (int ch = 0; str[ch]; ++ch) {
+        int advance, lsb, x0, y0, glyph_w, glyph_h;
         float x_shift = xpos - floorf(xpos);
 
         stbtt_GetCodepointHMetrics(&font, str[ch], &advance, &lsb);
-        stbtt_GetCodepointBitmapBoxSubpixel(&font, str[ch], scale, scale, x_shift, 0, &x0, &y0, &x1, &y1);
+        unsigned char *bitmap = stbtt_GetCodepointBitmapSubpixel(&font, scale, scale, x_shift, 0, str[ch], &glyph_w, &glyph_h, &x0, &y0);
 
-        int width = x1 - x0;
-        int height = y1 - y0;
-        unsigned char *bitmap = stbtt_GetCodepointBitmapSubpixel(&font, scale, scale, x_shift, 0, str[ch], &width, &height, &x0, &y0);
+        for (int gy = 0; gy < glyph_h; ++gy) {
+            for (int gx = 0; gx < glyph_w; ++gx) {
+                int px = xpos + x0 + gx;
+                int py = baseline + y0 + gy;
+                if (px < 0 || px >= width || py < 0 || py >= height) {
+                    // rs2_log("%d %d / %d %d\n", px, py, width ,height);
+                    continue;
+                }
 
-        int *pixels = malloc(width * height * sizeof(int));
-        Surface *surface = platform_create_surface(pixels, width, height, 0xff000000);
+                unsigned char alpha = bitmap[gy * glyph_w + gx];
 
-        for (int i = 0; i < width * height; i++) {
-            unsigned char value = bitmap[i];
-            pixels[i] = (value << 24) | (value << 16) | (value << 8) | value;
-            pixels[i] = (pixels[i] & 0xff000000) | (pixels[i] & color);
+                pixels[py * width + px] = (alpha << 24) |
+                                          (r * alpha / 255 << 16) |
+                                          (g * alpha / 255 << 8) |
+                                          (b * alpha / 255);
+            }
         }
-
-        // NOTE this inaccurately draws 1 character per surface, noticeable in sdl
-        platform_blit_surface(surface, x + (int)xpos + x0, y + y0);
 
         stbtt_FreeBitmap(bitmap, NULL);
-        platform_free_surface(surface);
-        free(pixels);
 
         xpos += advance * scale;
-        if (str[ch + 1]) {
+        if (str[ch + 1])
             xpos += scale * stbtt_GetCodepointKernAdvance(&font, str[ch], str[ch + 1]);
-        }
-
-        ++ch;
     }
 
-    free(buffer);
+    platform_blit_surface(surface, x, y - height);
+    platform_free_surface(surface);
+    free(pixels);
 }
 #endif
 

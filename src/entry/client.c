@@ -197,6 +197,8 @@ void client_load(Client *c) {
     if (!c->archive_title) {
         c->error_loading = true;
         return;
+    } else {
+        platform_free_font();
     }
     c->font_plain11 = pixfont_from_archive(c->archive_title, "p11");
     c->font_plain12 = pixfont_from_archive(c->archive_title, "p12");
@@ -10157,69 +10159,67 @@ void client_draw_menu(Client *c) {
 }
 
 void client_draw_error(Client *c) {
-    platform_fill_rect(0, 0, 789, 532, BLACK);
+    platform_set_color(BLACK);
+    platform_fill_rect(0, 0, 789, 532);
     gameshell_set_framerate(c->shell, 1);
 
-    int color;
     if (c->error_loading) {
         c->flame_active = false;
         int y = 35;
 
-#if defined(__wasm) && !defined(__EMSCRIPTEN__)
-#include <js/glue.h>
-        JS_setFont("bold 16px helvetica, sans-serif");
-#endif
-        color = YELLOW;
-        gameshell_draw_string(c->shell, "Sorry, an error has occured whilst loading RuneScape", 30, y, color, true, 16);
+        platform_set_font("Helvetica", true, 16);
+        platform_set_color(YELLOW);
+        platform_draw_string("Sorry, an error has occured whilst loading RuneScape", 30, y);
         y += 50;
 
-        color = WHITE;
-        gameshell_draw_string(c->shell, "To fix this try the following (in order):", 30, y, color, true, 16);
+        platform_set_color(WHITE);
+        platform_draw_string("To fix this try the following (in order):", 30, y);
         y += 50;
 
-        color = WHITE;
-#if defined(__wasm) && !defined(__EMSCRIPTEN__)
-        JS_setFont("bold 12px helvetica, sans-serif");
-#endif
-        gameshell_draw_string(c->shell, "1: Try closing ALL open web-browser windows, and reloading", 30, y, color, true, 12);
+        platform_set_color(WHITE);
+        platform_set_font("Helvetica", true, 12);
+        platform_draw_string("1: Try closing ALL open web-browser windows, and reloading", 30, y);
         y += 30;
 
-        gameshell_draw_string(c->shell, "2: Try clearing your web-browsers cache from tools->internet options", 30, y, color, true, 12);
+        platform_draw_string("2: Try clearing your web-browsers cache from tools->internet options", 30, y);
         y += 30;
 
-        gameshell_draw_string(c->shell, "3: Try using a different game-world", 30, y, color, true, 12);
+        platform_draw_string("3: Try using a different game-world", 30, y);
         y += 30;
 
-        gameshell_draw_string(c->shell, "4: Try rebooting your computer", 30, y, color, true, 12);
+        platform_draw_string("4: Try rebooting your computer", 30, y);
         y += 30;
 
-        gameshell_draw_string(c->shell, "5: Try selecting a different version of Java from the play-game menu", 30, y, color, true, 12);
+        platform_draw_string("5: Try selecting a different version of Java from the play-game menu", 30, y);
     }
 
     if (c->error_host) {
         c->flame_active = false;
-        color = WHITE;
-        gameshell_draw_string(c->shell, "Error - unable to load game!", 50, 50, color, true, 20);
-        gameshell_draw_string(c->shell, "To play RuneScape make sure you play from", 50, 100, color, true, 20);
-        gameshell_draw_string(c->shell, "http://www.runescape.com", 50, 150, color, true, 20);
+        platform_set_font("Helvetica", true, 20);
+        platform_set_color(WHITE);
+        platform_draw_string("Error - unable to load game!", 50, 50);
+        platform_draw_string("To play RuneScape make sure you play from", 50, 100);
+        platform_draw_string("http://www.runescape.com", 50, 150);
     }
 
     if (c->error_started) {
         c->flame_active = false;
         int y = 35;
 
-        color = YELLOW;
-        gameshell_draw_string(c->shell, "Error a copy of RuneScape already appears to be loaded", 30, y, color, true, 13);
+        platform_set_color(YELLOW);
+        platform_draw_string("Error a copy of RuneScape already appears to be loaded", 30, y);
         y += 50;
 
-        color = WHITE;
-        gameshell_draw_string(c->shell, "To fix this try the following (in order):", 30, y, color, true, 13);
+        platform_set_color(WHITE);
+        platform_draw_string("To fix this try the following (in order):", 30, y);
         y += 50;
 
-        gameshell_draw_string(c->shell, "1: Try closing ALL open web-browser windows, and reloading", 30, y, color, true, 12);
+        platform_set_color(WHITE);
+        platform_set_font("Helvetica", true, 12);
+        platform_draw_string("1: Try closing ALL open web-browser windows, and reloading", 30, y);
         y += 30;
 
-        gameshell_draw_string(c->shell, "2: Try rebooting your computer, and reloading", 30, y, color, true, 12);
+        platform_draw_string("2: Try rebooting your computer, and reloading", 30, y);
         y += 30;
     }
 }
@@ -10922,8 +10922,8 @@ void client_draw_progress(Client *c, const char *message, int progress) {
             pixmap_draw(c->image_title7, 128, 186);
             pixmap_draw(c->image_title8, 574, 186);
         }
-    }
 
-    platform_update_surface();
+        platform_update_surface();
+    }
 }
 #endif
