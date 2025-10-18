@@ -43,12 +43,12 @@ void client_run_flames(Client *c) {
 void client_load(Client *c) {
     // TODO: hardcoded for now add openurl
     c->archive_checksum[0] = 0;
-    c->archive_checksum[1] = -430779560;
+    c->archive_checksum[1] = 784449929;
     c->archive_checksum[2] = -1494598746;
-    c->archive_checksum[3] = 251806152;
-    c->archive_checksum[4] = -343404987;
+    c->archive_checksum[3] = 1614084464;
+    c->archive_checksum[4] = 292972807;
     c->archive_checksum[5] = -2000991154;
-    c->archive_checksum[6] = 1703545114;
+    c->archive_checksum[6] = -313801935;
     c->archive_checksum[7] = 1570981179;
     c->archive_checksum[8] = -1532605973;
 
