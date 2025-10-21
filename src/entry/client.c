@@ -185,7 +185,7 @@ void client_load(Client *c) {
         c->archive_checksum[1] = 784449929;
         c->archive_checksum[2] = -1494598746;
         c->archive_checksum[3] = 1614084464;
-        c->archive_checksum[4] = 292972807;
+        c->archive_checksum[4] = 855958935;
         c->archive_checksum[5] = -2000991154;
         c->archive_checksum[6] = -313801935;
         c->archive_checksum[7] = 1570981179;
@@ -10820,8 +10820,7 @@ Jagfile *load_archive(Client *c, const char *name, int crc, const char *display_
 
     int crc_value = rs_crc32(data, file_size);
     if (crc_value != crc) {
-        rs2_log("%s archive CRC check failed\n", display_name);
-        // NOTE: we don't download cache on desktop but it's ok to ignore
+        rs2_log("%s archive CRC check failed (update archive_checksums if login says RuneScape has been updated) TODO downloading\n", display_name);
         // free(data);
         // data = NULL;
     }

@@ -46,7 +46,7 @@ void client_load(Client *c) {
     c->archive_checksum[1] = 784449929;
     c->archive_checksum[2] = -1494598746;
     c->archive_checksum[3] = 1614084464;
-    c->archive_checksum[4] = 292972807;
+    c->archive_checksum[4] = 855958935;
     c->archive_checksum[5] = -2000991154;
     c->archive_checksum[6] = -313801935;
     c->archive_checksum[7] = 1570981179;
