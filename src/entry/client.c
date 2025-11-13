@@ -158,12 +158,12 @@ void client_load(Client *c) {
     c->archive_checksum[8] = 0;
     while (c->archive_checksum[8] == 0) {
         client_draw_progress(c, "Connecting to fileserver", 10);
-#ifdef __wasm
         char message[PATH_MAX];
         sprintf(message, "crc%d", (int)(jrand() * 9.9999999e7));
         int size = 0;
         int8_t *buffer = client_openurl(message, &size);
         if (!buffer) {
+#ifdef __wasm
             for (int i = retry; i > 0; i--) {
                 sprintf(message, "Error loading - Will retry in %d secs.", i);
                 client_draw_progress(c, message, 10);
@@ -173,24 +173,24 @@ void client_load(Client *c) {
             if (retry > 60) {
                 retry = 60;
             }
+#else
+            // TODO: hardcoded for now add openurl
+            c->archive_checksum[0] = 0;
+            c->archive_checksum[1] = 784449929;
+            c->archive_checksum[2] = -1494598746;
+            c->archive_checksum[3] = 1614084464;
+            c->archive_checksum[4] = 855958935;
+            c->archive_checksum[5] = -2000991154;
+            c->archive_checksum[6] = -313801935;
+            c->archive_checksum[7] = 1570981179;
+            c->archive_checksum[8] = -1532605973;
+#endif
         } else {
             Packet *checksums = packet_new(buffer, size); // 36
             for (int i = 0; i < 9; i++) {
                 c->archive_checksum[i] = g4(checksums);
             }
         }
-#else
-        // TODO: hardcoded for now add openurl
-        c->archive_checksum[0] = 0;
-        c->archive_checksum[1] = 784449929;
-        c->archive_checksum[2] = -1494598746;
-        c->archive_checksum[3] = 1614084464;
-        c->archive_checksum[4] = 855958935;
-        c->archive_checksum[5] = -2000991154;
-        c->archive_checksum[6] = -313801935;
-        c->archive_checksum[7] = 1570981179;
-        c->archive_checksum[8] = -1532605973;
-#endif
     }
 
     c->archive_title = load_archive(c, "title", c->archive_checksum[1], "title screen", 10);
