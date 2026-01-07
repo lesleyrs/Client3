@@ -69,8 +69,9 @@ if not exist SDL3.dll (
 if "%CC%" == "cl" (
 	exit /B 1
 ) else if "%CC%" == "emcc" (
+	REM && emrun --no-browser --hostname 0.0.0.0 .
 	REM add emscripten debug
-	%CC% %SRC% -fwrapv --use-port=sdl3 --shell-file shell.html -s -Oz -ffast-math -flto --closure 1 -std=c99 -DWITH_RSA_LIBTOM -D%ENTRY% -sALLOW_MEMORY_GROWTH -sINITIAL_HEAP=50MB -sSTACK_SIZE=1048576 -o index.html -sASYNCIFY -sSTRICT_JS -sDEFAULT_TO_CXX=0 && emrun --no-browser --hostname 0.0.0.0 .
+	%CC% %SRC% -fwrapv --use-port=sdl3 --shell-file shell.html -DNDEBUG -s -Oz -ffast-math -flto --closure 1 -std=c99 -DWITH_RSA_LIBTOM -D%ENTRY% -sALLOW_MEMORY_GROWTH -sINITIAL_HEAP=50MB -sSTACK_SIZE=1048576 -o client.html -sJSPI -sDEFAULT_TO_CXX=0 -sENVIRONMENT=web -sSINGLE_FILE -sSINGLE_FILE_BINARY_ENCODE=0
 ) else if "%CC%" == "gcc" (
 	%CC% %SRC% -fwrapv -s -O3 -ffast-math -std=c99 -DSDL_main=main -DWITH_RSA_LIBTOM -D%ENTRY% %SDL% -lws2_32 -lwsock32 %OPT% -o %ENTRY%.exe SDL%VER%.dll
 ) else (
