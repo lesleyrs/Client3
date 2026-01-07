@@ -248,9 +248,12 @@ void platform_new(GameShell *shell) {
     void *buffer = NULL;
     int size = 0;
     int error = 0;
-    emscripten_wget_data("rom/SCC1_Florestan.sf2", &buffer, &size, &error);
+    emscripten_wget_data("SCC1_Florestan.sf2", &buffer, &size, &error);
     if (error) {
-        rs2_error("Error downloading SoundFont: %d\n", error);
+        emscripten_wget_data("rom/SCC1_Florestan.sf2", &buffer, &size, &error);
+        if (error) {
+            rs2_error("Error downloading SoundFont: %d\n", error);
+        }
     }
 
     g_TinySoundFont = tsf_load_memory(buffer, size);

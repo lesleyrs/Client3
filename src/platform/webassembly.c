@@ -248,7 +248,11 @@ void platform_new(GameShell *shell) {
         return;
     }
 
-    g_TinySoundFont = tsf_load_filename("rom/SCC1_Florestan.sf2");
+    g_TinySoundFont = tsf_load_filename("SCC1_Florestan.sf2");
+    if (!g_TinySoundFont) {
+        g_TinySoundFont = tsf_load_filename("rom/SCC1_Florestan.sf2");
+    }
+
     if (!g_TinySoundFont) {
         rs2_error("Could not load SoundFont\n");
     } else {

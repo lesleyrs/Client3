@@ -1,7 +1,7 @@
 # RuneScape 2 revision #225 (18 May 2004) C99 port
 Portable single-threaded C client for early RS2, the last update before a new cache format and ondemand protocol.
 
-Compatible with [2004Scape](https://github.com/2004Scape/Server), the most accurate runescape remake
+Compatible with [LostCity](https://github.com/LostCityRS/Server) (previously [2004Scape](https://github.com/2004Scape/Server)), the most accurate runescape remake!
 
 Features:
 - should work on any 32 bit system with 64 MB of RAM on lowmem, networking and a (read-only) filesystem.
@@ -66,15 +66,13 @@ TODO
 
 ### Web (clang)
 Install clang and get [wasmlite](#tools) (you need the libc and generated index.html)
-then run `make -f wasm.mk run DEBUG=0` with correct sysroot path.
+then run `make -f wasm.mk DEBUG=0` with correct sysroot path to find libc.
 
-You must add `?client` to the URL and optionally append `&arg 1&arg 2&arg 3&arg 4`.
+Without the `Access-Control-Allow-Origin` header set:
+- Copy client.wasm, index.html, and config.ini with same port as the server and no socketip set to `Server/engine/public/client`
+- Run server and visit `localhost:port/client/index.html?client` (or another entrypoint) and optionally append `&arg 1&arg 2&arg 3&arg 4` if no config.
 
-You can configure ip and port in config.ini.
-
-The only needed files are the index.html + client.wasm and optionally the soundfont/config.ini relative to it.
-
-enable cors in server web.ts with `res.setHeader('Access-Control-Allow-Origin', '*');`
+You can press shift-enter to switch pixel scaling, alt-enter for fullscreen toggle.
 
 ```
 TODO fwrite maps like emscripten
@@ -83,24 +81,22 @@ TODO add to build.bat/ps1 to replace emscripten
 
 ### Web (emscripten)
 Install [emsdk](#tools)
-run `emmake make`/`make CC=emcc` or `build.bat -c emcc` for windows
+run `emmake make DEBUG=0`/`make CC=emcc DEBUG=0` or `build.bat -c emcc -r` for windows
 
-For make you can append `run` to start a http server and `DEBUG=0` to optimize. Then go to `ip:port/client.html` (or another entrypoint)
+Clang+wasmlite is recommended over emscripten for many reasons: avoids random issues, codesize, performance etc. But it works.
 
-Pass 4 args in shell.html to use the ip + port from URL instead of config, otherwise set http_port to 8888 in config for linux servers.
-
-The only needed files are the index.`html,js,wasm` and optionally the soundfont/config.ini relative to it.
-
-enable cors in server web.ts with `res.setHeader('Access-Control-Allow-Origin', '*');`
+Without the `Access-Control-Allow-Origin` header set:
+- Copy client.html and config.ini with correct port to `Server/engine/public/client`, it embeds the js and wasm at slight cost of code size.
+- Run server and visit `localhost:port/client/client.html` (or another entrypoint)
 
 ```
 TODO: audio stream is pushed to on same thread causing scape_main stutters, and lowmem w/o audio speeds up (typescript client uses absolute time for idlecycles)
 TODO: use indexeddb (add cacheload and cachesave), and maybe add [web worker clientstream](https://emscripten.org/docs/api_reference/wasm_workers.html)
 TODO: mobile controls: touch on release + touch to rotate + osk + mouse+kbd, PWA manifest
 
-NOTE: could replace sdl3 audio with https://emscripten.org/docs/api_reference/wasm_audio_worklets.html and decodeAudioData for wavs
-NOTE: JSPI decreases output size a lot, but asyncify can be used for older browser compatibility. Windows and Linux output size might differ and sigint on Windows will cause terminate batch job message if using emrun.
-NOTE: unused old worldlist code: [shell.html](https://github.com/lesleyrs/Client3/commit/5da924b9f766005e82163d899e52a5df2f771584#diff-c878553ed816480a5e85ff602ff3c5d38788ca1d21095cd8f8ebc36a4dbc07ee)
+NOTE: runnable on older browsers by swapping -sJSPI with -sASYNCIFY
+NOTE: could replace sdl3 audio (codesize) with https://emscripten.org/docs/api_reference/wasm_audio_worklets.html and decodeAudioData for wavs
+NOTE: unused old worldlist code: [shell.html](https://github.com/lesleyrs/Client3/commit/5da924b9f766005e82163d899e52a5df2f771584#diff-c878553ed816480a5e85ff602ff3c5d38788ca1d21095cd8f8ebc36a4dbc07ee) maybe re-add argv from url to not require config
 ```
 
 ### Android

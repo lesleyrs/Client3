@@ -1,4 +1,10 @@
 LIBC = ../wasmlite/libc
+
+WASM_SOURCEMAP = ../tools/emscripten/tools/wasm-sourcemap.py
+# NOTE: system llvm-dwarfdump might be incompatible as wasm-sourcemap.py uses new features, so we use emsdk repo
+DWARFDUMP = $(HOME)/emsdk/upstream/bin/llvm-dwarfdump
+# DWARFDUMP = /usr/bin/llvm-dwarfdump
+
 CC = clang --target=wasm32 --sysroot=$(LIBC) -nodefaultlibs -mbulk-memory
 CC += -fno-builtin-pow -fno-builtin-cos -fno-builtin-sin -fno-builtin-tan -fno-builtin-exp -fno-builtin-log -fno-builtin-log10
 LDFLAGS = -Wl,--export-table -Wl,--stack-first -Wl,--error-limit=0 -lm
@@ -45,11 +51,11 @@ all:
 ifeq ($(DEBUG),0)
 	wasm-opt $(OUT) -o $(OUT) -Oz && wasm-strip $(OUT)
 else
-	../emscripten/tools/wasm-sourcemap.py $(OUT) -w $(OUT) -p $(CURDIR) -s -u ./$(OUT).map -o $(OUT).map --dwarfdump=/usr/bin/llvm-dwarfdump
+	$(WASM_SOURCEMAP) $(OUT) -w $(OUT) -p $(CURDIR) -s -u ./$(OUT).map -o $(OUT).map --dwarfdump=$(DWARFDUMP)
 endif
 
 # llvm-dwarfdump -a $(OUT) > $(OUT).dwarf
-# ../emscripten/tools/wasm-sourcemap.py $(OUT) -w $(OUT) -p $(CURDIR) -s -u ./$(OUT).map -o $(OUT).map --dwarfdump-output=$(OUT).dwarf
+# $(WASM_SOURCEMAP) $(OUT) -w $(OUT) -p $(CURDIR) -s -u ./$(OUT).map -o $(OUT).map --dwarfdump-output=$(OUT).dwarf
 
 run: all
 	$(RUN)

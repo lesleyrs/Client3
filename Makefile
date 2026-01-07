@@ -84,11 +84,12 @@ endif
 
 ifeq ($(basename $(notdir $(CC))),emcc)
 CFLAGS += --shell-file shell.html
-# CFLAGS += -sJSPI
-CFLAGS += -sASYNCIFY
+# CFLAGS += -sASYNCIFY
+CFLAGS += -sJSPI
 CFLAGS += -sSTACK_SIZE=1048576 -sINITIAL_HEAP=50MB
 CFLAGS += -sALLOW_MEMORY_GROWTH
 CFLAGS += -sDEFAULT_TO_CXX=0 -sENVIRONMENT=web
+CFLAGS += -sSINGLE_FILE -sSINGLE_FILE_BINARY_ENCODE=0
 # CFLAGS += -sWEBSOCKET_URL=wss://
 LDFLAGS += --use-port=sdl3
 endif
