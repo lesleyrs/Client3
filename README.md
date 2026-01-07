@@ -139,6 +139,7 @@ Controls: wiimote IR pointer works as mouse, A for left click, B for right click
 ```
 TODO: support usb keyboard (dolphin doesn't emulate it yet)
 TODO: add game offset expected for real hardware?
+TODO: shutdown on dolphin X (same as retail games)
 ```
 
 #### NDS (not yet functional)

@@ -480,7 +480,11 @@ void client_load(Client *c) {
 }
 
 void client_load_title_background(Client *c) {
-    Pix24 *title = pix24_from_jpeg(c->archive_title, "title.dat");
+    int length;
+    uint8_t *data = jagfile_to_bytes(c->archive_title, "title.dat", &length);
+    Pix24 *title = pix24_from_jpeg(data, length);
+    free(data);
+
     pixmap_bind(c->image_title0);
     pix24_blit_opaque(title, 0, 0);
 
@@ -7192,20 +7196,20 @@ void updateVarp(Client *c, int id) {
 
         lrucache_clear(_ObjType.iconCache);
         c->redraw_background = true;
-    // NOTE all volume values are inauthentic
+    // NOTE different volume values as bgsound element isn't used
     } else if (clientcode == 3) {
         bool lastMidiActive = c->midiActive;
         if (value == 0) {
-            platform_set_midi_volume(1.0);
+            platform_set_midi_volume(1.0); // 0
             c->midiActive = true;
         } else if (value == 1) {
-            platform_set_midi_volume(0.75);
+            platform_set_midi_volume(0.75); // -400
             c->midiActive = true;
         } else if (value == 2) {
-            platform_set_midi_volume(0.5);
+            platform_set_midi_volume(0.5); // -800
             c->midiActive = true;
         } else if (value == 3) {
-            platform_set_midi_volume(0.25);
+            platform_set_midi_volume(0.25); // -1200
             c->midiActive = true;
         } else if (value == 4) {
             c->midiActive = false;
@@ -10510,7 +10514,6 @@ void client_free(Client *c) {
     }
     free(c->image_sideicons);
     pix24_free(c->image_compass);
-    // NOTE: null checks as pix can return null?
     for (int i = 0; i < 50; i++) {
         if (c->image_mapscene[i]) {
             pix8_free(c->image_mapscene[i]);

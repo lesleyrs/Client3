@@ -236,5 +236,8 @@ sdl64:
 	cp bin/SDL2-devel-2.30.9-VC/SDL2-2.30.9/lib/x64/SDL2.dll SDL2.dll
 	cp bin/SDL3-devel-3.1.6-VC/SDL3-3.1.6/lib/x64/SDL3.dll SDL3.dll
 
+cpclients:
+	cp client.html index.html client.wasm ../js/Server/engine/public/client/
+
 playground: run
 midi: run

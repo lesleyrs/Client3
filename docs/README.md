@@ -39,7 +39,7 @@
 - icon/metadata/title etc for the different platforms: title+taskbar+desktop (see rsc-c for examples)
 - add CI: run make check/scan + artifacts
 - clean up keycodes (from rsc-c, EG non-emscripten single/double quotes + fkey keycodes are defined for emscripten only)
-- func args might partially differ in order to the Client repo due to being based off rs2-225: animbase, animframe, pix2d, pix3d, gameshell, jagfile, model, packet, pix8, pixfont, pixmap, redo them? inconsistent naming: used both world3d and scene for world3d, rename world3d to scene or at least for args?
+- func args might partially differ in order to the Client repo due to being based off rs2-225: animbase, animframe, pix2d, pix3d, gameshell, jagfile, model, packet, pix8, pixfont, pixmap, redo them? inconsistent naming: used both world3d and scene for world3d, rename world3d to scene or at least for args? pix24 vs pix32
 - global search TODO, NOTE, and all platform defines, change many funcs+prototypes to static, look for missing/dupe client struct members and client funcs with different casing, finish debug command or remove it.
 - playground models leak memory for some reason
 - probably need ref counting to free dynamic models in world3d_draw_tile and world3d_set_ funcs, instead of using increased modelcachedynamic size + maybe create dynamicmodel struct for saving memory with func ptrs

@@ -74,7 +74,6 @@ void *rs2_calloc(bool use_allocator, int count, int size) {
 }
 
 static void *bump_alloc(int size) {
-    // use 4 byte alignment to save couple dozen KBs memory, confirm it works everywhere
 #if __SIZEOF_POINTER__ == 4
     int aligned_ptr = alloc.used + 3 & ~3;
 #else

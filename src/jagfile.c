@@ -6,6 +6,8 @@
 #include "thirdparty/bzip.h"
 
 static Jagfile *jagfile_parse(int8_t *src, int length);
+static int8_t *jagfile_read_index(Jagfile *jagfile, int id);
+static int jagfile_read(Jagfile *jagfile, const char *name);
 
 Jagfile *jagfile_new(int8_t *src, int length) {
     return jagfile_parse(src, length);
@@ -18,6 +20,19 @@ void jagfile_free(Jagfile *jagfile) {
     free(jagfile->file_packed_size);
     free(jagfile->file_offset);
     free(jagfile);
+}
+
+Packet *jagfile_to_packet(Jagfile *jagfile, const char *name) {
+    const int id = jagfile_read(jagfile, name);
+    return packet_new(jagfile_read_index(jagfile, id), jagfile->file_unpacked_size[id]);
+}
+
+uint8_t *jagfile_to_bytes(Jagfile *jagfile, const char* name, int *length) {
+    const int id = jagfile_read(jagfile, name);
+    if (length) {
+        *length = jagfile->file_unpacked_size[id];
+    }
+    return (uint8_t*) jagfile_read_index(jagfile, id);
 }
 
 static Jagfile *jagfile_parse(int8_t *src, int length) {
@@ -55,7 +70,7 @@ static Jagfile *jagfile_parse(int8_t *src, int length) {
     return jagfile;
 }
 
-int jagfile_read(Jagfile *jagfile, const char *name) {
+static int jagfile_read(Jagfile *jagfile, const char *name) {
     int hash = 0;
     for (size_t i = 0; i < strlen(name); i++) {
         hash = hash * 61 + toupper(name[i]) - 32;
@@ -69,7 +84,7 @@ int jagfile_read(Jagfile *jagfile, const char *name) {
     return -1;
 }
 
-int8_t *jagfile_read_index(Jagfile *jagfile, int id) {
+static int8_t *jagfile_read_index(Jagfile *jagfile, int id) {
     int8_t *dest = malloc(jagfile->file_unpacked_size[id]);
     if (jagfile->is_compressed_whole) {
         memcpy(dest, jagfile->data + jagfile->file_offset[id], jagfile->file_unpacked_size[id]);
@@ -77,9 +92,4 @@ int8_t *jagfile_read_index(Jagfile *jagfile, int id) {
         bzip_decompress(dest, jagfile->data, jagfile->file_packed_size[id], jagfile->file_offset[id]);
     }
     return dest;
-}
-
-Packet *jagfile_to_packet(Jagfile *jagfile, const char *name) {
-    const int id = jagfile_read(jagfile, name);
-    return packet_new(jagfile_read_index(jagfile, id), jagfile->file_unpacked_size[id]);
 }

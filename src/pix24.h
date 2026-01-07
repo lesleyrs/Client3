@@ -16,7 +16,7 @@ typedef struct {
 
 Pix24 *pix24_new(int width, int height, bool use_allocator);
 void pix24_free(Pix24 *pix24);
-Pix24 *pix24_from_jpeg(Jagfile *jag, const char *name);
+Pix24 *pix24_from_jpeg(uint8_t* data, int length);
 Pix24 *pix24_from_archive(Jagfile *jag, const char *name, int index);
 void pix24_bind(Pix24 *pix24);
 void pix24_translate(Pix24 *pix24, int r, int g, int b);

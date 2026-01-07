@@ -38,32 +38,18 @@ void pix24_free(Pix24 *pix24) {
     free(pix24);
 }
 
-Pix24 *pix24_from_jpeg(Jagfile *jag, const char *name) {
-    const int id = jagfile_read(jag, name);
-    int8_t *data = jagfile_read_index(jag, id);
-
+Pix24 *pix24_from_jpeg(uint8_t* data, int length) {
     int x, y, n;
-    unsigned char *jpeg_data = stbi_load_from_memory((unsigned char *)data, jag->file_unpacked_size[id], &x, &y, &n, 0);
-    free(data);
+    uint8_t *jpeg_data = stbi_load_from_memory(data, length, &x, &y, &n, 0);
     if (!jpeg_data) {
         rs2_error("Error converting jpg");
         return NULL;
     }
 
     Pix24 *pix24 = pix24_new(x, y, false);
-    /* #ifdef __WII__
-    // NOTE: this is only needed for titlescreen if not using -flto and -O2/-O1
-    for (int row = 0; row < y; row++) {
-        for (int col = 0; col < x; col++) {
-            int idx = ((y - 1 - row) * x + col) * n;
-            pix24->pixels[row * x + col] = (jpeg_data[idx] << 16) | (jpeg_data[idx + 1] << 8) | jpeg_data[idx + 2];
-        }
-    }
-    #else */
     for (int i = 0; i < x * y; i++) {
         pix24->pixels[i] = (jpeg_data[i * n] << 16) | (jpeg_data[i * n + 1] << 8) | jpeg_data[i * n + 2];
     }
-    // #endif
     stbi_image_free(jpeg_data);
     return pix24;
 }
@@ -97,9 +83,8 @@ Pix24 *pix24_from_archive(Jagfile *jag, const char *name, int index) {
         idx->pos++;
     }
 
-    // TODO why do I need to use >= where ts uses >
     if (dat->pos >= dat->length || idx->pos >= idx->length) {
-        // rs2_error("pix24 info %i %i %i %i\n", dat->pos, dat->length, idx->pos, idx->length);
+        // rs2_error("pix24 id %d %s %i >= %i || %i >= %i\n", index, name, dat->pos, dat->length, idx->pos, idx->length);
         free(palette);
         free(filename);
         packet_free(dat);

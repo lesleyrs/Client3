@@ -406,15 +406,15 @@ void platform_blit_surface(Surface *surface, int x, int y) {
             int cy = screen_y - relative_y;
             if (cx >= 0 && cy >= 0 && cx < CURSOR_W && cy < CURSOR_H) {
                 int i = (cy * CURSOR_W + cx) * 4;
-                const uint8_t *pixel1_alpha = &cursor[i + 3];
-                const uint8_t *pixel2_alpha = &cursor[i + 7];
+                const uint8_t a1 = cursor[i + 3];
+                const uint8_t a2 = cursor[i + 7];
 
-                if (*pixel1_alpha > 0) {
+                if (a1 > 0) {
                     r1 = cursor[i];
                     g1 = cursor[i + 1];
                     b1 = cursor[i + 2];
 
-                    if (*pixel2_alpha > 0) {
+                    if (a2 > 0) {
                         r2 = cursor[i + 4];
                         g2 = cursor[i + 5];
                         b2 = cursor[i + 6];
@@ -426,14 +426,22 @@ void platform_blit_surface(Surface *surface, int x, int y) {
                     continue;
                 }
             }
+            //
 
             int pixel1 = surface->pixels[src_offset];
             r1 = (pixel1 >> 16) & 0xff;
             g1 = (pixel1 >> 8) & 0xff;
             b1 = pixel1 & 0xff;
 
-            // TODO: why annoying pixel flickering if redraw_background is called? it fixes itself...
-            int pixel2 = (col + 1 < surface->w) ? surface->pixels[src_offset + 1] : pixel1;
+            int pixel2;
+            if (col + 1 < surface->w) {
+                pixel2 = surface->pixels[src_offset + 1];
+            } else {
+                // TODO: pixel flickering will occur due to 2nd pixel being drawn over, exaggerated by redraw_background from cursor movement
+                // maybe yuv2rgb works with xfb[dest_offset]?
+                // rs2_log("%d / %d\n", col, surface->w);
+                pixel2 = pixel1;
+            }
             r2 = (pixel2 >> 16) & 0xff;
             g2 = (pixel2 >> 8) & 0xff;
             b2 = pixel2 & 0xff;

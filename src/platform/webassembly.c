@@ -239,7 +239,8 @@ static void onblur(void *userdata) {
 bool platform_init(void) { return true; }
 void platform_new(GameShell *shell) {
     JS_createCanvas(shell->screen_width, shell->screen_height, "2d");
-    JS_setTitle("Jagex");
+    // JS_setTitle("Jagex");
+    JS_setTitle("RuneScape Game"); // from the html page
     JS_addMouseEventListener(shell, onmouse, onmousemove, NULL);
     JS_addKeyEventListener(shell, onkey);
     JS_addBlurEventListener(shell, onblur);

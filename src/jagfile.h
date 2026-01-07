@@ -17,6 +17,4 @@ typedef struct {
 Jagfile *jagfile_new(int8_t *src, int length);
 void jagfile_free(Jagfile *jagfile);
 Packet *jagfile_to_packet(Jagfile *jagfile, const char *name);
-// NOTE can't make those static as pix24 uses them directly with stb
-int8_t *jagfile_read_index(Jagfile *jagfile, int id);
-int jagfile_read(Jagfile *jagfile, const char *name);
+uint8_t *jagfile_to_bytes(Jagfile *jagfile, const char* name, int *length);
