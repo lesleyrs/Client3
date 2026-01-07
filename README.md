@@ -68,15 +68,14 @@ TODO
 Install clang and get [wasmlite](#tools) (you need the libc and generated index.html)
 then run `make -f wasm.mk DEBUG=0` with correct sysroot path to find libc.
 
-Without the `Access-Control-Allow-Origin` header set:
 - Copy client.wasm, index.html, and config.ini with same port as the server and no socketip set to `Server/engine/public/client`
 - Run server and visit `localhost:port/client/index.html?client` (or another entrypoint) and optionally append `&arg 1&arg 2&arg 3&arg 4` if no config.
 
 You can press shift-enter to switch pixel scaling, alt-enter for fullscreen toggle.
 
 ```
-TODO fwrite maps like emscripten
-TODO add to build.bat/ps1 to replace emscripten
+TODO: fwrite maps like emscripten
+TODO: add to build.bat/ps1 to replace emscripten
 ```
 
 ### Web (emscripten)
@@ -85,7 +84,6 @@ run `emmake make DEBUG=0`/`make CC=emcc DEBUG=0` or `build.bat -c emcc -r` for w
 
 Clang+wasmlite is recommended over emscripten for many reasons: avoids random issues, codesize, performance etc. But it works.
 
-Without the `Access-Control-Allow-Origin` header set:
 - Copy client.html and config.ini with correct port to `Server/engine/public/client`, it embeds the js and wasm at slight cost of code size.
 - Run server and visit `localhost:port/client/client.html` (or another entrypoint)
 
