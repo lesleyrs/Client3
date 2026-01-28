@@ -6,7 +6,6 @@ DWARFDUMP = $(HOME)/emsdk/upstream/bin/llvm-dwarfdump
 # DWARFDUMP = /usr/bin/llvm-dwarfdump
 
 CC = clang --target=wasm32 --sysroot=$(LIBC) -nodefaultlibs -mbulk-memory
-CC += -fno-builtin-pow -fno-builtin-cos -fno-builtin-sin -fno-builtin-tan -fno-builtin-exp -fno-builtin-log -fno-builtin-log10
 LDFLAGS = -Wl,--export-table -Wl,--stack-first -Wl,--error-limit=0 -lm
 ENTRY ?= client
 # ENTRY ?= playground
