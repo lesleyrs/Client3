@@ -36,13 +36,6 @@ extern InputTracking _InputTracking;
 
 uint32_t canvas[SCREEN_WIDTH * SCREEN_HEIGHT];
 
-// TODO missing clang compiler-rt stub
-int __unordtf2(int64_t a, int64_t b, int64_t c, int64_t d);
-int __unordtf2(int64_t a, int64_t b, int64_t c, int64_t d) {
-    (void)a, (void)b, (void)c, (void)d;
-    return 0;
-}
-
 // NOTE: using more samples to avoid starving the midi stream running on main thread
 #define MIDI_FREQ 44100
 #define MIDI_SAMPLES 4096
