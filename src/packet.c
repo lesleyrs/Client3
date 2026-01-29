@@ -4,7 +4,6 @@
 #include <string.h>
 
 #include "datastruct/doublylinkable.h"
-#include "defines.h"
 #include "packet.h"
 #include "platform.h"
 #include "thirdparty/isaac.h"
@@ -116,30 +115,6 @@ void packet_release(Packet *packet) {
     // }
 }
 
-static int8_t *copy_of_range(int8_t *src, int start, int end) {
-    if (start > end) {
-        return NULL;
-    }
-    const int len = end - start;
-    int8_t *array = malloc(len);
-    memcpy(array, src + start, len);
-    return array;
-}
-
-int8_t *take(Packet *packet) {
-    int size = packet->pos;
-    packet->pos = 0;
-    return copy_of_range(packet->data, 0, size);
-}
-
-Packet *slice(Packet *packet, int offset, int length) {
-    return packet_new(copy_of_range(packet->data, offset, offset + length), length);
-}
-
-int8_t *slice_bytes(Packet *packet, int offset, int length) {
-    return copy_of_range(packet->data, offset, offset + length);
-}
-
 void p1isaac(Packet *packet, int opcode) {
     packet->data[packet->pos++] = (int8_t)(opcode + isaac_next(&packet->random));
 }
@@ -192,7 +167,7 @@ void p8(Packet *packet, int64_t value) {
 void pjstr(Packet *packet, const char *str) {
     size_t len = strlen(str);
     memcpy(packet->data + packet->pos, str, len);
-    packet->pos += (int)len;
+    packet->pos += len;
     packet->data[packet->pos++] = 10;
 }
 
@@ -230,13 +205,15 @@ int8_t g1b(Packet *packet) {
 }
 
 int g2(Packet *packet) {
+    uint8_t *p = (uint8_t*)packet->data + packet->pos;
     packet->pos += 2;
-    return ((packet->data[packet->pos - 2] & 0xff) << 8) + (packet->data[packet->pos - 1] & 0xff);
+    return (p[0] << 8) | p[1];
 }
 
 int g2b(Packet *packet) {
+    uint8_t *p = (uint8_t*)packet->data + packet->pos;
     packet->pos += 2;
-    int value = ((packet->data[packet->pos - 2] & 0xff) << 8) + (packet->data[packet->pos - 1] & 0xff);
+    int value = (p[0] << 8) | p[1];
     if (value > 32767) {
         value -= 65536;
     }
@@ -244,19 +221,21 @@ int g2b(Packet *packet) {
 }
 
 int g3(Packet *packet) {
+    uint8_t *p = (uint8_t*)packet->data + packet->pos;
     packet->pos += 3;
-    return ((packet->data[packet->pos - 3] & 0xff) << 16) + ((packet->data[packet->pos - 2] & 0xff) << 8) + (packet->data[packet->pos - 1] & 0xff);
+    return (p[0] << 16) | (p[1] << 8) | p[2];
 }
 
 int g4(Packet *packet) {
+    uint8_t *p = (uint8_t*)packet->data + packet->pos;
     packet->pos += 4;
-    return ((packet->data[packet->pos - 4] & 0xff) << 24) + ((packet->data[packet->pos - 3] & 0xff) << 16) + ((packet->data[packet->pos - 2] & 0xff) << 8) + (packet->data[packet->pos - 1] & 0xff);
+    return (p[0] << 24) | (p[1] << 16) | (p[2] << 8) | p[3];
 }
 
 int64_t g8(Packet *packet) {
-    int64_t high = (int64_t)g4(packet) & 0xffffffffLL;
-    int64_t low = (int64_t)g4(packet) & 0xffffffffLL;
-    return (high << 32) + low;
+    int64_t high = (uint32_t)g4(packet);
+    int64_t low = (uint32_t)g4(packet);
+    return (high << 32) | low;
 }
 
 char *fastgjstr(Packet *packet) {
