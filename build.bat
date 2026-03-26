@@ -26,7 +26,7 @@ shift
 :shift2
 shift
 :setup
-if "%1" == "-c" set CC=%2&& goto :shift1
+if "%1" == "-cc" set CC=%2&& goto :shift1
 if "%1" == "-v" set SDL=%2&& goto :shift1
 if "%1" == "-e" set ENTRY=%2&& goto :shift1
 if "%1" == "-r" set OPT=%RELEASE%&& goto :shift2
@@ -35,7 +35,7 @@ if "%1" == "" goto build
 :usage
 echo usage: build.bat [ options ... ]
 echo options:
-echo   -c    set compiler (tcc/gcc/emcc)
+echo   -cc   set compiler (tcc/gcc/emcc)
 echo   -v    set sdl version (1/2/3)
 echo   -e    set entry (client/playground/midi)
 echo   -r    set release build
@@ -71,15 +71,18 @@ if "%CC%" == "cl" (
 ) else if "%CC%" == "emcc" (
 	REM && emrun --no-browser --hostname 0.0.0.0 .
 	REM add emscripten debug
-	%CC% %SRC% -fwrapv --use-port=sdl3 --shell-file shell.html -DNDEBUG -s -Oz -ffast-math -flto --closure 1 -std=c99 -DWITH_RSA_LIBTOM -D%ENTRY% -sALLOW_MEMORY_GROWTH -sINITIAL_HEAP=50MB -sSTACK_SIZE=1048576 -o client.html -sJSPI -sDEFAULT_TO_CXX=0 -sENVIRONMENT=web -sSINGLE_FILE -sSINGLE_FILE_BINARY_ENCODE=0
+	set COMPILE=%CC% %SRC% -fwrapv --use-port=sdl3 --shell-file shell.html -DNDEBUG -s -Oz -ffast-math -flto --closure 1 -std=c99 -DWITH_RSA_LIBTOM -D%ENTRY% -sALLOW_MEMORY_GROWTH -sINITIAL_HEAP=50MB -sSTACK_SIZE=1048576 -o client.html -sJSPI -sDEFAULT_TO_CXX=0 -sENVIRONMENT=web -sSINGLE_FILE -sSINGLE_FILE_BINARY_ENCODE=0
 ) else if "%CC%" == "gcc" (
-	%CC% %SRC% -fwrapv -s -O3 -ffast-math -std=c99 -DSDL_main=main -DWITH_RSA_LIBTOM -D%ENTRY% %SDL% -lws2_32 -lwsock32 %OPT% -o %ENTRY%.exe SDL%VER%.dll
+	set COMPILE=%CC% %SRC% -fwrapv -s -O3 -ffast-math -std=c99 -DSDL_main=main -DWITH_RSA_LIBTOM -D%ENTRY% %SDL% -lws2_32 -lwsock32 %OPT% -o %ENTRY%.exe SDL%VER%.dll
 ) else (
 	REM if using your own tcc you could also add -b for better errors (SLOW, and libs not stored in repo)
 	REM need to add else branch for now to add -bt until SRC is changed
 	if "%OPT%" == "%DEBUG%" (
-		%CC%.exe -bt -v %SRC% -std=c99 -Wall -Wwrite-strings -DWITH_RSA_LIBTOM -D%ENTRY% %SDL% -lws2_32 -lwsock32 %OPT% -o %ENTRY%.exe SDL%VER%.dll
+		set COMPILE=%CC%.exe -bt -v %SRC% -std=c99 -Wall -Wwrite-strings -DWITH_RSA_LIBTOM -D%ENTRY% %SDL% -lws2_32 -lwsock32 %OPT% -o %ENTRY%.exe SDL%VER%.dll
 	) else (
-		%CC%.exe -v %SRC% -std=c99 -Wall -Wwrite-strings -DWITH_RSA_LIBTOM -D%ENTRY% %SDL% -lws2_32 -lwsock32 %OPT% -o %ENTRY%.exe SDL%VER%.dll
+		set COMPILE=%CC%.exe -v %SRC% -std=c99 -Wall -Wwrite-strings -DWITH_RSA_LIBTOM -D%ENTRY% %SDL% -lws2_32 -lwsock32 %OPT% -o %ENTRY%.exe SDL%VER%.dll
 	)
 )
+
+echo %COMPILE%
+%COMPILE%
