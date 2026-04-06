@@ -3,7 +3,7 @@
 #include "linkable.h"
 
 // name taken from jaclib
-typedef struct LinkList {
+typedef struct {
     Linkable *sentinel;
     Linkable *cursor;
 } LinkList;

@@ -304,7 +304,25 @@ double jrand(void) {
 #endif
 
 // Java indexOf
+int indexof_chr(const char *str, int chr) {
+    if (chr == '\0') {
+        return -1;
+    }
+
+    const char *pos = strchr(str, chr);
+
+    if (pos) {
+        return (int)(pos - str);
+    }
+
+    return -1;
+}
+
 int indexof(const char *str, const char *str2) {
+    if (*str2 == '\0') {
+        return -1;
+    }
+
     const char *pos = strstr(str, str2);
 
     if (pos) {

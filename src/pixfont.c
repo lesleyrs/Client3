@@ -10,17 +10,13 @@
 #include "pixfont.h"
 #include "platform.h"
 
+// NOTE swapped £ for A, doesn't fit in C char
 const char CHARSET[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!\"A$%^&*()-_=+[{]};:'@#~,<.>/?\\| ";
 int CHARCODESET[256] = {0};
 
 void pixfont_init_global(void) {
-    // NOTE disabled pound, doesn't fit in C char
-    const char *charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!\"A$%^&*()-_=+[{]};:'@#~,<.>/?\\| ";
-    // const char* charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!\"£$%^&*()-_=+[{]};:'@#~,<.>/?\\| ";
-
     for (int i = 0; i < 256; i++) {
-        // TODO check if same result as java
-        int c = indexof(charset, (const char[]){i, '\0'});
+        int c = indexof_chr(CHARSET, i);
         if (c == -1) {
             c = 74;
         }

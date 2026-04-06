@@ -52,6 +52,7 @@ void strtoupper(char *s);
 bool strendswith(const char *str, const char *suffix);
 bool strstartswith(const char *str, const char *prefix);
 char *valueof(int value);
+int indexof_chr(const char *str, int chr);
 int indexof(const char *str, const char *str2);
 char *substring(const char *src, size_t start, size_t length);
 double jrand(void);

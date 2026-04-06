@@ -1141,8 +1141,8 @@ void handleInterfaceInput(Client *c, Component *com, int mouseX, int mouseY, int
             } else if (child->buttonType == BUTTON_TARGET && c->spell_selected == 0) {
                 char *prefix = child->actionVerb;
                 bool _free = false;
-                if (indexof(prefix, " ") != -1) {
-                    prefix = substring(prefix, 0, indexof(prefix, " "));
+                if (indexof_chr(prefix, ' ') != -1) {
+                    prefix = substring(prefix, 0, indexof_chr(prefix, ' '));
                     _free = true;
                 }
 
@@ -3357,15 +3357,15 @@ static void useMenuOption(Client *cl, int optionId) {
 
         char *prefix = com->actionVerb;
         bool free_prefix = false;
-        if (indexof(prefix, " ") != -1) {
-            prefix = substring(prefix, 0, indexof(prefix, " "));
+        if (indexof_chr(prefix, ' ') != -1) {
+            prefix = substring(prefix, 0, indexof_chr(prefix, ' '));
             free_prefix = true;
         }
 
         char *suffix = com->actionVerb;
         bool free_suffix = false;
-        if (indexof(suffix, " ") != -1) {
-            suffix = substring(suffix, indexof(suffix, " ") + 1, strlen(suffix));
+        if (indexof_chr(suffix, ' ') != -1) {
+            suffix = substring(suffix, indexof_chr(suffix, ' ') + 1, strlen(suffix));
             free_suffix = true;
         }
 
@@ -5600,7 +5600,7 @@ bool client_read(Client *c) {
         char *message = gjstr(c->in);
         int64_t username;
         if (strendswith(message, ":tradereq:")) {
-            char *player = substring(message, 0, indexof(message, ":"));
+            char *player = substring(message, 0, indexof_chr(message, ':'));
             username = jstring_to_base37(player);
             bool ignored = false;
             for (int i = 0; i < c->ignoreCount; i++) {
@@ -5613,7 +5613,7 @@ bool client_read(Client *c) {
                 client_add_message(c, 4, "wishes to trade with you.", player);
             }
         } else if (strendswith(message, ":duelreq:")) {
-            char *player = substring(message, 0, indexof(message, ":"));
+            char *player = substring(message, 0, indexof_chr(message, ':'));
             username = jstring_to_base37(player);
             bool ignored = false;
             for (int i = 0; i < c->ignoreCount; i++) {
@@ -9946,7 +9946,7 @@ static void client_draw_interface(Client *c, Component *com, int x, int y, int s
             }
 
             for (int lineY = childY + font->height; strlen(text) > 0; lineY += font->height) {
-                if (indexof(text, "%") != -1) {
+                if (indexof_chr(text, '%') != -1) {
                     do {
                         int index = indexof(text, "%1");
                         if (index == -1) {
