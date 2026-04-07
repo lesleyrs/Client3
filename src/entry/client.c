@@ -3850,7 +3850,8 @@ static void handleInputKey(Client *c) {
                         c->redraw_chatback = true;
                     }
 
-                    if ((key == 13 || key == 10) && strlen(c->chat_typed) > 0) {
+                    len = strlen(c->chat_typed);
+                    if ((key == 13 || key == 10) && len > 0) {
                         // custom, originally only with frame or local servers
                         if (c->rights || _Custom.allow_commands) {
                             if (strcmp(c->chat_typed, "::clientdrop") == 0 /* && c->shell->window */) {
@@ -3904,48 +3905,48 @@ static void handleInputKey(Client *c) {
                         if (strstartswith(c->chat_typed, "::")) {
                             // CLIENT_CHEAT
                             p1isaac(c->out, 4);
-                            p1(c->out, (int)strlen(c->chat_typed) - 1);
-                            char *sub = substring(c->chat_typed, 2, strlen(c->chat_typed));
+                            p1(c->out, len - 1);
+                            char *sub = substring(c->chat_typed, 2, len);
                             pjstr(c->out, sub);
                             free(sub);
                         } else {
                             int8_t color = 0;
                             if (strstartswith(c->chat_typed, "yellow:")) {
                                 color = 0;
-                                strcpy(c->chat_typed, substring(c->chat_typed, 7, strlen(c->chat_typed)));
+                                strcpy(c->chat_typed, substring(c->chat_typed, 7, len));
                             } else if (strstartswith(c->chat_typed, "red:")) {
                                 color = 1;
-                                strcpy(c->chat_typed, substring(c->chat_typed, 4, strlen(c->chat_typed)));
+                                strcpy(c->chat_typed, substring(c->chat_typed, 4, len));
                             } else if (strstartswith(c->chat_typed, "green:")) {
                                 color = 2;
-                                strcpy(c->chat_typed, substring(c->chat_typed, 6, strlen(c->chat_typed)));
+                                strcpy(c->chat_typed, substring(c->chat_typed, 6, len));
                             } else if (strstartswith(c->chat_typed, "cyan:")) {
                                 color = 3;
-                                strcpy(c->chat_typed, substring(c->chat_typed, 5, strlen(c->chat_typed)));
+                                strcpy(c->chat_typed, substring(c->chat_typed, 5, len));
                             } else if (strstartswith(c->chat_typed, "purple:")) {
                                 color = 4;
-                                strcpy(c->chat_typed, substring(c->chat_typed, 7, strlen(c->chat_typed)));
+                                strcpy(c->chat_typed, substring(c->chat_typed, 7, len));
                             } else if (strstartswith(c->chat_typed, "white:")) {
                                 color = 5;
-                                strcpy(c->chat_typed, substring(c->chat_typed, 6, strlen(c->chat_typed)));
+                                strcpy(c->chat_typed, substring(c->chat_typed, 6, len));
                             } else if (strstartswith(c->chat_typed, "flash1:")) {
                                 color = 6;
-                                strcpy(c->chat_typed, substring(c->chat_typed, 7, strlen(c->chat_typed)));
+                                strcpy(c->chat_typed, substring(c->chat_typed, 7, len));
                             } else if (strstartswith(c->chat_typed, "flash2:")) {
                                 color = 7;
-                                strcpy(c->chat_typed, substring(c->chat_typed, 7, strlen(c->chat_typed)));
+                                strcpy(c->chat_typed, substring(c->chat_typed, 7, len));
                             } else if (strstartswith(c->chat_typed, "flash3:")) {
                                 color = 8;
-                                strcpy(c->chat_typed, substring(c->chat_typed, 7, strlen(c->chat_typed)));
+                                strcpy(c->chat_typed, substring(c->chat_typed, 7, len));
                             } else if (strstartswith(c->chat_typed, "glow1:")) {
                                 color = 9;
-                                strcpy(c->chat_typed, substring(c->chat_typed, 6, strlen(c->chat_typed)));
+                                strcpy(c->chat_typed, substring(c->chat_typed, 6, len));
                             } else if (strstartswith(c->chat_typed, "glow2:")) {
                                 color = 10;
-                                strcpy(c->chat_typed, substring(c->chat_typed, 6, strlen(c->chat_typed)));
+                                strcpy(c->chat_typed, substring(c->chat_typed, 6, len));
                             } else if (strstartswith(c->chat_typed, "glow3:")) {
                                 color = 11;
-                                strcpy(c->chat_typed, substring(c->chat_typed, 6, strlen(c->chat_typed)));
+                                strcpy(c->chat_typed, substring(c->chat_typed, 6, len));
                             }
 
                             int8_t effect = 0;
@@ -7380,7 +7381,8 @@ void client_update_title(Client *c) {
                 }
 
                 bool valid = false;
-                for (size_t i = 0; i < strlen(CHARSET); i++) {
+                size_t len = strlen(CHARSET);
+                for (size_t i = 0; i < len; i++) {
                     if (key == CHARSET[i]) {
                         valid = true;
                         break;
@@ -7388,8 +7390,9 @@ void client_update_title(Client *c) {
                 }
 
                 if (c->title_login_field == 0) {
-                    if (key == 8 && strlen(c->username) > 0) {
-                        c->username[strlen(c->username) - 1] = '\0';
+                    len = strlen(c->username);
+                    if (key == 8 && len > 0) {
+                        c->username[len - 1] = '\0';
                     }
 
                     if (key == 9 || key == 10 || key == 13) {
@@ -7397,15 +7400,16 @@ void client_update_title(Client *c) {
                     }
 
                     if (valid) {
-                        size_t len = strlen(c->username);
+                        len = strlen(c->username);
                         if (len < USERNAME_LENGTH) {
                             c->username[len] = (char)key;
                             c->username[len + 1] = '\0';
                         }
                     }
                 } else if (c->title_login_field == 1) {
-                    if (key == 8 && strlen(c->password) > 0) {
-                        c->password[strlen(c->password) - 1] = '\0';
+                    len = strlen(c->password);
+                    if (key == 8 && len > 0) {
+                        c->password[len - 1] = '\0';
                     }
 
                     if (key == 9 || key == 10 || key == 13) {
@@ -7413,7 +7417,7 @@ void client_update_title(Client *c) {
                     }
 
                     if (valid) {
-                        size_t len = strlen(c->password);
+                        len = strlen(c->password);
                         if (len < PASSWORD_LENGTH) {
                             c->password[len] = (char)key;
                             c->password[len + 1] = '\0';

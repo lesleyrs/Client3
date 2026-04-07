@@ -145,8 +145,10 @@ int stringWidth(PixFont *pixfont, const char *str) {
     }
 
     int size = 0;
-    for (size_t c = 0; c < strlen(str); c++) {
-        if (str[c] == '@' && c + 4 < strlen(str) && str[c + 4] == '@') {
+    size_t len = strlen(str);
+
+    for (size_t c = 0; c < len; c++) {
+        if (str[c] == '@' && c + 4 < len && str[c + 4] == '@') {
             c += 4;
         } else {
             size += pixfont->drawWidth[(unsigned char)str[c]];
@@ -162,8 +164,9 @@ void drawString(PixFont *pixfont, int x, int y, const char *str, int rgb) {
     }
 
     int offY = y - pixfont->height;
+    size_t len = strlen(str);
 
-    for (size_t i = 0; i < strlen(str); i++) {
+    for (size_t i = 0; i < len; i++) {
         int c = CHARCODESET[(unsigned char)str[i]];
         if (c != 94) {
             drawChar(pixfont->charMask[c], x + pixfont->charOffsetX[c], offY + pixfont->charOffsetY[c], pixfont->charMaskWidth[c], pixfont->charMaskHeight[c], rgb);
@@ -188,8 +191,9 @@ void drawCenteredWave(PixFont *pixfont, int x, int y, const char *str, int rgb, 
 
     x -= stringWidth(pixfont, str) / 2;
     int offY = y - pixfont->height;
+    size_t len = strlen(str);
 
-    for (size_t i = 0; i < strlen(str); i++) {
+    for (size_t i = 0; i < len; i++) {
         int c = CHARCODESET[(unsigned char)str[i]];
 
         if (c != 94) {
@@ -206,9 +210,10 @@ void drawStringTaggable(PixFont *pixfont, int x, int y, const char *str, int rgb
     }
 
     int offY = y - pixfont->height;
+    size_t len = strlen(str);
 
-    for (size_t i = 0; i < strlen(str); i++) {
-        if (str[i] == '@' && i + 4 < strlen(str) && str[i + 4] == '@') {
+    for (size_t i = 0; i < len; i++) {
+        if (str[i] == '@' && i + 4 < len && str[i + 4] == '@') {
             char *sub = substring(str, i + 1, i + 4);
             rgb = evaluateTag(sub);
             free(sub);
@@ -238,8 +243,10 @@ void drawStringTooltip(PixFont *pixfont, int x, int y, const char *str, int colo
 
     int random = (rand() & 0x1f) + 192;
     int offY = y - pixfont->height;
-    for (size_t i = 0; i < strlen(str); i++) {
-        if (str[i] == '@' && i + 4 < strlen(str) && str[i + 4] == '@') {
+    size_t len = strlen(str);
+
+    for (size_t i = 0; i < len; i++) {
+        if (str[i] == '@' && i + 4 < len && str[i + 4] == '@') {
             char *sub = substring(str, i + 1, i + 4);
             color = evaluateTag(sub);
             free(sub);

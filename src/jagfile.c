@@ -72,7 +72,8 @@ static Jagfile *jagfile_parse(int8_t *src, int length) {
 
 static int jagfile_read(Jagfile *jagfile, const char *name) {
     int hash = 0;
-    for (size_t i = 0; i < strlen(name); i++) {
+    size_t len = strlen(name);
+    for (size_t i = 0; i < len; i++) {
         hash = hash * 61 + toupper(name[i]) - 32;
     }
     for (int id = 0; id < jagfile->file_count; id++) {

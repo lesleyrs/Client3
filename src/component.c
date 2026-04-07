@@ -165,10 +165,11 @@ void component_unpack(Jagfile *jag, Jagfile *media, PixFont **fonts) {
                     com->invSlotOffsetY[i] = g2b(dat);
 
                     char *sprite = gjstr(dat);
-                    if (media && strlen(sprite) > 0) {
+                    size_t len = strlen(sprite);
+                    if (media && len > 0) {
                         int sprite_index = (int)(strrchr(sprite, ',') - sprite);
                         char *sprite_name = substring(sprite, 0, sprite_index);
-                        char *sprite_id = substring(sprite, sprite_index + 1, strlen(sprite));
+                        char *sprite_id = substring(sprite, sprite_index + 1, len);
                         com->invSlotSprite[i] = component_get_image(media, sprite_name, atoi(sprite_id));
                         free(sprite_name);
                         free(sprite_id);
@@ -219,10 +220,11 @@ void component_unpack(Jagfile *jag, Jagfile *media, PixFont **fonts) {
 
         if (com->type == TYPE_GRAPHIC) {
             char *sprite = gjstr(dat);
-            if (media && strlen(sprite) > 0) {
+            size_t len = strlen(sprite);
+            if (media && len > 0) {
                 int sprite_index = (int)(strrchr(sprite, ',') - sprite);
                 char *sprite_name = substring(sprite, 0, sprite_index);
-                char *sprite_id = substring(sprite, sprite_index + 1, strlen(sprite));
+                char *sprite_id = substring(sprite, sprite_index + 1, len);
                 com->graphic = component_get_image(media, sprite_name, atoi(sprite_id));
                 free(sprite_name);
                 free(sprite_id);
@@ -230,10 +232,11 @@ void component_unpack(Jagfile *jag, Jagfile *media, PixFont **fonts) {
             free(sprite);
 
             sprite = gjstr(dat);
-            if (media && strlen(sprite) > 0) {
+            len = strlen(sprite);
+            if (media && len > 0) {
                 int sprite_index = (int)(strrchr(sprite, ',') - sprite);
                 char *sprite_name = substring(sprite, 0, sprite_index);
-                char *sprite_id = substring(sprite, sprite_index + 1, strlen(sprite));
+                char *sprite_id = substring(sprite, sprite_index + 1, len);
                 com->activeGraphic = component_get_image(media, sprite_name, atoi(sprite_id));
                 free(sprite_name);
                 free(sprite_id);

@@ -16,8 +16,9 @@ static const char BASE37_LOOKUP[] = {
 
 int64_t jstring_to_base37(char *str) {
     int64_t hash = 0L;
+    size_t len = strlen(str);
 
-    for (size_t i = 0; i < strlen(str) && i < 12; i++) {
+    for (size_t i = 0; i < len && i < 12; i++) {
         char c = str[i];
         hash *= 37L;
 
@@ -60,8 +61,9 @@ char *jstring_from_base37(int64_t username) {
 int64_t jstring_hash_code(char *str) {
     strtoupper(str);
     int64_t hash = 0L;
+    size_t len = strlen(str);
 
-    for (size_t i = 0; i < strlen(str); i++) {
+    for (size_t i = 0; i < len; i++) {
         hash = hash * 61L + (int64_t)str[i] - 32L;
         hash = hash + (hash >> 56) & 0xffffffffffffffl;
     }
@@ -76,15 +78,16 @@ char *jstring_format_ipv4(int ip) {
 }
 
 char *jstring_format_name(char *str) {
-    if (strlen(str) == 0) {
+    size_t len = strlen(str);
+    if (len == 0) {
         return str;
     }
 
-    for (size_t i = 0; i < strlen(str); i++) {
+    for (size_t i = 0; i < len; i++) {
         if (str[i] == '_') {
             str[i] = ' ';
 
-            if (i + 1 < strlen(str) && str[i + 1] >= 'a' && str[i + 1] <= 'z') {
+            if (i + 1 < len && str[i + 1] >= 'a' && str[i + 1] <= 'z') {
                 str[i + 1] = (char)(str[i + 1] + 'A' - 97);
             }
         }

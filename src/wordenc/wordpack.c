@@ -64,13 +64,15 @@ char *wordpack_unpack(Packet *word, int length) {
 }
 
 void wordpack_pack(Packet *word, char *str) {
-    if (strlen(str) > CHAT_LENGTH) {
+    size_t len = strlen(str);
+    if (len > CHAT_LENGTH) {
         str = substring(str, 0, CHAT_LENGTH);
     }
     strtolower(str);
 
     int carry = -1;
-    for (size_t i = 0; i < strlen(str); i++) {
+    len = strlen(str);
+    for (size_t i = 0; i < len; i++) {
         char c = str[i];
 
         int index = 0;
