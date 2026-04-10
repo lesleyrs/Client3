@@ -114,7 +114,7 @@ void platform_new(GameShell *shell) {
         tsf_set_output(g_TinySoundFont, TSF_STEREO_INTERLEAVED, midiSpec.freq, 0.0f);
 
         if (SDL_OpenAudio(&midiSpec, NULL) < 0) {
-            rs2_error("Could not open the audio hardware or the desired audio output format\n");
+            rs2_error("Could not open the audio hardware or the desired audio output format: %s\n", SDL_GetError());
         }
         SDL_PauseAudio(0);
     }
