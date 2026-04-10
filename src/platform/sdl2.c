@@ -256,7 +256,6 @@ void platform_new(GameShell *shell) {
 
         if (SDL_OpenAudio(&midiSpec, NULL) < 0) {
             rs2_error("Could not open the audio hardware or the desired audio output format: %s\n", SDL_GetError());
-
         }
         SDL_PauseAudio(0);
     }
