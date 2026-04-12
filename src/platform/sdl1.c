@@ -103,6 +103,9 @@ void platform_new(GameShell *shell) {
     window_surface = SDL_SetVideoMode(shell->screen_width, shell->screen_height, 32, flags);
 
 #ifdef GL11
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     glViewport(0, 0, shell->screen_width, shell->screen_height);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
