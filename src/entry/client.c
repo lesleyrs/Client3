@@ -53,6 +53,7 @@
 #include "../wordenc/wordpack.h"
 #include "../world.h"
 #include "../world3d.h"
+#include "../gl11.h"
 
 extern int DESIGN_BODY_COLOR_LENGTH[];
 extern int *DESIGN_BODY_COLOR[];
@@ -8919,7 +8920,16 @@ void client_draw_scene(Client *c) {
     _Model.mouse_x = c->shell->mouse_x - 8;
     _Model.mouse_y = c->shell->mouse_y - 11;
     pix2d_clear();
+#ifdef GL11
+    glEnable(GL_SCISSOR_TEST);
+    glScissor(8, c->shell->screen_height - 11 - _Pix2D.height, _Pix2D.width, _Pix2D.height);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+#endif
     world3d_draw(c->scene, c->cameraX, c->cameraY, c->cameraZ, level, c->cameraYaw, c->cameraPitch, _Client.loop_cycle);
+#ifdef GL11
+    glDisable(GL_SCISSOR_TEST);
+#endif
     world3d_clear_temporarylocs(c->scene);
     draw2DEntityElements(c);
     drawTileHint(c);
@@ -10316,6 +10326,8 @@ void client_draw_title_screen(Client *c) {
         pixmap_draw(c->image_title7, 128, 186);
         pixmap_draw(c->image_title8, 574, 186);
     }
+
+    client_run_flames(c); // NOTE: random placement of run_flames
 }
 
 void client_unload(Client *c) {

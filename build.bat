@@ -3,7 +3,7 @@ cd /d "%~dp0"
 setlocal enabledelayedexpansion
 set SRC=
 for /r "src" %%f in (*.c) do (
-    set SRC=!SRC! "%%f"
+    set SRC="%%f" !SRC!
 )
 
 set SDL1="bin\SDL-devel-1.2.15-VC\SDL-1.2.15\include"
@@ -30,6 +30,7 @@ if "%1" == "-cc" set CC=%2&& goto :shift1
 if "%1" == "-v" set SDL=%2&& goto :shift1
 if "%1" == "-e" set ENTRY=%2&& goto :shift1
 if "%1" == "-r" set OPT=%RELEASE%&& goto :shift2
+if "%1" == "-gl" set GL11=1&& goto :shift2
 if "%1" == "" goto build
 
 :usage
@@ -39,6 +40,7 @@ echo   -cc   set compiler (tcc/gcc/emcc)
 echo   -v    set sdl version (1/2/3)
 echo   -e    set entry (client/playground/midi)
 echo   -r    set release build
+echo   -gl   use experimental opengl 1.1 renderer
 exit /B 1
 
 :build
@@ -63,7 +65,7 @@ if not exist SDL2.dll (
 )
 
 if not exist SDL3.dll (
-	copy bin\SDL3-devel-3.1.6-VC\SDL3-3.1.6\lib\x86\SDL3.dll SDL3.dll
+	REM copy bin\SDL3-devel-3.1.6-VC\SDL3-3.1.6\lib\x86\SDL3.dll SDL3.dll
 )
 
 if "%CC%" == "cl" (
@@ -71,18 +73,21 @@ if "%CC%" == "cl" (
 ) else if "%CC%" == "emcc" (
 	REM && emrun --no-browser --hostname 0.0.0.0 .
 	REM add emscripten debug
-	set COMPILE=%CC% %SRC% -fwrapv --use-port=sdl3 --shell-file shell.html -DNDEBUG -s -Oz -ffast-math -flto --closure 1 -std=c99 -DWITH_RSA_LIBTOM -D%ENTRY% -sALLOW_MEMORY_GROWTH -sINITIAL_HEAP=50MB -sSTACK_SIZE=1048576 -o client.html -sJSPI -sDEFAULT_TO_CXX=0 -sENVIRONMENT=web -sSINGLE_FILE -sSINGLE_FILE_BINARY_ENCODE=0
+	set COMPILE=-fwrapv --use-port=sdl3 --shell-file shell.html -DNDEBUG -s -Oz -ffast-math -flto --closure 1 -std=c99 -DWITH_RSA_LIBTOM -D%ENTRY% -sALLOW_MEMORY_GROWTH -sINITIAL_HEAP=50MB -sSTACK_SIZE=1048576 -o client.html -sJSPI -sDEFAULT_TO_CXX=0 -sENVIRONMENT=web -sSINGLE_FILE -sSINGLE_FILE_BINARY_ENCODE=0
 ) else if "%CC%" == "gcc" (
-	set COMPILE=%CC% %SRC% -fwrapv -s -O3 -ffast-math -std=c99 -DSDL_main=main -DWITH_RSA_LIBTOM -D%ENTRY% %SDL% -lws2_32 -lwsock32 %OPT% -o %ENTRY%.exe SDL%VER%.dll
+	set COMPILE=-fwrapv -s -O3 -ffast-math -std=c99 -DSDL_main=main -DWITH_RSA_LIBTOM -D%ENTRY% %SDL% -lws2_32 -lwsock32 %OPT% -o %ENTRY%.exe SDL%VER%.dll
 ) else (
-	REM if using your own tcc you could also add -b for better errors (SLOW, and libs not stored in repo)
-	REM need to add else branch for now to add -bt until SRC is changed
+	set COMPILE=-v -std=c99 -Wall -Wwrite-strings -DWITH_RSA_LIBTOM -D%ENTRY% %SDL% -lws2_32 -lwsock32 %OPT% -o %ENTRY%.exe SDL%VER%.dll
+
 	if "%OPT%" == "%DEBUG%" (
-		set COMPILE=%CC%.exe -bt -v %SRC% -std=c99 -Wall -Wwrite-strings -DWITH_RSA_LIBTOM -D%ENTRY% %SDL% -lws2_32 -lwsock32 %OPT% -o %ENTRY%.exe SDL%VER%.dll
-	) else (
-		set COMPILE=%CC%.exe -v %SRC% -std=c99 -Wall -Wwrite-strings -DWITH_RSA_LIBTOM -D%ENTRY% %SDL% -lws2_32 -lwsock32 %OPT% -o %ENTRY%.exe SDL%VER%.dll
+		set COMPILE=-bt !COMPILE!
+	)
+	if "%GL11%" == "1" (
+		set COMPILE=-DGL11 !COMPILE! -lopengl32
 	)
 )
+
+set COMPILE=%CC% %SRC% !COMPILE!
 
 echo %COMPILE%
 %COMPILE%

@@ -92,7 +92,7 @@ void pix2d_draw_rect(int x, int y, int rgb, int w, int h) {
     pix2d_vline(x + w - 1, y, rgb, h);
 }
 
-void pix2d_fill_circle(int x_center, int y_center, int y_radius, int rgb, int alpha) {
+/* void pix2d_fill_circle(int x_center, int y_center, int y_radius, int rgb, int alpha) {
 	int inv_alpha = 256 - alpha;
 	int r0 = (rgb >> 16 & 0xff) * alpha;
 	int g0 = (rgb >> 8 & 0xff) * alpha;
@@ -129,7 +129,7 @@ void pix2d_fill_circle(int x_center, int y_center, int y_radius, int rgb, int al
 			_Pix2D.pixels[offset++] = color;
 		}
 	}
-}
+} */
 
 void pix2d_hline(int x, int y, int rgb, int w) {
     if (y < _Pix2D.top || y >= _Pix2D.bottom) {

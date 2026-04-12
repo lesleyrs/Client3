@@ -16,6 +16,9 @@ typedef struct {
     int crop_h;
     int *palette;
     int palette_count;
+#ifdef GL11
+    uint32_t gl_texture;
+#endif
 } Pix8;
 
 Pix8 *pix8_new(int width, int height, int *palette, int palette_count);

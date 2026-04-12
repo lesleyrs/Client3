@@ -1857,6 +1857,17 @@ void world3d_draw_tileunderlay(World3D *world3d, TileUnderlay *underlay, int lev
     int px3 = _Pix3D.center_x + (x3 << 9) / z3;
     int py3 = _Pix3D.center_y + (y3 << 9) / z3;
 
+#ifdef GL11
+    int texCoordU00 = 0;
+    int texCoordV00 = 0;
+    int texCoordU10 = 1;
+    int texCoordV10 = 0;
+    int texCoordU11 = 1;
+    int texCoordV11 = 1;
+    int texCoordU01 = 0;
+    int texCoordV01 = 1;
+#endif
+
     _Pix3D.alpha = 0;
 
     if ((py1 - px3) * (px1 - py3) - (pz1 - py3) * (pz0 - px3) > 0) {
@@ -1873,9 +1884,17 @@ void world3d_draw_tileunderlay(World3D *world3d, TileUnderlay *underlay, int lev
             int averageColor = TEXTURE_HSL[underlay->textureId];
             gouraudTriangle(py1, px3, pz0, pz1, py3, px1, mul_lightness(averageColor, underlay->northeastColor), mul_lightness(averageColor, underlay->northwestColor), mul_lightness(averageColor, underlay->southeastColor));
         } else if (underlay->flat) {
+#ifdef GL11
+            glTextureTriangle(py1, px3, pz0, pz1, py3, px1, underlay->northeastColor, underlay->northwestColor, underlay->southeastColor, (UV){texCoordU11, texCoordU01, texCoordU10, texCoordV11, texCoordV01, texCoordV10}, underlay->textureId);
+#else
             textureTriangle(py1, px3, pz0, pz1, py3, px1, underlay->northeastColor, underlay->northwestColor, underlay->southeastColor, x0, y0, z0, x1, x3, y1, y3, z1, z3, underlay->textureId);
+#endif
         } else {
+#ifdef GL11
+            glTextureTriangle(py1, px3, pz0, pz1, py3, px1, underlay->northeastColor, underlay->northwestColor, underlay->southeastColor, (UV){texCoordU00, texCoordU10, texCoordU01, texCoordV00, texCoordV10, texCoordV01}, underlay->textureId);
+#else
             textureTriangle(py1, px3, pz0, pz1, py3, px1, underlay->northeastColor, underlay->northwestColor, underlay->southeastColor, x2, y2, z2, x3, x1, y3, y1, z3, z1, underlay->textureId);
+#endif
         }
     }
     if ((px0 - pz0) * (py3 - px1) - (py0 - px1) * (px3 - pz0) <= 0) {
@@ -1888,7 +1907,11 @@ void world3d_draw_tileunderlay(World3D *world3d, TileUnderlay *underlay, int lev
     }
     if (underlay->textureId != -1) {
         if (!_World3D.lowMemory) {
+#ifdef GL11
+            glTextureTriangle(px0, pz0, px3, py0, px1, py3, underlay->southwestColor, underlay->southeastColor, underlay->northwestColor, (UV){texCoordU00, texCoordU10, texCoordU01, texCoordV00, texCoordV10, texCoordV01}, underlay->textureId);
+#else
             textureTriangle(px0, pz0, px3, py0, px1, py3, underlay->southwestColor, underlay->southeastColor, underlay->northwestColor, x0, y0, z0, x1, x3, y1, y3, z1, z3, underlay->textureId);
+#endif
             return;
         }
         int averageColor = TEXTURE_HSL[underlay->textureId];
@@ -1900,6 +1923,11 @@ void world3d_draw_tileunderlay(World3D *world3d, TileUnderlay *underlay, int lev
 
 void world3d_draw_tileoverlay(int tileX, int tileZ, TileOverlay *overlay, int sinEyePitch, int cosEyePitch, int sinEyeYaw, int cosEyeYaw) {
     int vertexCount = overlay->vertexCount;
+
+#ifdef GL11
+    int sceneX = tileX * 128;
+    int sceneZ = tileZ * 128;
+#endif
 
     for (int i = 0; i < vertexCount; i++) {
         int x = overlay->vertexX[i] - _World3D.eyeX;
@@ -1922,6 +1950,14 @@ void world3d_draw_tileoverlay(int tileX, int tileZ, TileOverlay *overlay, int si
             _TileOverlay.tmpViewspaceX[i] = x;
             _TileOverlay.tmpViewspaceY[i] = y;
             _TileOverlay.tmpViewspaceZ[i] = z;
+
+#ifdef GL11
+            int x = overlay->vertexX[i] - sceneX;
+            int z = overlay->vertexZ[i] - sceneZ;
+
+            _TileOverlay.tmpU[i] = x / 128.0;
+            _TileOverlay.tmpV[i] = z / 128.0;
+#endif
         }
         _TileOverlay.tmpScreenX[i] = _Pix3D.center_x + (x << 9) / z;
         _TileOverlay.tmpScreenY[i] = _Pix3D.center_y + (y << 9) / z;
@@ -1956,9 +1992,17 @@ void world3d_draw_tileoverlay(int tileX, int tileZ, TileOverlay *overlay, int si
                 int textureColor = TEXTURE_HSL[overlay->triangleTextureIds[v]];
                 gouraudTriangle(x0, x1, x2, y0, y1, y2, mul_lightness(textureColor, overlay->triangleColorA[v]), mul_lightness(textureColor, overlay->triangleColorB[v]), mul_lightness(textureColor, overlay->triangleColorC[v]));
             } else if (overlay->flat) {
+#ifdef GL11
+                glTextureTriangle(x0, x1, x2, y0, y1, y2, overlay->triangleColorA[v], overlay->triangleColorB[v], overlay->triangleColorC[v], (UV){_TileOverlay.tmpU[a], _TileOverlay.tmpU[b], _TileOverlay.tmpU[c], _TileOverlay.tmpV[a], _TileOverlay.tmpV[b], _TileOverlay.tmpV[c]}, overlay->triangleTextureIds[v]);
+#else
                 textureTriangle(x0, x1, x2, y0, y1, y2, overlay->triangleColorA[v], overlay->triangleColorB[v], overlay->triangleColorC[v], _TileOverlay.tmpViewspaceX[0], _TileOverlay.tmpViewspaceY[0], _TileOverlay.tmpViewspaceZ[0], _TileOverlay.tmpViewspaceX[1], _TileOverlay.tmpViewspaceX[3], _TileOverlay.tmpViewspaceY[1], _TileOverlay.tmpViewspaceY[3], _TileOverlay.tmpViewspaceZ[1], _TileOverlay.tmpViewspaceZ[3], overlay->triangleTextureIds[v]);
+#endif
             } else {
+#ifdef GL11
+                glTextureTriangle(x0, x1, x2, y0, y1, y2, overlay->triangleColorA[v], overlay->triangleColorB[v], overlay->triangleColorC[v], (UV){_TileOverlay.tmpU[0], _TileOverlay.tmpU[1], _TileOverlay.tmpU[3], _TileOverlay.tmpV[0], _TileOverlay.tmpV[1], _TileOverlay.tmpV[3]}, overlay->triangleTextureIds[v]);
+#else
                 textureTriangle(x0, x1, x2, y0, y1, y2, overlay->triangleColorA[v], overlay->triangleColorB[v], overlay->triangleColorC[v], _TileOverlay.tmpViewspaceX[a], _TileOverlay.tmpViewspaceY[a], _TileOverlay.tmpViewspaceZ[a], _TileOverlay.tmpViewspaceX[b], _TileOverlay.tmpViewspaceX[c], _TileOverlay.tmpViewspaceY[b], _TileOverlay.tmpViewspaceY[c], _TileOverlay.tmpViewspaceZ[b], _TileOverlay.tmpViewspaceZ[c], overlay->triangleTextureIds[v]);
+#endif
             }
         }
     }

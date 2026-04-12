@@ -24,6 +24,10 @@ typedef struct {
 } TileOverlay;
 
 typedef struct {
+#ifdef GL11
+    float tmpU[6];
+    float tmpV[6];
+#endif
     int tmpScreenX[6];
     int tmpScreenY[6];
     int tmpViewspaceX[6];

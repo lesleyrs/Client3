@@ -131,7 +131,15 @@ void gameshell_run(Client *c) {
             c->shell->fps = ratio * 1000 / (c->shell->deltime * 256);
         }
         client_draw(c);
-        client_run_flames(c);      // NOTE: random placement of run_flames
+#ifdef GL11
+        c->redraw_background = true; // need to redraw every frame
+
+        static bool logged = false;
+        if (!logged) {
+            client_login(c, c->username, c->password, false);
+            logged = true;
+        }
+#endif
         gameshell_update_touch(c); // update mouse after client_draw_scene to fix model picking (not needed for touch on release like client-ts)
         platform_update_surface();
     }

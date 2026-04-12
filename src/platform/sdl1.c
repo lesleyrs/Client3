@@ -11,6 +11,7 @@
 #include "../gameshell.h"
 #include "../inputtracking.h"
 #include "../pixmap.h"
+#include "../gl11.h"
 
 extern ClientData _Client;
 extern InputTracking _InputTracking;
@@ -92,8 +93,24 @@ void platform_new(GameShell *shell) {
     SDL_EnableUNICODE(1);
     SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
     SDL_WM_SetCaption("Jagex", NULL);
-    // window_surface = SDL_SetVideoMode(shell->screen_width, shell->screen_height, 32, SDL_HWSURFACE | SDL_RESIZABLE);
-    window_surface = SDL_SetVideoMode(shell->screen_width, shell->screen_height, 32, SDL_SWSURFACE);
+
+#ifdef GL11
+    int flags = SDL_OPENGL;
+#else
+    int flags = SDL_SWSURFACE;
+#endif
+    // flags |= SDL_RESIZABLE;
+    window_surface = SDL_SetVideoMode(shell->screen_width, shell->screen_height, 32, flags);
+
+#ifdef GL11
+    glViewport(0, 0, shell->screen_width, shell->screen_height);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0, shell->screen_width, shell->screen_height, 0, -1, 1);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+#endif
 
     if (_Client.lowmem) {
         return;
@@ -206,12 +223,18 @@ void platform_stop_midi(void) {
     }
 }
 void platform_blit_surface(Surface *surface, int x, int y) {
+#ifndef GL11
     SDL_Rect dest = {x, y, surface->w, surface->h};
     SDL_BlitSurface(surface, NULL, window_surface, &dest);
+#endif
 }
 
 void platform_update_surface(void) {
+#ifdef GL11
+    SDL_GL_SwapBuffers();
+#else
     SDL_Flip(window_surface);
+#endif
 }
 
 static void platform_get_keycodes(SDL_keysym *keysym, int *code, char *ch) {
@@ -324,8 +347,12 @@ static void platform_get_keycodes(SDL_keysym *keysym, int *code, char *ch) {
         *ch = K_5;
         break;
     case SDLK_BACKQUOTE:
-        *code = 192;
-        *ch = '`';
+        *code = SDLK_BACKQUOTE;
+        if (keysym->mod & KMOD_SHIFT) {
+            *ch = '~';
+        } else {
+            *ch = '`';
+        }
         break;
     case SDLK_QUOTE:
         *code = 222;
@@ -443,6 +470,8 @@ void platform_poll_events(Client *c) {
             }
             // if (e.active.state & SDL_APPACTIVE) { // TODO: doesn't always work
             break;
+        case SDL_VIDEORESIZE:
+        break;
         }
     }
 }

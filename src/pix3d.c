@@ -6,6 +6,7 @@
 #include "pix3d.h"
 #include "pix8.h"
 #include "platform.h"
+#include "gl11.h"
 
 Pix3D _Pix3D = {.lowMemory = true, .jagged = true};
 extern Pix2D _Pix2D;
@@ -182,6 +183,9 @@ static int *pix3d_get_texels(int id) {
                 selected = t;
             }
         }
+        if (selected == -1) { // custom fix for gl textures init
+            return NULL;
+        }
         texels = _Pix3D.activeTexels[selected];
         _Pix3D.activeTexels[selected] = NULL;
     }
@@ -303,6 +307,46 @@ void pix3d_set_brightness(double brightness) {
     for (int id = 0; id < 50; id++) {
         pix3d_push_texture(id);
     }
+
+#ifdef GL11
+    for (int id = 0; id < 50 ; id++) { // _Pix3D.textureCount
+        Pix8 *texture = _Pix3D.textures[id];
+        int *texels = pix3d_get_texels(id);
+
+        if (!texels) {
+            continue;
+        }
+
+        int n = texture->width * texture->height;
+        uint8_t *pixels = malloc(n * 4);
+
+        for (int i = 0; i < n; i++) {
+            int rgb = texels[i];
+
+            uint8_t a = (rgb >> 24) & 0xff;
+            uint8_t r = (rgb >> 16) & 0xff;
+            uint8_t g = (rgb >> 8) & 0xff;
+            uint8_t b = rgb & 0xff;
+            if (rgb != 0) {
+                a = 0xff;
+            }
+
+            pixels[i * 4 + 0] = r;
+            pixels[i * 4 + 1] = g;
+            pixels[i * 4 + 2] = b;
+            pixels[i * 4 + 3] = a;
+        }
+        glGenTextures(1, &texture->gl_texture);
+        glBindTexture(GL_TEXTURE_2D, texture->gl_texture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width, texture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+
+        free(pixels);
+    }
+#endif
 }
 
 #ifdef USE_FLOATS
@@ -334,6 +378,16 @@ int pix3d_set_gamma(int rgb, double gamma) {
 #endif
 
 void gouraudTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int colorA, int colorB, int colorC) {
+#ifdef GL11
+    glBegin(GL_TRIANGLES);
+        glColor3ub((_Pix3D.palette[colorA] >> 16) & 0xff, (_Pix3D.palette[colorA] >> 8) & 0xff, _Pix3D.palette[colorA] & 0xff);
+        glVertex2f(xA + 8, yA + 11);
+        glColor3ub((_Pix3D.palette[colorB] >> 16) & 0xff, (_Pix3D.palette[colorB] >> 8) & 0xff, _Pix3D.palette[colorB] & 0xff);
+        glVertex2f(xB + 8, yB + 11);
+        glColor3ub((_Pix3D.palette[colorC] >> 16) & 0xff, (_Pix3D.palette[colorC] >> 8) & 0xff, _Pix3D.palette[colorC] & 0xff);
+        glVertex2f(xC + 8, yC + 11);
+    glEnd();
+#else
     int dxAB = xB - xA;
     int dyAB = yB - yA;
     int dxAC = xC - xA;
@@ -773,8 +827,10 @@ void gouraudTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int colorA,
             }
         }
     }
+#endif
 }
 
+#ifndef GL11
 static void gouraudRaster(int x0, int x1, int color0, int color1, int *dst, int offset, int length) {
     int rgb;
 
@@ -907,8 +963,17 @@ static void gouraudRaster(int x0, int x1, int color0, int color1, int *dst, int 
         }
     }
 }
+#endif
 
 void flatTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int color) {
+#ifdef GL11
+    glBegin(GL_TRIANGLES);
+        glColor3ub(color >> 16, color >> 8, color);
+        glVertex2f(xA + 8, yA + 11);
+        glVertex2f(xB + 8, yB + 11);
+        glVertex2f(xC + 8, yC + 11);
+    glEnd();
+#else
     int dxAB = xB - xA;
     int dyAB = yB - yA;
     int dxAC = xC - xA;
@@ -1264,8 +1329,10 @@ void flatTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int color) {
             }
         }
     }
+#endif
 }
 
+#ifndef GL11
 static void flatRaster(int x0, int x1, int *dst, int offset, int rgb) {
     if (_Pix3D.clipX) {
         if (x1 > _Pix2D.bound_x) {
@@ -1319,7 +1386,104 @@ static void flatRaster(int x0, int x1, int *dst, int offset, int rgb) {
         }
     }
 }
+#endif
 
+#ifdef GL11
+// source:
+// https://rune-server.org/threads/texture-mapping-conversions-pmn-uv-pmn.701381/
+// https://rune-server.org/threads/better-texture-mapping-conversions.706373/
+
+UV pmn_to_uv(int xA, int yA, int zA, int xB, int yB, int zB, int xC, int yC, int zC, int xP, int yP, int zP, int xM, int yM, int zM, int xN, int yN, int zN) {
+    int mX = xM - xP;
+    int mY = yM - yP;
+    int mZ = zM - zP;
+
+    int nX = xN - xP;
+    int nY = yN - yP;
+    int nZ = zN - zP;
+
+    int aX = xA - xP;
+    int aY = yA - yP;
+    int aZ = zA - zP;
+
+    int bX = xB - xP;
+    int bY = yB - yP;
+    int bZ = zB - zP;
+
+    int cX = xC - xP;
+    int cY = yC - yP;
+    int cZ = zC - zP;
+
+    int MxNx = mY * nZ - mZ * nY;
+    int MxNy = mZ * nX - mX * nZ;
+    int MxNz = mX * nY - mY * nX;
+
+    int uX = nY * MxNz - nZ * MxNy;
+    int uY = nZ * MxNx - nX * MxNz;
+    int uZ = nX * MxNy - nY * MxNx;
+
+    float mU = 1.0f / (uX * mX + uY * mY + uZ * mZ);
+    float uA = (uX * aX + uY * aY + uZ * aZ) * mU;
+    float uB = (uX * bX + uY * bY + uZ * bZ) * mU;
+    float uC = (uX * cX + uY * cY + uZ * cZ) * mU;
+
+    int vX = mY * MxNz - mZ * MxNy;
+    int vY = mZ * MxNx - mX * MxNz;
+    int vZ = mX * MxNy - mY * MxNx;
+
+    float mV = 1.0f / (vX * nX + vY * nY + vZ * nZ);
+    float vA = (vX * aX + vY * aY + vZ * aZ) * mV;
+    float vB = (vX * bX + vY * bY + vZ * bZ) * mV;
+    float vC = (vX * cX + vY * cY + vZ * cZ) * mV;
+
+    return (UV){uA, uB, uC, vA, vB, vC};
+}
+
+void glTextureTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int shadeA, int shadeB, int shadeC, UV uv, int texture) {
+    // TODO works but where is code from originally? based on https://github.com/2004Scape/Client2/compare/main...dennisdev:Client2:feature/webgl2
+    if (texture == 17 || texture == 24) {
+        float time = rs2_now() / 1000.0f;
+#define TEXTURE_ANIM_UNIT (1.0f / 128.0f)
+        float offset = time / 0.02 * -2.0 * TEXTURE_ANIM_UNIT;
+        offset = fmodf(offset, 1.0f);
+        uv.vA += offset;
+        uv.vB += offset;
+        uv.vC += offset;
+    }
+
+    _Pix3D.opaque = !_Pix3D.textureHasTransparency[texture];
+    if (!_Pix3D.opaque) {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, _Pix3D.textures[texture]->gl_texture);
+
+    // glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+    // TODO + 8 and + 11 for all tri funcs need to vary for model_draw_simple position... or do it another way for different pixmap offsets
+    glBegin(GL_TRIANGLES);
+        glColor3ub(255 - (shadeA * 2), 255 - (shadeA * 2), 255 - (shadeA * 2));
+        glTexCoord2f(uv.uA, uv.vA);
+        glVertex2f(xA + 8, yA + 11);
+
+        glColor3ub(255 - (shadeB * 2), 255 - (shadeB * 2), 255 - (shadeB * 2));
+        glTexCoord2f(uv.uB, uv.vB);
+        glVertex2f(xB + 8, yB + 11);
+
+        glColor3ub(255 - (shadeC * 2), 255 - (shadeC * 2), 255 - (shadeC * 2));
+        glTexCoord2f(uv.uC, uv.vC);
+        glVertex2f(xC + 8, yC + 11);
+    glEnd();
+
+    glDisable(GL_TEXTURE_2D);
+
+    if (!_Pix3D.opaque) {
+        glDisable(GL_BLEND);
+    }
+}
+#else
 void textureTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int shadeA, int shadeB, int shadeC, int originX, int originY, int originZ, int txB, int txC, int tyB, int tyC, int tzB, int tzC, int texture) {
     int *texels = pix3d_get_texels(texture);
     _Pix3D.opaque = !_Pix3D.textureHasTransparency[texture];
@@ -1886,7 +2050,9 @@ void textureTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int shadeA,
         }
     }
 }
+#endif
 
+#ifndef GL11
 static void textureRaster(int xA, int xB, int *dst, int offset, int *texels, int curU, int curV, int u, int v, int w, int uStride, int vStride, int wStride, int shadeA, int shadeB) {
     if (xA >= xB) {
         return;
@@ -2319,3 +2485,4 @@ static void textureRaster(int xA, int xB, int *dst, int offset, int *texels, int
         }
     }
 }
+#endif

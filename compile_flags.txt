@@ -61,3 +61,5 @@
 # --sysroot=../wasmlite/libc
 
 -DDUMMY
+
+-DGL11

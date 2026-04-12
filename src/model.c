@@ -1276,13 +1276,24 @@ void model_draw_face(Model *m, int index) {
             tA = m->textured_p_coordinate[t];
             tB = m->textured_m_coordinate[t];
             tC = m->textured_n_coordinate[t];
+
+#ifdef GL11
+            UV uv = pmn_to_uv(m->vertices_x[a], m->vertices_y[a], m->vertices_z[a], m->vertices_x[b], m->vertices_y[b], m->vertices_z[b], m->vertices_x[c], m->vertices_y[c], m->vertices_z[c], m->vertices_x[tA], m->vertices_y[tA], m->vertices_z[tA], m->vertices_x[tB], m->vertices_y[tB], m->vertices_z[tB], m->vertices_x[tC], m->vertices_y[tC], m->vertices_z[tC]);
+            glTextureTriangle(_Model.vertex_screen_x[a], _Model.vertex_screen_x[b], _Model.vertex_screen_x[c], _Model.vertex_screen_y[a], _Model.vertex_screen_y[b], _Model.vertex_screen_y[c], m->face_color_a[index], m->face_color_b[index], m->face_color_c[index], uv, m->face_colors[index]);
+#else
             textureTriangle(_Model.vertex_screen_x[a], _Model.vertex_screen_x[b], _Model.vertex_screen_x[c], _Model.vertex_screen_y[a], _Model.vertex_screen_y[b], _Model.vertex_screen_y[c], m->face_color_a[index], m->face_color_b[index], m->face_color_c[index], _Model.vertex_view_space_x[tA], _Model.vertex_view_space_y[tA], _Model.vertex_view_space_z[tA], _Model.vertex_view_space_x[tB], _Model.vertex_view_space_x[tC], _Model.vertex_view_space_y[tB], _Model.vertex_view_space_y[tC], _Model.vertex_view_space_z[tB], _Model.vertex_view_space_z[tC], m->face_colors[index]);
+#endif
         } else if (type == 3) {
             t = m->face_infos[index] >> 2;
             tA = m->textured_p_coordinate[t];
             tB = m->textured_m_coordinate[t];
             tC = m->textured_n_coordinate[t];
+#ifdef GL11
+            UV uv = pmn_to_uv(m->vertices_x[a], m->vertices_y[a], m->vertices_z[a], m->vertices_x[b], m->vertices_y[b], m->vertices_z[b], m->vertices_x[c], m->vertices_y[c], m->vertices_z[c], m->vertices_x[tA], m->vertices_y[tA], m->vertices_z[tA], m->vertices_x[tB], m->vertices_y[tB], m->vertices_z[tB], m->vertices_x[tC], m->vertices_y[tC], m->vertices_z[tC]);
+            glTextureTriangle(_Model.vertex_screen_x[a], _Model.vertex_screen_x[b], _Model.vertex_screen_x[c], _Model.vertex_screen_y[a], _Model.vertex_screen_y[b], _Model.vertex_screen_y[c], m->face_color_a[index], m->face_color_b[index], m->face_color_c[index], uv, m->face_colors[index]);
+#else
             textureTriangle(_Model.vertex_screen_x[a], _Model.vertex_screen_x[b], _Model.vertex_screen_x[c], _Model.vertex_screen_y[a], _Model.vertex_screen_y[b], _Model.vertex_screen_y[c], m->face_color_a[index], m->face_color_a[index], m->face_color_a[index], _Model.vertex_view_space_x[tA], _Model.vertex_view_space_y[tA], _Model.vertex_view_space_z[tA], _Model.vertex_view_space_x[tB], _Model.vertex_view_space_x[tC], _Model.vertex_view_space_y[tB], _Model.vertex_view_space_y[tC], _Model.vertex_view_space_z[tB], _Model.vertex_view_space_z[tC], m->face_colors[index]);
+#endif
         }
     }
 }
@@ -1399,13 +1410,23 @@ void model_draw_near_clipped_face(Model *m, int index) {
             tA = m->textured_p_coordinate[t];
             tB = m->textured_m_coordinate[t];
             tC = m->textured_n_coordinate[t];
+#ifdef GL11
+            UV uv = pmn_to_uv(m->vertices_x[a], m->vertices_y[a], m->vertices_z[a], m->vertices_x[b], m->vertices_y[b], m->vertices_z[b], m->vertices_x[c], m->vertices_y[c], m->vertices_z[c], m->vertices_x[tA], m->vertices_y[tA], m->vertices_z[tA], m->vertices_x[tB], m->vertices_y[tB], m->vertices_z[tB], m->vertices_x[tC], m->vertices_y[tC], m->vertices_z[tC]);
+            glTextureTriangle(xA, xB, xC, yA, yB, yC, _Model.clipped_color[0], _Model.clipped_color[1], _Model.clipped_color[2], uv, m->face_colors[index]);
+#else
             textureTriangle(xA, xB, xC, yA, yB, yC, _Model.clipped_color[0], _Model.clipped_color[1], _Model.clipped_color[2], _Model.vertex_view_space_x[tA], _Model.vertex_view_space_y[tA], _Model.vertex_view_space_z[tA], _Model.vertex_view_space_x[tB], _Model.vertex_view_space_x[tC], _Model.vertex_view_space_y[tB], _Model.vertex_view_space_y[tC], _Model.vertex_view_space_z[tB], _Model.vertex_view_space_z[tC], m->face_colors[index]);
+#endif
         } else if (type == 3) {
             t = m->face_infos[index] >> 2;
             tA = m->textured_p_coordinate[t];
             tB = m->textured_m_coordinate[t];
             tC = m->textured_n_coordinate[t];
+#ifdef GL11
+            UV uv = pmn_to_uv(m->vertices_x[a], m->vertices_y[a], m->vertices_z[a], m->vertices_x[b], m->vertices_y[b], m->vertices_z[b], m->vertices_x[c], m->vertices_y[c], m->vertices_z[c], m->vertices_x[tA], m->vertices_y[tA], m->vertices_z[tA], m->vertices_x[tB], m->vertices_y[tB], m->vertices_z[tB], m->vertices_x[tC], m->vertices_y[tC], m->vertices_z[tC]);
+            glTextureTriangle(xA, xB, xC, yA, yB, yC, m->face_color_a[index], m->face_color_a[index], m->face_color_a[index], uv, m->face_colors[index]);
+#else
             textureTriangle(xA, xB, xC, yA, yB, yC, m->face_color_a[index], m->face_color_a[index], m->face_color_a[index], _Model.vertex_view_space_x[tA], _Model.vertex_view_space_y[tA], _Model.vertex_view_space_z[tA], _Model.vertex_view_space_x[tB], _Model.vertex_view_space_x[tC], _Model.vertex_view_space_y[tB], _Model.vertex_view_space_y[tC], _Model.vertex_view_space_z[tB], _Model.vertex_view_space_z[tC], m->face_colors[index]);
+#endif
         }
     }
     if (n != 4) {
@@ -1435,8 +1456,14 @@ void model_draw_near_clipped_face(Model *m, int index) {
         tA = m->textured_p_coordinate[t];
         tB = m->textured_m_coordinate[t];
         tC = m->textured_n_coordinate[t];
+#ifdef GL11
+        UV uv = pmn_to_uv(m->vertices_x[a], m->vertices_y[a], m->vertices_z[a], m->vertices_x[b], m->vertices_y[b], m->vertices_z[b], m->vertices_x[c], m->vertices_y[c], m->vertices_z[c], m->vertices_x[tA], m->vertices_y[tA], m->vertices_z[tA], m->vertices_x[tB], m->vertices_y[tB], m->vertices_z[tB], m->vertices_x[tC], m->vertices_y[tC], m->vertices_z[tC]);
+        glTextureTriangle(xA, xB, xC, yA, yB, yC, _Model.clipped_color[0], _Model.clipped_color[1], _Model.clipped_color[2], uv, m->face_colors[index]);
+        glTextureTriangle(xA, xC, _Model.clipped_x[3], yA, yC, _Model.clipped_y[3], _Model.clipped_color[0], _Model.clipped_color[2], _Model.clipped_color[3], uv, m->face_colors[index]);
+#else
         textureTriangle(xA, xB, xC, yA, yB, yC, _Model.clipped_color[0], _Model.clipped_color[1], _Model.clipped_color[2], _Model.vertex_view_space_x[tA], _Model.vertex_view_space_y[tA], _Model.vertex_view_space_z[tA], _Model.vertex_view_space_x[tB], _Model.vertex_view_space_x[tC], _Model.vertex_view_space_y[tB], _Model.vertex_view_space_y[tC], _Model.vertex_view_space_z[tB], _Model.vertex_view_space_z[tC], m->face_colors[index]);
         textureTriangle(xA, xC, _Model.clipped_x[3], yA, yC, _Model.clipped_y[3], _Model.clipped_color[0], _Model.clipped_color[2], _Model.clipped_color[3], _Model.vertex_view_space_x[tA], _Model.vertex_view_space_y[tA], _Model.vertex_view_space_z[tA], _Model.vertex_view_space_x[tB], _Model.vertex_view_space_x[tC], _Model.vertex_view_space_y[tB], _Model.vertex_view_space_y[tC], _Model.vertex_view_space_z[tB], _Model.vertex_view_space_z[tC], m->face_colors[index]);
+#endif
         return;
     }
     if (type != 3) {
@@ -1446,8 +1473,14 @@ void model_draw_near_clipped_face(Model *m, int index) {
     tA = m->textured_p_coordinate[t];
     tB = m->textured_m_coordinate[t];
     tC = m->textured_n_coordinate[t];
+#ifdef GL11
+    UV uv = pmn_to_uv(m->vertices_x[a], m->vertices_y[a], m->vertices_z[a], m->vertices_x[b], m->vertices_y[b], m->vertices_z[b], m->vertices_x[c], m->vertices_y[c], m->vertices_z[c], m->vertices_x[tA], m->vertices_y[tA], m->vertices_z[tA], m->vertices_x[tB], m->vertices_y[tB], m->vertices_z[tB], m->vertices_x[tC], m->vertices_y[tC], m->vertices_z[tC]);
+    glTextureTriangle(xA, xB, xC, yA, yB, yC, m->face_color_a[index], m->face_color_a[index], m->face_color_a[index], uv, m->face_colors[index]);
+    glTextureTriangle(xA, xC, _Model.clipped_x[3], yA, yC, _Model.clipped_y[3], m->face_color_a[index], m->face_color_a[index], m->face_color_a[index], uv, m->face_colors[index]);
+#else
     textureTriangle(xA, xB, xC, yA, yB, yC, m->face_color_a[index], m->face_color_a[index], m->face_color_a[index], _Model.vertex_view_space_x[tA], _Model.vertex_view_space_y[tA], _Model.vertex_view_space_z[tA], _Model.vertex_view_space_x[tB], _Model.vertex_view_space_x[tC], _Model.vertex_view_space_y[tB], _Model.vertex_view_space_y[tC], _Model.vertex_view_space_z[tB], _Model.vertex_view_space_z[tC], m->face_colors[index]);
     textureTriangle(xA, xC, _Model.clipped_x[3], yA, yC, _Model.clipped_y[3], m->face_color_a[index], m->face_color_a[index], m->face_color_a[index], _Model.vertex_view_space_x[tA], _Model.vertex_view_space_y[tA], _Model.vertex_view_space_z[tA], _Model.vertex_view_space_x[tB], _Model.vertex_view_space_x[tC], _Model.vertex_view_space_y[tB], _Model.vertex_view_space_y[tC], _Model.vertex_view_space_z[tB], _Model.vertex_view_space_z[tC], m->face_colors[index]);
+#endif
 }
 
 bool model_point_within_triangle(int x, int y, int ya, int yb, int yc, int xa, int xb, int xc) {
