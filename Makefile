@@ -18,6 +18,7 @@ RSA_LENGTH ?= 128
 WITH_OPENSSL ?= 1
 WITH_LIBTOM ?= 1
 SDL ?= 2
+GL11 ?= 0
 
 ifeq ($(basename $(notdir $(CC))),emcc)
 # getnameinfo does nothing with emscripten so use old api
@@ -47,6 +48,11 @@ SRC += src/platform/dummy.c
 CFLAGS += -DDUMMY
 endif
 endif
+endif
+
+ifeq ($(GL11),1)
+CFLAGS += -DGL11
+LDFLAGS += -lGL
 endif
 
 CFLAGS += -D$(ENTRY) -fwrapv -std=c99 -Wall -Wpedantic -Wvla -Wshadow -Wmissing-prototypes -Wstrict-prototypes -Wmissing-declarations -Wredundant-decls

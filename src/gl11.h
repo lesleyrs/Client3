@@ -1,7 +1,9 @@
 #pragma once
 
 #ifdef GL11
+#ifdef _WIN32
 #include <windows.h>
+#endif
 
 #if !(defined(__TINYC__) && defined(_WIN32))
 #include <GL/gl.h>
