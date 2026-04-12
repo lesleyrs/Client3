@@ -1374,6 +1374,9 @@ static void flatRaster(int x0, int x1, int *dst, int offset, int rgb) {
             dst[offset++] = rgb;
         }
     } else {
+#ifndef NDEBUG
+        printf("TODO when does this happen?\n");
+#endif
         int alpha = _Pix3D.alpha;
         int invAlpha = 256 - _Pix3D.alpha;
         rgb = ((rgb & 0xff00ff) * invAlpha >> 8 & 0xff00ff) + ((rgb & 0xff00) * invAlpha >> 8 & 0xff00);
