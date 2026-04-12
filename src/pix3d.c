@@ -379,14 +379,24 @@ int pix3d_set_gamma(int rgb, double gamma) {
 
 void gouraudTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int colorA, int colorB, int colorC) {
 #ifdef GL11
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    int alpha = 255;
+    if (_Pix3D.alpha != 0) {
+        alpha = 255 - _Pix3D.alpha;
+    }
+
     glBegin(GL_TRIANGLES);
-        glColor3ub((_Pix3D.palette[colorA] >> 16) & 0xff, (_Pix3D.palette[colorA] >> 8) & 0xff, _Pix3D.palette[colorA] & 0xff);
+        glColor4ub((_Pix3D.palette[colorA] >> 16) & 0xff, (_Pix3D.palette[colorA] >> 8) & 0xff, _Pix3D.palette[colorA] & 0xff, alpha);
         glVertex2f(xA + 8, yA + 11);
-        glColor3ub((_Pix3D.palette[colorB] >> 16) & 0xff, (_Pix3D.palette[colorB] >> 8) & 0xff, _Pix3D.palette[colorB] & 0xff);
+        glColor4ub((_Pix3D.palette[colorB] >> 16) & 0xff, (_Pix3D.palette[colorB] >> 8) & 0xff, _Pix3D.palette[colorB] & 0xff, alpha);
         glVertex2f(xB + 8, yB + 11);
-        glColor3ub((_Pix3D.palette[colorC] >> 16) & 0xff, (_Pix3D.palette[colorC] >> 8) & 0xff, _Pix3D.palette[colorC] & 0xff);
+        glColor4ub((_Pix3D.palette[colorC] >> 16) & 0xff, (_Pix3D.palette[colorC] >> 8) & 0xff, _Pix3D.palette[colorC] & 0xff, alpha);
         glVertex2f(xC + 8, yC + 11);
     glEnd();
+
+    glDisable(GL_BLEND);
 #else
     int dxAB = xB - xA;
     int dyAB = yB - yA;

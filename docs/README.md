@@ -30,7 +30,7 @@
 ## TODO
 ```
 - GL 1.1 renderer (currently just pix3d) based on https://github.com/2004Scape/Client2/compare/main...dennisdev:Client2:feature/webgl2
-GL issues: some effects (teleport/levelup) appear too big/not transparent, hardcoded vertex offsets in pix3d (+ 8 and + 11), needs to be different for model_draw_simple and other pix), pixfont wave/colors broken, confirm texture shading is ok
+GL issues: check if flatTriangle/glTextureTriangle need to pass alpha, hardcoded vertex offsets in pix3d (+ 8 and + 11), needs to be different for model_draw_simple and other pix), pixfont wave/colors broken, confirm texture shading is ok
 - (non-wasm): server cache changes requires manual cache+archive_checksums update in the client since it doesn't download, also the server has an issue with client map crcs changing when only server maps get updated.
 - midi fading, old js code for IE: https://github.com/2004Scape/Server/blob/61bf21fb3755c14b5cf6d47c9d974dee5783beda/view/javaclient.ejs new ts code: https://github.com/2004Scape/Client2/commit/92e74f1f134ea82e48dd608dcca3422777a7a986 https://github.com/LostCityRS/Client-TS/pulls?q=is%3Apr+is%3Aclosed+midi
 - finish mobile support like client-ts (sdl2 and sdl3 for postmarketos/android, emscripten and webassembly for browser)
