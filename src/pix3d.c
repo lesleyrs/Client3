@@ -977,12 +977,22 @@ static void gouraudRaster(int x0, int x1, int color0, int color1, int *dst, int 
 
 void flatTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int color) {
 #ifdef GL11
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    int alpha = 255;
+    if (_Pix3D.alpha != 0) {
+        alpha = 255 - _Pix3D.alpha;
+    }
+
     glBegin(GL_TRIANGLES);
-        glColor3ub(color >> 16, color >> 8, color);
+        glColor4ub(color >> 16, color >> 8, color, alpha);
         glVertex2f(xA + 8, yA + 11);
         glVertex2f(xB + 8, yB + 11);
         glVertex2f(xC + 8, yC + 11);
     glEnd();
+
+    glDisable(GL_BLEND);
 #else
     int dxAB = xB - xA;
     int dyAB = yB - yA;
@@ -1374,9 +1384,6 @@ static void flatRaster(int x0, int x1, int *dst, int offset, int rgb) {
             dst[offset++] = rgb;
         }
     } else {
-#ifndef NDEBUG
-        printf("TODO when does this happen?\n");
-#endif
         int alpha = _Pix3D.alpha;
         int invAlpha = 256 - _Pix3D.alpha;
         rgb = ((rgb & 0xff00ff) * invAlpha >> 8 & 0xff00ff) + ((rgb & 0xff00) * invAlpha >> 8 & 0xff00);
