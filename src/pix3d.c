@@ -1460,11 +1460,11 @@ UV pmn_to_uv(int xA, int yA, int zA, int xB, int yB, int zB, int xC, int yC, int
 }
 
 void glTextureTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int shadeA, int shadeB, int shadeC, UV uv, int texture) {
-    // TODO works but where is code from originally? based on https://github.com/2004Scape/Client2/compare/main...dennisdev:Client2:feature/webgl2
+    // scrolling textures from updateTextures
     if (texture == 17 || texture == 24) {
         float time = rs2_now() / 1000.0f;
-#define TEXTURE_ANIM_UNIT (1.0f / 128.0f)
-        float offset = time / 0.02 * -2.0 * TEXTURE_ANIM_UNIT;
+        float texture_anim_unit = 1.0f / 128.0f;
+        float offset = time / 0.02f * -2.0f * texture_anim_unit;
         offset = fmodf(offset, 1.0f);
         uv.vA += offset;
         uv.vB += offset;
