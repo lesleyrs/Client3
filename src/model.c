@@ -1290,7 +1290,7 @@ void model_draw_face(Model *m, int index) {
             tC = m->textured_n_coordinate[t];
 #ifdef GL11
             UV uv = pmn_to_uv(m->vertices_x[a], m->vertices_y[a], m->vertices_z[a], m->vertices_x[b], m->vertices_y[b], m->vertices_z[b], m->vertices_x[c], m->vertices_y[c], m->vertices_z[c], m->vertices_x[tA], m->vertices_y[tA], m->vertices_z[tA], m->vertices_x[tB], m->vertices_y[tB], m->vertices_z[tB], m->vertices_x[tC], m->vertices_y[tC], m->vertices_z[tC]);
-            glTextureTriangle(_Model.vertex_screen_x[a], _Model.vertex_screen_x[b], _Model.vertex_screen_x[c], _Model.vertex_screen_y[a], _Model.vertex_screen_y[b], _Model.vertex_screen_y[c], m->face_color_a[index], m->face_color_b[index], m->face_color_c[index], uv, m->face_colors[index]);
+            glTextureTriangle(_Model.vertex_screen_x[a], _Model.vertex_screen_x[b], _Model.vertex_screen_x[c], _Model.vertex_screen_y[a], _Model.vertex_screen_y[b], _Model.vertex_screen_y[c], m->face_color_a[index], m->face_color_a[index], m->face_color_a[index], uv, m->face_colors[index]);
 #else
             textureTriangle(_Model.vertex_screen_x[a], _Model.vertex_screen_x[b], _Model.vertex_screen_x[c], _Model.vertex_screen_y[a], _Model.vertex_screen_y[b], _Model.vertex_screen_y[c], m->face_color_a[index], m->face_color_a[index], m->face_color_a[index], _Model.vertex_view_space_x[tA], _Model.vertex_view_space_y[tA], _Model.vertex_view_space_z[tA], _Model.vertex_view_space_x[tB], _Model.vertex_view_space_x[tC], _Model.vertex_view_space_y[tB], _Model.vertex_view_space_y[tC], _Model.vertex_view_space_z[tB], _Model.vertex_view_space_z[tC], m->face_colors[index]);
 #endif
