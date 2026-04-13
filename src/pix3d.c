@@ -2481,4 +2481,3 @@ void textureTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int shadeA,
     }
 }
 #endif
-
