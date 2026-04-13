@@ -132,6 +132,7 @@ void gameshell_run(Client *c) {
         }
         client_draw(c);
 #ifdef GL11
+        rs2_log("FPS: %d\n", c->shell->fps);
         c->redraw_background = true; // need to redraw every frame
 
         static bool logged = false;

@@ -18,7 +18,8 @@ RSA_LENGTH ?= 128
 WITH_OPENSSL ?= 1
 WITH_LIBTOM ?= 1
 SDL ?= 2
-GL11 ?= 0
+GL ?= 0
+NATIVE ?= 0
 
 ifeq ($(basename $(notdir $(CC))),emcc)
 # getnameinfo does nothing with emscripten so use old api
@@ -50,9 +51,13 @@ endif
 endif
 endif
 
-ifeq ($(GL11),1)
+ifeq ($(GL),1)
 CFLAGS += -DGL11
 LDFLAGS += -lGL
+endif
+
+ifeq ($(NATIVE),1)
+CFLAGS += -march=native
 endif
 
 CFLAGS += -D$(ENTRY) -fwrapv -std=c99 -Wall -Wpedantic -Wvla -Wshadow -Wmissing-prototypes -Wstrict-prototypes -Wmissing-declarations -Wredundant-decls
@@ -195,7 +200,7 @@ endif
 
 .PHONY: all client playground midi
 all:
-	$(CC) $(CFLAGS) $(SRC) $(LDFLAGS) $(SAN) -o $(OUT)
+	time -p $(CC) $(CFLAGS) $(SRC) $(LDFLAGS) $(SAN) -o $(OUT)
 
 run: all
 	$(RUN)
