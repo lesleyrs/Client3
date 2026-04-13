@@ -1,6 +1,10 @@
 #pragma once
 
 #ifdef GL11
+#if SDL != 1
+#error GL 1.1 renderer only runs on SDL 1 for now: (make SDL=1, batch -v 1)
+#endif
+
 #ifdef _WIN32
 #include <windows.h>
 #endif

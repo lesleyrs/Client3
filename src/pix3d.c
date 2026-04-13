@@ -11,10 +11,6 @@
 Pix3D _Pix3D = {.lowMemory = true, .jagged = true};
 extern Pix2D _Pix2D;
 
-static void gouraudRaster(int x0, int x1, int color0, int color1, int *dst, int offset, int length);
-static void flatRaster(int x0, int x1, int *dst, int offset, int rgb);
-static void textureRaster(int xA, int xB, int *dst, int offset, int *texels, int curU, int curV, int u, int v, int w, int uStride, int vStride, int wStride, int shadeA, int shadeB);
-
 void pix3d_init_global(void) {
     _Pix3D.reciprical15 = malloc(512 * sizeof(int));
     _Pix3D.reciprical16 = malloc(2048 * sizeof(int));
@@ -374,6 +370,141 @@ int pix3d_set_gamma(int rgb, double gamma) {
     int intG = (int)(powG * 256.0);
     int intB = (int)(powB * 256.0);
     return (intR << 16) + (intG << 8) + intB;
+}
+#endif
+
+#ifndef GL11
+static void gouraudRaster(int x0, int x1, int color0, int color1, int *dst, int offset, int length) {
+    int rgb;
+
+    if (_Pix3D.jagged) {
+        int colorStep;
+
+        if (_Pix3D.clipX) {
+            if (x1 - x0 > 3) {
+                colorStep = (color1 - color0) / (x1 - x0);
+            } else {
+                colorStep = 0;
+            }
+
+            if (x1 > _Pix2D.bound_x) {
+                x1 = _Pix2D.bound_x;
+            }
+
+            if (x0 < 0) {
+                color0 -= x0 * colorStep;
+                x0 = 0;
+            }
+
+            if (x0 >= x1) {
+                return;
+            }
+
+            offset += x0;
+            length = (x1 - x0) >> 2;
+            colorStep <<= 2;
+        } else if (x0 < x1) {
+            offset += x0;
+            length = (x1 - x0) >> 2;
+
+            if (length > 0) {
+                colorStep = (color1 - color0) * _Pix3D.reciprical15[length] >> 15;
+            } else {
+                colorStep = 0;
+            }
+        } else {
+            return;
+        }
+
+        if (_Pix3D.alpha == 0) {
+            while (--length >= 0) {
+                rgb = _Pix3D.palette[color0 >> 8];
+                color0 += colorStep;
+
+                dst[offset++] = rgb;
+                dst[offset++] = rgb;
+                dst[offset++] = rgb;
+                dst[offset++] = rgb;
+            }
+
+            length = (x1 - x0) & 0x3;
+            if (length > 0) {
+                rgb = _Pix3D.palette[color0 >> 8];
+
+                while (--length >= 0) {
+                    dst[offset++] = rgb;
+                }
+            }
+        } else {
+            int alpha = _Pix3D.alpha;
+            int invAlpha = 256 - _Pix3D.alpha;
+
+            while (--length >= 0) {
+                rgb = _Pix3D.palette[color0 >> 8];
+                color0 += colorStep;
+
+                rgb = ((((rgb & 0xff00ff) * invAlpha) >> 8) & 0xff00ff) + ((((rgb & 0xff00) * invAlpha) >> 8) & 0xff00);
+                dst[offset] = rgb + ((((dst[offset] & 0xff00ff) * alpha) >> 8) & 0xff00ff) + ((((dst[offset] & 0xff00) * alpha) >> 8) & 0xff00);
+                offset++;
+                dst[offset] = rgb + ((((dst[offset] & 0xff00ff) * alpha) >> 8) & 0xff00ff) + ((((dst[offset] & 0xff00) * alpha) >> 8) & 0xff00);
+                offset++;
+                dst[offset] = rgb + ((((dst[offset] & 0xff00ff) * alpha) >> 8) & 0xff00ff) + ((((dst[offset] & 0xff00) * alpha) >> 8) & 0xff00);
+                offset++;
+                dst[offset] = rgb + ((((dst[offset] & 0xff00ff) * alpha) >> 8) & 0xff00ff) + ((((dst[offset] & 0xff00) * alpha) >> 8) & 0xff00);
+                offset++;
+            }
+
+            length = (x1 - x0) & 0x3;
+            if (length > 0) {
+                rgb = _Pix3D.palette[color0 >> 8];
+                rgb = ((((rgb & 0xff00ff) * invAlpha) >> 8) & 0xff00ff) + ((((rgb & 0xff00) * invAlpha) >> 8) & 0xff00);
+
+                while (--length >= 0) {
+                    dst[offset] = rgb + ((((dst[offset] & 0xff00ff) * alpha) >> 8) & 0xff00ff) + ((((dst[offset] & 0xff00) * alpha) >> 8) & 0xff00);
+                    offset++;
+                }
+            }
+        }
+    } else if (x0 < x1) {
+        int colorStep = (color1 - color0) / (x1 - x0);
+
+        if (_Pix3D.clipX) {
+            if (x1 > _Pix2D.bound_x) {
+                x1 = _Pix2D.bound_x;
+            }
+
+            if (x0 < 0) {
+                color0 -= x0 * colorStep;
+                x0 = 0;
+            }
+
+            if (x0 >= x1) {
+                return;
+            }
+        }
+
+        offset += x0;
+        length = x1 - x0;
+
+        if (_Pix3D.alpha == 0) {
+            while (--length >= 0) {
+                dst[offset++] = _Pix3D.palette[color0 >> 8];
+                color0 += colorStep;
+            }
+        } else {
+            int alpha = _Pix3D.alpha;
+            int invAlpha = 256 - _Pix3D.alpha;
+
+            while (--length >= 0) {
+                rgb = _Pix3D.palette[color0 >> 8];
+                color0 += colorStep;
+
+                rgb = ((((rgb & 0xff00ff) * invAlpha) >> 8) & 0xff00ff) + ((((rgb & 0xff00) * invAlpha) >> 8) & 0xff00);
+                dst[offset] = rgb + ((((dst[offset] & 0xff00ff) * alpha) >> 8) & 0xff00ff) + ((((dst[offset] & 0xff00) * alpha) >> 8) & 0xff00);
+                offset++;
+            }
+        }
+    }
 }
 #endif
 
@@ -836,135 +967,56 @@ void gouraudTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int colorA,
 }
 
 #ifndef GL11
-static void gouraudRaster(int x0, int x1, int color0, int color1, int *dst, int offset, int length) {
-    int rgb;
-
-    if (_Pix3D.jagged) {
-        int colorStep;
-
-        if (_Pix3D.clipX) {
-            if (x1 - x0 > 3) {
-                colorStep = (color1 - color0) / (x1 - x0);
-            } else {
-                colorStep = 0;
-            }
-
-            if (x1 > _Pix2D.bound_x) {
-                x1 = _Pix2D.bound_x;
-            }
-
-            if (x0 < 0) {
-                color0 -= x0 * colorStep;
-                x0 = 0;
-            }
-
-            if (x0 >= x1) {
-                return;
-            }
-
-            offset += x0;
-            length = (x1 - x0) >> 2;
-            colorStep <<= 2;
-        } else if (x0 < x1) {
-            offset += x0;
-            length = (x1 - x0) >> 2;
-
-            if (length > 0) {
-                colorStep = (color1 - color0) * _Pix3D.reciprical15[length] >> 15;
-            } else {
-                colorStep = 0;
-            }
-        } else {
-            return;
+static void flatRaster(int x0, int x1, int *dst, int offset, int rgb) {
+    if (_Pix3D.clipX) {
+        if (x1 > _Pix2D.bound_x) {
+            x1 = _Pix2D.bound_x;
         }
 
-        if (_Pix3D.alpha == 0) {
-            while (--length >= 0) {
-                rgb = _Pix3D.palette[color0 >> 8];
-                color0 += colorStep;
-
-                dst[offset++] = rgb;
-                dst[offset++] = rgb;
-                dst[offset++] = rgb;
-                dst[offset++] = rgb;
-            }
-
-            length = (x1 - x0) & 0x3;
-            if (length > 0) {
-                rgb = _Pix3D.palette[color0 >> 8];
-
-                while (--length >= 0) {
-                    dst[offset++] = rgb;
-                }
-            }
-        } else {
-            int alpha = _Pix3D.alpha;
-            int invAlpha = 256 - _Pix3D.alpha;
-
-            while (--length >= 0) {
-                rgb = _Pix3D.palette[color0 >> 8];
-                color0 += colorStep;
-
-                rgb = ((((rgb & 0xff00ff) * invAlpha) >> 8) & 0xff00ff) + ((((rgb & 0xff00) * invAlpha) >> 8) & 0xff00);
-                dst[offset] = rgb + ((((dst[offset] & 0xff00ff) * alpha) >> 8) & 0xff00ff) + ((((dst[offset] & 0xff00) * alpha) >> 8) & 0xff00);
-                offset++;
-                dst[offset] = rgb + ((((dst[offset] & 0xff00ff) * alpha) >> 8) & 0xff00ff) + ((((dst[offset] & 0xff00) * alpha) >> 8) & 0xff00);
-                offset++;
-                dst[offset] = rgb + ((((dst[offset] & 0xff00ff) * alpha) >> 8) & 0xff00ff) + ((((dst[offset] & 0xff00) * alpha) >> 8) & 0xff00);
-                offset++;
-                dst[offset] = rgb + ((((dst[offset] & 0xff00ff) * alpha) >> 8) & 0xff00ff) + ((((dst[offset] & 0xff00) * alpha) >> 8) & 0xff00);
-                offset++;
-            }
-
-            length = (x1 - x0) & 0x3;
-            if (length > 0) {
-                rgb = _Pix3D.palette[color0 >> 8];
-                rgb = ((((rgb & 0xff00ff) * invAlpha) >> 8) & 0xff00ff) + ((((rgb & 0xff00) * invAlpha) >> 8) & 0xff00);
-
-                while (--length >= 0) {
-                    dst[offset] = rgb + ((((dst[offset] & 0xff00ff) * alpha) >> 8) & 0xff00ff) + ((((dst[offset] & 0xff00) * alpha) >> 8) & 0xff00);
-                    offset++;
-                }
-            }
+        if (x0 < 0) {
+            x0 = 0;
         }
-    } else if (x0 < x1) {
-        int colorStep = (color1 - color0) / (x1 - x0);
+    }
 
-        if (_Pix3D.clipX) {
-            if (x1 > _Pix2D.bound_x) {
-                x1 = _Pix2D.bound_x;
-            }
+    if (x0 >= x1) {
+        return;
+    }
 
-            if (x0 < 0) {
-                color0 -= x0 * colorStep;
-                x0 = 0;
-            }
+    offset += x0;
+    int length = (x1 - x0) >> 2;
 
-            if (x0 >= x1) {
-                return;
-            }
+    if (_Pix3D.alpha == 0) {
+        while (--length >= 0) {
+            dst[offset++] = rgb;
+            dst[offset++] = rgb;
+            dst[offset++] = rgb;
+            dst[offset++] = rgb;
         }
 
-        offset += x0;
-        length = x1 - x0;
+        length = (x1 - x0) & 0x3;
+        while (--length >= 0) {
+            dst[offset++] = rgb;
+        }
+    } else {
+        int alpha = _Pix3D.alpha;
+        int invAlpha = 256 - _Pix3D.alpha;
+        rgb = ((rgb & 0xff00ff) * invAlpha >> 8 & 0xff00ff) + ((rgb & 0xff00) * invAlpha >> 8 & 0xff00);
 
-        if (_Pix3D.alpha == 0) {
-            while (--length >= 0) {
-                dst[offset++] = _Pix3D.palette[color0 >> 8];
-                color0 += colorStep;
-            }
-        } else {
-            int alpha = _Pix3D.alpha;
-            int invAlpha = 256 - _Pix3D.alpha;
+        while (--length >= 0) {
+            dst[offset] = rgb + ((((dst[offset] & 0xff00ff) * alpha) >> 8) & 0xff00ff) + ((((dst[offset] & 0xff00) * alpha) >> 8) & 0xff00);
+            offset++;
+            dst[offset] = rgb + ((((dst[offset] & 0xff00ff) * alpha) >> 8) & 0xff00ff) + ((((dst[offset] & 0xff00) * alpha) >> 8) & 0xff00);
+            offset++;
+            dst[offset] = rgb + ((((dst[offset] & 0xff00ff) * alpha) >> 8) & 0xff00ff) + ((((dst[offset] & 0xff00) * alpha) >> 8) & 0xff00);
+            offset++;
+            dst[offset] = rgb + ((((dst[offset] & 0xff00ff) * alpha) >> 8) & 0xff00ff) + ((((dst[offset] & 0xff00) * alpha) >> 8) & 0xff00);
+            offset++;
+        }
 
-            while (--length >= 0) {
-                rgb = _Pix3D.palette[color0 >> 8];
-                color0 += colorStep;
-
-                rgb = ((((rgb & 0xff00ff) * invAlpha) >> 8) & 0xff00ff) + ((((rgb & 0xff00) * invAlpha) >> 8) & 0xff00);
-                dst[offset] = rgb + ((((dst[offset] & 0xff00ff) * alpha) >> 8) & 0xff00ff) + ((((dst[offset] & 0xff00) * alpha) >> 8) & 0xff00);
-                offset++;
-            }
+        length = (x1 - x0) & 0x3;
+        while (--length >= 0) {
+            dst[offset] = rgb + ((((dst[offset] & 0xff00ff) * alpha) >> 8) & 0xff00ff) + ((((dst[offset] & 0xff00) * alpha) >> 8) & 0xff00);
+            offset++;
         }
     }
 }
@@ -1342,62 +1394,6 @@ void flatTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int color) {
 #endif
 }
 
-#ifndef GL11
-static void flatRaster(int x0, int x1, int *dst, int offset, int rgb) {
-    if (_Pix3D.clipX) {
-        if (x1 > _Pix2D.bound_x) {
-            x1 = _Pix2D.bound_x;
-        }
-
-        if (x0 < 0) {
-            x0 = 0;
-        }
-    }
-
-    if (x0 >= x1) {
-        return;
-    }
-
-    offset += x0;
-    int length = (x1 - x0) >> 2;
-
-    if (_Pix3D.alpha == 0) {
-        while (--length >= 0) {
-            dst[offset++] = rgb;
-            dst[offset++] = rgb;
-            dst[offset++] = rgb;
-            dst[offset++] = rgb;
-        }
-
-        length = (x1 - x0) & 0x3;
-        while (--length >= 0) {
-            dst[offset++] = rgb;
-        }
-    } else {
-        int alpha = _Pix3D.alpha;
-        int invAlpha = 256 - _Pix3D.alpha;
-        rgb = ((rgb & 0xff00ff) * invAlpha >> 8 & 0xff00ff) + ((rgb & 0xff00) * invAlpha >> 8 & 0xff00);
-
-        while (--length >= 0) {
-            dst[offset] = rgb + ((((dst[offset] & 0xff00ff) * alpha) >> 8) & 0xff00ff) + ((((dst[offset] & 0xff00) * alpha) >> 8) & 0xff00);
-            offset++;
-            dst[offset] = rgb + ((((dst[offset] & 0xff00ff) * alpha) >> 8) & 0xff00ff) + ((((dst[offset] & 0xff00) * alpha) >> 8) & 0xff00);
-            offset++;
-            dst[offset] = rgb + ((((dst[offset] & 0xff00ff) * alpha) >> 8) & 0xff00ff) + ((((dst[offset] & 0xff00) * alpha) >> 8) & 0xff00);
-            offset++;
-            dst[offset] = rgb + ((((dst[offset] & 0xff00ff) * alpha) >> 8) & 0xff00ff) + ((((dst[offset] & 0xff00) * alpha) >> 8) & 0xff00);
-            offset++;
-        }
-
-        length = (x1 - x0) & 0x3;
-        while (--length >= 0) {
-            dst[offset] = rgb + ((((dst[offset] & 0xff00ff) * alpha) >> 8) & 0xff00ff) + ((((dst[offset] & 0xff00) * alpha) >> 8) & 0xff00);
-            offset++;
-        }
-    }
-}
-#endif
-
 #ifdef GL11
 // source:
 // https://rune-server.org/threads/texture-mapping-conversions-pmn-uv-pmn.701381/
@@ -1485,6 +1481,439 @@ void glTextureTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int shade
     glDisable(GL_TEXTURE_2D);
 }
 #else
+static void textureRaster(int xA, int xB, int *dst, int offset, int *texels, int curU, int curV, int u, int v, int w, int uStride, int vStride, int wStride, int shadeA, int shadeB) {
+    if (xA >= xB) {
+        return;
+    }
+
+    int shadeStrides;
+    int strides;
+    if (_Pix3D.clipX) {
+        shadeStrides = (shadeB - shadeA) / (xB - xA);
+
+        if (xB > _Pix2D.bound_x) {
+            xB = _Pix2D.bound_x;
+        }
+
+        if (xA < 0) {
+            shadeA -= xA * shadeStrides;
+            xA = 0;
+        }
+
+        if (xA >= xB) {
+            return;
+        }
+
+        strides = (xB - xA) >> 3;
+        shadeStrides <<= 12;
+        shadeA <<= 9;
+    } else {
+        if (xB - xA > 7) {
+            strides = (xB - xA) >> 3;
+            shadeStrides = (shadeB - shadeA) * _Pix3D.reciprical15[strides] >> 6;
+        } else {
+            strides = 0;
+            shadeStrides = 0;
+        }
+
+        shadeA <<= 9;
+    }
+
+    offset += xA;
+
+    if (_Pix3D.lowMemory) {
+        int nextU = 0;
+        int nextV = 0;
+        int dx = xA - _Pix3D.center_x;
+
+        u = u + (uStride >> 3) * dx;
+        v = v + (vStride >> 3) * dx;
+        w = w + (wStride >> 3) * dx;
+
+        int curW = w >> 12;
+        if (curW != 0) {
+            curU = u / curW;
+            curV = v / curW;
+            if (curU < 0) {
+                curU = 0;
+            } else if (curU > 0xfc0) {
+                curU = 0xfc0;
+            }
+        }
+
+        u = u + uStride;
+        v = v + vStride;
+        w = w + wStride;
+
+        curW = w >> 12;
+        if (curW != 0) {
+            nextU = u / curW;
+            nextV = v / curW;
+            if (nextU < 0x7) {
+                nextU = 0x7;
+            } else if (nextU > 0xfc0) {
+                nextU = 0xfc0;
+            }
+        }
+
+        int stepU = (nextU - curU) >> 3;
+        int stepV = (nextV - curV) >> 3;
+        curU += (shadeA >> 3) & 0xc0000;
+        int shadeShift = shadeA >> 23;
+
+        if (_Pix3D.opaque) {
+            while (strides-- > 0) {
+                dst[offset++] = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift;
+                curU += stepU;
+                curV += stepV;
+
+                dst[offset++] = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift;
+                curU += stepU;
+                curV += stepV;
+
+                dst[offset++] = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift;
+                curU += stepU;
+                curV += stepV;
+
+                dst[offset++] = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift;
+                curU += stepU;
+                curV += stepV;
+
+                dst[offset++] = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift;
+                curU += stepU;
+                curV += stepV;
+
+                dst[offset++] = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift;
+                curU += stepU;
+                curV += stepV;
+
+                dst[offset++] = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift;
+                curU += stepU;
+                curV += stepV;
+
+                dst[offset++] = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift;
+                curU = nextU;
+                curV = nextV;
+
+                u += uStride;
+                v += vStride;
+                w += wStride;
+
+                curW = w >> 12;
+                if (curW != 0) {
+                    nextU = u / curW;
+                    nextV = v / curW;
+                    if (nextU < 0x7) {
+                        nextU = 0x7;
+                    } else if (nextU > 0xfc0) {
+                        nextU = 0xfc0;
+                    }
+                }
+
+                stepU = (nextU - curU) >> 3;
+                stepV = (nextV - curV) >> 3;
+                shadeA += shadeStrides;
+                curU += (shadeA >> 3) & 0xc0000;
+                shadeShift = shadeA >> 23;
+            }
+
+            strides = xB - xA & 0x7;
+            while (strides-- > 0) {
+                dst[offset++] = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift;
+                curU += stepU;
+                curV += stepV;
+            }
+        } else {
+            while (strides-- > 0) {
+                int rgb;
+                if ((rgb = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift) != 0) {
+                    dst[offset] = rgb;
+                }
+                offset++;
+                curU += stepU;
+                curV += stepV;
+
+                if ((rgb = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift) != 0) {
+                    dst[offset] = rgb;
+                }
+                offset++;
+                curU += stepU;
+                curV += stepV;
+
+                if ((rgb = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift) != 0) {
+                    dst[offset] = rgb;
+                }
+                offset++;
+                curU += stepU;
+                curV += stepV;
+
+                if ((rgb = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift) != 0) {
+                    dst[offset] = rgb;
+                }
+                offset++;
+                curU += stepU;
+                curV += stepV;
+
+                if ((rgb = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift) != 0) {
+                    dst[offset] = rgb;
+                }
+                offset++;
+                curU += stepU;
+                curV += stepV;
+
+                if ((rgb = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift) != 0) {
+                    dst[offset] = rgb;
+                }
+                offset++;
+                curU += stepU;
+                curV += stepV;
+
+                if ((rgb = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift) != 0) {
+                    dst[offset] = rgb;
+                }
+                offset++;
+                curU += stepU;
+                curV += stepV;
+
+                if ((rgb = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift) != 0) {
+                    dst[offset] = rgb;
+                }
+                offset++;
+                curU = nextU;
+                curV = nextV;
+
+                u += uStride;
+                v += vStride;
+                w += wStride;
+
+                curW = w >> 12;
+                if (curW != 0) {
+                    nextU = u / curW;
+                    nextV = v / curW;
+                    if (nextU < 7) {
+                        nextU = 7;
+                    } else if (nextU > 0xfc0) {
+                        nextU = 0xfc0;
+                    }
+                }
+
+                stepU = (nextU - curU) >> 3;
+                stepV = (nextV - curV) >> 3;
+                shadeA += shadeStrides;
+                curU += (shadeA >> 3) & 0xc0000;
+                shadeShift = shadeA >> 23;
+            }
+
+            strides = (xB - xA) & 0x7;
+            while (strides-- > 0) {
+                int rgb;
+                if ((rgb = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift) != 0) {
+                    dst[offset] = rgb;
+                }
+
+                offset++;
+                curU += stepU;
+                curV += stepV;
+            }
+        }
+    } else {
+        int nextU = 0;
+        int nextV = 0;
+        int dx = xA - _Pix3D.center_x;
+
+        u = u + (uStride >> 3) * dx;
+        v = v + (vStride >> 3) * dx;
+        w = w + (wStride >> 3) * dx;
+
+        int curW = w >> 14;
+        if (curW != 0) {
+            curU = u / curW;
+            curV = v / curW;
+            if (curU < 0) {
+                curU = 0;
+            } else if (curU > 0x3f80) {
+                curU = 0x3f80;
+            }
+        }
+
+        u = u + uStride;
+        v = v + vStride;
+        w = w + wStride;
+
+        curW = w >> 14;
+        if (curW != 0) {
+            nextU = u / curW;
+            nextV = v / curW;
+            if (nextU < 0x7) {
+                nextU = 0x7;
+            } else if (nextU > 0x3f80) {
+                nextU = 0x3f80;
+            }
+        }
+
+        int stepU = (nextU - curU) >> 3;
+        int stepV = (nextV - curV) >> 3;
+        curU += shadeA & 0x600000;
+        int shadeShift = shadeA >> 23;
+
+        if (_Pix3D.opaque) {
+            while (strides-- > 0) {
+                dst[offset++] = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift;
+                curU += stepU;
+                curV += stepV;
+
+                dst[offset++] = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift;
+                curU += stepU;
+                curV += stepV;
+
+                dst[offset++] = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift;
+                curU += stepU;
+                curV += stepV;
+
+                dst[offset++] = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift;
+                curU += stepU;
+                curV += stepV;
+
+                dst[offset++] = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift;
+                curU += stepU;
+                curV += stepV;
+
+                dst[offset++] = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift;
+                curU += stepU;
+                curV += stepV;
+
+                dst[offset++] = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift;
+                curU += stepU;
+                curV += stepV;
+
+                dst[offset++] = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift;
+                curU = nextU;
+                curV = nextV;
+
+                u += uStride;
+                v += vStride;
+                w += wStride;
+
+                curW = w >> 14;
+                if (curW != 0) {
+                    nextU = u / curW;
+                    nextV = v / curW;
+                    if (nextU < 0x7) {
+                        nextU = 0x7;
+                    } else if (nextU > 0x3f80) {
+                        nextU = 0x3f80;
+                    }
+                }
+
+                stepU = (nextU - curU) >> 3;
+                stepV = (nextV - curV) >> 3;
+                shadeA += shadeStrides;
+                curU += shadeA & 0x600000;
+                shadeShift = shadeA >> 23;
+            }
+
+            strides = xB - xA & 0x7;
+            while (strides-- > 0) {
+                dst[offset++] = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift;
+                curU += stepU;
+                curV += stepV;
+            }
+        } else {
+            while (strides-- > 0) {
+                int rgb;
+                if ((rgb = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift) != 0) {
+                    dst[offset] = rgb;
+                }
+                offset++;
+                curU += stepU;
+                curV += stepV;
+
+                if ((rgb = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift) != 0) {
+                    dst[offset] = rgb;
+                }
+                offset++;
+                curU += stepU;
+                curV += stepV;
+
+                if ((rgb = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift) != 0) {
+                    dst[offset] = rgb;
+                }
+                offset++;
+                curU += stepU;
+                curV += stepV;
+
+                if ((rgb = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift) != 0) {
+                    dst[offset] = rgb;
+                }
+                offset++;
+                curU += stepU;
+                curV += stepV;
+
+                if ((rgb = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift) != 0) {
+                    dst[offset] = rgb;
+                }
+                offset++;
+                curU += stepU;
+                curV += stepV;
+
+                if ((rgb = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift) != 0) {
+                    dst[offset] = rgb;
+                }
+                offset++;
+                curU += stepU;
+                curV += stepV;
+
+                if ((rgb = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift) != 0) {
+                    dst[offset] = rgb;
+                }
+                offset++;
+                curU += stepU;
+                curV += stepV;
+
+                if ((rgb = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift) != 0) {
+                    dst[offset] = rgb;
+                }
+                offset++;
+                curU = nextU;
+                curV = nextV;
+
+                u += uStride;
+                v += vStride;
+                w += wStride;
+
+                curW = w >> 14;
+                if (curW != 0) {
+                    nextU = u / curW;
+                    nextV = v / curW;
+                    if (nextU < 0x7) {
+                        nextU = 0x7;
+                    } else if (nextU > 0x3f80) {
+                        nextU = 0x3f80;
+                    }
+                }
+
+                stepU = (nextU - curU) >> 3;
+                stepV = (nextV - curV) >> 3;
+                shadeA += shadeStrides;
+                curU += shadeA & 0x600000;
+                shadeShift = shadeA >> 23;
+            }
+
+            strides = xB - xA & 0x7;
+            while (strides-- > 0) {
+                int rgb;
+                if ((rgb = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift) != 0) {
+                    dst[offset] = rgb;
+                }
+
+                offset++;
+                curU += stepU;
+                curV += stepV;
+            }
+        }
+    }
+}
+
 void textureTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int shadeA, int shadeB, int shadeC, int originX, int originY, int originZ, int txB, int txC, int tyB, int tyC, int tzB, int tzC, int texture) {
     int *texels = pix3d_get_texels(texture);
     _Pix3D.opaque = !_Pix3D.textureHasTransparency[texture];
@@ -2053,437 +2482,3 @@ void textureTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int shadeA,
 }
 #endif
 
-#ifndef GL11
-static void textureRaster(int xA, int xB, int *dst, int offset, int *texels, int curU, int curV, int u, int v, int w, int uStride, int vStride, int wStride, int shadeA, int shadeB) {
-    if (xA >= xB) {
-        return;
-    }
-
-    int shadeStrides;
-    int strides;
-    if (_Pix3D.clipX) {
-        shadeStrides = (shadeB - shadeA) / (xB - xA);
-
-        if (xB > _Pix2D.bound_x) {
-            xB = _Pix2D.bound_x;
-        }
-
-        if (xA < 0) {
-            shadeA -= xA * shadeStrides;
-            xA = 0;
-        }
-
-        if (xA >= xB) {
-            return;
-        }
-
-        strides = (xB - xA) >> 3;
-        shadeStrides <<= 12;
-        shadeA <<= 9;
-    } else {
-        if (xB - xA > 7) {
-            strides = (xB - xA) >> 3;
-            shadeStrides = (shadeB - shadeA) * _Pix3D.reciprical15[strides] >> 6;
-        } else {
-            strides = 0;
-            shadeStrides = 0;
-        }
-
-        shadeA <<= 9;
-    }
-
-    offset += xA;
-
-    if (_Pix3D.lowMemory) {
-        int nextU = 0;
-        int nextV = 0;
-        int dx = xA - _Pix3D.center_x;
-
-        u = u + (uStride >> 3) * dx;
-        v = v + (vStride >> 3) * dx;
-        w = w + (wStride >> 3) * dx;
-
-        int curW = w >> 12;
-        if (curW != 0) {
-            curU = u / curW;
-            curV = v / curW;
-            if (curU < 0) {
-                curU = 0;
-            } else if (curU > 0xfc0) {
-                curU = 0xfc0;
-            }
-        }
-
-        u = u + uStride;
-        v = v + vStride;
-        w = w + wStride;
-
-        curW = w >> 12;
-        if (curW != 0) {
-            nextU = u / curW;
-            nextV = v / curW;
-            if (nextU < 0x7) {
-                nextU = 0x7;
-            } else if (nextU > 0xfc0) {
-                nextU = 0xfc0;
-            }
-        }
-
-        int stepU = (nextU - curU) >> 3;
-        int stepV = (nextV - curV) >> 3;
-        curU += (shadeA >> 3) & 0xc0000;
-        int shadeShift = shadeA >> 23;
-
-        if (_Pix3D.opaque) {
-            while (strides-- > 0) {
-                dst[offset++] = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift;
-                curU += stepU;
-                curV += stepV;
-
-                dst[offset++] = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift;
-                curU += stepU;
-                curV += stepV;
-
-                dst[offset++] = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift;
-                curU += stepU;
-                curV += stepV;
-
-                dst[offset++] = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift;
-                curU += stepU;
-                curV += stepV;
-
-                dst[offset++] = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift;
-                curU += stepU;
-                curV += stepV;
-
-                dst[offset++] = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift;
-                curU += stepU;
-                curV += stepV;
-
-                dst[offset++] = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift;
-                curU += stepU;
-                curV += stepV;
-
-                dst[offset++] = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift;
-                curU = nextU;
-                curV = nextV;
-
-                u += uStride;
-                v += vStride;
-                w += wStride;
-
-                curW = w >> 12;
-                if (curW != 0) {
-                    nextU = u / curW;
-                    nextV = v / curW;
-                    if (nextU < 0x7) {
-                        nextU = 0x7;
-                    } else if (nextU > 0xfc0) {
-                        nextU = 0xfc0;
-                    }
-                }
-
-                stepU = (nextU - curU) >> 3;
-                stepV = (nextV - curV) >> 3;
-                shadeA += shadeStrides;
-                curU += (shadeA >> 3) & 0xc0000;
-                shadeShift = shadeA >> 23;
-            }
-
-            strides = xB - xA & 0x7;
-            while (strides-- > 0) {
-                dst[offset++] = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift;
-                curU += stepU;
-                curV += stepV;
-            }
-        } else {
-            while (strides-- > 0) {
-                int rgb;
-                if ((rgb = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift) != 0) {
-                    dst[offset] = rgb;
-                }
-                offset++;
-                curU += stepU;
-                curV += stepV;
-
-                if ((rgb = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift) != 0) {
-                    dst[offset] = rgb;
-                }
-                offset++;
-                curU += stepU;
-                curV += stepV;
-
-                if ((rgb = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift) != 0) {
-                    dst[offset] = rgb;
-                }
-                offset++;
-                curU += stepU;
-                curV += stepV;
-
-                if ((rgb = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift) != 0) {
-                    dst[offset] = rgb;
-                }
-                offset++;
-                curU += stepU;
-                curV += stepV;
-
-                if ((rgb = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift) != 0) {
-                    dst[offset] = rgb;
-                }
-                offset++;
-                curU += stepU;
-                curV += stepV;
-
-                if ((rgb = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift) != 0) {
-                    dst[offset] = rgb;
-                }
-                offset++;
-                curU += stepU;
-                curV += stepV;
-
-                if ((rgb = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift) != 0) {
-                    dst[offset] = rgb;
-                }
-                offset++;
-                curU += stepU;
-                curV += stepV;
-
-                if ((rgb = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift) != 0) {
-                    dst[offset] = rgb;
-                }
-                offset++;
-                curU = nextU;
-                curV = nextV;
-
-                u += uStride;
-                v += vStride;
-                w += wStride;
-
-                curW = w >> 12;
-                if (curW != 0) {
-                    nextU = u / curW;
-                    nextV = v / curW;
-                    if (nextU < 7) {
-                        nextU = 7;
-                    } else if (nextU > 0xfc0) {
-                        nextU = 0xfc0;
-                    }
-                }
-
-                stepU = (nextU - curU) >> 3;
-                stepV = (nextV - curV) >> 3;
-                shadeA += shadeStrides;
-                curU += (shadeA >> 3) & 0xc0000;
-                shadeShift = shadeA >> 23;
-            }
-
-            strides = (xB - xA) & 0x7;
-            while (strides-- > 0) {
-                int rgb;
-                if ((rgb = (uint32_t)texels[(curV & 0xfc0) + (curU >> 6)] >> shadeShift) != 0) {
-                    dst[offset] = rgb;
-                }
-
-                offset++;
-                curU += stepU;
-                curV += stepV;
-            }
-        }
-    } else {
-        int nextU = 0;
-        int nextV = 0;
-        int dx = xA - _Pix3D.center_x;
-
-        u = u + (uStride >> 3) * dx;
-        v = v + (vStride >> 3) * dx;
-        w = w + (wStride >> 3) * dx;
-
-        int curW = w >> 14;
-        if (curW != 0) {
-            curU = u / curW;
-            curV = v / curW;
-            if (curU < 0) {
-                curU = 0;
-            } else if (curU > 0x3f80) {
-                curU = 0x3f80;
-            }
-        }
-
-        u = u + uStride;
-        v = v + vStride;
-        w = w + wStride;
-
-        curW = w >> 14;
-        if (curW != 0) {
-            nextU = u / curW;
-            nextV = v / curW;
-            if (nextU < 0x7) {
-                nextU = 0x7;
-            } else if (nextU > 0x3f80) {
-                nextU = 0x3f80;
-            }
-        }
-
-        int stepU = (nextU - curU) >> 3;
-        int stepV = (nextV - curV) >> 3;
-        curU += shadeA & 0x600000;
-        int shadeShift = shadeA >> 23;
-
-        if (_Pix3D.opaque) {
-            while (strides-- > 0) {
-                dst[offset++] = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift;
-                curU += stepU;
-                curV += stepV;
-
-                dst[offset++] = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift;
-                curU += stepU;
-                curV += stepV;
-
-                dst[offset++] = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift;
-                curU += stepU;
-                curV += stepV;
-
-                dst[offset++] = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift;
-                curU += stepU;
-                curV += stepV;
-
-                dst[offset++] = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift;
-                curU += stepU;
-                curV += stepV;
-
-                dst[offset++] = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift;
-                curU += stepU;
-                curV += stepV;
-
-                dst[offset++] = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift;
-                curU += stepU;
-                curV += stepV;
-
-                dst[offset++] = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift;
-                curU = nextU;
-                curV = nextV;
-
-                u += uStride;
-                v += vStride;
-                w += wStride;
-
-                curW = w >> 14;
-                if (curW != 0) {
-                    nextU = u / curW;
-                    nextV = v / curW;
-                    if (nextU < 0x7) {
-                        nextU = 0x7;
-                    } else if (nextU > 0x3f80) {
-                        nextU = 0x3f80;
-                    }
-                }
-
-                stepU = (nextU - curU) >> 3;
-                stepV = (nextV - curV) >> 3;
-                shadeA += shadeStrides;
-                curU += shadeA & 0x600000;
-                shadeShift = shadeA >> 23;
-            }
-
-            strides = xB - xA & 0x7;
-            while (strides-- > 0) {
-                dst[offset++] = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift;
-                curU += stepU;
-                curV += stepV;
-            }
-        } else {
-            while (strides-- > 0) {
-                int rgb;
-                if ((rgb = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift) != 0) {
-                    dst[offset] = rgb;
-                }
-                offset++;
-                curU += stepU;
-                curV += stepV;
-
-                if ((rgb = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift) != 0) {
-                    dst[offset] = rgb;
-                }
-                offset++;
-                curU += stepU;
-                curV += stepV;
-
-                if ((rgb = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift) != 0) {
-                    dst[offset] = rgb;
-                }
-                offset++;
-                curU += stepU;
-                curV += stepV;
-
-                if ((rgb = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift) != 0) {
-                    dst[offset] = rgb;
-                }
-                offset++;
-                curU += stepU;
-                curV += stepV;
-
-                if ((rgb = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift) != 0) {
-                    dst[offset] = rgb;
-                }
-                offset++;
-                curU += stepU;
-                curV += stepV;
-
-                if ((rgb = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift) != 0) {
-                    dst[offset] = rgb;
-                }
-                offset++;
-                curU += stepU;
-                curV += stepV;
-
-                if ((rgb = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift) != 0) {
-                    dst[offset] = rgb;
-                }
-                offset++;
-                curU += stepU;
-                curV += stepV;
-
-                if ((rgb = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift) != 0) {
-                    dst[offset] = rgb;
-                }
-                offset++;
-                curU = nextU;
-                curV = nextV;
-
-                u += uStride;
-                v += vStride;
-                w += wStride;
-
-                curW = w >> 14;
-                if (curW != 0) {
-                    nextU = u / curW;
-                    nextV = v / curW;
-                    if (nextU < 0x7) {
-                        nextU = 0x7;
-                    } else if (nextU > 0x3f80) {
-                        nextU = 0x3f80;
-                    }
-                }
-
-                stepU = (nextU - curU) >> 3;
-                stepV = (nextV - curV) >> 3;
-                shadeA += shadeStrides;
-                curU += shadeA & 0x600000;
-                shadeShift = shadeA >> 23;
-            }
-
-            strides = xB - xA & 0x7;
-            while (strides-- > 0) {
-                int rgb;
-                if ((rgb = (uint32_t)texels[(curV & 0x3f80) + (curU >> 7)] >> shadeShift) != 0) {
-                    dst[offset] = rgb;
-                }
-
-                offset++;
-                curU += stepU;
-                curV += stepV;
-            }
-        }
-    }
-}
-#endif

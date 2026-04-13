@@ -1952,11 +1952,11 @@ void world3d_draw_tileoverlay(int tileX, int tileZ, TileOverlay *overlay, int si
             _TileOverlay.tmpViewspaceZ[i] = z;
 
 #ifdef GL11
-            int x = overlay->vertexX[i] - sceneX;
-            int z = overlay->vertexZ[i] - sceneZ;
+            int tmpX = overlay->vertexX[i] - sceneX;
+            int tmpZ = overlay->vertexZ[i] - sceneZ;
 
-            _TileOverlay.tmpU[i] = x / 128.0;
-            _TileOverlay.tmpV[i] = z / 128.0;
+            _TileOverlay.tmpU[i] = tmpX / 128.0;
+            _TileOverlay.tmpV[i] = tmpZ / 128.0;
 #endif
         }
         _TileOverlay.tmpScreenX[i] = _Pix3D.center_x + (x << 9) / z;
