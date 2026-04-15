@@ -42,12 +42,14 @@ run.ps1: cl, clang, tcc, mingw-gcc, emcc
 
 You might want the updated [PowerShell](#tools) for run.ps1
 
+On windows 95/98 you should set your display to 32 bit true-color for the game to look correct
+
 ```
 TODO: add wav sfx to complete SDL1 platform for win9x
-TODO: make win9x compatible batch file (no delayed expansion?) right now needs to build from more modern system
+TODO: make win9x compatible batch file (no delayed expansion?), also tcc for win9x requires replacing _strtoui64
 TODO: clean up ps1 script so it doesn't need to be modified
 
-NOTE: on v86 PC emulator the cursor flickers on win95, and colours on win9x are wrong? win2k is fine
+NOTE: on v86 PC emulator the cursor flickers on win95
 ```
 
 ### Linux GNU or musl
@@ -216,7 +218,7 @@ Controls: joystick = move cursor, Dpad = arrow keys, B = left click, A = right c
 There's currently no way to type. But it's not required to play the game and you can set your login details in rom/config.ini
 
 ```
-TODO: try to make use of dreamcast vram or aram
+TODO: finish opengl 1.1 port for dreamcast?
 TODO: support mouse/keyboard for dreamcast. For mouse and keyboard in flycast you have to set the physical device ports to dreamcast device port, but mouse is not very useful in emu until they hide the system cursor.
 
 NOTE: if the cdi doesn't load you might have to remove --no-padding in Makefile? untested on hardware
