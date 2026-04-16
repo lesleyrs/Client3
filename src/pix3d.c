@@ -1463,17 +1463,21 @@ void glTextureTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int shade
     // glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
     // TODO + 8 and + 11 for all tri funcs need to vary for model_draw_simple position... or do it another way for different pixmap offsets
-    // TODO this is not accurate shading
+
+    int shadeShiftA = 255 - (shadeA << 1);
+    int shadeShiftB = 255 - (shadeB << 1);
+    int shadeShiftC = 255 - (shadeC << 1);
+
     glBegin(GL_TRIANGLES);
-        glColor3ub(255 - (shadeA * 2), 255 - (shadeA * 2), 255 - (shadeA * 2));
+        glColor3ub(shadeShiftA, shadeShiftA, shadeShiftA);
         glTexCoord2f(uv.uA, uv.vA);
         glVertex2f(xA + 8, yA + 11);
 
-        glColor3ub(255 - (shadeB * 2), 255 - (shadeB * 2), 255 - (shadeB * 2));
+        glColor3ub(shadeShiftB, shadeShiftB, shadeShiftB);
         glTexCoord2f(uv.uB, uv.vB);
         glVertex2f(xB + 8, yB + 11);
 
-        glColor3ub(255 - (shadeC * 2), 255 - (shadeC * 2), 255 - (shadeC * 2));
+        glColor3ub(shadeShiftC, shadeShiftC, shadeShiftC);
         glTexCoord2f(uv.uC, uv.vC);
         glVertex2f(xC + 8, yC + 11);
     glEnd();
