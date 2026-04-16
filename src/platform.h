@@ -38,7 +38,7 @@ void platform_free_font(void);
 void platform_set_font(const char* name, bool bold, int size);
 void platform_draw_rect(int x, int y, int w, int h);
 void platform_fill_rect(int x, int y, int w, int h);
-Surface *platform_create_surface(int *pixels, int width, int height, int alpha);
+Surface *platform_create_surface(int *pixels, int width, int height, bool alpha);
 void platform_free_surface(Surface *surface);
 void rs2_log(const char *format, ...);
 void rs2_error(const char *format, ...);

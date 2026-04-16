@@ -194,7 +194,7 @@ void platform_draw_string(const char *str, int x, int y) {
     int width = platform_string_width(str);
     int height = (ascent - descent) * scale;
     int *pixels = calloc(width * height, sizeof(int));
-    Surface *surface = platform_create_surface(pixels, width, height, 0xff000000);
+    Surface *surface = platform_create_surface(pixels, width, height, true);
 
     int r = (draw_color >> 16) & 0xff;
     int g = (draw_color >> 8) & 0xff;
@@ -239,11 +239,11 @@ void platform_draw_string(const char *str, int x, int y) {
 }
 #endif
 
-Surface *platform_create_surface(int *pixels, int width, int height, int alpha) {
+Surface *platform_create_surface(int *pixels, int width, int height, bool alpha) {
 #if SDL == 3
-    return SDL_CreateSurfaceFrom(width, height, SDL_GetPixelFormatForMasks(32, 0xff0000, 0x00ff00, 0x0000ff, alpha), pixels, width * sizeof(int));
+    return SDL_CreateSurfaceFrom(width, height, SDL_GetPixelFormatForMasks(32, 0xff0000, 0x00ff00, 0x0000ff, alpha ? 0xff000000 : 0), pixels, width * sizeof(int));
 #elif SDL == 2 || SDL == 1
-    return SDL_CreateRGBSurfaceFrom(pixels, width, height, 32, width * sizeof(int), 0xff0000, 0x00ff00, 0x0000ff, alpha);
+    return SDL_CreateRGBSurfaceFrom(pixels, width, height, 32, width * sizeof(int), 0xff0000, 0x00ff00, 0x0000ff, alpha ? 0xff000000 : 0);
 #else
     (void)alpha;
     Surface *surface = calloc(1, sizeof(Surface));

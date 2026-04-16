@@ -9,7 +9,7 @@ PixMap *pixmap_new(int width, int height) {
     pixmap->width = width;
     pixmap->height = height;
     pixmap->pixels = calloc(pixmap->width * pixmap->height, sizeof(int));
-    pixmap->image = platform_create_surface(pixmap->pixels, width, height, 0);
+    pixmap->image = platform_create_surface(pixmap->pixels, width, height, false);
     pixmap_bind(pixmap);
     return pixmap;
 }
