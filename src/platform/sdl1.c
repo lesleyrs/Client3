@@ -226,7 +226,9 @@ void platform_stop_midi(void) {
     }
 }
 void platform_blit_surface(Surface *surface, int x, int y) {
-#ifndef GL11
+#ifdef GL11
+    (void)surface, (void)x, (void)y;
+#else
     SDL_Rect dest = {x, y, surface->w, surface->h};
     SDL_BlitSurface(surface, NULL, window_surface, &dest);
 #endif

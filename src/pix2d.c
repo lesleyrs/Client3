@@ -49,7 +49,11 @@ void pix2d_set_clipping(int bottom, int right, int top, int left) {
 
 void pix2d_clear(void) {
     int length = _Pix2D.width * _Pix2D.height;
+#ifdef GL11
+    memset(_Pix2D.pixels, 0xff, length * sizeof(int));
+#else
     memset(_Pix2D.pixels, 0, length * sizeof(int));
+#endif
 }
 
 void pix2d_fill_rect(int x, int y, int rgb, int w, int h) {
@@ -67,21 +71,13 @@ void pix2d_fill_rect(int x, int y, int rgb, int w, int h) {
     if (y + h > _Pix2D.bottom) {
         h = _Pix2D.bottom - y;
     }
-    // int off = _Pix2D.width - w;
+    int off = _Pix2D.width - w;
     int pixel = x + y * _Pix2D.width;
-    // for (int col = -h; col < 0; col++) {
-    // 	for (int row = -w; row < 0; row++) {
-    // 		_Pix2D.pixels[pixel++] = rgb;
-    // 	}
-    // 	pixel += off;
-    // }
-
-    // TODO: compare with above
-    for (int col = 0; col < h; col++) {
-        int *line = &_Pix2D.pixels[pixel + col * _Pix2D.width];
-        for (int row = 0; row < w; row++) {
-            line[row] = rgb;
-        }
+    for (int col = -h; col < 0; col++) {
+    	for (int row = -w; row < 0; row++) {
+    		_Pix2D.pixels[pixel++] = rgb;
+    	}
+    	pixel += off;
     }
 }
 

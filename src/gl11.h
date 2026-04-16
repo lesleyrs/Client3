@@ -1,6 +1,8 @@
 #pragma once
 
 #ifdef GL11
+extern int pixmap_xoff;
+extern int pixmap_yoff;
 #if SDL != 1
 #error GL 1.1 renderer only runs on SDL 1 for now: (make SDL=1, batch -v 1)
 #endif

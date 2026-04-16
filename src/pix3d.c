@@ -314,27 +314,19 @@ void pix3d_set_brightness(double brightness) {
         }
 
         int n = texture->width * texture->height;
-        uint8_t *pixels = malloc(n * 4);
+        uint32_t *pixels = malloc(n * 4);
 
         for (int i = 0; i < n; i++) {
             int rgb = texels[i];
 
-            uint8_t a = (rgb >> 24) & 0xff;
-            uint8_t r = (rgb >> 16) & 0xff;
-            uint8_t g = (rgb >> 8) & 0xff;
-            uint8_t b = rgb & 0xff;
             if (rgb != 0) {
-                a = 0xff;
+                rgb |= 0xff000000;
             }
-
-            pixels[i * 4 + 0] = r;
-            pixels[i * 4 + 1] = g;
-            pixels[i * 4 + 2] = b;
-            pixels[i * 4 + 3] = a;
+            pixels[i] = rgb;
         }
         glGenTextures(1, &texture->gl_texture);
         glBindTexture(GL_TEXTURE_2D, texture->gl_texture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width, texture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width, texture->height, 0, GL_BGRA_EXT, GL_UNSIGNED_BYTE, pixels);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
@@ -517,11 +509,11 @@ void gouraudTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int colorA,
 
     glBegin(GL_TRIANGLES);
         glColor4ub((_Pix3D.palette[colorA] >> 16) & 0xff, (_Pix3D.palette[colorA] >> 8) & 0xff, _Pix3D.palette[colorA] & 0xff, alpha);
-        glVertex2f(xA + 8, yA + 11);
+        glVertex2f(xA + pixmap_xoff, yA + pixmap_yoff);
         glColor4ub((_Pix3D.palette[colorB] >> 16) & 0xff, (_Pix3D.palette[colorB] >> 8) & 0xff, _Pix3D.palette[colorB] & 0xff, alpha);
-        glVertex2f(xB + 8, yB + 11);
+        glVertex2f(xB + pixmap_xoff, yB + pixmap_yoff);
         glColor4ub((_Pix3D.palette[colorC] >> 16) & 0xff, (_Pix3D.palette[colorC] >> 8) & 0xff, _Pix3D.palette[colorC] & 0xff, alpha);
-        glVertex2f(xC + 8, yC + 11);
+        glVertex2f(xC + pixmap_xoff, yC + pixmap_yoff);
     glEnd();
 #else
     int dxAB = xB - xA;
@@ -1031,9 +1023,9 @@ void flatTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int color) {
 
     glBegin(GL_TRIANGLES);
         glColor4ub(color >> 16, color >> 8, color, alpha);
-        glVertex2f(xA + 8, yA + 11);
-        glVertex2f(xB + 8, yB + 11);
-        glVertex2f(xC + 8, yC + 11);
+        glVertex2f(xA + pixmap_xoff, yA + pixmap_yoff);
+        glVertex2f(xB + pixmap_xoff, yB + pixmap_yoff);
+        glVertex2f(xC + pixmap_xoff, yC + pixmap_yoff);
     glEnd();
 #else
     int dxAB = xB - xA;
@@ -1462,24 +1454,22 @@ void glTextureTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int shade
 
     // glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
-    // TODO + 8 and + 11 for all tri funcs need to vary for model_draw_simple position... or do it another way for different pixmap offsets
-
     int shadeShiftA = 255 - (shadeA << 1);
     int shadeShiftB = 255 - (shadeB << 1);
     int shadeShiftC = 255 - (shadeC << 1);
 
     glBegin(GL_TRIANGLES);
-        glColor3ub(shadeShiftA, shadeShiftA, shadeShiftA);
+        glColor4ub(shadeShiftA, shadeShiftA, shadeShiftA, 0xff);
         glTexCoord2f(uv.uA, uv.vA);
-        glVertex2f(xA + 8, yA + 11);
+        glVertex2f(xA + pixmap_xoff, yA + pixmap_yoff);
 
-        glColor3ub(shadeShiftB, shadeShiftB, shadeShiftB);
+        glColor4ub(shadeShiftB, shadeShiftB, shadeShiftB, 0xff);
         glTexCoord2f(uv.uB, uv.vB);
-        glVertex2f(xB + 8, yB + 11);
+        glVertex2f(xB + pixmap_xoff, yB + pixmap_yoff);
 
-        glColor3ub(shadeShiftC, shadeShiftC, shadeShiftC);
+        glColor4ub(shadeShiftC, shadeShiftC, shadeShiftC, 0xff);
         glTexCoord2f(uv.uC, uv.vC);
-        glVertex2f(xC + 8, yC + 11);
+        glVertex2f(xC + pixmap_xoff, yC + pixmap_yoff);
     glEnd();
 
     glDisable(GL_TEXTURE_2D);

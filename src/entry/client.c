@@ -8921,6 +8921,9 @@ void client_draw_scene(Client *c) {
     _Model.mouse_y = c->shell->mouse_y - 11;
     pix2d_clear();
 #ifdef GL11
+    pixmap_xoff = 8;
+    pixmap_yoff = 11;
+
     glEnable(GL_SCISSOR_TEST);
     glScissor(8, c->shell->screen_height - 11 - _Pix2D.height, _Pix2D.width, _Pix2D.height);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -9397,6 +9400,10 @@ void client_draw_on_minimap(Client *c, int dy, Pix24 *image, int dx) {
 
 void client_draw_chatback(Client *c) {
     pixmap_bind(c->area_chatback);
+#ifdef GL11
+    pixmap_xoff = 22;
+    pixmap_yoff = 375;
+#endif
     _Pix3D.line_offset = c->area_chatback_offsets;
     pix8_draw(c->image_chatback, 0, 0);
     if (c->show_social_input) {
@@ -9576,6 +9583,10 @@ void client_draw_scrollbar(Client *c, int x, int y, int scrollY, int scrollHeigh
 
 void client_draw_sidebar(Client *c) {
     pixmap_bind(c->area_sidebar);
+#ifdef GL11
+    pixmap_xoff = 562;
+    pixmap_yoff = 231;
+#endif
     _Pix3D.line_offset = c->area_sidebar_offsets;
     pix8_draw(c->image_invback, 0, 0);
     if (c->sidebar_interface_id != -1) {

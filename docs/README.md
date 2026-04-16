@@ -9,7 +9,7 @@
 ![postmarketos](postmarketos.png)
 
 ## references
-- https://github.com/2004Scape/Client2/compare/main...dennisdev:Client2:feature/webgl2 - GL 1.1 renderer
+- https://github.com/2004Scape/Client2/compare/main...dennisdev:Client2:feature/webgl2 - GL 1.1 renderer with one extension (GL_BGRA_EXT)
 * https://github.com/2003scape/rscsundae - rsa encryption code (C RSC server)
 * https://github.com/2003scape/rsc-c - libraries, networking, platform code (C RSC client)
 * https://github.com/2004Scape/Client - renamed java deob that this port is based on
@@ -30,7 +30,7 @@
 
 ## TODO
 ```
-GL1.1 issues: turn textures into a texture atlas for performance? (removes all glBegin(GL_TRIANGLES)/glEnd/glBindTexture) except once in world3d_draw() and/or use vertex arrays instead of immediate mode, hardcoded vertex offsets in pix3d (+ 8 and + 11), needs to be different for model_draw_simple and other pix), pixfont wave/colors broken when drawing pixmaps?
+GL1.1 issues: opengl transformations?, cache pixmaps?, turn textures into a texture atlas for performance? (removes all glBegin(GL_TRIANGLES)/glEnd/glBindTexture) except once in world3d_draw() and/or use vertex arrays instead of immediate mode, model_draw_simple is hidden behind pixmaps due to there being no framebuffer textures in gl 1.1 so need depth)
 - (non-wasm): server cache changes requires manual cache+archive_checksums update in the client since it doesn't download, also the server has an issue with client map crcs changing when only server maps get updated.
 - midi fading, old js code for IE: https://github.com/2004Scape/Server/blob/61bf21fb3755c14b5cf6d47c9d974dee5783beda/view/javaclient.ejs new ts code: https://github.com/2004Scape/Client2/commit/92e74f1f134ea82e48dd608dcca3422777a7a986 https://github.com/LostCityRS/Client-TS/pulls?q=is%3Apr+is%3Aclosed+midi
 - finish mobile support like client-ts (sdl2 and sdl3 for postmarketos/android, emscripten and webassembly for browser)
