@@ -30,7 +30,7 @@
 
 ## TODO
 ```
-- GL1.1 issues: model_draw_simple is hidden behind pixmaps due to there being no framebuffer textures in gl 1.1 so need ordering?)
+- GL1.1 issues: forced redraw_background every frame is causing some memleaks EG items when bank interface is open
 - GL1.1 optimizations: opengl transformations?, cache pixmaps?, use vertex arrays instead of immediate mode, and/or turn textures into a texture atlas for performance? (removes all glBegin(GL_TRIANGLES)/glEnd/glBindTexture) except once in world3d_draw()
 - look into combat segfault on first hit (unable to reproduce, was running tcc with gl) :-(
 - (non-wasm): server cache changes requires manual cache+archive_checksums update in the client since it doesn't download, also the server has an issue with client map crcs changing when only server maps get updated.

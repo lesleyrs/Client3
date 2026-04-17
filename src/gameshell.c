@@ -131,6 +131,9 @@ void gameshell_run(Client *c) {
             c->shell->fps = ratio * 1000 / (c->shell->deltime * 256);
         }
         client_draw(c);
+#ifdef GL11
+        c->redraw_background = true; // need to redraw every frame TODO cache pixmaps
+#endif
         gameshell_update_touch(c); // update mouse after client_draw_scene to fix model picking (not needed for touch on release like client-ts)
         platform_update_surface();
     }
