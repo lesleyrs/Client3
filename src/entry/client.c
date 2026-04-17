@@ -8943,8 +8943,17 @@ void client_draw_scene(Client *c) {
     glScissor(8, c->shell->screen_height - 11 - _Pix2D.height, _Pix2D.width, _Pix2D.height);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+#if 1
     // leave a black line on right side of viewport (see pix2d.c)
     glScissor(8, c->shell->screen_height - 11 - _Pix2D.height, _Pix2D.width - 1, _Pix2D.height);
+#else
+    // use this for non-black clear color values
+    glBegin(GL_LINES);
+    glColor4ub(0, 0, 0, 0xff);
+    glVertex2f(8 + _Pix2D.width, 11);
+    glVertex2f(8 + _Pix2D.width, 11 + 334);
+    glEnd();
+#endif
 #endif
     world3d_draw(c->scene, c->cameraX, c->cameraY, c->cameraZ, level, c->cameraYaw, c->cameraPitch, _Client.loop_cycle);
 #ifdef GL11
