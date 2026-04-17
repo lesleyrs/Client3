@@ -14,8 +14,8 @@
 extern ClientData _Client;
 extern InputTracking _InputTracking;
 
-#if defined(__WII__) || defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__PSP__) || defined(__vita__) || defined(_arch_dreamcast) || defined(NXDK) || defined(__NDS__) || defined(ANDROID) || defined(__aarch64__)
-Custom _Custom = {.chat_era = 2, .http_port = 80, .showPerformance = true};
+#if defined(__WII__) || defined(__3DS__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__PSP__) || defined(__vita__) || defined(_arch_dreamcast) || defined(NXDK) || defined(__NDS__) || defined(ANDROID)
+Custom _Custom = {.chat_era = 2, .http_port = 80, .show_performance = true};
 #else
 Custom _Custom = {.chat_era = 2, .http_port = 80};
 #endif
@@ -109,6 +109,8 @@ void load_ini_config(Client *c) {
     _Custom.resizable = true;
 #endif
     INI_INT_LOG(&(&_Custom), item_outlines, );
+    INI_INT_LOG(&(&_Custom), show_performance, );
+    INI_INT_LOG(&(&_Custom), use_opengl11, );
 
     rs2_log("\n");
     ini_free(config);
@@ -225,7 +227,7 @@ void draw_info_overlay(Client *c) {
     int y = 13;
 
     char buf[MAX_STR];
-    if (_Custom.showPerformance) {
+    if (_Custom.show_performance) {
         // skip corner of interfaces, makes text harder to read
         y += 13;
         // skip 2 possible spots of "Close Window"
@@ -251,7 +253,7 @@ void draw_info_overlay(Client *c) {
 #endif
     }
 
-    if (_Custom.cameraEditor || _Custom.showDebug) {
+    if (_Custom.camera_editor || _Custom.show_debug) {
         sprintf(buf, "Local Pos: %d, %d, %d", c->local_player->pathing_entity.x, c->local_player->pathing_entity.z, c->local_player->y);
         drawStringRight(c->font_plain11, x, y, buf, YELLOW, true);
         y += 13;
@@ -273,7 +275,7 @@ void draw_info_overlay(Client *c) {
         y += 13;
     }
 
-    if (_Custom.cameraEditor) {
+    if (_Custom.camera_editor) {
         y += 13;
         drawStringRight(c->font_plain11, x, y, "Instructions:", YELLOW, true);
         y += 13;

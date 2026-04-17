@@ -166,7 +166,7 @@ void platform_poll_events(Client *c) {
     }
 
     if (pressed & SCE_CTRL_SELECT) {
-        _Custom.showPerformance = !_Custom.showPerformance;
+        _Custom.show_performance = !_Custom.show_performance;
     }
     if (pressed & SCE_CTRL_START) {
     }

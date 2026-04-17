@@ -1114,7 +1114,7 @@ void handleInterfaceInput(Client *c, Component *com, int mouseX, int mouseY, int
 
                         sprintf(c->menu_option[c->menu_size], "Examine @lre@%s", obj->name);
                         // TODO
-                        // if (c->showDebug) {
+                        // if (c->show_debug) {
                         // 	c->menu_option[c->menu_size] += "@whi@ (" + (obj.index) + ")";
                         // }
                         c->menu_action[c->menu_size] = 1773;
@@ -1355,7 +1355,7 @@ void addNpcOptions(Client *cl, NpcType *npc, int a, int b, int c) {
 
         sprintf(cl->menu_option[cl->menu_size], "Examine @yel@%s", tooltip);
         // TODO:
-        // if (cl->showDebug) {
+        // if (cl->show_debug) {
         // 	cl->menu_option[cl->menu_size] += "@whi@ (" + (npc.index) + ")";
         // }
         cl->menu_action[cl->menu_size] = 1607;
@@ -1518,7 +1518,7 @@ void handleViewportOptions(Client *c) {
 
                 sprintf(c->menu_option[c->menu_size], "Examine @cya@%s", loc->name);
                 // TODO
-                // if (c->showDebug) {
+                // if (c->show_debug) {
                 // 	c->menu_option[c->menu_size] += "@whi@ (" + (loc.index) + ")";
                 // }
                 c->menu_action[c->menu_size] = 1175;
@@ -1629,7 +1629,7 @@ void handleViewportOptions(Client *c) {
 
                     sprintf(c->menu_option[c->menu_size], "Examine @lre@%s", type->name);
                     // TODO
-                    // if (c->showDebug) {
+                    // if (c->show_debug) {
                     // 	c->menu_option[c->menu_size] += "@whi@ (" + (obj.index) + ")";
                     // }
                     c->menu_action[c->menu_size] = 1102;
@@ -2715,7 +2715,7 @@ static bool client_try_move(Client *c, int srcX, int srcZ, int dx, int dz, int t
         int startZ = c->bfsStepZ[length];
 
         // TODO showdebug
-        // if (c->showDebug && super.actionKey[6] == 1 && super.actionKey[7] == 1) {
+        // if (c->show_debug && super.actionKey[6] == 1 && super.actionKey[7] == 1) {
         // 	// check if tile is already added, if so remove it
         // 	for (int i = 0; i < c->userTileMarkers.length; i++) {
         // 		if (c->userTileMarkers[i] != null && c->userTileMarkers[i].x == World3D.clickTileX && c->userTileMarkers[i].z == World3D.clickTileZ) {
@@ -3866,9 +3866,9 @@ static void handleInputKey(Client *c) {
                                     }
                                 }
                             } else if (strcmp(c->chat_typed, "::debug") == 0) {
-                                _Custom.showDebug = !_Custom.showDebug;
+                                // _Custom.show_debug = !_Custom.show_debug;
                             } else if (strcmp(c->chat_typed, "::perf") == 0) {
-                                _Custom.showPerformance = !_Custom.showPerformance;
+                                _Custom.show_performance = !_Custom.show_performance;
                             } else if (strcmp(c->chat_typed, "::gl") == 0) {
                                 _Custom.use_opengl11 = !_Custom.use_opengl11;
 
@@ -3880,8 +3880,8 @@ static void handleInputKey(Client *c) {
                                 client_add_message(c, 0, "This client was not built with opengl support!", "");
 #endif
                             } else if (strcmp(c->chat_typed, "::camera") == 0) {
-                                // _Custom.cameraEditor = !_Custom.cameraEditor;
-                                // c->cutscene = _Custom.cameraEditor;
+                                // _Custom.camera_editor = !_Custom.camera_editor;
+                                // c->cutscene = _Custom.camera_editor;
                                 // c->cutsceneDstLocalTileX = 52;
                                 // c->cutsceneDstLocalTileZ = 52;
                                 // c->cutsceneSrcLocalTileX = 52;
@@ -4508,7 +4508,7 @@ void client_update_game(Client *c) {
 
         if (c->scene_state == 2) {
             // NOTE unused
-            // if (_Custom.cameraEditor) {
+            // if (_Custom.camera_editor) {
             //     update_camera_editor(c);
             // } else {
             client_update_orbit_camera(c);
@@ -5905,7 +5905,7 @@ void getPlayerLocal(Client *c, Packet *buf, int size) {
         } else if (op == 3) {
             c->currentLevel = gbit(buf, 2);
             // TODO:
-            // if (c->showDebug) {
+            // if (c->show_debug) {
             // 	c->userTileMarkers = ground_new(4);
             // 	c->userTileMarkerIndex = 0;
             // }
@@ -7179,7 +7179,7 @@ void client_add_message(Client *c, int type, const char *text, const char *sende
     }
 
     // TODO: debug
-    // if (c->showDebug && type == 0) {
+    // if (c->show_debug && type == 0) {
     // 	text = "[" + (loopCycle / 30) + "]: " + text;
     // }
 
@@ -8310,7 +8310,7 @@ static void draw2DEntityElements(Client *c) {
         }
 
         // TODO
-        // if (c->showDebug) {
+        // if (c->show_debug) {
         // 	// true tile overlay
         // 	if (entity.pathLength > 0 || entity.forceMoveEndCycle >= loopCycle || entity.forceMoveStartCycle > loopCycle) {
         // 		int halfUnit = 64 * entity.size;
@@ -8512,7 +8512,7 @@ static void draw2DEntityElements(Client *c) {
     }
 
     // TODO
-    // if (c->showDebug) {
+    // if (c->show_debug) {
     // 	for (int i = 0; i < c->userTileMarkers.length; i++) {
     // 		if (c->userTileMarkers[i] == null || c->userTileMarkers[i].level != c->currentLevel || c->userTileMarkers[i].x < 0 || c->userTileMarkers[i].z < 0 || c->userTileMarkers[i].x >= 104 || c->userTileMarkers[i].z >= 104) {
     // 			continue;

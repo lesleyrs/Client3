@@ -227,7 +227,7 @@ void platform_poll_events(Client *c) {
                     key_pressed(c->shell, K_CONTROL, -1);
                     break;
                 case SDL_CONTROLLER_BUTTON_Y:
-                    _Custom.showPerformance = !_Custom.showPerformance;
+                    _Custom.show_performance = !_Custom.show_performance;
                     break;
                 case SDL_CONTROLLER_BUTTON_BACK:
                     if (c->ingame) client_logout(c);

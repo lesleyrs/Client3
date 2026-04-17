@@ -250,7 +250,7 @@ void platform_poll_events(Client *c) {
     }
 
     if (keys_down & KEY_SELECT) {
-        _Custom.showPerformance = !_Custom.showPerformance;
+        _Custom.show_performance = !_Custom.show_performance;
     }
 
     if (keys_down & KEY_START) {

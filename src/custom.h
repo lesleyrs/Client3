@@ -4,9 +4,9 @@
 #include <stdbool.h>
 
 typedef struct {
-    bool showPerformance;
-    bool showDebug;
-    bool cameraEditor;
+    bool show_performance;
+    bool show_debug;
+    bool camera_editor;
 
     bool remember_username;
     bool remember_password;

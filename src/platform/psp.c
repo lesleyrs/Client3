@@ -226,7 +226,7 @@ void platform_poll_events(Client *c) {
     }
 
     if (!(last_pad.Buttons & PSP_CTRL_SELECT) && pad.Buttons & PSP_CTRL_SELECT) {
-        _Custom.showPerformance = !_Custom.showPerformance;
+        _Custom.show_performance = !_Custom.show_performance;
     }
 
     if (!(last_pad.Buttons & PSP_CTRL_SQUARE) && pad.Buttons & PSP_CTRL_SQUARE) {
