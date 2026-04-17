@@ -2,8 +2,13 @@
 #include <string.h>
 
 #include "pix2d.h"
+#include "custom.h"
 
 Pix2D _Pix2D = {0};
+
+#ifdef GL11
+extern Custom _Custom;
+#endif
 
 void pix2d_bind(int width, int height, int *pixels) {
     _Pix2D.pixels = pixels;
@@ -49,11 +54,13 @@ void pix2d_set_clipping(int bottom, int right, int top, int left) {
 
 void pix2d_clear(void) {
     int length = _Pix2D.width * _Pix2D.height;
+    int clear_byte = 0;
 #ifdef GL11
-    memset(_Pix2D.pixels, 0xff, length * sizeof(int));
-#else
-    memset(_Pix2D.pixels, 0, length * sizeof(int));
+    if (_Custom.use_opengl11) {
+        clear_byte = 0xff;
+    }
 #endif
+    memset(_Pix2D.pixels, clear_byte, length * sizeof(int));
 }
 
 void pix2d_fill_rect(int x, int y, int rgb, int w, int h) {
@@ -88,7 +95,8 @@ void pix2d_draw_rect(int x, int y, int rgb, int w, int h) {
     pix2d_vline(x + w - 1, y, rgb, h);
 }
 
-/* void pix2d_fill_circle(int x_center, int y_center, int y_radius, int rgb, int alpha) {
+#if 0
+void pix2d_fill_circle(int x_center, int y_center, int y_radius, int rgb, int alpha) {
 	int inv_alpha = 256 - alpha;
 	int r0 = (rgb >> 16 & 0xff) * alpha;
 	int g0 = (rgb >> 8 & 0xff) * alpha;
@@ -125,7 +133,8 @@ void pix2d_draw_rect(int x, int y, int rgb, int w, int h) {
 			_Pix2D.pixels[offset++] = color;
 		}
 	}
-} */
+}
+#endif
 
 void pix2d_hline(int x, int y, int rgb, int w) {
     if (y < _Pix2D.top || y >= _Pix2D.bottom) {

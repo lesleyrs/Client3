@@ -4,11 +4,6 @@
 #include "pixmap.h"
 #include "gl11.h"
 
-#ifdef GL11
-int pixmap_xoff = 0;
-int pixmap_yoff = 0;
-#endif
-
 PixMap *pixmap_new(int width, int height) {
     PixMap *pixmap = calloc(1, sizeof(PixMap));
     pixmap->width = width;

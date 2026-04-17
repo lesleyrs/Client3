@@ -4,12 +4,16 @@
 #include <stdlib.h>
 
 #include "pix3d.h"
+#include "custom.h"
 #include "pix8.h"
 #include "platform.h"
 #include "gl11.h"
 
 Pix3D _Pix3D = {.lowMemory = true, .jagged = true};
 extern Pix2D _Pix2D;
+#ifdef GL11
+extern Custom _Custom;
+#endif
 
 void pix3d_init_global(void) {
     _Pix3D.reciprical15 = malloc(512 * sizeof(int));
@@ -365,7 +369,6 @@ int pix3d_set_gamma(int rgb, double gamma) {
 }
 #endif
 
-#ifndef GL11
 static void gouraudRaster(int x0, int x1, int color0, int color1, int *dst, int offset, int length) {
     int rgb;
 
@@ -498,10 +501,9 @@ static void gouraudRaster(int x0, int x1, int color0, int color1, int *dst, int 
         }
     }
 }
-#endif
 
-void gouraudTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int colorA, int colorB, int colorC) {
 #ifdef GL11
+static void glGouraudTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int colorA, int colorB, int colorC) {
     int alpha = 255;
     if (_Pix3D.alpha != 0) {
         alpha = 255 - _Pix3D.alpha;
@@ -509,13 +511,16 @@ void gouraudTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int colorA,
 
     glBegin(GL_TRIANGLES);
         glColor4ub((_Pix3D.palette[colorA] >> 16) & 0xff, (_Pix3D.palette[colorA] >> 8) & 0xff, _Pix3D.palette[colorA] & 0xff, alpha);
-        glVertex2f(xA + pixmap_xoff, yA + pixmap_yoff);
+        glVertex2f(xA + 8, yA + 11);
         glColor4ub((_Pix3D.palette[colorB] >> 16) & 0xff, (_Pix3D.palette[colorB] >> 8) & 0xff, _Pix3D.palette[colorB] & 0xff, alpha);
-        glVertex2f(xB + pixmap_xoff, yB + pixmap_yoff);
+        glVertex2f(xB + 8, yB + 11);
         glColor4ub((_Pix3D.palette[colorC] >> 16) & 0xff, (_Pix3D.palette[colorC] >> 8) & 0xff, _Pix3D.palette[colorC] & 0xff, alpha);
-        glVertex2f(xC + pixmap_xoff, yC + pixmap_yoff);
+        glVertex2f(xC + 8, yC + 11);
     glEnd();
-#else
+}
+#endif
+
+static void softGouraudTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int colorA, int colorB, int colorC) {
     int dxAB = xB - xA;
     int dyAB = yB - yA;
     int dxAC = xC - xA;
@@ -955,10 +960,20 @@ void gouraudTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int colorA,
             }
         }
     }
+}
+
+void gouraudTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int colorA, int colorB, int colorC) {
+#ifdef GL11
+    if (_Custom.use_opengl11) {
+        glGouraudTriangle(xA, xB, xC, yA, yB, yC, colorA, colorB, colorC);
+    } else {
+#endif
+        softGouraudTriangle(xA, xB, xC, yA, yB, yC, colorA, colorB, colorC);
+#ifdef GL11
+    }
 #endif
 }
 
-#ifndef GL11
 static void flatRaster(int x0, int x1, int *dst, int offset, int rgb) {
     if (_Pix3D.clipX) {
         if (x1 > _Pix2D.bound_x) {
@@ -1012,10 +1027,9 @@ static void flatRaster(int x0, int x1, int *dst, int offset, int rgb) {
         }
     }
 }
-#endif
 
-void flatTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int color) {
 #ifdef GL11
+static void glFlatTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int color) {
     int alpha = 255;
     if (_Pix3D.alpha != 0) {
         alpha = 255 - _Pix3D.alpha;
@@ -1023,11 +1037,14 @@ void flatTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int color) {
 
     glBegin(GL_TRIANGLES);
         glColor4ub(color >> 16, color >> 8, color, alpha);
-        glVertex2f(xA + pixmap_xoff, yA + pixmap_yoff);
-        glVertex2f(xB + pixmap_xoff, yB + pixmap_yoff);
-        glVertex2f(xC + pixmap_xoff, yC + pixmap_yoff);
+        glVertex2f(xA + 8, yA + 11);
+        glVertex2f(xB + 8, yB + 11);
+        glVertex2f(xC + 8, yC + 11);
     glEnd();
-#else
+}
+#endif
+
+static void softFlatTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int color) {
     int dxAB = xB - xA;
     int dyAB = yB - yA;
     int dxAC = xC - xA;
@@ -1383,6 +1400,17 @@ void flatTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int color) {
             }
         }
     }
+}
+
+void flatTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int color) {
+#ifdef GL11
+    if (_Custom.use_opengl11) {
+        glFlatTriangle(xA, xB, xC, yA, yB, yC, color);
+    } else {
+#endif
+    softFlatTriangle(xA, xB, xC, yA, yB, yC, color);
+#ifdef GL11
+    }
 #endif
 }
 
@@ -1461,20 +1489,21 @@ void glTextureTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int shade
     glBegin(GL_TRIANGLES);
         glColor4ub(shadeShiftA, shadeShiftA, shadeShiftA, 0xff);
         glTexCoord2f(uv.uA, uv.vA);
-        glVertex2f(xA + pixmap_xoff, yA + pixmap_yoff);
+        glVertex2f(xA + 8, yA + 11);
 
         glColor4ub(shadeShiftB, shadeShiftB, shadeShiftB, 0xff);
         glTexCoord2f(uv.uB, uv.vB);
-        glVertex2f(xB + pixmap_xoff, yB + pixmap_yoff);
+        glVertex2f(xB + 8, yB + 11);
 
         glColor4ub(shadeShiftC, shadeShiftC, shadeShiftC, 0xff);
         glTexCoord2f(uv.uC, uv.vC);
-        glVertex2f(xC + pixmap_xoff, yC + pixmap_yoff);
+        glVertex2f(xC + 8, yC + 11);
     glEnd();
 
     glDisable(GL_TEXTURE_2D);
 }
-#else
+#endif
+
 static void textureRaster(int xA, int xB, int *dst, int offset, int *texels, int curU, int curV, int u, int v, int w, int uStride, int vStride, int wStride, int shadeA, int shadeB) {
     if (xA >= xB) {
         return;
@@ -2474,4 +2503,3 @@ void textureTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int shadeA,
         }
     }
 }
-#endif

@@ -18,6 +18,7 @@ typedef struct {
     int chat_era; // 0 - early beta, 1 - late beta, 2 - launch
     bool resizable;
     bool item_outlines;
+    bool use_opengl11;
 } Custom;
 
 bool load_ini_args(void);

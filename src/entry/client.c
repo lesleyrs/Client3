@@ -3869,6 +3869,16 @@ static void handleInputKey(Client *c) {
                                 _Custom.showDebug = !_Custom.showDebug;
                             } else if (strcmp(c->chat_typed, "::perf") == 0) {
                                 _Custom.showPerformance = !_Custom.showPerformance;
+                            } else if (strcmp(c->chat_typed, "::gl") == 0) {
+                                _Custom.use_opengl11 = !_Custom.use_opengl11;
+
+#ifdef GL11
+                                char buf[MAX_STR];
+                                sprintf(buf, "OpenGL renderer is now %s.", _Custom.use_opengl11 ? "enabled" : "disabled");
+                                client_add_message(c, 0, buf, "");
+#else
+                                client_add_message(c, 0, "This client was not built with opengl support!", "");
+#endif
                             } else if (strcmp(c->chat_typed, "::camera") == 0) {
                                 // _Custom.cameraEditor = !_Custom.cameraEditor;
                                 // c->cutscene = _Custom.cameraEditor;
@@ -7815,6 +7825,12 @@ void client_draw_game(Client *c) {
         client_draw_scene(c);
     }
 
+#ifdef GL11
+    // NOTE: scene is rendered with gl, the rest must be in software so pixmaps don't draw over interface models
+    bool use_opengl11 = _Custom.use_opengl11;
+    _Custom.use_opengl11 = false;
+#endif
+
     if (c->menu_visible && c->menu_area == 1) {
         c->redraw_sidebar = true;
     }
@@ -8053,6 +8069,10 @@ void client_draw_game(Client *c) {
         pixmap_draw(c->area_backbase1, 0, 471);
         pixmap_bind(c->area_viewport);
     }
+
+#ifdef GL11
+    _Custom.use_opengl11 = use_opengl11;
+#endif
 
     c->scene_delta = 0;
 }
@@ -8921,9 +8941,6 @@ void client_draw_scene(Client *c) {
     _Model.mouse_y = c->shell->mouse_y - 11;
     pix2d_clear();
 #ifdef GL11
-    pixmap_xoff = 8;
-    pixmap_yoff = 11;
-
     glEnable(GL_SCISSOR_TEST);
     glScissor(8, c->shell->screen_height - 11 - _Pix2D.height, _Pix2D.width, _Pix2D.height);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -9400,10 +9417,6 @@ void client_draw_on_minimap(Client *c, int dy, Pix24 *image, int dx) {
 
 void client_draw_chatback(Client *c) {
     pixmap_bind(c->area_chatback);
-#ifdef GL11
-    pixmap_xoff = 22;
-    pixmap_yoff = 375;
-#endif
     _Pix3D.line_offset = c->area_chatback_offsets;
     pix8_draw(c->image_chatback, 0, 0);
     if (c->show_social_input) {
@@ -9583,10 +9596,6 @@ void client_draw_scrollbar(Client *c, int x, int y, int scrollY, int scrollHeigh
 
 void client_draw_sidebar(Client *c) {
     pixmap_bind(c->area_sidebar);
-#ifdef GL11
-    pixmap_xoff = 562;
-    pixmap_yoff = 231;
-#endif
     _Pix3D.line_offset = c->area_sidebar_offsets;
     pix8_draw(c->image_invback, 0, 0);
     if (c->sidebar_interface_id != -1) {

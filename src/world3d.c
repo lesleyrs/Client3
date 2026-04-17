@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "custom.h"
 #include "datastruct/linklist.h"
 #include "defines.h"
 #include "entity.h"
@@ -19,6 +20,9 @@ SceneData _World3D = {.lowMemory = true};
 extern Pix2D _Pix2D;
 extern Pix3D _Pix3D;
 extern TileOverlayData _TileOverlay;
+#ifdef GL11
+extern Custom _Custom;
+#endif
 
 const int WALL_DECORATION_INSET_X[] = {53, -53, -53, 53};
 const int WALL_DECORATION_INSET_Z[] = {-53, -53, 53, 53};
@@ -1885,15 +1889,23 @@ void world3d_draw_tileunderlay(World3D *world3d, TileUnderlay *underlay, int lev
             gouraudTriangle(py1, px3, pz0, pz1, py3, px1, mul_lightness(averageColor, underlay->northeastColor), mul_lightness(averageColor, underlay->northwestColor), mul_lightness(averageColor, underlay->southeastColor));
         } else if (underlay->flat) {
 #ifdef GL11
-            glTextureTriangle(py1, px3, pz0, pz1, py3, px1, underlay->northeastColor, underlay->northwestColor, underlay->southeastColor, (UV){texCoordU11, texCoordU01, texCoordU10, texCoordV11, texCoordV01, texCoordV10}, underlay->textureId);
-#else
+            if (_Custom.use_opengl11) {
+                glTextureTriangle(py1, px3, pz0, pz1, py3, px1, underlay->northeastColor, underlay->northwestColor, underlay->southeastColor, (UV){texCoordU11, texCoordU01, texCoordU10, texCoordV11, texCoordV01, texCoordV10}, underlay->textureId);
+            } else {
+#endif
             textureTriangle(py1, px3, pz0, pz1, py3, px1, underlay->northeastColor, underlay->northwestColor, underlay->southeastColor, x0, y0, z0, x1, x3, y1, y3, z1, z3, underlay->textureId);
+#ifdef GL11
+            }
 #endif
         } else {
 #ifdef GL11
-            glTextureTriangle(py1, px3, pz0, pz1, py3, px1, underlay->northeastColor, underlay->northwestColor, underlay->southeastColor, (UV){texCoordU00, texCoordU10, texCoordU01, texCoordV00, texCoordV10, texCoordV01}, underlay->textureId);
-#else
+            if (_Custom.use_opengl11) {
+                glTextureTriangle(py1, px3, pz0, pz1, py3, px1, underlay->northeastColor, underlay->northwestColor, underlay->southeastColor, (UV){texCoordU00, texCoordU10, texCoordU01, texCoordV00, texCoordV10, texCoordV01}, underlay->textureId);
+            } else {
+#endif
             textureTriangle(py1, px3, pz0, pz1, py3, px1, underlay->northeastColor, underlay->northwestColor, underlay->southeastColor, x2, y2, z2, x3, x1, y3, y1, z3, z1, underlay->textureId);
+#ifdef GL11
+            }
 #endif
         }
     }
@@ -1908,9 +1920,13 @@ void world3d_draw_tileunderlay(World3D *world3d, TileUnderlay *underlay, int lev
     if (underlay->textureId != -1) {
         if (!_World3D.lowMemory) {
 #ifdef GL11
-            glTextureTriangle(px0, pz0, px3, py0, px1, py3, underlay->southwestColor, underlay->southeastColor, underlay->northwestColor, (UV){texCoordU00, texCoordU10, texCoordU01, texCoordV00, texCoordV10, texCoordV01}, underlay->textureId);
-#else
+            if (_Custom.use_opengl11) {
+                glTextureTriangle(px0, pz0, px3, py0, px1, py3, underlay->southwestColor, underlay->southeastColor, underlay->northwestColor, (UV){texCoordU00, texCoordU10, texCoordU01, texCoordV00, texCoordV10, texCoordV01}, underlay->textureId);
+            } else {
+#endif
             textureTriangle(px0, pz0, px3, py0, px1, py3, underlay->southwestColor, underlay->southeastColor, underlay->northwestColor, x0, y0, z0, x1, x3, y1, y3, z1, z3, underlay->textureId);
+#ifdef GL11
+            }
 #endif
             return;
         }
@@ -1993,15 +2009,23 @@ void world3d_draw_tileoverlay(int tileX, int tileZ, TileOverlay *overlay, int si
                 gouraudTriangle(x0, x1, x2, y0, y1, y2, mul_lightness(textureColor, overlay->triangleColorA[v]), mul_lightness(textureColor, overlay->triangleColorB[v]), mul_lightness(textureColor, overlay->triangleColorC[v]));
             } else if (overlay->flat) {
 #ifdef GL11
-                glTextureTriangle(x0, x1, x2, y0, y1, y2, overlay->triangleColorA[v], overlay->triangleColorB[v], overlay->triangleColorC[v], (UV){_TileOverlay.tmpU[a], _TileOverlay.tmpU[b], _TileOverlay.tmpU[c], _TileOverlay.tmpV[a], _TileOverlay.tmpV[b], _TileOverlay.tmpV[c]}, overlay->triangleTextureIds[v]);
-#else
+                if (_Custom.use_opengl11) {
+                    glTextureTriangle(x0, x1, x2, y0, y1, y2, overlay->triangleColorA[v], overlay->triangleColorB[v], overlay->triangleColorC[v], (UV){_TileOverlay.tmpU[a], _TileOverlay.tmpU[b], _TileOverlay.tmpU[c], _TileOverlay.tmpV[a], _TileOverlay.tmpV[b], _TileOverlay.tmpV[c]}, overlay->triangleTextureIds[v]);
+                } else {
+#endif
                 textureTriangle(x0, x1, x2, y0, y1, y2, overlay->triangleColorA[v], overlay->triangleColorB[v], overlay->triangleColorC[v], _TileOverlay.tmpViewspaceX[0], _TileOverlay.tmpViewspaceY[0], _TileOverlay.tmpViewspaceZ[0], _TileOverlay.tmpViewspaceX[1], _TileOverlay.tmpViewspaceX[3], _TileOverlay.tmpViewspaceY[1], _TileOverlay.tmpViewspaceY[3], _TileOverlay.tmpViewspaceZ[1], _TileOverlay.tmpViewspaceZ[3], overlay->triangleTextureIds[v]);
+#ifdef GL11
+                }
 #endif
             } else {
 #ifdef GL11
-                glTextureTriangle(x0, x1, x2, y0, y1, y2, overlay->triangleColorA[v], overlay->triangleColorB[v], overlay->triangleColorC[v], (UV){_TileOverlay.tmpU[0], _TileOverlay.tmpU[1], _TileOverlay.tmpU[3], _TileOverlay.tmpV[0], _TileOverlay.tmpV[1], _TileOverlay.tmpV[3]}, overlay->triangleTextureIds[v]);
-#else
+                if (_Custom.use_opengl11) {
+                    glTextureTriangle(x0, x1, x2, y0, y1, y2, overlay->triangleColorA[v], overlay->triangleColorB[v], overlay->triangleColorC[v], (UV){_TileOverlay.tmpU[0], _TileOverlay.tmpU[1], _TileOverlay.tmpU[3], _TileOverlay.tmpV[0], _TileOverlay.tmpV[1], _TileOverlay.tmpV[3]}, overlay->triangleTextureIds[v]);
+                } else {
+#endif
                 textureTriangle(x0, x1, x2, y0, y1, y2, overlay->triangleColorA[v], overlay->triangleColorB[v], overlay->triangleColorC[v], _TileOverlay.tmpViewspaceX[a], _TileOverlay.tmpViewspaceY[a], _TileOverlay.tmpViewspaceZ[a], _TileOverlay.tmpViewspaceX[b], _TileOverlay.tmpViewspaceX[c], _TileOverlay.tmpViewspaceY[b], _TileOverlay.tmpViewspaceY[c], _TileOverlay.tmpViewspaceZ[b], _TileOverlay.tmpViewspaceZ[c], overlay->triangleTextureIds[v]);
+#ifdef GL11
+                }
 #endif
             }
         }

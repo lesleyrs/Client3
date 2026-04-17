@@ -50,9 +50,9 @@ int pix3d_set_gamma(int rgb, double gamma);
 
 void gouraudTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int colorA, int colorB, int colorC);
 void flatTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int color);
-#ifndef GL11
 void textureTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int shadeA, int shadeB, int shadeC, int originX, int originY, int originZ, int txB, int txC, int tyB, int tyC, int tzB, int tzC, int texture);
-#else
+
+#ifdef GL11
 typedef struct {
     float uA, uB, uC;
     float vA, vB, vC;
