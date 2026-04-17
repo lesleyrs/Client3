@@ -9945,6 +9945,12 @@ static void client_draw_interface(Client *c, Component *com, int x, int y, int s
                                 drawString(c->font_plain11, slotX + dx + 1, slotY + 10 + dy, formatObjCount(count), BLACK);
                                 drawString(c->font_plain11, slotX + dx, slotY + 9 + dy, formatObjCount(count), YELLOW);
                             }
+
+                            if (_Custom.item_outlines) {
+                                if (c->obj_selected == 1 && c->objSelectedSlot == slot && c->objSelectedInterface == child->id) {
+                                    pix24_free(icon);
+                                }
+                            }
                         }
                     } else if (child->invSlotSprite && slot < 20) {
                         Pix24 *image = child->invSlotSprite[slot];

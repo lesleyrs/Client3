@@ -139,7 +139,12 @@ Pix24 *objtype_get_icon_outline(int id, int count, int outline_color) {
         }
     }
 
-    Pix24 *icon = pix24_new(32, 32, true);
+    Pix24 *icon = NULL;
+    if (outline_color == 0) {
+        icon = pix24_new(32, 32, true);
+    } else {
+        icon = pix24_new(32, 32, false);
+    }
 
     int _cx = _Pix3D.center_x;
     int _cy = _Pix3D.center_y;
