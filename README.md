@@ -8,7 +8,7 @@ Features:
 - webassembly build to avoid javascript code being optimized out by the browser.
 - WIP ports for most game consoles from 1998 until 2013! See [docs](/docs) for images.
 - optional [config.ini](example.ini) file to change client behaviour. Create an empty config.ini to avoid passing cli args.
-- OpenGL 1.1 renderer, build with GL=1 in make or -gl in batchfile and enable with ::gl or config.ini. Needs optimizing.
+- OpenGL 1.1 renderer, build with GL=1 in make or -gl in batchfile and enable with ::gl or config.ini. Needs optimizing. Do not build with GL support if you only want to use the software rasterizer to avoid continuous ram>vram copies!
 
 ## quickstart for windows
 All you need to build for 32 bit windows is included:
