@@ -3877,7 +3877,7 @@ static void handleInputKey(Client *c) {
                                 sprintf(buf, "OpenGL renderer is now %s.", _Custom.use_opengl11 ? "enabled" : "disabled");
                                 client_add_message(c, 0, buf, "");
 #else
-                                client_add_message(c, 0, "This client was not built with opengl support!", "");
+                                client_add_message(c, 0, "This client was not built with OpenGL support!", "");
 #endif
                             } else if (strcmp(c->chat_typed, "::camera") == 0) {
                                 // _Custom.camera_editor = !_Custom.camera_editor;
@@ -7821,15 +7821,13 @@ void client_draw_game(Client *c) {
         }
     }
 
+#ifdef GL11
+    bool use_opengl11 = _Custom.use_opengl11;
+#endif
+
     if (c->scene_state == 2) {
         client_draw_scene(c);
     }
-
-#ifdef GL11
-    // NOTE: scene is rendered with gl, the rest must be in software so pixmaps don't draw over interface models
-    bool use_opengl11 = _Custom.use_opengl11;
-    _Custom.use_opengl11 = false;
-#endif
 
     if (c->menu_visible && c->menu_area == 1) {
         c->redraw_sidebar = true;
@@ -8951,6 +8949,8 @@ void client_draw_scene(Client *c) {
     world3d_draw(c->scene, c->cameraX, c->cameraY, c->cameraZ, level, c->cameraYaw, c->cameraPitch, _Client.loop_cycle);
 #ifdef GL11
     glDisable(GL_SCISSOR_TEST);
+    // NOTE: state is saved in client_draw, scene is rendered with gl, the rest must be in software so pixmaps don't draw over interface models
+    _Custom.use_opengl11 = false;
 #endif
     world3d_clear_temporarylocs(c->scene);
     draw2DEntityElements(c);
