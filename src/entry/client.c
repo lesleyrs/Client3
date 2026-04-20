@@ -7799,6 +7799,9 @@ void client_draw(Client *c) {
 }
 
 void client_draw_game(Client *c) {
+#ifdef GL11
+    c->redraw_background = true; // TODO cache pixmaps
+#endif
     if (c->redraw_background) {
         c->redraw_background = false;
         pixmap_draw(c->area_backleft1, 0, 11);
@@ -10354,6 +10357,11 @@ void client_draw_title_screen(Client *c) {
     }
 
     pixmap_draw(c->image_title4, 214, 186);
+#ifdef GL11
+    c->redraw_background = true; // TODO cache pixmaps
+    pixmap_draw(c->image_title0, 0, 0);
+    pixmap_draw(c->image_title1, 661, 0);
+#endif
     if (c->redraw_background) {
         c->redraw_background = false;
         pixmap_draw(c->image_title2, 128, 0);
@@ -10964,6 +10972,13 @@ void client_draw_progress(Client *c, const char *message, int progress) {
         pix2d_fill_rect(x / 2 - 150 + progress * 3, midY + 2, BLACK, 300 - progress * 3, 30);
         drawStringCenter(c->font_bold12, x / 2, y / 2 + 5 - offsetY, message, WHITE);
         pixmap_draw(c->image_title4, 214, 186);
+#ifdef GL11
+        c->redraw_background = true; // TODO cache pixmaps
+        if (c->flame_active) {
+            pixmap_draw(c->image_title0, 0, 0);
+            pixmap_draw(c->image_title1, 661, 0);
+        }
+#endif
         if (c->redraw_background) {
             c->redraw_background = false;
             if (!c->flame_active) {
