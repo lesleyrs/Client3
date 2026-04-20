@@ -376,6 +376,7 @@ void platform_new(GameShell *shell) {
     sceCtrlSetSamplingMode(SCE_CTRL_MODE_DIGITAL);
     audio_init();
 
+#ifdef GL11
     vglInit(0x800000);
     // vglWaitVblankStart(GL_TRUE);
 
@@ -389,6 +390,7 @@ void platform_new(GameShell *shell) {
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+#endif
 }
 
 void platform_free(void) {
