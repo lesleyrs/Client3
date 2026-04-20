@@ -1,7 +1,9 @@
 #if defined(__vita__) && (!defined(SDL) || SDL == 0)
 #include <malloc.h>
 #include <string.h>
+#include <errno.h>
 
+#include <psp2/audioout.h>
 #include <psp2/ctrl.h>
 #include <psp2/display.h>
 #include <psp2/kernel/processmgr.h>
@@ -16,6 +18,12 @@
 #include "../pixmap.h"
 #include "../platform.h"
 
+#include "../thirdparty/bzip.h"
+#define TSF_IMPLEMENTATION
+#include "../thirdparty/tsf.h"
+#define TML_IMPLEMENTATION
+#include "../thirdparty/tml.h"
+
 extern ClientData _Client;
 extern InputTracking _InputTracking;
 extern Custom _Custom;
@@ -28,6 +36,320 @@ static int xoff = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2;
 
 static SceTouchData touch[SCE_TOUCH_PORT_MAX_NUM], touch_old[SCE_TOUCH_PORT_MAX_NUM];
 static SceCtrlData ctrl, ctrl_old;
+
+#define AUDIO_PORT_SAMPLES 1024
+static int g_AudioPort = -1;
+#define AUDIO_THREAD_STACK (16 * 1024)
+static SceUID g_AudioThread = -1;
+
+#define WAVE_FREQ 22050
+static SceUID g_WaveMutex = -1;
+static bool g_WaveActive = false;
+static int16_t *g_WaveSamples = NULL;
+static int g_WaveSampleCount = 0;
+static int g_WaveSamplePos = 0;
+static int g_WaveVolume = 128;
+
+#define MIDI_FREQ 22050
+static SceUID g_MidiMutex = -1;
+static bool g_MidiActive = false;
+static tml_message *TinyMidiLoader = NULL;
+static tsf *g_TinySoundFont = NULL;
+static double g_Msec = 0.0;
+static tml_message *g_MidiMessage = NULL;
+static float g_MidiVolume = 1.0f;
+
+static int16_t *decode_wave_to_s16_mono(const int8_t *src, int length, int *out_sample_count) {
+    if (!src || length <= 44 || !out_sample_count) {
+        return NULL;
+    }
+
+    const uint8_t *in_data = (const uint8_t *)src + 44;
+    int sample_count = length - 44;
+    int16_t *decoded = malloc((size_t)sample_count * sizeof(int16_t));
+    if (!decoded) {
+        return NULL;
+    }
+
+    for (int i = 0; i < sample_count; i++) {
+        decoded[i] = (int16_t)(((int)in_data[i] - 128) << 8);
+    }
+
+    *out_sample_count = sample_count;
+    return decoded;
+}
+
+static void wave_audio_init(void) {
+    g_WaveMutex = sceKernelCreateMutex("wave_mutex", 0, 1, NULL);
+    if (g_WaveMutex < 0) {
+        return;
+    }
+
+    g_WaveActive = false;
+    g_WaveSamplePos = 0;
+}
+
+static void wave_audio_shutdown(void) {
+    if (g_WaveMutex >= 0) {
+        sceKernelLockMutex(g_WaveMutex, 1, NULL);
+    }
+    g_WaveActive = false;
+    if (g_WaveSamples) {
+        free(g_WaveSamples);
+        g_WaveSamples = NULL;
+    }
+    g_WaveSampleCount = 0;
+    g_WaveSamplePos = 0;
+    if (g_WaveMutex >= 0) {
+        sceKernelUnlockMutex(g_WaveMutex, 1);
+    }
+    if (g_WaveMutex >= 0) {
+        sceKernelDeleteMutex(g_WaveMutex);
+        g_WaveMutex = -1;
+    }
+}
+
+static void midi_reset_state_locked(void) {
+    g_MidiMessage = NULL;
+    g_Msec = 0.0;
+    if (g_TinySoundFont) {
+        tsf_reset(g_TinySoundFont);
+        tsf_channel_set_bank_preset(g_TinySoundFont, 9, 128, 0);
+        tsf_set_volume(g_TinySoundFont, g_MidiVolume);
+    }
+}
+
+static int16_t clamp_s16(int sample) {
+    if (sample < -32768) {
+        return -32768;
+    }
+    if (sample > 32767) {
+        return 32767;
+    }
+    return (int16_t)sample;
+}
+
+static int audio_thread_main(SceSize args, void *argp) {
+    (void)args;
+    (void)argp;
+
+    int16_t mix[AUDIO_PORT_SAMPLES * 2];
+    while (g_MidiActive) {
+        memset(mix, 0, sizeof(mix));
+
+        bool midi_locked = false;
+        if (g_MidiMutex >= 0) {
+            int midi_lock_result = sceKernelTryLockMutex(g_MidiMutex, 1);
+            midi_locked = midi_lock_result >= 0;
+        }
+        if (midi_locked && g_TinySoundFont) {
+            int16_t *stream = mix;
+            int SampleBlock, SampleCount = AUDIO_PORT_SAMPLES;
+            for (SampleBlock = TSF_RENDER_EFFECTSAMPLEBLOCK; SampleCount;
+                 SampleCount -= SampleBlock, stream += (SampleBlock * 2)) {
+                if (SampleBlock > SampleCount) {
+                    SampleBlock = SampleCount;
+                }
+
+                for (g_Msec += SampleBlock * (1000.0 / MIDI_FREQ);
+                     g_MidiMessage && g_Msec >= g_MidiMessage->time;
+                     g_MidiMessage = g_MidiMessage->next) {
+                    switch (g_MidiMessage->type) {
+                    case TML_PROGRAM_CHANGE:
+                        tsf_channel_set_presetnumber(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->program, (g_MidiMessage->channel == 9));
+                        break;
+                    case TML_NOTE_ON:
+                        tsf_channel_note_on(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->key, g_MidiMessage->velocity / 127.0f);
+                        break;
+                    case TML_NOTE_OFF:
+                        tsf_channel_note_off(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->key);
+                        break;
+                    case TML_PITCH_BEND:
+                        tsf_channel_set_pitchwheel(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->pitch_bend);
+                        break;
+                    case TML_CONTROL_CHANGE:
+                        tsf_channel_midi_control(g_TinySoundFont, g_MidiMessage->channel, g_MidiMessage->control, g_MidiMessage->control_value);
+                        break;
+                    }
+                }
+
+                tsf_render_short(g_TinySoundFont, stream, SampleBlock, 0);
+            }
+        }
+        if (midi_locked) {
+            sceKernelUnlockMutex(g_MidiMutex, 1);
+        }
+
+        bool wave_locked = false;
+        if (g_WaveMutex >= 0) {
+            int wave_lock_result = sceKernelTryLockMutex(g_WaveMutex, 1);
+            wave_locked = wave_lock_result >= 0;
+        }
+        if (wave_locked && g_WaveSamples && g_WaveSamplePos < g_WaveSampleCount) {
+            int wavevol = g_WaveVolume;
+            if (wavevol < 0) {
+                wavevol = 0;
+            } else if (wavevol > 128) {
+                wavevol = 128;
+            }
+
+            int remaining = g_WaveSampleCount - g_WaveSamplePos;
+            int count = remaining > AUDIO_PORT_SAMPLES ? AUDIO_PORT_SAMPLES : remaining;
+            for (int i = 0; i < count; i++) {
+                int wave = ((int)g_WaveSamples[g_WaveSamplePos + i] * wavevol) / 128;
+                int left = (int)mix[i * 2] + wave;
+                int right = (int)mix[i * 2 + 1] + wave;
+                mix[i * 2] = clamp_s16(left);
+                mix[i * 2 + 1] = clamp_s16(right);
+            }
+
+            g_WaveSamplePos += count;
+            if (g_WaveSamplePos >= g_WaveSampleCount) {
+                free(g_WaveSamples);
+                g_WaveSamples = NULL;
+                g_WaveSampleCount = 0;
+                g_WaveSamplePos = 0;
+                g_WaveActive = false;
+            }
+        }
+        if (wave_locked) {
+            sceKernelUnlockMutex(g_WaveMutex, 1);
+        }
+
+        if (g_AudioPort >= 0) {
+            sceAudioOutOutput(g_AudioPort, mix);
+        } else {
+            sceKernelDelayThread(4000);
+        }
+    }
+
+    if (g_AudioPort >= 0) {
+        sceAudioOutReleasePort(g_AudioPort);
+        g_AudioPort = -1;
+    }
+
+    sceKernelExitDeleteThread(0);
+    return 0;
+}
+
+static void midi_audio_init(void) {
+    g_MidiMutex = sceKernelCreateMutex("midi_mutex", 0, 1, NULL);
+    if (g_MidiMutex < 0) {
+        return;
+    }
+
+    if (!_Client.lowmem) {
+        g_TinySoundFont = tsf_load_filename("SCC1_Florestan.sf2");
+        if (!g_TinySoundFont) {
+            g_TinySoundFont = tsf_load_filename("rom/SCC1_Florestan.sf2");
+        }
+
+        if (!g_TinySoundFont) {
+            rs2_error("Could not load SoundFont\n");
+            return;
+        } else {
+            tsf_set_output(g_TinySoundFont, TSF_STEREO_INTERLEAVED, MIDI_FREQ, 0.0f);
+            tsf_set_volume(g_TinySoundFont, g_MidiVolume);
+            tsf_channel_set_bank_preset(g_TinySoundFont, 9, 128, 0);
+        }
+    }
+
+    g_AudioPort = sceAudioOutOpenPort(SCE_AUDIO_OUT_PORT_TYPE_BGM, AUDIO_PORT_SAMPLES, MIDI_FREQ, SCE_AUDIO_OUT_MODE_STEREO);
+    if (g_AudioPort >= 0) {
+        int vols[2] = {SCE_AUDIO_OUT_MAX_VOL, SCE_AUDIO_OUT_MAX_VOL};
+        sceAudioOutSetVolume(g_AudioPort, SCE_AUDIO_VOLUME_FLAG_L_CH | SCE_AUDIO_VOLUME_FLAG_R_CH, vols);
+    } else {
+        rs2_error("Could not open the audio hardware\n");
+        return;
+    }
+
+    g_MidiActive = true;
+    g_AudioThread = sceKernelCreateThread("audio", audio_thread_main, 0x10000100, AUDIO_THREAD_STACK, 0, SCE_KERNEL_THREAD_CPU_AFFINITY_MASK_DEFAULT, NULL);
+    int thread_start_result = g_AudioThread >= 0 ? sceKernelStartThread(g_AudioThread, 0, NULL) : -1;
+    if (g_AudioThread < 0 || thread_start_result < 0) {
+        g_MidiActive = false;
+        if (g_AudioThread >= 0) {
+            sceKernelDeleteThread(g_AudioThread);
+            g_AudioThread = -1;
+        }
+        if (g_AudioPort >= 0) {
+            sceAudioOutReleasePort(g_AudioPort);
+            g_AudioPort = -1;
+        }
+        if (g_TinySoundFont) {
+            tsf_close(g_TinySoundFont);
+            g_TinySoundFont = NULL;
+        }
+        sceKernelDeleteMutex(g_MidiMutex);
+        g_MidiMutex = -1;
+    }
+}
+
+static void midi_audio_shutdown(void) {
+    if (g_MidiMutex >= 0) {
+        sceKernelLockMutex(g_MidiMutex, 1, NULL);
+    }
+    g_MidiActive = false;
+    if (TinyMidiLoader) {
+        tml_free(TinyMidiLoader);
+        TinyMidiLoader = NULL;
+    }
+    g_MidiMessage = NULL;
+    g_Msec = 0.0;
+    if (g_MidiMutex >= 0) {
+        sceKernelUnlockMutex(g_MidiMutex, 1);
+    }
+
+    if (g_AudioThread >= 0) {
+        sceKernelWaitThreadEnd(g_AudioThread, NULL, NULL);
+        g_AudioThread = -1;
+    }
+    if (g_TinySoundFont) {
+        tsf_close(g_TinySoundFont);
+        g_TinySoundFont = NULL;
+    }
+    if (g_AudioPort >= 0) {
+        sceAudioOutReleasePort(g_AudioPort);
+        g_AudioPort = -1;
+    }
+    if (g_MidiMutex >= 0) {
+        sceKernelDeleteMutex(g_MidiMutex);
+        g_MidiMutex = -1;
+    }
+}
+
+static void midi_set_loader(tml_message *loader) {
+    if (!loader || g_MidiMutex < 0) {
+        if (loader) {
+            tml_free(loader);
+        }
+        return;
+    }
+
+    sceKernelLockMutex(g_MidiMutex, 1, NULL);
+    if (TinyMidiLoader) {
+        tml_free(TinyMidiLoader);
+    }
+    TinyMidiLoader = loader;
+    g_MidiMessage = loader;
+    g_Msec = 0.0;
+    if (g_TinySoundFont) {
+        tsf_reset(g_TinySoundFont);
+        tsf_channel_set_bank_preset(g_TinySoundFont, 9, 128, 0);
+        tsf_set_volume(g_TinySoundFont, g_MidiVolume);
+    }
+    sceKernelUnlockMutex(g_MidiMutex, 1);
+}
+
+static void audio_init(void) {
+    wave_audio_init();
+    midi_audio_init();
+}
+
+static void audio_shutdown(void) {
+    midi_audio_shutdown();
+    wave_audio_shutdown();
+}
 
 bool platform_init(void) {
     return true;
@@ -48,25 +370,170 @@ void platform_new(GameShell *shell) {
 
     // sceCtrlSetSamplingMode(SCE_CTRL_MODE_ANALOG);
     sceCtrlSetSamplingMode(SCE_CTRL_MODE_DIGITAL);
+    audio_init();
 }
 
 void platform_free(void) {
+    audio_shutdown();
     sceKernelDeleteMutex(mutex);
     sceDisplaySetFrameBuf(NULL, SCE_DISPLAY_SETBUF_IMMEDIATE);
     sceKernelFreeMemBlock(displayblock);
 }
+
 void platform_set_wave_volume(int wavevol) {
+    if (g_WaveMutex >= 0) {
+        sceKernelLockMutex(g_WaveMutex, 1, NULL);
+    }
+    g_WaveVolume = wavevol;
+    if (g_WaveMutex >= 0) {
+        sceKernelUnlockMutex(g_WaveMutex, 1);
+    }
 }
+
 void platform_play_wave(int8_t *src, int length) {
+    if (!src || length <= 0 || g_WaveMutex < 0) {
+        return;
+    }
+
+    bool can_queue = false;
+    sceKernelLockMutex(g_WaveMutex, 1, NULL);
+    if (!g_WaveActive) {
+        g_WaveActive = true;
+        can_queue = true;
+    }
+    sceKernelUnlockMutex(g_WaveMutex, 1);
+    if (!can_queue) {
+        return;
+    }
+
+    int sample_count = 0;
+    int16_t *decoded = decode_wave_to_s16_mono(src, length, &sample_count);
+    if (!decoded || sample_count <= 0) {
+        if (decoded) {
+            free(decoded);
+        }
+        sceKernelLockMutex(g_WaveMutex, 1, NULL);
+        g_WaveActive = false;
+        sceKernelUnlockMutex(g_WaveMutex, 1);
+        return;
+    }
+
+    sceKernelLockMutex(g_WaveMutex, 1, NULL);
+    if (!g_WaveSamples) {
+        g_WaveSamples = decoded;
+        g_WaveSampleCount = sample_count;
+        g_WaveSamplePos = 0;
+        sceKernelUnlockMutex(g_WaveMutex, 1);
+    } else {
+        g_WaveActive = false;
+        sceKernelUnlockMutex(g_WaveMutex, 1);
+        free(decoded);
+    }
 }
+
 void platform_set_midi_volume(float midivol) {
+    if (_Client.lowmem || g_MidiMutex < 0) {
+        return;
+    }
+
+    sceKernelLockMutex(g_MidiMutex, 1, NULL);
+    g_MidiVolume = midivol;
+    if (g_TinySoundFont) {
+        tsf_set_volume(g_TinySoundFont, g_MidiVolume);
+    }
+    sceKernelUnlockMutex(g_MidiMutex, 1);
 }
+
 void platform_set_jingle(int8_t *src, int len) {
+    if (_Client.lowmem || !src || len <= 0) {
+        if (src) {
+            free(src);
+        }
+        return;
+    }
+
+    tml_message *loader = tml_load_memory(src, len);
+    free(src);
+    if (!loader) {
+        return;
+    }
+    midi_set_loader(loader);
 }
+
 void platform_set_midi(const char *name, int crc, int len) {
+    if (_Client.lowmem || !name || len <= 4) {
+        return;
+    }
+
+    char filename[PATH_MAX];
+    snprintf(filename, sizeof(filename), "rom/cache/client/songs/%s.mid", name);
+    FILE *file = fopen(filename, "rb");
+    if (!file) {
+        snprintf(filename, sizeof(filename), "rom/cache/client/jingles/%s.mid", name);
+        file = fopen(filename, "rb");
+        if (!file) {
+            rs2_error("Could not read midi %s (%s)\n", filename, strerror(errno));
+            return;
+        }
+    }
+
+    int8_t *data = malloc((size_t)len);
+    if (!data) {
+        fclose(file);
+        return;
+    }
+
+    size_t data_len = fread(data, 1, (size_t)len, file);
+    fclose(file);
+    if (data_len < 5) {
+        free(data);
+        return;
+    }
+
+    if (crc != 12345678) {
+        int data_crc = rs_crc32(data, data_len);
+        if (data_crc != crc) {
+            free(data);
+            return;
+        }
+    }
+
+    int uncompressed_length =
+        ((data[0] & 0xff) << 24) |
+        ((data[1] & 0xff) << 16) |
+        ((data[2] & 0xff) << 8) |
+        (data[3] & 0xff);
+    if (uncompressed_length <= 0) {
+        free(data);
+        return;
+    }
+
+    int8_t *uncompressed = malloc((size_t)uncompressed_length);
+    if (!uncompressed) {
+        free(data);
+        return;
+    }
+
+    bzip_decompress(uncompressed, data, (int)data_len - 4, 4);
+    tml_message *loader = tml_load_memory(uncompressed, uncompressed_length);
+    free(uncompressed);
+    free(data);
+    if (!loader) {
+        return;
+    }
+    midi_set_loader(loader);
 }
+
 void platform_stop_midi(void) {
+    if (_Client.lowmem || g_MidiMutex < 0) {
+        return;
+    }
+
+    sceKernelLockMutex(g_MidiMutex, 1, NULL);
+    midi_reset_state_locked();
+    sceKernelUnlockMutex(g_MidiMutex, 1);
 }
+
 void platform_poll_events(Client *c) {
     static bool right_click = false;
 
@@ -216,6 +683,7 @@ void platform_poll_events(Client *c) {
 
     // rs2_log("\e[m Stick:[%3i:%3i][%3i:%3i]\r", ctrl.lx,ctrl.ly, ctrl.rx,ctrl.ry);
 }
+
 void platform_blit_surface(Surface *surface, int x, int y) {
     x += xoff;
 
@@ -223,11 +691,14 @@ void platform_blit_surface(Surface *surface, int x, int y) {
     platform_set_pixels(base, surface, x, y, true);
     sceKernelUnlockMutex(mutex, 1);
 }
+
 void platform_update_surface(void) {
 }
+
 uint64_t rs2_now(void) {
     return sceKernelGetSystemTimeWide() / 1000;
 }
+
 void rs2_sleep(int ms) {
     sceKernelDelayThreadCB(ms * 1000);
 }
