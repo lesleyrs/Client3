@@ -26,7 +26,7 @@ endif
 
 ifeq ($(GL),1)
 CFLAGS += -DGL11
-LIBS += -lvitaGL -lvitashark -lmathneon -ltaihen_stub -lSceGxm_stub -lSceShaccCg_stub -lSceShaccCgExt -lSceAppMgr_stub -lSceKernelDmacMgr_stub -lSceCommonDialog_stub
+LIBS += -lvitaGL -lvitashark -lmathneon -lSceGxm_stub -lSceShaccCg_stub -lSceShaccCgExt -lSceAppMgr_stub -lSceKernelDmacMgr_stub -lSceCommonDialog_stub -ltaihen_stub
 endif
 
 ifeq ($(SDL),2)
