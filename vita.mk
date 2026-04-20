@@ -16,11 +16,17 @@ PROJECT := client
 DEBUG ?= 0
 SDL ?= 0
 WITH_OPENSSL ?= 0
+GL ?= 0
 
 ifeq ($(DEBUG),1)
 CFLAGS += -g
 else
 CFLAGS += -s -O2 -ffast-math -flto=$(shell nproc)
+endif
+
+ifeq ($(GL),1)
+CFLAGS += -DGL11
+LIBS += -lvitaGL -lvitashark -lmathneon -ltaihen_stub -lSceGxm_stub -lSceShaccCg_stub -lSceShaccCgExt -lSceAppMgr_stub -lSceKernelDmacMgr_stub -lSceCommonDialog_stub
 endif
 
 ifeq ($(SDL),2)

@@ -16,6 +16,10 @@
 #include "../pixmap.h"
 #include "../platform.h"
 
+#ifdef GL11
+#include "../gl11.h"
+#endif
+
 extern ClientData _Client;
 extern InputTracking _InputTracking;
 extern Custom _Custom;
@@ -48,6 +52,22 @@ void platform_new(GameShell *shell) {
 
     // sceCtrlSetSamplingMode(SCE_CTRL_MODE_ANALOG);
     sceCtrlSetSamplingMode(SCE_CTRL_MODE_DIGITAL);
+
+#ifdef GL11
+    vglInit(0x800000);
+    // vglWaitVblankStart(GL_TRUE);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glViewport(0, 0, shell->screen_width, shell->screen_height);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0, shell->screen_width, shell->screen_height, 0, -1, 1);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+#endif
 }
 
 void platform_free(void) {
@@ -217,13 +237,20 @@ void platform_poll_events(Client *c) {
     // rs2_log("\e[m Stick:[%3i:%3i][%3i:%3i]\r", ctrl.lx,ctrl.ly, ctrl.rx,ctrl.ry);
 }
 void platform_blit_surface(Surface *surface, int x, int y) {
+#ifdef GL11
+    (void)surface, (void)x, (void)y;
+#else
     x += xoff;
 
     sceKernelLockMutex(mutex, 1, NULL);
     platform_set_pixels(base, surface, x, y, true);
     sceKernelUnlockMutex(mutex, 1);
+#endif
 }
 void platform_update_surface(void) {
+#ifdef GL11
+    vglSwapBuffers(GL_FALSE);
+#endif
 }
 uint64_t rs2_now(void) {
     return sceKernelGetSystemTimeWide() / 1000;
