@@ -17,10 +17,13 @@ DEBUG ?= 0
 SDL ?= 0
 WITH_OPENSSL ?= 0
 
+# GNU coreutils `nproc` is not available on macOS.
+NPROC := $(shell nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1)
+
 ifeq ($(DEBUG),1)
 CFLAGS += -g
 else
-CFLAGS += -s -O2 -ffast-math -flto=$(shell nproc)
+CFLAGS += -s -O2 -ffast-math -flto=$(NPROC)
 endif
 
 ifeq ($(SDL),2)
