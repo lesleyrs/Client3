@@ -60,7 +60,7 @@ void platform_new(GameShell *shell) {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glViewport(0, 0, shell->screen_width, shell->screen_height);
+    glViewport(xoff, SCREEN_FB_HEIGHT - shell->screen_height, shell->screen_width, shell->screen_height);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(0, shell->screen_width, shell->screen_height, 0, -1, 1);
