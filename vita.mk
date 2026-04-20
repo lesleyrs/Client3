@@ -16,6 +16,7 @@ PROJECT := client
 DEBUG ?= 0
 SDL ?= 0
 WITH_OPENSSL ?= 0
+GL ?= 0
 
 # GNU coreutils `nproc` is not available on macOS.
 NPROC := $(shell nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1)
@@ -24,6 +25,11 @@ ifeq ($(DEBUG),1)
 CFLAGS += -g
 else
 CFLAGS += -s -O2 -ffast-math -flto=$(NPROC)
+endif
+
+ifeq ($(GL),1)
+CFLAGS += -DGL11
+LIBS += -lvitaGL -lvitashark -lmathneon -lSceGxm_stub -lSceShaccCg_stub -lSceShaccCgExt -lSceAppMgr_stub -lSceKernelDmacMgr_stub -lSceCommonDialog_stub -ltaihen_stub
 endif
 
 ifeq ($(SDL),2)
@@ -60,7 +66,7 @@ $(PROJECT).vpk: eboot.bin param.sfo
 		--add sce_sys/livearea/contents/bg.png=sce_sys/livearea/contents/bg.png \
 		--add sce_sys/livearea/contents/startup.png=sce_sys/livearea/contents/startup.png \
 		--add sce_sys/livearea/contents/template.xml=sce_sys/livearea/contents/template.xml \
-		--add rom/cache=cache \
+		--add rom/cache=rom/cache \
 		--add rom/Roboto=Roboto \
 		--add rom/SCC1_Florestan.sf2=SCC1_Florestan.sf2 \
 		--add rom/config.ini=config.ini \

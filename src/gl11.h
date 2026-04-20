@@ -1,15 +1,18 @@
 #pragma once
 
 #ifdef GL11
-#if SDL != 1
-#error GL 1.1 renderer only runs on SDL 1 for now: (make SDL=1, batch -v 1)
+#if !defined(__vita__) && SDL != 1
+#error GL 1.1 renderer only runs on PS Vita or SDL 1 for now: (make SDL=1, batch -v 1)
 #endif
 
 #ifdef _WIN32
 #include <windows.h>
 #endif
 
-#if !(defined(__TINYC__) && defined(_WIN32))
+#ifdef __vita__
+#include <vitaGL.h>
+#define GL_BGRA_EXT GL_BGRA
+#elif !(defined(__TINYC__) && defined(_WIN32))
 #include <GL/gl.h>
 #else // c&p windows gl.h for tcc
 typedef unsigned int GLenum;

@@ -34,8 +34,8 @@
 # -I/opt/devkitpro/libnx/include/
 # -D__PSP__
 # -I/usr/local/pspdev/psp/sdk/include/
-# -D__vita__
-# -I/usr/local/vitasdk/arm-vita-eabi/include/
+-D__vita__
+-I/usr/local/vitasdk/arm-vita-eabi/include/
 
 # -D_arch_dreamcast
 # -I/opt/toolchains/dc/kos/include

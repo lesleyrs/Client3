@@ -24,6 +24,10 @@
 #define TML_IMPLEMENTATION
 #include "../thirdparty/tml.h"
 
+#ifdef GL11
+#include "../gl11.h"
+#endif
+
 extern ClientData _Client;
 extern InputTracking _InputTracking;
 extern Custom _Custom;
@@ -371,6 +375,20 @@ void platform_new(GameShell *shell) {
     // sceCtrlSetSamplingMode(SCE_CTRL_MODE_ANALOG);
     sceCtrlSetSamplingMode(SCE_CTRL_MODE_DIGITAL);
     audio_init();
+
+    vglInit(0x800000);
+    // vglWaitVblankStart(GL_TRUE);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glViewport(xoff, SCREEN_FB_HEIGHT - shell->screen_height, shell->screen_width, shell->screen_height);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0, shell->screen_width, shell->screen_height, 0, -1, 1);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 }
 
 void platform_free(void) {
@@ -685,14 +703,21 @@ void platform_poll_events(Client *c) {
 }
 
 void platform_blit_surface(Surface *surface, int x, int y) {
+#ifdef GL11
+    (void)surface, (void)x, (void)y;
+#else
     x += xoff;
 
     sceKernelLockMutex(mutex, 1, NULL);
     platform_set_pixels(base, surface, x, y, true);
     sceKernelUnlockMutex(mutex, 1);
+#endif
 }
 
 void platform_update_surface(void) {
+#ifdef GL11
+    vglSwapBuffers(GL_FALSE);
+#endif
 }
 
 uint64_t rs2_now(void) {
