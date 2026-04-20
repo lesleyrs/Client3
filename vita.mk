@@ -57,7 +57,7 @@ $(PROJECT).vpk: eboot.bin param.sfo
 		--add sce_sys/livearea/contents/bg.png=sce_sys/livearea/contents/bg.png \
 		--add sce_sys/livearea/contents/startup.png=sce_sys/livearea/contents/startup.png \
 		--add sce_sys/livearea/contents/template.xml=sce_sys/livearea/contents/template.xml \
-		--add rom/cache=cache \
+		--add rom/cache=rom/cache \
 		--add rom/Roboto=Roboto \
 		--add rom/SCC1_Florestan.sf2=SCC1_Florestan.sf2 \
 		--add rom/config.ini=config.ini \
