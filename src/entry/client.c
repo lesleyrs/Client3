@@ -10335,6 +10335,9 @@ void client_draw_title_screen(Client *c) {
     pixmap_draw(c->image_title4, 214, 186);
 #ifdef GL11
     c->redraw_background = true;
+
+    c->image_title0->dirty = true;
+    c->image_title1->dirty = true;
     pixmap_draw(c->image_title0, 0, 0);
     pixmap_draw(c->image_title1, 661, 0);
 #endif
