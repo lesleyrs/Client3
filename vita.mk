@@ -18,10 +18,13 @@ SDL ?= 0
 WITH_OPENSSL ?= 0
 GL ?= 0
 
+# GNU coreutils `nproc` is not available on macOS.
+NPROC := $(shell nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1)
+
 ifeq ($(DEBUG),1)
 CFLAGS += -g
 else
-CFLAGS += -s -O2 -ffast-math -flto=$(shell nproc)
+CFLAGS += -s -O2 -ffast-math -flto=$(NPROC)
 endif
 
 ifeq ($(GL),1)
@@ -33,7 +36,7 @@ ifeq ($(SDL),2)
 CFLAGS += -DSDL=$(SDL) $(shell $(VITASDK)/arm-vita-eabi/bin/sdl2-config --cflags)
 LIBS += $(shell $(VITASDK)/arm-vita-eabi/bin/sdl2-config --libs)
 else
-LIBS += -lSceDisplay_stub -lSceTouch_stub -lSceCtrl_stub -lScePower_stub
+LIBS += -lSceDisplay_stub -lSceTouch_stub -lSceCtrl_stub -lScePower_stub -lSceAudio_stub
 endif
 
 ifeq ($(WITH_OPENSSL),1)

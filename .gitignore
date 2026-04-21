@@ -95,3 +95,4 @@
 /SDL3.dll
 /config.ini
 /**/*.rdi
+.DS_Store
