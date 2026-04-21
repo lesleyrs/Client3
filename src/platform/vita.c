@@ -465,15 +465,12 @@ void platform_set_midi_volume(float midivol) {
 }
 
 void platform_set_jingle(int8_t *src, int len) {
-    if (_Client.lowmem || !src || len <= 0) {
-        if (src) {
-            free(src);
-        }
-        return;
-    }
+    platform_stop_midi();
+    tml_free(TinyMidiLoader);
 
     tml_message *loader = tml_load_memory(src, len);
     free(src);
+
     if (!loader) {
         return;
     }
@@ -481,63 +478,37 @@ void platform_set_jingle(int8_t *src, int len) {
 }
 
 void platform_set_midi(const char *name, int crc, int len) {
-    if (_Client.lowmem || !name || len <= 4) {
-        return;
-    }
-
     char filename[PATH_MAX];
     snprintf(filename, sizeof(filename), "rom/cache/client/songs/%s.mid", name);
     FILE *file = fopen(filename, "rb");
     if (!file) {
-        snprintf(filename, sizeof(filename), "rom/cache/client/jingles/%s.mid", name);
-        file = fopen(filename, "rb");
-        if (!file) {
-            rs2_error("Could not read midi %s (%s)\n", filename, strerror(errno));
-            return;
-        }
-    }
-
-    int8_t *data = malloc((size_t)len);
-    if (!data) {
-        fclose(file);
+        rs2_error("Error loading midi file %s: %s (NOTE: authentic if empty when relogging?)\n", filename, strerror(errno));
         return;
     }
 
-    size_t data_len = fread(data, 1, (size_t)len, file);
+    int8_t *data = malloc(len);
+    const size_t data_len = fread(data, 1, len, file);
     fclose(file);
-    if (data_len < 5) {
-        free(data);
-        return;
-    }
-
-    if (crc != 12345678) {
-        int data_crc = rs_crc32(data, data_len);
+    if (data && crc != 12345678) {
+        int data_crc = rs_crc32(data, len);
         if (data_crc != crc) {
+            rs2_log("%s midi CRC check failed\n", name);
             free(data);
-            return;
+            data = NULL;
         }
     }
 
-    int uncompressed_length =
-        ((data[0] & 0xff) << 24) |
-        ((data[1] & 0xff) << 16) |
-        ((data[2] & 0xff) << 8) |
-        (data[3] & 0xff);
-    if (uncompressed_length <= 0) {
-        free(data);
-        return;
-    }
-
-    int8_t *uncompressed = malloc((size_t)uncompressed_length);
-    if (!uncompressed) {
-        free(data);
-        return;
-    }
-
+    Packet *packet = packet_new(data, 4);
+    const int uncompressed_length = g4(packet);
+    int8_t *uncompressed = malloc(uncompressed_length);
     bzip_decompress(uncompressed, data, (int)data_len - 4, 4);
+
+    platform_stop_midi();
+    tml_free(TinyMidiLoader);
     tml_message *loader = tml_load_memory(uncompressed, uncompressed_length);
+    packet_free(packet);
     free(uncompressed);
-    free(data);
+
     if (!loader) {
         return;
     }
