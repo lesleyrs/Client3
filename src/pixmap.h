@@ -5,10 +5,13 @@
 struct PixMap {
     int width;
     int height;
-    Surface *image;
     int *pixels;
-#ifdef GL11
+#ifndef GL11
+    Surface *image;
+#else
+    int *gl_pixels;
     uint32_t gl_texture;
+    bool dirty;
 #endif
 };
 

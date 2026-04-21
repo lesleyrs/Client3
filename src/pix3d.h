@@ -59,4 +59,7 @@ typedef struct {
 } UV;
 UV pmn_to_uv(int xA, int yA, int zA, int xB, int yB, int zB, int xC, int yC, int zC, int xP, int yP, int zP, int xM, int yM, int zM, int xN, int yN,  int zN);
 void glTextureTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int shadeA, int shadeB, int shadeC, UV uv, int texture);
+
+// made non-static to call in gl11.c
+int *pix3d_get_texels(int id);
 #endif

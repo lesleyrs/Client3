@@ -198,6 +198,8 @@ NOTE: Could add sfx and/or midi in lowmem, since it's the most important highmem
 ### Sony PS Vita
 Install [vitasdk](#tools) and run `make -f vita.mk -j$(nproc) -B`.
 
+For OpenGL to work you need to build with GL=1 and install `libshacccg.suprx`: https://github.com/Rinnegatamante/vitaGL/tree/master#prerequisites
+
 can test with Vita3K, instead of decompressing the vpk you can copy just the eboot.bin after changes (pass `-r VSDK20225` to run directly)
 
 Controls: touch as mouse, X for right click, /\ for control, Dpad as arrow keys

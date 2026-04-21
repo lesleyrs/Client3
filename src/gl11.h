@@ -1,9 +1,28 @@
 #pragma once
 
+#define GL_NO_IMMEDIATE
+
+void gl_start_frame(void);
+void gl_end_frame(void);
+void gl_start_drawscene(void);
+void gl_end_drawscene(void);
+void gl_set_brightness(void);
+
 #ifdef GL11
 #if !defined(__vita__) && SDL != 1
 #error GL 1.1 renderer only runs on PS Vita or SDL 1 for now: (make SDL=1, batch -v 1)
 #endif
+
+typedef struct {
+    unsigned char r, g, b, a;
+    float x, y;
+    float u, v;
+    unsigned int texture_id;
+} Vertex;
+
+extern Vertex verts[100000];
+extern int vertcount;
+extern int vertxoff;
 
 #ifdef _WIN32
 #include <windows.h>

@@ -1,11 +1,7 @@
-# You should only use Makefile-based build if you know what you're doing.
-# For most vitasdk projects, CMake is a better choice. See CMakeLists.txt for an example.
-
 PHONY := all package clean
 rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
 
 CC := arm-vita-eabi-gcc
-CXX := arm-vita-eabi-g++
 STRIP := arm-vita-eabi-strip
 
 PROJECT_TITLE := Jagex
@@ -24,7 +20,7 @@ NPROC := $(shell nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || get
 ifeq ($(DEBUG),1)
 CFLAGS += -g
 else
-CFLAGS += -s -O2 -ffast-math -flto=$(NPROC)
+CFLAGS += -O2 -ffast-math -flto=$(NPROC)
 endif
 
 ifeq ($(GL),1)
@@ -36,7 +32,7 @@ ifeq ($(SDL),2)
 CFLAGS += -DSDL=$(SDL) $(shell $(VITASDK)/arm-vita-eabi/bin/sdl2-config --cflags)
 LIBS += $(shell $(VITASDK)/arm-vita-eabi/bin/sdl2-config --libs)
 else
-LIBS += -lSceDisplay_stub -lSceTouch_stub -lSceCtrl_stub -lScePower_stub -lSceAudio_stub
+LIBS += -lstdc++ -lm -lSceDisplay_stub -lSceTouch_stub -lSceCtrl_stub -lScePower_stub -lSceAudio_stub
 endif
 
 ifeq ($(WITH_OPENSSL),1)
@@ -48,13 +44,11 @@ endif
 
 CFLAGS += -D$(PROJECT)
 CFLAGS += -Wl,-q -std=c99
-CXXFLAGS += -Wl,-q -std=c++11
 
-SRC_C :=$(call rwildcard, src/, *.c)
-SRC_CPP :=$(call rwildcard, src/, *.cpp)
+SOURCES := $(call rwildcard, src/, *.c)
 
-OBJ_DIRS := $(sort $(addprefix out/, $(dir $(SRC_C:src/%.c=%.o))) $(addprefix out/, $(dir $(SRC_CPP:src/%.cpp=%.o))))
-OBJS := $(addprefix out/, $(SRC_C:src/%.c=%.o)) $(addprefix out/, $(SRC_CPP:src/%.cpp=%.o))
+OBJ_DIRS := $(sort $(addprefix out/, $(dir $(SOURCES:src/%.c=%.o))))
+OBJS := $(addprefix out/, $(SOURCES:src/%.c=%.o))
 
 all: package
 
@@ -83,16 +77,13 @@ $(PROJECT).velf: $(PROJECT).elf
 	vita-elf-create $< $@
 
 $(PROJECT).elf: $(OBJS)
-	$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@
+	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
 
 $(OBJ_DIRS):
 	@mkdir -p $@
 
-out/%.o : src/%.cpp | $(OBJ_DIRS)
-	arm-vita-eabi-g++ -c $(CXXFLAGS) -o $@ $<
-
 out/%.o : src/%.c | $(OBJ_DIRS)
-	arm-vita-eabi-gcc -c $(CFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS) -o $@ $<
 
 clean:
 	rm -f $(PROJECT).velf $(PROJECT).elf $(PROJECT).vpk param.sfo eboot.bin $(OBJS)

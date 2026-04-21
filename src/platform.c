@@ -19,7 +19,7 @@
 #include "SDL.h"
 #endif
 
-void platform_set_pixels(uint32_t *restrict dst, Surface *restrict surface, int x, int y, bool argb) {
+void platform_set_pixels(uint32_t *restrict dst, Surface *restrict surface, int x, int y, bool rgb) {
     if (!dst)
         return;
 
@@ -27,7 +27,7 @@ void platform_set_pixels(uint32_t *restrict dst, Surface *restrict surface, int 
         for (int col = 0; col < surface->w; col++) {
             uint32_t pixel = ((uint32_t *)surface->pixels)[row * surface->w + col];
             // TODO add screen limits+interleaved cursor if not double buffering consoles?
-            if (argb) {
+            if (rgb) {
 #ifdef __wasm
                 pixel = ((pixel >> 16) & 0xff) | (pixel & 0xff00) | ((pixel & 0xff) << 16) | 0xff000000;
 #else

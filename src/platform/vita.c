@@ -17,6 +17,7 @@
 #include "../inputtracking.h"
 #include "../pixmap.h"
 #include "../platform.h"
+#include "../gl11.h"
 
 #include "../thirdparty/bzip.h"
 #define TSF_IMPLEMENTATION
@@ -24,18 +25,16 @@
 #define TML_IMPLEMENTATION
 #include "../thirdparty/tml.h"
 
-#ifdef GL11
-#include "../gl11.h"
-#endif
-
 extern ClientData _Client;
 extern InputTracking _InputTracking;
 extern Custom _Custom;
 
+#ifndef GL11
 #define SCREEN_FB_SIZE (2 * 1024 * 1024) // Must be 256KB aligned
 static SceUID displayblock;
 static void *base; // pointer to frame buffer
 static int mutex;
+#endif
 static int xoff = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2;
 
 static SceTouchData touch[SCE_TOUCH_PORT_MAX_NUM], touch_old[SCE_TOUCH_PORT_MAX_NUM];
@@ -361,6 +360,21 @@ bool platform_init(void) {
 
 void platform_new(GameShell *shell) {
     (void)shell;
+
+#ifdef GL11
+    vglInit(0x800000);
+    vglWaitVblankStart(GL_TRUE);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glViewport(0, 0, SCREEN_FB_WIDTH, SCREEN_FB_HEIGHT);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0, SCREEN_FB_WIDTH, SCREEN_FB_HEIGHT, 0, -1, 1);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+#else
     mutex = sceKernelCreateMutex("fb_mutex", 0, 0, NULL);
     displayblock = sceKernelAllocMemBlock("display", SCE_KERNEL_MEMBLOCK_TYPE_USER_CDRAM_RW, SCREEN_FB_SIZE, NULL);
     if (displayblock < 0)
@@ -368,6 +382,7 @@ void platform_new(GameShell *shell) {
     sceKernelGetMemBlockBase(displayblock, (void **)&base);
     SceDisplayFrameBuf frame = {sizeof(frame), base, (SCREEN_FB_WIDTH), 0, SCREEN_FB_WIDTH, SCREEN_FB_HEIGHT};
     sceDisplaySetFrameBuf(&frame, SCE_DISPLAY_SETBUF_NEXTFRAME);
+#endif
 
     sceTouchSetSamplingState(SCE_TOUCH_PORT_FRONT, SCE_TOUCH_SAMPLING_STATE_START);
     // sceTouchSetSamplingState(SCE_TOUCH_PORT_BACK, SCE_TOUCH_SAMPLING_STATE_START);
@@ -375,29 +390,15 @@ void platform_new(GameShell *shell) {
     // sceCtrlSetSamplingMode(SCE_CTRL_MODE_ANALOG);
     sceCtrlSetSamplingMode(SCE_CTRL_MODE_DIGITAL);
     audio_init();
-
-#ifdef GL11
-    vglInit(0x800000);
-    // vglWaitVblankStart(GL_TRUE);
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    glViewport(xoff, SCREEN_FB_HEIGHT - shell->screen_height, shell->screen_width, shell->screen_height);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(0, shell->screen_width, shell->screen_height, 0, -1, 1);
-
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-#endif
 }
 
 void platform_free(void) {
     audio_shutdown();
+#ifndef GL11
     sceKernelDeleteMutex(mutex);
     sceDisplaySetFrameBuf(NULL, SCE_DISPLAY_SETBUF_IMMEDIATE);
     sceKernelFreeMemBlock(displayblock);
+#endif
 }
 
 void platform_set_wave_volume(int wavevol) {
@@ -465,9 +466,6 @@ void platform_set_midi_volume(float midivol) {
 }
 
 void platform_set_jingle(int8_t *src, int len) {
-    platform_stop_midi();
-    tml_free(TinyMidiLoader);
-
     tml_message *loader = tml_load_memory(src, len);
     free(src);
 
@@ -488,7 +486,6 @@ void platform_set_midi(const char *name, int crc, int len) {
 
     int8_t *data = malloc(len);
     const size_t data_len = fread(data, 1, len, file);
-    fclose(file);
     if (data && crc != 12345678) {
         int data_crc = rs_crc32(data, len);
         if (data_crc != crc) {
@@ -503,11 +500,10 @@ void platform_set_midi(const char *name, int crc, int len) {
     int8_t *uncompressed = malloc(uncompressed_length);
     bzip_decompress(uncompressed, data, (int)data_len - 4, 4);
 
-    platform_stop_midi();
-    tml_free(TinyMidiLoader);
     tml_message *loader = tml_load_memory(uncompressed, uncompressed_length);
     packet_free(packet);
     free(uncompressed);
+    fclose(file);
 
     if (!loader) {
         return;

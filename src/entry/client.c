@@ -7799,8 +7799,9 @@ void client_draw(Client *c) {
 }
 
 void client_draw_game(Client *c) {
+    gl_start_frame();
 #ifdef GL11
-    c->redraw_background = true; // TODO cache pixmaps
+    c->redraw_background = true;
 #endif
     if (c->redraw_background) {
         c->redraw_background = false;
@@ -7823,10 +7824,6 @@ void client_draw_game(Client *c) {
             pixmap_draw(c->area_mapback, 561, 5);
         }
     }
-
-#ifdef GL11
-    bool use_opengl11 = _Custom.use_opengl11;
-#endif
 
     if (c->scene_state == 2) {
         client_draw_scene(c);
@@ -8071,11 +8068,8 @@ void client_draw_game(Client *c) {
         pixmap_bind(c->area_viewport);
     }
 
-#ifdef GL11
-    _Custom.use_opengl11 = use_opengl11;
-#endif
-
     c->scene_delta = 0;
+    gl_end_frame();
 }
 
 void client_handle_scroll_input(Client *c, int mouseX, int mouseY, int scrollableHeight, int height, bool redraw, int left, int top, Component *component) {
@@ -8941,29 +8935,11 @@ void client_draw_scene(Client *c) {
     _Model.mouse_x = c->shell->mouse_x - 8;
     _Model.mouse_y = c->shell->mouse_y - 11;
     pix2d_clear();
-#ifdef GL11
-    glEnable(GL_SCISSOR_TEST);
-    glScissor(8, c->shell->screen_height - 11 - _Pix2D.height, _Pix2D.width, _Pix2D.height);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-#if 1
-    // leave a black line on right side of viewport (see pix2d.c)
-    glScissor(8, c->shell->screen_height - 11 - _Pix2D.height, _Pix2D.width - 1, _Pix2D.height);
-#else
-    // use this for non-black clear color values
-    glBegin(GL_LINES);
-    glColor4ub(0, 0, 0, 0xff);
-    glVertex2f(8 + _Pix2D.width, 11);
-    glVertex2f(8 + _Pix2D.width, 11 + 334);
-    glEnd();
-#endif
-#endif
+
+    gl_start_drawscene();
     world3d_draw(c->scene, c->cameraX, c->cameraY, c->cameraZ, level, c->cameraYaw, c->cameraPitch, _Client.loop_cycle);
-#ifdef GL11
-    glDisable(GL_SCISSOR_TEST);
-    // NOTE: state is saved in client_draw, scene is rendered with gl, the rest must be in software so pixmaps don't draw over interface models
-    _Custom.use_opengl11 = false;
-#endif
+    gl_end_drawscene();
+
     world3d_clear_temporarylocs(c->scene);
     draw2DEntityElements(c);
     drawTileHint(c);
@@ -10358,7 +10334,7 @@ void client_draw_title_screen(Client *c) {
 
     pixmap_draw(c->image_title4, 214, 186);
 #ifdef GL11
-    c->redraw_background = true; // TODO cache pixmaps
+    c->redraw_background = true;
     pixmap_draw(c->image_title0, 0, 0);
     pixmap_draw(c->image_title1, 661, 0);
 #endif
@@ -10973,7 +10949,7 @@ void client_draw_progress(Client *c, const char *message, int progress) {
         drawStringCenter(c->font_bold12, x / 2, y / 2 + 5 - offsetY, message, WHITE);
         pixmap_draw(c->image_title4, 214, 186);
 #ifdef GL11
-        c->redraw_background = true; // TODO cache pixmaps
+        c->redraw_background = true;
         if (c->flame_active) {
             pixmap_draw(c->image_title0, 0, 0);
             pixmap_draw(c->image_title1, 661, 0);

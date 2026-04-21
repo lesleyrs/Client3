@@ -30,7 +30,7 @@ typedef struct PixMap PixMap;
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 #endif
 
-void platform_set_pixels(uint32_t *restrict dst, Surface *restrict surface, int x, int y, bool argb);
+void platform_set_pixels(uint32_t *restrict dst, Surface *restrict surface, int x, int y, bool rgb);
 int platform_string_width(const char *str);
 void platform_draw_string(const char *str, int x, int y);
 void platform_set_color(int color);
