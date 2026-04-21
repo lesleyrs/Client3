@@ -165,6 +165,9 @@ void pix3d_push_texture(int id) {
     }
 }
 
+#ifndef GL11
+static
+#endif
 int *pix3d_get_texels(int id) {
     _Pix3D.textureCycle[id] = _Pix3D.cycle++;
     if (_Pix3D.activeTexels[id]) {

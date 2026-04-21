@@ -294,6 +294,7 @@ void platform_set_midi(const char *name, int crc, int len) {
 
     int8_t *data = malloc(len);
     const size_t data_len = fread(data, 1, len, file);
+    fclose(file);
     if (data && crc != 12345678) {
         int data_crc = rs_crc32(data, len);
         if (data_crc != crc) {
@@ -315,7 +316,6 @@ void platform_set_midi(const char *name, int crc, int len) {
 
     packet_free(packet);
     free(uncompressed);
-    fclose(file);
 }
 
 void platform_stop_midi(void) {

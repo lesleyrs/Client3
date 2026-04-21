@@ -32,6 +32,7 @@ void set_midi(const char *name, int crc, int length, bool fade) {
 
     int8_t *data = malloc(length);
     const int len = fread(data, 1, length, file);
+    fclose(file);
 
     const int uncompressed_length = (data[0] & 0xff) << 24 | (data[1] & 0xff) << 16 | (data[2] & 0xff) << 8 | (data[3] & 0xff);
     // Packet *packet = packet_new(data, 4);
@@ -43,7 +44,6 @@ void set_midi(const char *name, int crc, int length, bool fade) {
     free(data);
     // packet_free(packet);
     free(uncompressed);
-    fclose(file);
     return;
 }
 

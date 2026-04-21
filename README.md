@@ -71,7 +71,7 @@ TODO
 Install clang and get [wasmlite](#tools) (you need the libc and generated index.html)
 then run `make -f wasm.mk DEBUG=0` with correct sysroot path to find libc.
 
-- Copy client.wasm, index.html, and config.ini with same port as the server and no socketip set to `Server/engine/public/client`
+- Copy client.wasm, index.html, and config.ini with same port as the server and no socketip set to `Server/engine/public/client` (see make cpclients target)
 - Run server and visit `localhost:port/client/index.html?client` (or another entrypoint) and optionally append `&arg 1&arg 2&arg 3&arg 4` if no config.
 
 You can press shift-enter to switch pixel scaling, alt-enter for fullscreen toggle.

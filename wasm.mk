@@ -5,8 +5,9 @@ WASM_SOURCEMAP = ../tools/emscripten/tools/wasm-sourcemap.py
 DWARFDUMP = $(HOME)/emsdk/upstream/bin/llvm-dwarfdump
 # DWARFDUMP = /usr/bin/llvm-dwarfdump
 
-CC = clang --target=wasm32 --sysroot=$(LIBC) -nodefaultlibs -mbulk-memory
-LDFLAGS = -Wl,--export-table -Wl,--stack-first -Wl,--error-limit=0 -lm
+CC = clang --target=wasm32 --sysroot=$(LIBC)
+CFLAGS = -mbulk-memory -msimd128
+LDFLAGS = -nodefaultlibs -Wl,--export-table -Wl,--stack-first -Wl,--error-limit=0 -lm
 ENTRY ?= client
 # ENTRY ?= playground
 DEBUG ?= 1
@@ -36,6 +37,7 @@ endif
 ifeq ($(DEBUG),0)
 CFLAGS += -DNDEBUG -s -Oz -ffast-math -flto
 LDFLAGS += -lc
+CFLAGS += -fno-builtin-powf
 else
 CFLAGS += -g
 LDFLAGS += -lc-dbg

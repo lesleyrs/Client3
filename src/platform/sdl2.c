@@ -324,6 +324,11 @@ void platform_set_midi(const char *name, int crc, int len) {
 #else
     const size_t data_len = fread(data, 1, len, file);
 #endif
+#ifdef ANDROID
+    SDL_RWclose(file);
+#else
+    fclose(file);
+#endif
     if (data && crc != 12345678) {
         int data_crc = rs_crc32(data, len);
         if (data_crc != crc) {
@@ -345,11 +350,6 @@ void platform_set_midi(const char *name, int crc, int len) {
 
     packet_free(packet);
     free(uncompressed);
-#ifdef ANDROID
-    SDL_RWclose(file);
-#else
-    fclose(file);
-#endif
 }
 
 void platform_stop_midi(void) {
