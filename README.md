@@ -205,7 +205,7 @@ can test with Vita3K, instead of decompressing the vpk you can copy just the ebo
 Controls: touch as mouse, X for right click, /\ for control, Dpad as arrow keys
 
 ```
-TODO: vitagl, update sce_sys assets, backside touch input, osk input
+TODO: update sce_sys assets, backside touch input, osk input
 TODO: add sdl3 to makefile or remove sdl altogether, it annoyingly saves sdl logs
 ```
 

@@ -483,9 +483,9 @@ static void glGouraudTriangle(int xA, int xB, int xC, int yA, int yB, int yC, in
     }
 
 #ifdef GL_NO_IMMEDIATE
-    Vertex v0 = {(_Pix3D.palette[colorA] >> 16) & 0xff, (_Pix3D.palette[colorA] >> 8) & 0xff, _Pix3D.palette[colorA] & 0xff, alpha, xA + vertxoff, yA + 11, };
-    Vertex v1 = {(_Pix3D.palette[colorB] >> 16) & 0xff, (_Pix3D.palette[colorB] >> 8) & 0xff, _Pix3D.palette[colorB] & 0xff, alpha, xB + vertxoff, yB + 11, };
-    Vertex v2 = {(_Pix3D.palette[colorC] >> 16) & 0xff, (_Pix3D.palette[colorC] >> 8) & 0xff, _Pix3D.palette[colorC] & 0xff, alpha, xC + vertxoff, yC + 11, };
+    Vertex v0 = {(_Pix3D.palette[colorA] >> 16) & 0xff, (_Pix3D.palette[colorA] >> 8) & 0xff, _Pix3D.palette[colorA] & 0xff, alpha, xA + vertxoff, yA + 11, 0, 0};
+    Vertex v1 = {(_Pix3D.palette[colorB] >> 16) & 0xff, (_Pix3D.palette[colorB] >> 8) & 0xff, _Pix3D.palette[colorB] & 0xff, alpha, xB + vertxoff, yB + 11, 0, 0};
+    Vertex v2 = {(_Pix3D.palette[colorC] >> 16) & 0xff, (_Pix3D.palette[colorC] >> 8) & 0xff, _Pix3D.palette[colorC] & 0xff, alpha, xC + vertxoff, yC + 11, 0, 0};
 
     verts[vertcount++] = v0;
     verts[vertcount++] = v1;
@@ -1019,9 +1019,9 @@ static void glFlatTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int c
     }
 
 #ifdef GL_NO_IMMEDIATE
-    Vertex v0 = {color >> 16, color >> 8, color, alpha, xA + vertxoff, yA + 11, };
-    Vertex v1 = {color >> 16, color >> 8, color, alpha, xB + vertxoff, yB + 11, };
-    Vertex v2 = {color >> 16, color >> 8, color, alpha, xC + vertxoff, yC + 11, };
+    Vertex v0 = {color >> 16, color >> 8, color, alpha, xA + vertxoff, yA + 11, 0, 0};
+    Vertex v1 = {color >> 16, color >> 8, color, alpha, xB + vertxoff, yB + 11, 0, 0};
+    Vertex v2 = {color >> 16, color >> 8, color, alpha, xC + vertxoff, yC + 11, 0, 0};
 
     verts[vertcount++] = v0;
     verts[vertcount++] = v1;
@@ -1459,15 +1459,17 @@ UV pmn_to_uv(int xA, int yA, int zA, int xB, int yB, int zB, int xC, int yC, int
 }
 
 void glTextureTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int shadeA, int shadeB, int shadeC, UV uv, int texture) {
-    // scrolling textures from updateTextures
-    if (texture == 17 || texture == 24) {
-        float time = rs2_now() / 1000.0f;
-        float texture_anim_unit = 1.0f / 128.0f;
-        float offset = time / 0.02f * -2.0f * texture_anim_unit;
-        offset = fmodf(offset, 1.0f);
-        uv.vA += offset;
-        uv.vB += offset;
-        uv.vC += offset;
+    if (!_Pix3D.lowMemory) {
+        // scrolling textures from updateTextures
+        if (texture == 17 || texture == 24) {
+            float time = rs2_now() / 1000.0f;
+            float texture_anim_unit = 1.0f / 128.0f;
+            float offset = time / 0.02f * -2.0f * texture_anim_unit;
+            offset = fmodf(offset, 1.0f);
+            uv.vA += offset;
+            uv.vB += offset;
+            uv.vC += offset;
+        }
     }
 
     int shadeShiftA = 255 - (shadeA << 1);
@@ -1475,9 +1477,19 @@ void glTextureTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int shade
     int shadeShiftC = 255 - (shadeC << 1);
 
 #ifdef GL_NO_IMMEDIATE
-    Vertex v0 = {shadeShiftA, shadeShiftA, shadeShiftA, 0xff, xA + vertxoff, yA + 11, uv.uA, uv.vA, _Pix3D.textures[texture]->gl_texture};
-    Vertex v1 = {shadeShiftB, shadeShiftB, shadeShiftB, 0xff, xB + vertxoff, yB + 11, uv.uB, uv.vB, _Pix3D.textures[texture]->gl_texture};
-    Vertex v2 = {shadeShiftC, shadeShiftC, shadeShiftC, 0xff, xC + vertxoff, yC + 11, uv.uC, uv.vC, _Pix3D.textures[texture]->gl_texture};
+    // manual clamp since opengl will no longer do it for us
+    uv.uA = clamp01(uv.uA);
+    uv.uB = clamp01(uv.uB);
+    uv.uC = clamp01(uv.uC);
+
+    int texture_idx = 1 + texture; // after default white texture
+    uv.uA = (texture_idx + uv.uA) / ATLAS_TEXTURE_COUNT;
+    uv.uB = (texture_idx + uv.uB) / ATLAS_TEXTURE_COUNT;
+    uv.uC = (texture_idx + uv.uC) / ATLAS_TEXTURE_COUNT;
+
+    Vertex v0 = {shadeShiftA, shadeShiftA, shadeShiftA, 0xff, xA + vertxoff, yA + 11, uv.uA, uv.vA};
+    Vertex v1 = {shadeShiftB, shadeShiftB, shadeShiftB, 0xff, xB + vertxoff, yB + 11, uv.uB, uv.vB};
+    Vertex v2 = {shadeShiftC, shadeShiftC, shadeShiftC, 0xff, xC + vertxoff, yC + 11, uv.uC, uv.vC};
 
     verts[vertcount++] = v0;
     verts[vertcount++] = v1;
@@ -1485,8 +1497,6 @@ void glTextureTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int shade
 #else
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, _Pix3D.textures[texture]->gl_texture);
-
-    // glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
     glBegin(GL_TRIANGLES);
         glColor4ub(shadeShiftA, shadeShiftA, shadeShiftA, 0xff);

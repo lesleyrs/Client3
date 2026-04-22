@@ -1,7 +1,5 @@
 #pragma once
 
-#define GL_NO_IMMEDIATE
-
 void gl_start_frame(void);
 void gl_end_frame(void);
 void gl_start_drawscene(void);
@@ -13,11 +11,19 @@ void gl_set_brightness(void);
 #error GL 1.1 renderer only runs on PS Vita or SDL 1 for now: (make SDL=1, batch -v 1)
 #endif
 
+#define GL_NO_IMMEDIATE
+
+#ifdef GL_NO_IMMEDIATE
+#define ATLAS_TEXTURE_COUNT 51 // 1 white texture + _Pix3D.textureCount
+static inline float clamp01(float x) {
+    return x < 0 ? 0 : (x > 1 ? 1 : x);
+}
+#endif
+
 typedef struct {
     unsigned char r, g, b, a;
     float x, y;
     float u, v;
-    unsigned int texture_id;
 } Vertex;
 
 extern Vertex verts[100000];

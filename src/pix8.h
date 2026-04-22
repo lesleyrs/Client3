@@ -17,7 +17,9 @@ typedef struct {
     int *palette;
     int palette_count;
 #ifdef GL11
+#ifndef GL_NO_IMMEDIATE
     uint32_t gl_texture;
+#endif
 #endif
 } Pix8;
 

@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 
 #include "gl11.h"
 #include "custom.h"
@@ -51,22 +52,33 @@ void gl_start_drawscene(void) {
 #endif
 }
 
+#ifdef GL_NO_IMMEDIATE
+uint32_t texture_array;
+#endif
+
 void gl_end_drawscene(void) {
 #ifdef GL11
 #ifdef GL_NO_IMMEDIATE
     if (vertcount > 0) {
+        glEnable(GL_TEXTURE_2D);
+
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_COLOR_ARRAY);
-        // glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+        glBindTexture(GL_TEXTURE_2D, texture_array);
 
         glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &verts->r);
         glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &verts->x);
-        // glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &verts->u);
+        glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &verts->u);
+
         glDrawArrays(GL_TRIANGLES, 0, vertcount);
 
         glDisableClientState(GL_VERTEX_ARRAY);
         glDisableClientState(GL_COLOR_ARRAY);
-        // glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+        glDisable(GL_TEXTURE_2D);
 
         // rs2_log("verts %d\n", vertcount);
         vertcount = 0;
@@ -86,7 +98,51 @@ void gl_end_frame(void) {
 
 void gl_set_brightness(void) {
 #ifdef GL11
-    for (int id = 0; id < 50 ; id++) { // _Pix3D.textureCount
+#ifdef GL_NO_IMMEDIATE
+    glDeleteTextures(1, &texture_array);
+
+    int texture_size = 128; // _Pix3D.textures[id]->width/height
+    if (_Pix3D.lowMemory) {
+        texture_size = 64;
+    }
+    int pixel_count = texture_size * texture_size;
+
+    glGenTextures(1, &texture_array);
+    glBindTexture(GL_TEXTURE_2D, texture_array);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP); // this is clamped manually in pix3d now since all textures are combined
+
+    uint32_t *pixels = malloc(ATLAS_TEXTURE_COUNT * pixel_count * sizeof(uint32_t));
+    memset(pixels, 0xff, pixel_count * sizeof(uint32_t)); // white texture at idx 0
+
+    for (int id = 0; id < 50; id++) { // _Pix3D.textureCount
+        int *texels = pix3d_get_texels(id);
+
+        if (!texels) {
+            continue;
+        }
+
+        int atlas_width = texture_size * ATLAS_TEXTURE_COUNT;
+        int atlas_xoff = (id + 1) * texture_size;
+
+        for (int y = 0; y < texture_size; y++) {
+            for (int x = 0; x < texture_size; x++) {
+                int rgb = texels[y * texture_size + x];
+
+                if (rgb != 0) {
+                    rgb |= 0xff000000;
+                }
+                pixels[y * atlas_width + atlas_xoff + x] = rgb;
+            }
+        }
+    }
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture_size * ATLAS_TEXTURE_COUNT, texture_size, 0, GL_BGRA_EXT, GL_UNSIGNED_BYTE, pixels);
+    free(pixels);
+#else
+    for (int id = 0; id < 50; id++) { // _Pix3D.textureCount
         Pix8 *texture = _Pix3D.textures[id];
         int *texels = pix3d_get_texels(id);
 
@@ -95,7 +151,7 @@ void gl_set_brightness(void) {
         }
 
         int n = texture->width * texture->height;
-        uint32_t *pixels = malloc(n * 4);
+        uint32_t *pixels = malloc(n * sizeof(uint32_t));
 
         for (int i = 0; i < n; i++) {
             int rgb = texels[i];
@@ -115,5 +171,6 @@ void gl_set_brightness(void) {
 
         free(pixels);
     }
+#endif
 #endif
 }
