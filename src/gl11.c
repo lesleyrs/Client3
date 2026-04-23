@@ -53,7 +53,7 @@ void gl_start_drawscene(void) {
 }
 
 #ifdef GL_NO_IMMEDIATE
-uint32_t texture_array;
+uint32_t texture_atlas;
 #endif
 
 void gl_end_drawscene(void) {
@@ -66,11 +66,11 @@ void gl_end_drawscene(void) {
         glEnableClientState(GL_COLOR_ARRAY);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-        glBindTexture(GL_TEXTURE_2D, texture_array);
+        glBindTexture(GL_TEXTURE_2D, texture_atlas);
 
-        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &verts->r);
-        glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &verts->x);
-        glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &verts->u);
+        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &verts[0].r);
+        glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &verts[0].x);
+        glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &verts[0].u);
 
         glDrawArrays(GL_TRIANGLES, 0, vertcount);
 
@@ -99,7 +99,7 @@ void gl_end_frame(void) {
 void gl_set_brightness(void) {
 #ifdef GL11
 #ifdef GL_NO_IMMEDIATE
-    glDeleteTextures(1, &texture_array);
+    glDeleteTextures(1, &texture_atlas);
 
     int texture_size = 128; // _Pix3D.textures[id]->width/height
     if (_Pix3D.lowMemory) {
@@ -107,8 +107,8 @@ void gl_set_brightness(void) {
     }
     int pixel_count = texture_size * texture_size;
 
-    glGenTextures(1, &texture_array);
-    glBindTexture(GL_TEXTURE_2D, texture_array);
+    glGenTextures(1, &texture_atlas);
+    glBindTexture(GL_TEXTURE_2D, texture_atlas);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
@@ -125,7 +125,7 @@ void gl_set_brightness(void) {
         }
 
         int atlas_width = texture_size * ATLAS_TEXTURE_COUNT;
-        int atlas_xoff = (id + 1) * texture_size;
+        int atlas_xoff = texture_size * (id + 1);
 
         for (int y = 0; y < texture_size; y++) {
             for (int x = 0; x < texture_size; x++) {
