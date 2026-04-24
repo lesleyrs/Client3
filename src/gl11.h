@@ -25,9 +25,12 @@ typedef struct {
     float u, v;
 } Vertex;
 
+extern int vertxoff;
+
+#ifdef GL_NO_IMMEDIATE
 extern Vertex verts[100000];
 extern int vertcount;
-extern int vertxoff;
+#endif
 
 #ifdef _WIN32
 #include <windows.h>

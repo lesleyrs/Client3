@@ -18,8 +18,10 @@ int vertxoff = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2 + 8;
 int vertxoff = 8;
 #endif
 
+#ifdef GL_NO_IMMEDIATE
 Vertex verts[100000]; // NOTE make sure it's high enough
 int vertcount;
+#endif
 
 static bool use_opengl11;
 #endif
@@ -38,6 +40,7 @@ static uint32_t texture_atlas;
 
 void gl_start_drawscene(void) {
 #ifdef GL11
+
     glEnable(GL_SCISSOR_TEST);
 #if 1
     // leave a black line on right side of viewport (see pix2d.c)
@@ -51,16 +54,18 @@ void gl_start_drawscene(void) {
     glVertex2i(vertxoff + _Pix2D.width, 11 + 334);
     glEnd();
 #endif
-#endif
 #ifndef GL_NO_IMMEDIATE
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, texture_atlas);
     glBegin(GL_TRIANGLES);
 #endif
+
+#endif
 }
 
 void gl_end_drawscene(void) {
 #ifdef GL11
+
 #ifndef GL_NO_IMMEDIATE
     glEnd();
     glDisable(GL_TEXTURE_2D);
@@ -94,6 +99,7 @@ void gl_end_drawscene(void) {
     glDisable(GL_SCISSOR_TEST);
     // scene is rendered with gl, the rest must be in software so pixmaps don't draw over interface models
     _Custom.use_opengl11 = false;
+
 #endif
 }
 
