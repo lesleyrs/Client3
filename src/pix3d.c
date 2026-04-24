@@ -491,14 +491,14 @@ static void glGouraudTriangle(int xA, int xB, int xC, int yA, int yB, int yC, in
     verts[vertcount++] = v1;
     verts[vertcount++] = v2;
 #else
-    glBegin(GL_TRIANGLES);
-        glColor4ub((_Pix3D.palette[colorA] >> 16) & 0xff, (_Pix3D.palette[colorA] >> 8) & 0xff, _Pix3D.palette[colorA] & 0xff, alpha);
-        glVertex2i(xA + vertxoff, yA + 11);
-        glColor4ub((_Pix3D.palette[colorB] >> 16) & 0xff, (_Pix3D.palette[colorB] >> 8) & 0xff, _Pix3D.palette[colorB] & 0xff, alpha);
-        glVertex2i(xB + vertxoff, yB + 11);
-        glColor4ub((_Pix3D.palette[colorC] >> 16) & 0xff, (_Pix3D.palette[colorC] >> 8) & 0xff, _Pix3D.palette[colorC] & 0xff, alpha);
-        glVertex2i(xC + vertxoff, yC + 11);
-    glEnd();
+    glTexCoord2f(0, 0);
+
+    glColor4ub((_Pix3D.palette[colorA] >> 16) & 0xff, (_Pix3D.palette[colorA] >> 8) & 0xff, _Pix3D.palette[colorA] & 0xff, alpha);
+    glVertex2i(xA + vertxoff, yA + 11);
+    glColor4ub((_Pix3D.palette[colorB] >> 16) & 0xff, (_Pix3D.palette[colorB] >> 8) & 0xff, _Pix3D.palette[colorB] & 0xff, alpha);
+    glVertex2i(xB + vertxoff, yB + 11);
+    glColor4ub((_Pix3D.palette[colorC] >> 16) & 0xff, (_Pix3D.palette[colorC] >> 8) & 0xff, _Pix3D.palette[colorC] & 0xff, alpha);
+    glVertex2i(xC + vertxoff, yC + 11);
 #endif
 }
 #endif
@@ -1027,12 +1027,12 @@ static void glFlatTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int c
     verts[vertcount++] = v1;
     verts[vertcount++] = v2;
 #else
-    glBegin(GL_TRIANGLES);
-        glColor4ub(color >> 16, color >> 8, color, alpha);
-        glVertex2i(xA + vertxoff, yA + 11);
-        glVertex2i(xB + vertxoff, yB + 11);
-        glVertex2i(xC + vertxoff, yC + 11);
-    glEnd();
+    glTexCoord2f(0, 0);
+
+    glColor4ub(color >> 16, color >> 8, color, alpha);
+    glVertex2i(xA + vertxoff, yA + 11);
+    glVertex2i(xB + vertxoff, yB + 11);
+    glVertex2i(xC + vertxoff, yC + 11);
 #endif
 }
 #endif
@@ -1476,7 +1476,6 @@ void glTextureTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int shade
     int shadeShiftB = 255 - (shadeB << 1);
     int shadeShiftC = 255 - (shadeC << 1);
 
-#ifdef GL_NO_IMMEDIATE
     // manual clamp since opengl will no longer do it for us
     uv.uA = clamp01(uv.uA);
     uv.uB = clamp01(uv.uB);
@@ -1487,6 +1486,7 @@ void glTextureTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int shade
     uv.uB = (texture_idx + uv.uB) / ATLAS_TEXTURE_COUNT;
     uv.uC = (texture_idx + uv.uC) / ATLAS_TEXTURE_COUNT;
 
+#ifdef GL_NO_IMMEDIATE
     Vertex v0 = {shadeShiftA, shadeShiftA, shadeShiftA, 0xff, xA + vertxoff, yA + 11, uv.uA, uv.vA};
     Vertex v1 = {shadeShiftB, shadeShiftB, shadeShiftB, 0xff, xB + vertxoff, yB + 11, uv.uB, uv.vB};
     Vertex v2 = {shadeShiftC, shadeShiftC, shadeShiftC, 0xff, xC + vertxoff, yC + 11, uv.uC, uv.vC};
@@ -1495,24 +1495,17 @@ void glTextureTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int shade
     verts[vertcount++] = v1;
     verts[vertcount++] = v2;
 #else
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, _Pix3D.textures[texture]->gl_texture);
+    glColor4ub(shadeShiftA, shadeShiftA, shadeShiftA, 0xff);
+    glTexCoord2f(uv.uA, uv.vA);
+    glVertex2i(xA + vertxoff, yA + 11);
 
-    glBegin(GL_TRIANGLES);
-        glColor4ub(shadeShiftA, shadeShiftA, shadeShiftA, 0xff);
-        glTexCoord2f(uv.uA, uv.vA);
-        glVertex2i(xA + vertxoff, yA + 11);
+    glColor4ub(shadeShiftB, shadeShiftB, shadeShiftB, 0xff);
+    glTexCoord2f(uv.uB, uv.vB);
+    glVertex2i(xB + vertxoff, yB + 11);
 
-        glColor4ub(shadeShiftB, shadeShiftB, shadeShiftB, 0xff);
-        glTexCoord2f(uv.uB, uv.vB);
-        glVertex2i(xB + vertxoff, yB + 11);
-
-        glColor4ub(shadeShiftC, shadeShiftC, shadeShiftC, 0xff);
-        glTexCoord2f(uv.uC, uv.vC);
-        glVertex2i(xC + vertxoff, yC + 11);
-    glEnd();
-
-    glDisable(GL_TEXTURE_2D);
+    glColor4ub(shadeShiftC, shadeShiftC, shadeShiftC, 0xff);
+    glTexCoord2f(uv.uC, uv.vC);
+    glVertex2i(xC + vertxoff, yC + 11);
 #endif
 }
 #endif

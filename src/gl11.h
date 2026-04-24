@@ -13,12 +13,11 @@ void gl_set_brightness(void);
 
 #define GL_NO_IMMEDIATE
 
-#ifdef GL_NO_IMMEDIATE
 #define ATLAS_TEXTURE_COUNT 51 // 1 white texture + _Pix3D.textureCount
+
 static inline float clamp01(float x) {
     return x < 0 ? 0 : (x > 1 ? 1 : x);
 }
-#endif
 
 typedef struct {
     unsigned char r, g, b, a;

@@ -34,6 +34,8 @@ void gl_start_frame(void) {
 #endif
 }
 
+static uint32_t texture_atlas;
+
 void gl_start_drawscene(void) {
 #ifdef GL11
     glEnable(GL_SCISSOR_TEST);
@@ -50,14 +52,19 @@ void gl_start_drawscene(void) {
     glEnd();
 #endif
 #endif
-}
-
-#ifdef GL_NO_IMMEDIATE
-uint32_t texture_atlas;
+#ifndef GL_NO_IMMEDIATE
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texture_atlas);
+    glBegin(GL_TRIANGLES);
 #endif
+}
 
 void gl_end_drawscene(void) {
 #ifdef GL11
+#ifndef GL_NO_IMMEDIATE
+    glEnd();
+    glDisable(GL_TEXTURE_2D);
+#endif
 #ifdef GL_NO_IMMEDIATE
     if (vertcount > 0) {
         glEnable(GL_TEXTURE_2D);
@@ -98,7 +105,6 @@ void gl_end_frame(void) {
 
 void gl_set_brightness(void) {
 #ifdef GL11
-#ifdef GL_NO_IMMEDIATE
     glDeleteTextures(1, &texture_atlas);
 
     int texture_size = 128; // _Pix3D.textures[id]->width/height
@@ -141,36 +147,5 @@ void gl_set_brightness(void) {
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture_size * ATLAS_TEXTURE_COUNT, texture_size, 0, GL_BGRA_EXT, GL_UNSIGNED_BYTE, pixels);
     free(pixels);
-#else
-    for (int id = 0; id < 50; id++) { // _Pix3D.textureCount
-        Pix8 *texture = _Pix3D.textures[id];
-        int *texels = pix3d_get_texels(id);
-
-        if (!texels) {
-            continue;
-        }
-
-        int n = texture->width * texture->height;
-        uint32_t *pixels = malloc(n * sizeof(uint32_t));
-
-        for (int i = 0; i < n; i++) {
-            int rgb = texels[i];
-
-            if (rgb != 0) {
-                rgb |= 0xff000000;
-            }
-            pixels[i] = rgb;
-        }
-        glGenTextures(1, &texture->gl_texture);
-        glBindTexture(GL_TEXTURE_2D, texture->gl_texture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width, texture->height, 0, GL_BGRA_EXT, GL_UNSIGNED_BYTE, pixels);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-
-        free(pixels);
-    }
-#endif
 #endif
 }
