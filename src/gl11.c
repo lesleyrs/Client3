@@ -15,6 +15,7 @@ extern Custom _Custom;
 
 #ifdef SDL
 #include <SDL.h>
+typedef void (APIENTRY *PFNGLGENERATEMIPMAPPROC)(GLenum target);
 PFNGLGENERATEMIPMAPPROC glGenerateMipmap;
 #endif
 
