@@ -95,6 +95,7 @@ void platform_new(GameShell *shell) {
     SDL_WM_SetCaption("Jagex", NULL);
 
 #ifdef GL11
+    // explicitly setting these fixes mesa d3d12/llvmpipe on windows for sdl1
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
