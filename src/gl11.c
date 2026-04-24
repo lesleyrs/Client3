@@ -120,32 +120,11 @@ void gl_end_frame(void) {
 
 void gl_set_brightness(void) {
 #ifdef GL11
-    glDeleteTextures(1, &texture_atlas);
-
     int texture_size = 128; // _Pix3D.textures[id]->width/height
     if (_Pix3D.lowMemory) {
         texture_size = 64;
     }
     int pixel_count = texture_size * texture_size;
-
-    glGenTextures(1, &texture_atlas);
-    glBindTexture(GL_TEXTURE_2D, texture_atlas);
-    if (glGenerateMipmap) {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-    } else {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    }
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP); // this is clamped manually in pix3d now since all textures are combined
-
-    if (use_anisotropic) {
-        #define GL_TEXTURE_MAX_ANISOTROPY_EXT 0x84FE
-        #define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF
-        float amount = 0.0f;
-        glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &amount);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, amount);
-    }
 
     uint32_t *pixels = malloc(ATLAS_TEXTURE_COUNT * pixel_count * sizeof(uint32_t));
     memset(pixels, 0xff, pixel_count * sizeof(uint32_t)); // white texture at idx 0
@@ -172,12 +151,27 @@ void gl_set_brightness(void) {
         }
     }
 
+    glBindTexture(GL_TEXTURE_2D, texture_atlas);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture_size * ATLAS_TEXTURE_COUNT, texture_size, 0, GL_BGRA_EXT, GL_UNSIGNED_BYTE, pixels);
+    free(pixels);
 
     if (glGenerateMipmap) {
         glGenerateMipmap(GL_TEXTURE_2D);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+    } else {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     }
-    free(pixels);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP); // this is clamped manually in pix3d now since all textures are combined
+
+    if (use_anisotropic) {
+        #define GL_TEXTURE_MAX_ANISOTROPY_EXT 0x84FE
+        #define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF
+        float amount = 0.0f;
+        glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &amount);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, amount);
+    }
 #endif
 }
 
@@ -211,7 +205,9 @@ static int isExtensionSupported(const char *extension) {
 }
 #endif
 
-void gl_load_extensions(void) {
+void gl_load(void) {
+    rs2_log("%s: %s, %s\n", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION));
+
 #ifdef GL11
     const char *extensions = (const char*)glGetString(GL_EXTENSIONS);
     if (!extensions) {
@@ -227,8 +223,11 @@ void gl_load_extensions(void) {
         rs2_log("%s not found\n", ext_anisotropic);
     }
 
+    rs2_log("\n");
 #ifdef SDL
     glGenerateMipmap = (PFNGLGENERATEMIPMAPPROC)SDL_GL_GetProcAddress("glGenerateMipmap");
 #endif
+
+    glGenTextures(1, &texture_atlas);
 #endif
 }

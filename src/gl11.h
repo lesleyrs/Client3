@@ -1,6 +1,6 @@
 #pragma once
 
-void gl_load_extensions(void);
+void gl_load(void);
 void gl_start_frame(void);
 void gl_end_frame(void);
 void gl_start_drawscene(void);

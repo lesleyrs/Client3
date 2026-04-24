@@ -114,7 +114,7 @@ void client_init_global(void) {
 }
 
 void client_load(Client *c) {
-    gl_load_extensions();
+    gl_load();
 
 // TODO missing bits
 // String vendor = System.getProperties().getProperty("java.vendor");
