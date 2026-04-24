@@ -12,6 +12,7 @@ extern Pix2D _Pix2D;
 extern Custom _Custom;
 
 #ifdef GL11
+
 #ifdef __vita__
 int vertxoff = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2 + 8;
 #else
@@ -23,7 +24,11 @@ Vertex verts[100000]; // NOTE make sure it's high enough
 int vertcount;
 #endif
 
+static uint32_t texture_atlas;
+
 static bool use_opengl11;
+static bool use_anisotropic;
+
 #endif
 
 // NOTE: everything gl-related not in this file is also behind GL11 define
@@ -35,8 +40,6 @@ void gl_start_frame(void) {
     glClear(GL_COLOR_BUFFER_BIT);
 #endif
 }
-
-static uint32_t texture_atlas;
 
 void gl_start_drawscene(void) {
 #ifdef GL11
@@ -126,6 +129,16 @@ void gl_set_brightness(void) {
 
     // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP); // this is clamped manually in pix3d now since all textures are combined
 
+    if (use_anisotropic) {
+        #define GL_TEXTURE_MAX_ANISOTROPY_EXT 0x84FE
+        #define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF
+        float amount = 0.0f;
+        glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &amount);
+
+        amount = MIN(4, amount);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, amount);
+    }
+
     uint32_t *pixels = malloc(ATLAS_TEXTURE_COUNT * pixel_count * sizeof(uint32_t));
     memset(pixels, 0xff, pixel_count * sizeof(uint32_t)); // white texture at idx 0
 
@@ -153,5 +166,53 @@ void gl_set_brightness(void) {
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture_size * ATLAS_TEXTURE_COUNT, texture_size, 0, GL_BGRA_EXT, GL_UNSIGNED_BYTE, pixels);
     free(pixels);
+#endif
+}
+
+#ifdef GL11
+// https://www.opengl.org/archives/resources/features/OGLextensions/
+static int isExtensionSupported(const char *extension) {
+  const GLubyte *extensions = NULL;
+  const GLubyte *start;
+  GLubyte *where, *terminator;
+
+  /* Extension names should not have spaces. */
+  where = (GLubyte *) strchr(extension, ' ');
+  if (where || *extension == '\0')
+    return 0;
+  extensions = glGetString(GL_EXTENSIONS);
+  /* It takes a bit of care to be fool-proof about parsing the
+     OpenGL extensions string. Don't be fooled by sub-strings,
+     etc. */
+  start = extensions;
+  for (;;) {
+    where = (GLubyte *) strstr((const char *) start, extension);
+    if (!where)
+      break;
+    terminator = where + strlen(extension);
+    if (where == start || *(where - 1) == ' ')
+      if (*terminator == ' ' || *terminator == '\0')
+        return 1;
+    start = terminator;
+  }
+  return 0;
+}
+#endif
+
+void gl_load_extensions(void) {
+#ifdef GL11
+    const char *extensions = (const char*)glGetString(GL_EXTENSIONS);
+    if (!extensions) {
+        return;
+    }
+
+    const char *ext_anisotropic = "GL_EXT_texture_filter_anisotropic";
+
+    if (isExtensionSupported(ext_anisotropic)) {
+        rs2_log("%s found\n", ext_anisotropic);
+        use_anisotropic = true;
+    } else {
+        rs2_log("%s not found\n", ext_anisotropic);
+    }
 #endif
 }

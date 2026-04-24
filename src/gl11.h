@@ -1,5 +1,6 @@
 #pragma once
 
+void gl_load_extensions(void);
 void gl_start_frame(void);
 void gl_end_frame(void);
 void gl_start_drawscene(void);
@@ -14,6 +15,8 @@ void gl_set_brightness(void);
 #define GL_NO_IMMEDIATE
 
 #define ATLAS_TEXTURE_COUNT 51 // 1 white texture + _Pix3D.textureCount
+// not sure why but V also has to be divided by 51 for the default white texture or flat/gouraud tris become transparent
+#define ANISOTROPIC_V (1.0f / ATLAS_TEXTURE_COUNT)
 
 static inline float clamp01(float x) {
     return x < 0 ? 0 : (x > 1 ? 1 : x);

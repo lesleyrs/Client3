@@ -483,15 +483,15 @@ static void glGouraudTriangle(int xA, int xB, int xC, int yA, int yB, int yC, in
     }
 
 #ifdef GL_NO_IMMEDIATE
-    Vertex v0 = {(_Pix3D.palette[colorA] >> 16) & 0xff, (_Pix3D.palette[colorA] >> 8) & 0xff, _Pix3D.palette[colorA] & 0xff, alpha, xA + vertxoff, yA + 11, 0, 0};
-    Vertex v1 = {(_Pix3D.palette[colorB] >> 16) & 0xff, (_Pix3D.palette[colorB] >> 8) & 0xff, _Pix3D.palette[colorB] & 0xff, alpha, xB + vertxoff, yB + 11, 0, 0};
-    Vertex v2 = {(_Pix3D.palette[colorC] >> 16) & 0xff, (_Pix3D.palette[colorC] >> 8) & 0xff, _Pix3D.palette[colorC] & 0xff, alpha, xC + vertxoff, yC + 11, 0, 0};
+    Vertex v0 = {(_Pix3D.palette[colorA] >> 16) & 0xff, (_Pix3D.palette[colorA] >> 8) & 0xff, _Pix3D.palette[colorA] & 0xff, alpha, xA + vertxoff, yA + 11, 0, ANISOTROPIC_V};
+    Vertex v1 = {(_Pix3D.palette[colorB] >> 16) & 0xff, (_Pix3D.palette[colorB] >> 8) & 0xff, _Pix3D.palette[colorB] & 0xff, alpha, xB + vertxoff, yB + 11, 0, ANISOTROPIC_V};
+    Vertex v2 = {(_Pix3D.palette[colorC] >> 16) & 0xff, (_Pix3D.palette[colorC] >> 8) & 0xff, _Pix3D.palette[colorC] & 0xff, alpha, xC + vertxoff, yC + 11, 0, ANISOTROPIC_V};
 
     verts[vertcount++] = v0;
     verts[vertcount++] = v1;
     verts[vertcount++] = v2;
 #else
-    glTexCoord2f(0, 0);
+    glTexCoord2f(0, ANISOTROPIC_V);
 
     glColor4ub((_Pix3D.palette[colorA] >> 16) & 0xff, (_Pix3D.palette[colorA] >> 8) & 0xff, _Pix3D.palette[colorA] & 0xff, alpha);
     glVertex2i(xA + vertxoff, yA + 11);
@@ -1019,15 +1019,15 @@ static void glFlatTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int c
     }
 
 #ifdef GL_NO_IMMEDIATE
-    Vertex v0 = {color >> 16, color >> 8, color, alpha, xA + vertxoff, yA + 11, 0, 0};
-    Vertex v1 = {color >> 16, color >> 8, color, alpha, xB + vertxoff, yB + 11, 0, 0};
-    Vertex v2 = {color >> 16, color >> 8, color, alpha, xC + vertxoff, yC + 11, 0, 0};
+    Vertex v0 = {color >> 16, color >> 8, color, alpha, xA + vertxoff, yA + 11, 0, ANISOTROPIC_V};
+    Vertex v1 = {color >> 16, color >> 8, color, alpha, xB + vertxoff, yB + 11, 0, ANISOTROPIC_V};
+    Vertex v2 = {color >> 16, color >> 8, color, alpha, xC + vertxoff, yC + 11, 0, ANISOTROPIC_V};
 
     verts[vertcount++] = v0;
     verts[vertcount++] = v1;
     verts[vertcount++] = v2;
 #else
-    glTexCoord2f(0, 0);
+    glTexCoord2f(0, ANISOTROPIC_V);
 
     glColor4ub(color >> 16, color >> 8, color, alpha);
     glVertex2i(xA + vertxoff, yA + 11);

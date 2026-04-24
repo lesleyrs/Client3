@@ -114,6 +114,8 @@ void client_init_global(void) {
 }
 
 void client_load(Client *c) {
+    gl_load_extensions();
+
 // TODO missing bits
 // String vendor = System.getProperties().getProperty("java.vendor");
 // if (vendor.toLowerCase().indexOf("sun") != -1 || vendor.toLowerCase().indexOf("apple") != -1) {
