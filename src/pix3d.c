@@ -482,7 +482,7 @@ static void glGouraudTriangle(int xA, int xB, int xC, int yA, int yB, int yC, in
         alpha = 255 - _Pix3D.alpha;
     }
 
-#ifdef GL_NO_IMMEDIATE
+#ifdef GL_USE_ARRAYS
     Vertex v0 = {(_Pix3D.palette[colorA] >> 16) & 0xff, (_Pix3D.palette[colorA] >> 8) & 0xff, _Pix3D.palette[colorA] & 0xff, alpha, xA + vertxoff, yA + 11, 0, ANISOTROPIC_V};
     Vertex v1 = {(_Pix3D.palette[colorB] >> 16) & 0xff, (_Pix3D.palette[colorB] >> 8) & 0xff, _Pix3D.palette[colorB] & 0xff, alpha, xB + vertxoff, yB + 11, 0, ANISOTROPIC_V};
     Vertex v2 = {(_Pix3D.palette[colorC] >> 16) & 0xff, (_Pix3D.palette[colorC] >> 8) & 0xff, _Pix3D.palette[colorC] & 0xff, alpha, xC + vertxoff, yC + 11, 0, ANISOTROPIC_V};
@@ -1018,7 +1018,7 @@ static void glFlatTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int c
         alpha = 255 - _Pix3D.alpha;
     }
 
-#ifdef GL_NO_IMMEDIATE
+#ifdef GL_USE_ARRAYS
     Vertex v0 = {color >> 16, color >> 8, color, alpha, xA + vertxoff, yA + 11, 0, ANISOTROPIC_V};
     Vertex v1 = {color >> 16, color >> 8, color, alpha, xB + vertxoff, yB + 11, 0, ANISOTROPIC_V};
     Vertex v2 = {color >> 16, color >> 8, color, alpha, xC + vertxoff, yC + 11, 0, ANISOTROPIC_V};
@@ -1486,7 +1486,7 @@ void glTextureTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int shade
     uv.uB = (texture_idx + uv.uB) / ATLAS_TEXTURE_COUNT;
     uv.uC = (texture_idx + uv.uC) / ATLAS_TEXTURE_COUNT;
 
-#ifdef GL_NO_IMMEDIATE
+#ifdef GL_USE_ARRAYS
     Vertex v0 = {shadeShiftA, shadeShiftA, shadeShiftA, 0xff, xA + vertxoff, yA + 11, uv.uA, uv.vA};
     Vertex v1 = {shadeShiftB, shadeShiftB, shadeShiftB, 0xff, xB + vertxoff, yB + 11, uv.uB, uv.vB};
     Vertex v2 = {shadeShiftC, shadeShiftC, shadeShiftC, 0xff, xC + vertxoff, yC + 11, uv.uC, uv.vC};

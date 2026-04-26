@@ -19,7 +19,7 @@ int vertxoff = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2 + 8;
 int vertxoff = 8;
 #endif
 
-#ifdef GL_NO_IMMEDIATE
+#ifdef GL_USE_ARRAYS
 Vertex verts[100000]; // NOTE make sure it's high enough
 int vertcount;
 #endif
@@ -57,7 +57,7 @@ void gl_start_drawscene(void) {
     glVertex2i(vertxoff + _Pix2D.width, 11 + 334);
     glEnd();
 #endif
-#ifndef GL_NO_IMMEDIATE
+#ifndef GL_USE_ARRAYS
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, texture_atlas);
     glBegin(GL_TRIANGLES);
@@ -69,11 +69,11 @@ void gl_start_drawscene(void) {
 void gl_end_drawscene(void) {
 #ifdef GL11
 
-#ifndef GL_NO_IMMEDIATE
+#ifndef GL_USE_ARRAYS
     glEnd();
     glDisable(GL_TEXTURE_2D);
 #endif
-#ifdef GL_NO_IMMEDIATE
+#ifdef GL_USE_ARRAYS
     if (vertcount > 0) {
         glEnable(GL_TEXTURE_2D);
 

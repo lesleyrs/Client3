@@ -12,7 +12,7 @@ void gl_set_brightness(void);
 #error GL 1.1 renderer only runs on PS Vita or SDL 1 for now: (make SDL=1, batch -v 1)
 #endif
 
-#define GL_NO_IMMEDIATE
+#define GL_USE_ARRAYS
 
 #define ATLAS_TEXTURE_COUNT 51 // 1 white texture + _Pix3D.textureCount
 // not sure why but V also has to be divided by 51 for the default white texture or flat/gouraud tris become transparent
@@ -31,7 +31,7 @@ typedef struct {
 
 extern int vertxoff;
 
-#ifdef GL_NO_IMMEDIATE
+#ifdef GL_USE_ARRAYS
 extern Vertex verts[100000];
 extern int vertcount;
 #endif
