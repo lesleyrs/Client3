@@ -3881,6 +3881,16 @@ static void handleInputKey(Client *c) {
 #else
                                 client_add_message(c, 0, "This client was not built with OpenGL support!", "");
 #endif
+                            } else if (strcmp(c->chat_typed, "::wf") == 0) {
+#ifdef GL11
+                                static bool wireframe;
+                                if (!wireframe) {
+                                    glPolygonMode(GL_FRONT, GL_LINE);
+                                } else {
+                                    glPolygonMode(GL_FRONT, GL_FILL);
+                                }
+                                wireframe = !wireframe;
+#endif
                             } else if (strcmp(c->chat_typed, "::camera") == 0) {
                                 // _Custom.camera_editor = !_Custom.camera_editor;
                                 // c->cutscene = _Custom.camera_editor;
