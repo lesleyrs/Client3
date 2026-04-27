@@ -118,10 +118,15 @@ void gl_set_brightness(void) {
     if (_Pix3D.lowMemory) {
         texture_size = 64;
     }
-    int pixel_count = texture_size * texture_size;
 
-    uint32_t *pixels = malloc(ATLAS_TEXTURE_COUNT * pixel_count * sizeof(uint32_t));
-    memset(pixels, 0xff, pixel_count * sizeof(uint32_t)); // white texture at idx 0
+    int atlas_width = ATLAS_TEXTURE_COUNT * texture_size;
+
+    uint32_t *pixels = malloc(atlas_width * texture_size * sizeof(uint32_t));
+    for (int y = 0; y < texture_size; y++) {
+        for (int x = 0; x < texture_size; x++) {
+            pixels[y * atlas_width + x] = 0xffffffff; // white texture at idx 0
+        }
+    }
 
     for (int id = 0; id < 50; id++) { // _Pix3D.textureCount
         int *texels = pix3d_get_texels(id);
@@ -130,7 +135,6 @@ void gl_set_brightness(void) {
             continue;
         }
 
-        int atlas_width = texture_size * ATLAS_TEXTURE_COUNT;
         int atlas_xoff = texture_size * (id + 1);
 
         for (int y = 0; y < texture_size; y++) {
@@ -146,7 +150,7 @@ void gl_set_brightness(void) {
     }
 
     glBindTexture(GL_TEXTURE_2D, texture_atlas);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture_size * ATLAS_TEXTURE_COUNT, texture_size, 0, GL_BGRA_EXT, GL_UNSIGNED_BYTE, pixels);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, atlas_width, texture_size, 0, GL_BGRA_EXT, GL_UNSIGNED_BYTE, pixels);
     free(pixels);
 
     if (use_anisotropic) {
