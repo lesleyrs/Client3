@@ -13,6 +13,7 @@ Pix3D _Pix3D = {.lowMemory = true, .jagged = true};
 extern Pix2D _Pix2D;
 #ifdef GL11
 extern Custom _Custom;
+extern ClientData _Client;
 #endif
 
 void pix3d_init_global(void) {
@@ -1459,7 +1460,7 @@ UV pmn_to_uv(int xA, int yA, int zA, int xB, int yB, int zB, int xC, int yC, int
 }
 
 void glTextureTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int shadeA, int shadeB, int shadeC, UV uv, int texture) {
-    if (!_Pix3D.lowMemory) {
+    if (!_Client.lowmem) {
         // scrolling textures from updateTextures
         if (texture == 17 || texture == 24) {
             float time = rs2_now() / 1000.0f;

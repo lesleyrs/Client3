@@ -37,6 +37,8 @@ static int mutex;
 #endif
 static int xoff = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2;
 
+static uint64_t systemtime_start = 0;
+
 static SceTouchData touch[SCE_TOUCH_PORT_MAX_NUM], touch_old[SCE_TOUCH_PORT_MAX_NUM];
 static SceCtrlData ctrl, ctrl_old;
 
@@ -360,6 +362,8 @@ bool platform_init(void) {
 
 void platform_new(GameShell *shell) {
     (void)shell;
+
+    systemtime_start = sceKernelGetSystemTimeWide();
 
 #ifdef GL11
     vglInit(0x800000);
@@ -690,7 +694,7 @@ void platform_update_surface(void) {
 }
 
 uint64_t rs2_now(void) {
-    return sceKernelGetSystemTimeWide() / 1000;
+    return (sceKernelGetSystemTimeWide() - systemtime_start) / 1000; // fixes int to float conversions starting at 0
 }
 
 void rs2_sleep(int ms) {

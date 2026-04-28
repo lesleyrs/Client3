@@ -213,6 +213,23 @@ static bool gl_load_extension(const char *ext) {
 void gl_load(void) {
 #ifdef GL11
     rs2_log("OpenGL: %s, %s, %s\n", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION));
+    glGenTextures(1, &texture_atlas);
+
+    int size = 0;
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);
+
+    int lowmem_atlas_size = ATLAS_TEXTURE_COUNT * 64;
+    int highmem_atlas_size = ATLAS_TEXTURE_COUNT * 128;
+
+    if (size < lowmem_atlas_size) {
+        rs2_error("GL_MAX_TEXTURE_SIZE: %d/%d won't fit in texture atlas\n", size, lowmem_atlas_size);
+        exit(1);
+    }
+
+    if (!_Pix3D.lowMemory && size < highmem_atlas_size) {
+        _Pix3D.lowMemory = true;
+        rs2_log("GL_MAX_TEXTURE_SIZE: %d/%d, using low memory textures\n", size, highmem_atlas_size);
+    }
 
     const char *extensions = (const char*)glGetString(GL_EXTENSIONS);
     if (!extensions) {
@@ -230,7 +247,5 @@ void gl_load(void) {
     }
 
     rs2_log("\n");
-
-    glGenTextures(1, &texture_atlas);
 #endif
 }
