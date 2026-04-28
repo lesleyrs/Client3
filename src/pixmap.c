@@ -25,6 +25,7 @@ PixMap *pixmap_new(int width, int height) {
 
 void pixmap_free(PixMap *pixmap) {
 #ifdef GL11
+    free(pixmap->gl_pixels);
     glDeleteTextures(1, &pixmap->gl_texture);
 #else
     platform_free_surface(pixmap->image);
