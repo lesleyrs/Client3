@@ -108,19 +108,6 @@ void platform_new(GameShell *shell) {
     // flags |= SDL_RESIZABLE;
     window_surface = SDL_SetVideoMode(shell->screen_width, shell->screen_height, 32, flags);
 
-#ifdef GL11
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    glViewport(0, 0, shell->screen_width, shell->screen_height);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(0, shell->screen_width, shell->screen_height, 0, -1, 1);
-
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-#endif
-
     if (_Client.lowmem) {
         return;
     }

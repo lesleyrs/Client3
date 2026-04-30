@@ -6,10 +6,6 @@
 
 Pix2D _Pix2D = {0};
 
-#ifdef GL11
-extern Custom _Custom;
-#endif
-
 void pix2d_bind(int width, int height, int *pixels) {
     _Pix2D.pixels = pixels;
     _Pix2D.width = width;
@@ -56,6 +52,7 @@ void pix2d_clear(void) {
     int length = _Pix2D.width * _Pix2D.height;
     int clear_byte = 0;
 #ifdef GL11
+    extern Custom _Custom;
     if (_Custom.use_opengl11) {
         clear_byte = 0xff;
     }

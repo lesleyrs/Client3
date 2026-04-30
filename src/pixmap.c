@@ -43,10 +43,17 @@ void pixmap_bind(PixMap *pixmap) {
 
 void pixmap_draw(PixMap *pixmap, int x, int y) {
 #ifdef GL11
+#include "defines.h"
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+    glOrtho(0, SCREEN_FB_WIDTH, SCREEN_FB_HEIGHT, 0, -1, 1);
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
 
 #ifdef __vita__
-    #include "defines.h"
-    x += (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2;
+    x += SCREEN_CENTER_XOFF;
 #endif
 
     glBindTexture(GL_TEXTURE_2D, pixmap->gl_texture);
@@ -66,17 +73,18 @@ void pixmap_draw(PixMap *pixmap, int x, int y) {
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, pixmap->width, pixmap->height, GL_BGRA_EXT, GL_UNSIGNED_BYTE, pixmap->gl_pixels);
     }
 
-    glEnable(GL_TEXTURE_2D);
-
     glColor4ub(0xff, 0xff, 0xff, 0xff);
     glBegin(GL_QUADS);
     glTexCoord2f(0, 0); glVertex2i(x, y);
-    glTexCoord2f(1, 0); glVertex2i(x + pixmap->width, y);
-    glTexCoord2f(1, 1); glVertex2i(x + pixmap->width, y + pixmap->height);
     glTexCoord2f(0, 1); glVertex2i(x, y + pixmap->height);
+    glTexCoord2f(1, 1); glVertex2i(x + pixmap->width, y + pixmap->height);
+    glTexCoord2f(1, 0); glVertex2i(x + pixmap->width, y);
     glEnd();
 
-    glDisable(GL_TEXTURE_2D);
+    glPopMatrix();
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
 #else
     platform_blit_surface(pixmap->image, x, y);
 #endif

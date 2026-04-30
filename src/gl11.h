@@ -1,20 +1,41 @@
 #pragma once
 
+#include <stdint.h>
+
+#include "model.h"
+
+typedef struct {
+    float uA, uB, uC;
+    float vA, vB, vC;
+} UV;
+
+UV pmn_to_uv(int xA, int yA, int zA, int xB, int yB, int zB, int xC, int yC, int zC, int xP, int yP, int zP, int xM, int yM, int zM, int xN, int yN,  int zN);
 void gl_load(void);
 void gl_start_frame(void);
 void gl_end_frame(void);
 void gl_start_drawscene(void);
 void gl_end_drawscene(void);
 void gl_set_brightness(void);
+void glGouraudTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int zA, int zB, int zC, int colorA, int colorB, int colorC, int alpha);
+void glTextureTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int zA, int zB, int zC, int shadeA, int shadeB, int shadeC, UV uv, int texture);
+void gl_start_model(Model *model, int sceneX, int sceneY, int sceneZ, int yaw);
 
 #ifdef GL11
 #if !defined(__vita__) && SDL != 1
 #error GL 1.1 renderer only runs on PS Vita or SDL 1 for now: (make SDL=1, batch -v 1)
 #endif
 
-#define GL_USE_ARRAYS
+#define PI_DEGREES 180.0f
+#define RS_TO_DEGREES (360.0f / 2048.0f)
+#define FRUSTUM_SCALE (25.0f / 256.0f)
+#define DEFAULT_ZOOM 512.0f
+
+#define NEAR 50
+#define FAR 3500
 
 #define ATLAS_TEXTURE_COUNT 51 // 1 white texture + _Pix3D.textureCount
+
+extern uint32_t texture_atlas;
 
 static inline float clamp01(float x) {
     // return x < 0 ? 0 : (x > 1 ? 1 : x);
@@ -23,16 +44,14 @@ static inline float clamp01(float x) {
 
 typedef struct {
     unsigned char r, g, b, a;
-    float x, y;
+    float x, y, z;
     float u, v;
 } Vertex;
 
-extern int vertxoff;
-
-#ifdef GL_USE_ARRAYS
-extern Vertex verts[100000];
+extern Vertex verts[300000];
 extern int vertcount;
-#endif
+extern uint16_t indices[100000];
+extern int indicescount;
 
 #ifdef _WIN32
 #include <windows.h>

@@ -15,6 +15,7 @@
 #include "platform.h"
 #include "world3d.h"
 #include "allocator.h"
+#include "gl11.h"
 
 SceneData _World3D = {.lowMemory = true};
 extern Pix2D _Pix2D;
@@ -1790,6 +1791,85 @@ void world3d_draw_tile(World3D *world3d, Ground *next, bool checkAdjacent, int l
 }
 
 void world3d_draw_tileunderlay(World3D *world3d, TileUnderlay *underlay, int level, int tileX, int tileZ, int sinEyePitch, int cosEyePitch, int sinEyeYaw, int cosEyeYaw) {
+#ifdef GL11
+    if (_Custom.use_opengl11) {
+        if (underlay->southwestColor == 12345678 && underlay->northeastColor == 12345678) {
+            return;
+        }
+        int x0 = tileX << 7;
+        int x1 = (tileX + 1) << 7;
+        int z0 = tileZ << 7;
+        int z1 = (tileZ + 1) << 7;
+
+        int y00 = world3d->levelHeightmaps[level][tileX][tileZ];
+        int y10 = world3d->levelHeightmaps[level][tileX + 1][tileZ];
+        int y11 = world3d->levelHeightmaps[level][tileX + 1][tileZ + 1];
+        int y01 = world3d->levelHeightmaps[level][tileX][tileZ + 1];
+
+        // int vertexDataBuffer = Renderer.vertexDataBuffer;
+        // int indexDataBuffer = Renderer.indexDataBuffer;
+
+        int textureId = underlay->textureId;
+        int texCoordU00 = 0;
+        int texCoordV00 = 0;
+        int texCoordU10 = 1;
+        int texCoordV10 = 0;
+        int texCoordU11 = 1;
+        int texCoordV11 = 1;
+        int texCoordU01 = 0;
+        int texCoordV01 = 1;
+
+        // const elementOffset: number = indexDataBuffer.pos;
+
+        // Software renderer has wrong texture coordinates
+        if (underlay->northeastColor != 12345678) {
+            indices[indicescount++] = vertcount;
+            indices[indicescount++] = vertcount + 1;
+            indices[indicescount++] = vertcount + 2;
+            if (underlay->flat) {
+                if (textureId != -1) {
+                    glTextureTriangle(x1, x0, x1, y11, y01, y10, z1, z1, z0, underlay->northeastColor, underlay->northwestColor, underlay->southeastColor, (UV){texCoordU11, texCoordU01, texCoordU10, texCoordV11, texCoordV01, texCoordV10}, textureId);
+                } else {
+                    glGouraudTriangle(x1, x0, x1, y11, y01, y10, z1, z1, z0, underlay->northeastColor, underlay->northwestColor, underlay->southeastColor, 0xff);
+                }
+            } else {
+                if (textureId != -1) {
+                    glTextureTriangle(x1, x0, x1, y11, y01, y10, z1, z1, z0, underlay->northeastColor, underlay->northwestColor, underlay->southeastColor, (UV){texCoordU00, texCoordU10, texCoordU01, texCoordV00, texCoordV10, texCoordV01}, textureId);
+                } else {
+                    glGouraudTriangle(x1, x0, x1, y11, y01, y10, z1, z1, z0, underlay->northeastColor, underlay->northwestColor, underlay->southeastColor, 0xff);
+                }
+            }
+            if (underlay->southwestColor != 12345678) {
+                indices[indicescount++] = vertcount;
+                indices[indicescount++] = vertcount + 1;
+                indices[indicescount++] = vertcount + 2;
+                if (textureId != -1) {
+                    glTextureTriangle(x0, x1, x0, y00, y10, y01, z0, z0, z1, underlay->southwestColor, underlay->southeastColor, underlay->northwestColor, (UV){texCoordU00, texCoordU10, texCoordU01, texCoordV00, texCoordV10, texCoordV01}, textureId);
+                } else {
+                    glGouraudTriangle(x0, x1, x0, y00, y10, y01, z0, z0, z1, underlay->southwestColor, underlay->southeastColor, underlay->northwestColor, 0xff);
+                }
+            }
+        }
+
+        // Renderer.drawCommands.addCommand(0, 0, 0, 0, elementOffset, indexDataBuffer.pos - elementOffset);
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_COLOR_ARRAY);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &verts[0].r);
+        glVertexPointer(3, GL_FLOAT, sizeof(Vertex), &verts[0].x);
+        glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &verts[0].u);
+
+        glDrawElements(GL_TRIANGLES, indicescount, GL_UNSIGNED_SHORT, indices);
+
+        glDisableClientState(GL_VERTEX_ARRAY);
+        glDisableClientState(GL_COLOR_ARRAY);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+        vertcount = 0;
+        indicescount = 0;
+    }
+#endif
     int x3;
     int x0 = x3 = (tileX << 7) - _World3D.eyeX;
     int z1;
@@ -1861,17 +1941,6 @@ void world3d_draw_tileunderlay(World3D *world3d, TileUnderlay *underlay, int lev
     int px3 = _Pix3D.center_x + (x3 << 9) / z3;
     int py3 = _Pix3D.center_y + (y3 << 9) / z3;
 
-#ifdef GL11
-    int texCoordU00 = 0;
-    int texCoordV00 = 0;
-    int texCoordU10 = 1;
-    int texCoordV10 = 0;
-    int texCoordU11 = 1;
-    int texCoordV11 = 1;
-    int texCoordU01 = 0;
-    int texCoordV01 = 1;
-#endif
-
     _Pix3D.alpha = 0;
 
     if ((py1 - px3) * (px1 - py3) - (pz1 - py3) * (pz0 - px3) > 0) {
@@ -1880,6 +1949,9 @@ void world3d_draw_tileunderlay(World3D *world3d, TileUnderlay *underlay, int lev
             _World3D.clickTileX = tileX;
             _World3D.clickTileZ = tileZ;
         }
+#ifdef GL11
+        if (!_Custom.use_opengl11) {
+#endif
         if (underlay->textureId == -1) {
             if (underlay->northeastColor != 12345678) {
                 gouraudTriangle(py1, px3, pz0, pz1, py3, px1, underlay->northeastColor, underlay->northwestColor, underlay->southeastColor);
@@ -1888,27 +1960,14 @@ void world3d_draw_tileunderlay(World3D *world3d, TileUnderlay *underlay, int lev
             int averageColor = TEXTURE_HSL[underlay->textureId];
             gouraudTriangle(py1, px3, pz0, pz1, py3, px1, mul_lightness(averageColor, underlay->northeastColor), mul_lightness(averageColor, underlay->northwestColor), mul_lightness(averageColor, underlay->southeastColor));
         } else if (underlay->flat) {
-#ifdef GL11
-            if (_Custom.use_opengl11) {
-                glTextureTriangle(py1, px3, pz0, pz1, py3, px1, underlay->northeastColor, underlay->northwestColor, underlay->southeastColor, (UV){texCoordU11, texCoordU01, texCoordU10, texCoordV11, texCoordV01, texCoordV10}, underlay->textureId);
-            } else {
-#endif
             textureTriangle(py1, px3, pz0, pz1, py3, px1, underlay->northeastColor, underlay->northwestColor, underlay->southeastColor, x0, y0, z0, x1, x3, y1, y3, z1, z3, underlay->textureId);
-#ifdef GL11
-            }
-#endif
         } else {
-#ifdef GL11
-            if (_Custom.use_opengl11) {
-                glTextureTriangle(py1, px3, pz0, pz1, py3, px1, underlay->northeastColor, underlay->northwestColor, underlay->southeastColor, (UV){texCoordU00, texCoordU10, texCoordU01, texCoordV00, texCoordV10, texCoordV01}, underlay->textureId);
-            } else {
-#endif
             textureTriangle(py1, px3, pz0, pz1, py3, px1, underlay->northeastColor, underlay->northwestColor, underlay->southeastColor, x2, y2, z2, x3, x1, y3, y1, z3, z1, underlay->textureId);
-#ifdef GL11
-            }
-#endif
         }
     }
+#ifdef GL11
+    }
+#endif
     if ((px0 - pz0) * (py3 - px1) - (py0 - px1) * (px3 - pz0) <= 0) {
         return;
     }
@@ -1917,33 +1976,26 @@ void world3d_draw_tileunderlay(World3D *world3d, TileUnderlay *underlay, int lev
         _World3D.clickTileX = tileX;
         _World3D.clickTileZ = tileZ;
     }
+#ifdef GL11
+    if (!_Custom.use_opengl11) {
+#endif
     if (underlay->textureId != -1) {
         if (!_World3D.lowMemory) {
-#ifdef GL11
-            if (_Custom.use_opengl11) {
-                glTextureTriangle(px0, pz0, px3, py0, px1, py3, underlay->southwestColor, underlay->southeastColor, underlay->northwestColor, (UV){texCoordU00, texCoordU10, texCoordU01, texCoordV00, texCoordV10, texCoordV01}, underlay->textureId);
-            } else {
-#endif
             textureTriangle(px0, pz0, px3, py0, px1, py3, underlay->southwestColor, underlay->southeastColor, underlay->northwestColor, x0, y0, z0, x1, x3, y1, y3, z1, z3, underlay->textureId);
-#ifdef GL11
-            }
-#endif
             return;
         }
         int averageColor = TEXTURE_HSL[underlay->textureId];
         gouraudTriangle(px0, pz0, px3, py0, px1, py3, mul_lightness(averageColor, underlay->southwestColor), mul_lightness(averageColor, underlay->southeastColor), mul_lightness(averageColor, underlay->northwestColor));
     } else if (underlay->southwestColor != 12345678) {
         gouraudTriangle(px0, pz0, px3, py0, px1, py3, underlay->southwestColor, underlay->southeastColor, underlay->northwestColor);
+#ifdef GL11
+    }
+#endif
     }
 }
 
 void world3d_draw_tileoverlay(int tileX, int tileZ, TileOverlay *overlay, int sinEyePitch, int cosEyePitch, int sinEyeYaw, int cosEyeYaw) {
     int vertexCount = overlay->vertexCount;
-
-#ifdef GL11
-    int sceneX = tileX * 128;
-    int sceneZ = tileZ * 128;
-#endif
 
     for (int i = 0; i < vertexCount; i++) {
         int x = overlay->vertexX[i] - _World3D.eyeX;
@@ -1966,19 +2018,92 @@ void world3d_draw_tileoverlay(int tileX, int tileZ, TileOverlay *overlay, int si
             _TileOverlay.tmpViewspaceX[i] = x;
             _TileOverlay.tmpViewspaceY[i] = y;
             _TileOverlay.tmpViewspaceZ[i] = z;
-
-#ifdef GL11
-            int tmpX = overlay->vertexX[i] - sceneX;
-            int tmpZ = overlay->vertexZ[i] - sceneZ;
-
-            _TileOverlay.tmpU[i] = tmpX / 128.0;
-            _TileOverlay.tmpV[i] = tmpZ / 128.0;
-#endif
         }
         _TileOverlay.tmpScreenX[i] = _Pix3D.center_x + (x << 9) / z;
         _TileOverlay.tmpScreenY[i] = _Pix3D.center_y + (y << 9) / z;
     }
 
+#ifdef GL11
+    if (_Custom.use_opengl11) {
+        int sceneX = tileX * 128;
+        int sceneZ = tileZ * 128;
+
+        // NOTE this loop doesn't need to be separate from above
+        for (int i = 0; i < vertexCount; i++) {
+            if (overlay->triangleTextureIds) {
+                int tmpX = overlay->vertexX[i] - sceneX;
+                int tmpZ = overlay->vertexZ[i] - sceneZ;
+
+                _TileOverlay.tmpU[i] = tmpX / 128.0;
+                _TileOverlay.tmpV[i] = tmpZ / 128.0;
+            }
+        }
+
+        vertexCount = overlay->triangleCount;
+        for (int i = 0; i < vertexCount; i++) {
+            int a = overlay->triangleVertexA[i];
+            int b = overlay->triangleVertexB[i];
+            int c = overlay->triangleVertexC[i];
+
+            int xa = overlay->vertexX[a];
+            int ya = overlay->vertexY[a];
+            int za = overlay->vertexZ[a];
+
+            int xb = overlay->vertexX[b];
+            int yb = overlay->vertexY[b];
+            int zb = overlay->vertexZ[b];
+
+            int xc = overlay->vertexX[c];
+            int yc = overlay->vertexY[c];
+            int zc = overlay->vertexZ[c];
+
+            int colorA = overlay->triangleColorA[i];
+            int colorB = overlay->triangleColorB[i];
+            int colorC = overlay->triangleColorC[i];
+
+            int textureId = -1;
+            if (overlay->triangleTextureIds) {
+                textureId = overlay->triangleTextureIds[i];
+            }
+            if (textureId == -1 && colorA == 12345678) {
+                continue;
+            }
+
+            indices[indicescount++] = vertcount;
+            indices[indicescount++] = vertcount + 1;
+            indices[indicescount++] = vertcount + 2;
+            if (overlay->flat) {
+                if (textureId != -1) {
+                    glTextureTriangle(xa, xb, xc, ya, yb, yc, za, zb, zc, colorA, colorB, colorC, (UV){_TileOverlay.tmpU[a], _TileOverlay.tmpU[b], _TileOverlay.tmpU[c], _TileOverlay.tmpV[a], _TileOverlay.tmpV[b], _TileOverlay.tmpV[c]}, textureId);
+                } else {
+                    glGouraudTriangle(xa, xb, xc, ya, yb, yc, za, zb, zc, colorA, colorB, colorC, 0xff);
+                }
+            } else {
+                if (textureId != -1) {
+                    glTextureTriangle(xa, xb, xc, ya, yb, yc, za, zb, zc, colorA, colorB, colorC, (UV){_TileOverlay.tmpU[0], _TileOverlay.tmpU[1], _TileOverlay.tmpU[3], _TileOverlay.tmpV[0], _TileOverlay.tmpV[1], _TileOverlay.tmpV[3]}, textureId);
+                } else {
+                    glGouraudTriangle(xa, xb, xc, ya, yb, yc, za, zb, zc, colorA, colorB, colorC, 0xff);
+                }
+            }
+        }
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_COLOR_ARRAY);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &verts[0].r);
+        glVertexPointer(3, GL_FLOAT, sizeof(Vertex), &verts[0].x);
+        glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &verts[0].u);
+
+        glDrawElements(GL_TRIANGLES, indicescount, GL_UNSIGNED_SHORT, indices);
+
+        glDisableClientState(GL_VERTEX_ARRAY);
+        glDisableClientState(GL_COLOR_ARRAY);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+        vertcount = 0;
+        indicescount = 0;
+    }
+#endif
     _Pix3D.alpha = 0;
 
     vertexCount = overlay->triangleCount;
@@ -2000,6 +2125,11 @@ void world3d_draw_tileoverlay(int tileX, int tileZ, TileOverlay *overlay, int si
                 _World3D.clickTileX = tileX;
                 _World3D.clickTileZ = tileZ;
             }
+#ifdef GL11
+            if (_Custom.use_opengl11) {
+                continue;
+            }
+#endif
             if (!overlay->triangleTextureIds || overlay->triangleTextureIds[v] == -1) {
                 if (overlay->triangleColorA[v] != 12345678) {
                     gouraudTriangle(x0, x1, x2, y0, y1, y2, overlay->triangleColorA[v], overlay->triangleColorB[v], overlay->triangleColorC[v]);
@@ -2008,25 +2138,9 @@ void world3d_draw_tileoverlay(int tileX, int tileZ, TileOverlay *overlay, int si
                 int textureColor = TEXTURE_HSL[overlay->triangleTextureIds[v]];
                 gouraudTriangle(x0, x1, x2, y0, y1, y2, mul_lightness(textureColor, overlay->triangleColorA[v]), mul_lightness(textureColor, overlay->triangleColorB[v]), mul_lightness(textureColor, overlay->triangleColorC[v]));
             } else if (overlay->flat) {
-#ifdef GL11
-                if (_Custom.use_opengl11) {
-                    glTextureTriangle(x0, x1, x2, y0, y1, y2, overlay->triangleColorA[v], overlay->triangleColorB[v], overlay->triangleColorC[v], (UV){_TileOverlay.tmpU[a], _TileOverlay.tmpU[b], _TileOverlay.tmpU[c], _TileOverlay.tmpV[a], _TileOverlay.tmpV[b], _TileOverlay.tmpV[c]}, overlay->triangleTextureIds[v]);
-                } else {
-#endif
                 textureTriangle(x0, x1, x2, y0, y1, y2, overlay->triangleColorA[v], overlay->triangleColorB[v], overlay->triangleColorC[v], _TileOverlay.tmpViewspaceX[0], _TileOverlay.tmpViewspaceY[0], _TileOverlay.tmpViewspaceZ[0], _TileOverlay.tmpViewspaceX[1], _TileOverlay.tmpViewspaceX[3], _TileOverlay.tmpViewspaceY[1], _TileOverlay.tmpViewspaceY[3], _TileOverlay.tmpViewspaceZ[1], _TileOverlay.tmpViewspaceZ[3], overlay->triangleTextureIds[v]);
-#ifdef GL11
-                }
-#endif
             } else {
-#ifdef GL11
-                if (_Custom.use_opengl11) {
-                    glTextureTriangle(x0, x1, x2, y0, y1, y2, overlay->triangleColorA[v], overlay->triangleColorB[v], overlay->triangleColorC[v], (UV){_TileOverlay.tmpU[0], _TileOverlay.tmpU[1], _TileOverlay.tmpU[3], _TileOverlay.tmpV[0], _TileOverlay.tmpV[1], _TileOverlay.tmpV[3]}, overlay->triangleTextureIds[v]);
-                } else {
-#endif
                 textureTriangle(x0, x1, x2, y0, y1, y2, overlay->triangleColorA[v], overlay->triangleColorB[v], overlay->triangleColorC[v], _TileOverlay.tmpViewspaceX[a], _TileOverlay.tmpViewspaceY[a], _TileOverlay.tmpViewspaceZ[a], _TileOverlay.tmpViewspaceX[b], _TileOverlay.tmpViewspaceX[c], _TileOverlay.tmpViewspaceY[b], _TileOverlay.tmpViewspaceY[c], _TileOverlay.tmpViewspaceZ[b], _TileOverlay.tmpViewspaceZ[c], overlay->triangleTextureIds[v]);
-#ifdef GL11
-                }
-#endif
             }
         }
     }

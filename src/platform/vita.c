@@ -35,7 +35,6 @@ static SceUID displayblock;
 static void *base; // pointer to frame buffer
 static int mutex;
 #endif
-static int xoff = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2;
 
 static uint64_t systemtime_start = 0;
 
@@ -368,16 +367,7 @@ void platform_new(GameShell *shell) {
 #ifdef GL11
     vglInit(0x800000);
     vglWaitVblankStart(GL_TRUE);
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    glViewport(0, 0, SCREEN_FB_WIDTH, SCREEN_FB_HEIGHT);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(0, SCREEN_FB_WIDTH, SCREEN_FB_HEIGHT, 0, -1, 1);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+    // vglUseVram(false);
 #else
     mutex = sceKernelCreateMutex("fb_mutex", 0, 0, NULL);
     displayblock = sceKernelAllocMemBlock("display", SCE_KERNEL_MEMBLOCK_TYPE_USER_CDRAM_RW, SCREEN_FB_SIZE, NULL);
@@ -538,7 +528,7 @@ void platform_poll_events(Client *c) {
         for (int i = 0; i < 1 /* SCE_TOUCH_MAX_REPORT */; i++) {
             static bool touch_down = false;
             if (touch[port].reportNum > 0) {
-                int x = touch[port].report[i].x * SCREEN_FB_WIDTH / info.maxAaX - xoff;
+                int x = touch[port].report[i].x * SCREEN_FB_WIDTH / info.maxAaX - SCREEN_CENTER_XOFF;
                 int y = touch[port].report[i].y * SCREEN_FB_HEIGHT / info.maxAaY;
 
                 c->shell->idle_cycles = 0;
@@ -679,7 +669,7 @@ void platform_blit_surface(Surface *surface, int x, int y) {
 #ifdef GL11
     (void)surface, (void)x, (void)y;
 #else
-    x += xoff;
+    x += SCREEN_CENTER_XOFF;
 
     sceKernelLockMutex(mutex, 1, NULL);
     platform_set_pixels(base, surface, x, y, true);

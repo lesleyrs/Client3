@@ -7812,9 +7812,6 @@ void client_draw(Client *c) {
 
 void client_draw_game(Client *c) {
     gl_start_frame();
-#ifdef GL11
-    c->redraw_background = true;
-#endif
     if (c->redraw_background) {
         c->redraw_background = false;
         pixmap_draw(c->area_backleft1, 0, 11);
@@ -7836,6 +7833,24 @@ void client_draw_game(Client *c) {
             pixmap_draw(c->area_mapback, 561, 5);
         }
     }
+#ifdef GL11
+    else {
+        pixmap_draw(c->area_backleft1, 0, 11);
+        pixmap_draw(c->area_backleft2, 0, 375);
+        pixmap_draw(c->area_backright1, 729, 5);
+        pixmap_draw(c->area_backright2, 752, 231);
+        pixmap_draw(c->area_backtop1, 0, 0);
+        pixmap_draw(c->area_backtop2, 561, 0);
+        pixmap_draw(c->area_backvmid1, 520, 11);
+        pixmap_draw(c->area_backvmid2, 520, 231);
+        pixmap_draw(c->area_backvmid3, 501, 375);
+        pixmap_draw(c->area_backhmid2, 0, 345);
+        if (c->scene_state != 2) {
+            pixmap_draw(c->area_viewport, 8, 11);
+            pixmap_draw(c->area_mapback, 561, 5);
+        }
+    }
+#endif
 
     if (c->scene_state == 2) {
         client_draw_scene(c);
@@ -7864,6 +7879,11 @@ void client_draw_game(Client *c) {
         client_draw_sidebar(c);
         c->redraw_sidebar = false;
     }
+#ifdef GL11
+    else {
+        pixmap_draw(c->area_sidebar, 562, 231);
+    }
+#endif
 
     if (c->chat_interface_id == -1) {
         c->chat_interface->scrollPosition = c->chat_scroll_height - c->chat_scroll_offset - 77;
@@ -7913,6 +7933,11 @@ void client_draw_game(Client *c) {
         client_draw_chatback(c);
         c->redraw_chatback = false;
     }
+#ifdef GL11
+    else {
+        pixmap_draw(c->area_chatback, 22, 375);
+    }
+#endif
 
     if (c->scene_state == 2) {
         client_draw_minimap(c);
@@ -8033,6 +8058,13 @@ void client_draw_game(Client *c) {
         pixmap_draw(c->area_backbase2, 501, 492);
         pixmap_bind(c->area_viewport);
     }
+#ifdef GL11
+    else {
+        pixmap_draw(c->area_backhmid1, 520, 165);
+        pixmap_draw(c->area_backbase2, 501, 492);
+    }
+#endif
+
 
     if (c->redraw_privacy_settings) {
         c->redraw_privacy_settings = false;
@@ -8079,6 +8111,11 @@ void client_draw_game(Client *c) {
         pixmap_draw(c->area_backbase1, 0, 471);
         pixmap_bind(c->area_viewport);
     }
+#ifdef GL11
+    else {
+        pixmap_draw(c->area_backbase1, 0, 471);
+    }
+#endif
 
     c->scene_delta = 0;
     gl_end_frame();
@@ -8949,7 +8986,14 @@ void client_draw_scene(Client *c) {
     pix2d_clear();
 
     gl_start_drawscene();
+
+    // NOTE rm this
+    uint64_t last = rs2_now();
     world3d_draw(c->scene, c->cameraX, c->cameraY, c->cameraZ, level, c->cameraYaw, c->cameraPitch, _Client.loop_cycle);
+    char buf[MAX_STR];
+    sprintf(buf, "World3D: %lu ms", rs2_now() - last);
+    drawStringRight(c->font_plain11, 507, 200, buf, YELLOW, true);
+
     gl_end_drawscene();
 
     world3d_clear_temporarylocs(c->scene);
@@ -8963,6 +9007,30 @@ void client_draw_scene(Client *c) {
     c->cameraZ = cameraZ;
     c->cameraPitch = cameraPitch;
     c->cameraYaw = cameraYaw;
+#ifdef GL11
+    int offsetX = 0;
+    int offsetY = 0;
+
+    int left = ((offsetX - _Pix3D.center_x) << 9) / DEFAULT_ZOOM;
+    int right = ((offsetX + c->area_viewport->width - _Pix3D.center_x) << 9) / DEFAULT_ZOOM;
+    int top = ((offsetY - _Pix3D.center_y) << 9) / DEFAULT_ZOOM;
+    int bottom = ((offsetY + c->area_viewport->height - _Pix3D.center_y) << 9) / DEFAULT_ZOOM;
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glFrustum(left * FRUSTUM_SCALE, right * FRUSTUM_SCALE, -bottom * FRUSTUM_SCALE, -top * FRUSTUM_SCALE, NEAR, FAR);
+    glRotatef(PI_DEGREES, 1, 0, 0);
+
+    if (c->cameraPitch != 0) {
+        glRotatef(c->cameraPitch * RS_TO_DEGREES, 1, 0, 0);
+    }
+    if (c->cameraYaw != 0) {
+        glRotatef(c->cameraYaw * RS_TO_DEGREES, 0, 1, 0);
+    }
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glTranslatef(-_World3D.eyeX, -_World3D.eyeY, -_World3D.eyeZ);
+#endif
 }
 
 int getTopLevel(Client *c) {

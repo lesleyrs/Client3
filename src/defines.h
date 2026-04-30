@@ -30,6 +30,10 @@
 #define SCREEN_WIDTH 789
 #define SCREEN_HEIGHT 532
 
+#ifdef __vita__
+#define SCREEN_CENTER_XOFF ((SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2)
+#endif
+
 // arbitrary to fix -Wall possible overflow warnings
 // NOTE maybe change the ones using half_str to use strncpy or double sizes but yolo
 #define HALF_STR (CHAT_LENGTH / 2)

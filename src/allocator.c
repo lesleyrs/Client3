@@ -61,15 +61,13 @@ void bump_allocator_reset(void) {
     alloc.used = 0;
 }
 
-// returning malloc/calloc here effectively disables the allocator
 void *rs2_malloc(bool use_allocator, int size) {
-    // return malloc(size);
+    // use_allocator = false;
     return use_allocator ? bump_alloc(size) : malloc(size);
 }
 
 void *rs2_calloc(bool use_allocator, int count, int size) {
-    // return calloc(count, size);
-    // allocator_reset already memsets for us so we can just move ptr
+    // use_allocator = false;
     return use_allocator ? bump_alloc(count * size) : calloc(count, size);
 }
 

@@ -63,7 +63,11 @@ endif
 CFLAGS += -D$(ENTRY) -fwrapv -std=c99 -Wall -Wpedantic -Wvla -Wshadow -Wmissing-prototypes -Wstrict-prototypes -Wmissing-declarations -Wredundant-decls
 CFLAGS += -Wextra
 
-ifeq ($(findstring gcc,$(CC)),gcc)
+ifeq ($(findstring clang,$(CC)),clang)
+# new annoying c11 warning in recent clang when using -std=c99
+CFLAGS += -Wno-c11-extensions
+CFLAGS += -Wno-null-pointer-subtraction
+else ifeq ($(findstring gcc,$(CC)),gcc)
 # removed (mingw)-gcc warning as clangd doesn't autocomplete them due to being less strict
 CFLAGS += -Wno-parentheses
 else ifneq ($(filter clang emcc,$(basename $(notdir $(CC)))),)

@@ -30,7 +30,10 @@
 
 ## TODO
 ```
-- GL1.1 issues: forced redraw_background every frame is causing some memleaks EG coins in bank while the interface is open, see if glTextureTriangle shadeShifts can be more accurate, pmn_to_uv warps textures at some angles
+- optional non GL 1.1: maybe use gles 2 shaders for packing data, maybe framebuffer textures for also drawing interface models with gl
+- GL: move more gl stuff into gl11.c, cached models, running sometimes looks choppy?, confirm webgl code accuracy in both lowmem/highmem, maybe add fallback for < 4096 max tex size
+- GL: see if glTextureTriangle shadeShifts can be more accurate, anisotropic filtering also makes transparent textures darker/hard to see
+- holding coins or the scrollbar in inventory while bank is open repeatedly creates new pix24 in allocator and sets former to NULL causing memleak
 - look into combat segfault on first hit (unable to reproduce, was running tcc with gl) :-(
 - (non-wasm): server cache changes requires manual cache+archive_checksums update in the client since it doesn't download, also the server has an issue with client map crcs changing when only server maps get updated.
 - midi fading, old js code for IE: https://github.com/2004Scape/Server/blob/61bf21fb3755c14b5cf6d47c9d974dee5783beda/view/javaclient.ejs new ts code: https://github.com/2004Scape/Client2/commit/92e74f1f134ea82e48dd608dcca3422777a7a986 https://github.com/LostCityRS/Client-TS/pulls?q=is%3Apr+is%3Aclosed+midi

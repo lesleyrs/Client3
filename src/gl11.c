@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -13,93 +14,46 @@ extern Custom _Custom;
 
 #ifdef GL11
 
-#ifdef __vita__
-int vertxoff = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2 + 8;
-#else
-int vertxoff = 8;
-#endif
-
-#ifdef GL_USE_ARRAYS
-Vertex verts[100000]; // NOTE make sure it's high enough
+Vertex verts[300000];
 int vertcount;
-#endif
+uint16_t indices[100000];
+int indicescount;
 
-static uint32_t texture_atlas;
+uint32_t texture_atlas;
 
 static bool use_opengl11;
 static bool use_anisotropic;
-
 #endif
 
-// NOTE: everything gl-related not in this file is also behind GL11 define
+// NOTE: everything gl-related not in this file is also behind GL11 define OR _Custom.use_opengl11
 
 void gl_start_frame(void) {
 #ifdef GL11
     use_opengl11 = _Custom.use_opengl11;
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 #endif
 }
 
 void gl_start_drawscene(void) {
 #ifdef GL11
-
-    glEnable(GL_SCISSOR_TEST);
-#if 1
     // leave a black line on right side of viewport (see pix2d.c)
-    glScissor(vertxoff, SCREEN_FB_HEIGHT - 11 - _Pix2D.height, _Pix2D.width - 1, _Pix2D.height);
-#else
-    // use this for non-black clear color values
-    glScissor(vertxoff, SCREEN_FB_HEIGHT - 11 - _Pix2D.height, _Pix2D.width, _Pix2D.height);
-    glBegin(GL_LINES);
-    glColor4ub(0, 0, 0, 0xff);
-    glVertex2i(vertxoff + _Pix2D.width, 11);
-    glVertex2i(vertxoff + _Pix2D.width, 11 + 334);
-    glEnd();
+    int viewport_xoff = 8;
+#ifdef __vita__
+    viewport_xoff += SCREEN_CENTER_XOFF;
 #endif
-#ifndef GL_USE_ARRAYS
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, texture_atlas);
-    glBegin(GL_TRIANGLES);
-#endif
+    glViewport(viewport_xoff, SCREEN_FB_HEIGHT - 11 - _Pix2D.height, _Pix2D.width - 1, _Pix2D.height);
 
+    glBindTexture(GL_TEXTURE_2D, texture_atlas);
 #endif
 }
 
 void gl_end_drawscene(void) {
 #ifdef GL11
 
-#ifndef GL_USE_ARRAYS
-    glEnd();
-    glDisable(GL_TEXTURE_2D);
-#endif
-#ifdef GL_USE_ARRAYS
-    if (vertcount > 0) {
-        glEnable(GL_TEXTURE_2D);
+    // TODO move draw calls here
 
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glEnableClientState(GL_COLOR_ARRAY);
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-        glBindTexture(GL_TEXTURE_2D, texture_atlas);
-
-        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &verts[0].r);
-        glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &verts[0].x);
-        glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &verts[0].u);
-
-        glDrawArrays(GL_TRIANGLES, 0, vertcount);
-
-        glDisableClientState(GL_VERTEX_ARRAY);
-        glDisableClientState(GL_COLOR_ARRAY);
-        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
-        glDisable(GL_TEXTURE_2D);
-
-        // rs2_log("verts %d\n", vertcount);
-        vertcount = 0;
-    }
-#endif
-    glDisable(GL_SCISSOR_TEST);
+    glViewport(0, 0, SCREEN_FB_WIDTH, SCREEN_FB_HEIGHT);
     // scene is rendered with gl, the rest must be in software so pixmaps don't draw over interface models
     _Custom.use_opengl11 = false;
 
@@ -208,12 +162,61 @@ static bool gl_load_extension(const char *ext) {
     }
     return false;
 }
+
+// source:
+// https://rune-server.org/threads/texture-mapping-conversions-pmn-uv-pmn.701381/
+// https://rune-server.org/threads/better-texture-mapping-conversions.706373/
+
+UV pmn_to_uv(int xA, int yA, int zA, int xB, int yB, int zB, int xC, int yC, int zC, int xP, int yP, int zP, int xM, int yM, int zM, int xN, int yN, int zN) {
+    int mX = xM - xP;
+    int mY = yM - yP;
+    int mZ = zM - zP;
+
+    int nX = xN - xP;
+    int nY = yN - yP;
+    int nZ = zN - zP;
+
+    int aX = xA - xP;
+    int aY = yA - yP;
+    int aZ = zA - zP;
+
+    int bX = xB - xP;
+    int bY = yB - yP;
+    int bZ = zB - zP;
+
+    int cX = xC - xP;
+    int cY = yC - yP;
+    int cZ = zC - zP;
+
+    int MxNx = mY * nZ - mZ * nY;
+    int MxNy = mZ * nX - mX * nZ;
+    int MxNz = mX * nY - mY * nX;
+
+    int uX = nY * MxNz - nZ * MxNy;
+    int uY = nZ * MxNx - nX * MxNz;
+    int uZ = nX * MxNy - nY * MxNx;
+
+    float mU = 1.0f / (uX * mX + uY * mY + uZ * mZ);
+    float uA = (uX * aX + uY * aY + uZ * aZ) * mU;
+    float uB = (uX * bX + uY * bY + uZ * bZ) * mU;
+    float uC = (uX * cX + uY * cY + uZ * cZ) * mU;
+
+    int vX = mY * MxNz - mZ * MxNy;
+    int vY = mZ * MxNx - mX * MxNz;
+    int vZ = mX * MxNy - mY * MxNx;
+
+    float mV = 1.0f / (vX * nX + vY * nY + vZ * nZ);
+    float vA = (vX * aX + vY * aY + vZ * aZ) * mV;
+    float vB = (vX * bX + vY * bY + vZ * bZ) * mV;
+    float vC = (vX * cX + vY * cY + vZ * cZ) * mV;
+
+    return (UV){uA, uB, uC, vA, vB, vC};
+}
 #endif
 
 void gl_load(void) {
 #ifdef GL11
     rs2_log("OpenGL: %s, %s, %s\n", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION));
-    glGenTextures(1, &texture_atlas);
 
     int size = 0;
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);
@@ -242,10 +245,227 @@ void gl_load(void) {
     }
 
     if (gl_load_extension("GL_SGIS_generate_mipmap") && gl_load_extension("GL_EXT_texture_filter_anisotropic")) {
-        // NOTE: makes some things like fishing spots hard to see
-        // use_anisotropic = true;
+        // NOTE: makes transparent textures like fishing spots/fountain water darker and hard to see
+        use_anisotropic = true;
     }
 
     rs2_log("\n");
+
+    glGenTextures(1, &texture_atlas);
+
+    glEnable(GL_TEXTURE_2D);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glEnable(GL_CULL_FACE);
+    // glEnable(GL_DEPTH_TEST);
+#endif
+}
+
+void glGouraudTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int zA, int zB, int zC, int colorA, int colorB, int colorC, int alpha) {
+    (void)xA, (void)xB, (void)xC, (void)yA, (void)yB, (void)yC, (void)zA, (void)zB, (void)zC, (void)colorA, (void)colorB, (void)colorC, (void)alpha;
+#ifdef GL11
+    Vertex v0 = {(_Pix3D.palette[colorA] >> 16) & 0xff, (_Pix3D.palette[colorA] >> 8) & 0xff, _Pix3D.palette[colorA] & 0xff, alpha, xA, yA, zA, 0, 0};
+    Vertex v1 = {(_Pix3D.palette[colorB] >> 16) & 0xff, (_Pix3D.palette[colorB] >> 8) & 0xff, _Pix3D.palette[colorB] & 0xff, alpha, xB, yB, zB, 0, 0};
+    Vertex v2 = {(_Pix3D.palette[colorC] >> 16) & 0xff, (_Pix3D.palette[colorC] >> 8) & 0xff, _Pix3D.palette[colorC] & 0xff, alpha, xC, yC, zC, 0, 0};
+
+    verts[vertcount++] = v0;
+    verts[vertcount++] = v1;
+    verts[vertcount++] = v2;
+
+    // glTexCoord2f(0, 0);
+    // glColor4ub((_Pix3D.palette[colorA] >> 16) & 0xff, (_Pix3D.palette[colorA] >> 8) & 0xff, _Pix3D.palette[colorA] & 0xff, alpha);
+    // glVertex3i(xA, yA, zA);
+    // glColor4ub((_Pix3D.palette[colorB] >> 16) & 0xff, (_Pix3D.palette[colorB] >> 8) & 0xff, _Pix3D.palette[colorB] & 0xff, alpha);
+    // glVertex3i(xB, yB, zB);
+    // glColor4ub((_Pix3D.palette[colorC] >> 16) & 0xff, (_Pix3D.palette[colorC] >> 8) & 0xff, _Pix3D.palette[colorC] & 0xff, alpha);
+    // glVertex3i(xC, yC, zC);
+#endif
+}
+
+void glTextureTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int zA, int zB, int zC, int shadeA, int shadeB, int shadeC, UV uv, int texture) {
+    (void)xA, (void)xB, (void)xC, (void)yA, (void)yB, (void)yC, (void)zA, (void)zB, (void)zC, (void)shadeA, (void)shadeB, (void)shadeC, (void)uv, (void)texture;
+#ifdef GL11
+    extern ClientData _Client;
+    if (!_Client.lowmem) {
+        // scrolling textures from updateTextures
+        if (texture == 17 || texture == 24) {
+            float time = rs2_now() / 1000.0f;
+            float texture_anim_unit = 1.0f / 128.0f;
+            float offset = time / 0.02f * -2.0f * texture_anim_unit;
+            offset = fmodf(offset, 1.0f);
+            uv.vA += offset;
+            uv.vB += offset;
+            uv.vC += offset;
+        }
+    }
+
+    int shadeShiftA = 255 - (shadeA << 1);
+    int shadeShiftB = 255 - (shadeB << 1);
+    int shadeShiftC = 255 - (shadeC << 1);
+
+    // manual clamp since opengl will no longer do it for us
+    uv.uA = clamp01(uv.uA);
+    uv.uB = clamp01(uv.uB);
+    uv.uC = clamp01(uv.uC);
+
+    int texture_idx = 1 + texture; // after default white texture
+    uv.uA = (texture_idx + uv.uA) / ATLAS_TEXTURE_COUNT;
+    uv.uB = (texture_idx + uv.uB) / ATLAS_TEXTURE_COUNT;
+    uv.uC = (texture_idx + uv.uC) / ATLAS_TEXTURE_COUNT;
+
+    Vertex v0 = {shadeShiftA, shadeShiftA, shadeShiftA, 0xff, xA, yA, zA, uv.uA, uv.vA};
+    Vertex v1 = {shadeShiftB, shadeShiftB, shadeShiftB, 0xff, xB, yB, zB, uv.uB, uv.vB};
+    Vertex v2 = {shadeShiftC, shadeShiftC, shadeShiftC, 0xff, xC, yC, zC, uv.uC, uv.vC};
+
+    verts[vertcount++] = v0;
+    verts[vertcount++] = v1;
+    verts[vertcount++] = v2;
+
+    // glColor4ub(shadeShiftA, shadeShiftA, shadeShiftA, 0xff);
+    // glTexCoord2f(uv.uA, uv.vA);
+    // glVertex3i(xA, yA, zA);
+
+    // glColor4ub(shadeShiftB, shadeShiftB, shadeShiftB, 0xff);
+    // glTexCoord2f(uv.uB, uv.vB);
+    // glVertex3i(xB, yB, zB);
+
+    // glColor4ub(shadeShiftC, shadeShiftC, shadeShiftC, 0xff);
+    // glTexCoord2f(uv.uC, uv.vC);
+    // glVertex3i(xC, yC, zC);
+#endif
+}
+
+void gl_start_model(Model *model, int sceneX, int sceneY, int sceneZ, int yaw) {
+    (void)model, (void)sceneX, (void)sceneY, (void)sceneZ, (void)yaw;
+#ifdef GL11
+    int *triangleColorsA = model->face_color_a;
+    int *triangleColorsB = model->face_color_b;
+    int *triangleColorsC = model->face_color_c;
+
+    if (!triangleColorsA || !triangleColorsB || !triangleColorsC) {
+        return;
+    }
+
+    int *verticesX = model->vertices_x;
+    int *verticesY = model->vertices_y;
+    int *verticesZ = model->vertices_z;
+
+    int *triangleA = model->face_indices_a;
+    int *triangleB = model->face_indices_b;
+    int *triangleC = model->face_indices_c;
+
+    int *triangleColors = model->face_colors;
+
+    int *triangleAlphas = model->face_alphas;
+
+    int *triangleInfos = model->face_infos;
+
+    int *textureMappingP = model->textured_p_coordinate;
+    int *textureMappingM = model->textured_m_coordinate;
+    int *textureMappingN = model->textured_n_coordinate;
+
+    int triangleCount = model->face_count;
+    glPushMatrix();
+
+    extern SceneData _World3D;
+    glTranslatef(sceneX + _World3D.eyeX, sceneY + _World3D.eyeY, sceneZ + _World3D.eyeZ);
+
+    glRotatef(yaw * RS_TO_DEGREES, 0, 1, 0);
+
+    for (int t = 0; t < triangleCount; t++) {
+        int a = triangleA[t];
+        int b = triangleB[t];
+        int c = triangleC[t];
+
+        int xa = verticesX[a];
+        int ya = verticesY[a];
+        int za = verticesZ[a];
+
+        int xb = verticesX[b];
+        int yb = verticesY[b];
+        int zb = verticesZ[b];
+
+        int xc = verticesX[c];
+        int yc = verticesY[c];
+        int zc = verticesZ[c];
+
+        int colorA = triangleColorsA[t];
+        int colorB = triangleColorsB[t];
+        int colorC = triangleColorsC[t];
+
+        int alpha = 0xff;
+        if (triangleAlphas) {
+            alpha = 0xff - triangleAlphas[t];
+        }
+
+        int info = 0;
+        if (triangleInfos) {
+            info = triangleInfos[t];
+        }
+
+        int type = info & 0x3;
+
+        // Flat shading
+        if (type == 1 || type == 3) {
+            colorC = colorB = colorA;
+        }
+
+        int textureId = -1;
+
+        // float u0 = 0.0;
+        // float v0 = 0.0;
+        // float u1 = 0.0;
+        // float v1 = 0.0;
+        // float u2 = 0.0;
+        // float v2 = 0.0;
+
+        // TODO test
+        // xa += sceneX + _World3D.eyeX;
+        // xb += sceneX + _World3D.eyeX;
+        // xc += sceneX + _World3D.eyeX;
+        // ya += sceneY + _World3D.eyeY;
+        // yb += sceneY + _World3D.eyeY;
+        // yc += sceneY + _World3D.eyeY;
+        // za += sceneZ + _World3D.eyeZ;
+        // zb += sceneZ + _World3D.eyeZ;
+        // zc += sceneZ + _World3D.eyeZ;
+
+        // Textured
+        if ((type == 2 || type == 3) && triangleColors) {
+            textureId = triangleColors[t];
+
+            int texCoord = info >> 2;
+            int p = textureMappingP[texCoord];
+            int m = textureMappingM[texCoord];
+            int n = textureMappingN[texCoord];
+
+            UV uv = pmn_to_uv(verticesX[a], verticesY[a], verticesZ[a], verticesX[b], verticesY[b], verticesZ[b], verticesX[c], verticesY[c], verticesZ[c], verticesX[p], verticesY[p], verticesZ[p], verticesX[m], verticesY[m], verticesZ[m], verticesX[n], verticesY[n], verticesZ[n]);
+
+            glTextureTriangle(xa, xb, xc, ya, yb, yc, za, zb, zc, colorA, colorB, colorC, uv, textureId);
+        } else {
+            glGouraudTriangle(xa, xb, xc, ya, yb, yc, za, zb, zc, colorA, colorB, colorC, alpha);
+        }
+    }
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &verts[0].r);
+    glVertexPointer(3, GL_FLOAT, sizeof(Vertex), &verts[0].x);
+    glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &verts[0].u);
+
+    glDrawElements(GL_TRIANGLES, indicescount, GL_UNSIGNED_SHORT, indices);
+
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_COLOR_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    vertcount = 0;
+    indicescount = 0;
+
+    glPopMatrix();
 #endif
 }
