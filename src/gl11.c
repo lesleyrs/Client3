@@ -246,7 +246,7 @@ void gl_load(void) {
 
     if (gl_load_extension("GL_SGIS_generate_mipmap") && gl_load_extension("GL_EXT_texture_filter_anisotropic")) {
         // NOTE: makes transparent textures like fishing spots/fountain water darker and hard to see
-        use_anisotropic = true;
+        // use_anisotropic = true;
     }
 
     rs2_log("\n");

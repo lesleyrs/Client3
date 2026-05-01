@@ -32,7 +32,7 @@
 ```
 - optional non GL 1.1: maybe use gles 2 shaders for packing data, maybe framebuffer textures for also drawing interface models with gl
 - GL: move more gl stuff into gl11.c, cached models, running sometimes looks choppy?, confirm webgl code accuracy in both lowmem/highmem, maybe add fallback for < 4096 max tex size
-- GL: see if glTextureTriangle shadeShifts can be more accurate, anisotropic filtering also makes transparent textures darker/hard to see
+- GL: see if glTextureTriangle shadeShifts can be more accurate, baxtorian falls textures look crazy, anisotropic filtering also makes transparent textures darker/hard to see
 - holding coins or the scrollbar in inventory while bank is open repeatedly creates new pix24 in allocator and sets former to NULL causing memleak
 - look into combat segfault on first hit (unable to reproduce, was running tcc with gl) :-(
 - (non-wasm): server cache changes requires manual cache+archive_checksums update in the client since it doesn't download, also the server has an issue with client map crcs changing when only server maps get updated.
