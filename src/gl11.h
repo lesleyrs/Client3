@@ -30,8 +30,8 @@ void gl_start_model(Model *model, int sceneX, int sceneY, int sceneZ, int yaw);
 #define FRUSTUM_SCALE (25.0f / 256.0f)
 #define DEFAULT_ZOOM 512.0f
 
-#define NEAR 50
-#define FAR 3500
+#define Z_NEAR 50
+#define Z_FAR 3500
 
 #define ATLAS_TEXTURE_COUNT 51 // 1 white texture + _Pix3D.textureCount
 

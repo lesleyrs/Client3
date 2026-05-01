@@ -9018,7 +9018,7 @@ void client_draw_scene(Client *c) {
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glFrustum(left * FRUSTUM_SCALE, right * FRUSTUM_SCALE, -bottom * FRUSTUM_SCALE, -top * FRUSTUM_SCALE, NEAR, FAR);
+    glFrustum(left * FRUSTUM_SCALE, right * FRUSTUM_SCALE, -bottom * FRUSTUM_SCALE, -top * FRUSTUM_SCALE, Z_NEAR, Z_FAR);
     glRotatef(PI_DEGREES, 1, 0, 0);
 
     if (c->cameraPitch != 0) {
