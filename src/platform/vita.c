@@ -362,6 +362,11 @@ bool platform_init(void) {
 void platform_new(GameShell *shell) {
     (void)shell;
 
+    scePowerSetArmClockFrequency(444);
+    scePowerSetBusClockFrequency(222);
+    scePowerSetGpuClockFrequency(222);
+    scePowerSetGpuXbarClockFrequency(166);
+
     systemtime_start = sceKernelGetSystemTimeWide();
 
 #ifdef GL11
