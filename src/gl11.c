@@ -260,6 +260,10 @@ void gl_load(void) {
 
     glEnable(GL_CULL_FACE);
     // glEnable(GL_DEPTH_TEST);
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 #endif
 }
 
@@ -449,19 +453,12 @@ void gl_start_model(Model *model, int sceneX, int sceneY, int sceneZ, int yaw) {
         }
     }
 
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &verts[0].r);
-    glVertexPointer(3, GL_FLOAT, sizeof(Vertex), &verts[0].x);
-    glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &verts[0].u);
-
-    glDrawElements(GL_TRIANGLES, indicescount, GL_UNSIGNED_SHORT, indices);
-
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    if (indicescount > 0) {
+        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &verts[0].r);
+        glVertexPointer(3, GL_FLOAT, sizeof(Vertex), &verts[0].x);
+        glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &verts[0].u);
+        glDrawElements(GL_TRIANGLES, indicescount, GL_UNSIGNED_SHORT, indices);
+    }
 
     vertcount = 0;
     indicescount = 0;

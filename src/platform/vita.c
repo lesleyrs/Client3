@@ -372,7 +372,6 @@ void platform_new(GameShell *shell) {
 #ifdef GL11
     vglInit(0x800000);
     vglWaitVblankStart(GL_TRUE);
-    // vglUseVram(false);
 #else
     mutex = sceKernelCreateMutex("fb_mutex", 0, 0, NULL);
     displayblock = sceKernelAllocMemBlock("display", SCE_KERNEL_MEMBLOCK_TYPE_USER_CDRAM_RW, SCREEN_FB_SIZE, NULL);
