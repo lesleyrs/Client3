@@ -7797,6 +7797,8 @@ void client_validate_character_design(Client *c) {
 }
 
 void client_draw(Client *c) {
+    gl_start_frame();
+
     if (c->error_started || c->error_loading || c->error_host) {
         client_draw_error(c);
     } else {
@@ -7808,10 +7810,11 @@ void client_draw(Client *c) {
 
         c->drag_cycles = 0;
     }
+
+    gl_end_frame();
 }
 
 void client_draw_game(Client *c) {
-    gl_start_frame();
     if (c->redraw_background) {
         c->redraw_background = false;
         pixmap_draw(c->area_backleft1, 0, 11);
@@ -8118,7 +8121,6 @@ void client_draw_game(Client *c) {
 #endif
 
     c->scene_delta = 0;
-    gl_end_frame();
 }
 
 void client_handle_scroll_input(Client *c, int mouseX, int mouseY, int scrollableHeight, int height, bool redraw, int left, int top, Component *component) {

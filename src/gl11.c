@@ -35,6 +35,12 @@ void gl_start_frame(void) {
 #endif
 }
 
+void gl_end_frame(void) {
+#ifdef GL11
+    _Custom.use_opengl11 = use_opengl11;
+#endif
+}
+
 void gl_start_drawscene(void) {
 #ifdef GL11
     // leave a black line on right side of viewport (see pix2d.c)
@@ -57,12 +63,6 @@ void gl_end_drawscene(void) {
     // scene is rendered with gl, the rest must be in software so pixmaps don't draw over interface models
     _Custom.use_opengl11 = false;
 
-#endif
-}
-
-void gl_end_frame(void) {
-#ifdef GL11
-    _Custom.use_opengl11 = use_opengl11;
 #endif
 }
 
