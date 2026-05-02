@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 
+#include "client.h"
 #include "model.h"
 
 typedef struct {
@@ -14,7 +15,7 @@ void gl_load(void);
 void gl_start_frame(void);
 void gl_end_frame(void);
 void gl_start_drawscene(void);
-void gl_end_drawscene(void);
+void gl_end_drawscene(Client *c);
 void gl_set_brightness(void);
 void glGouraudTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int zA, int zB, int zC, int colorA, int colorB, int colorC, int alpha);
 void glTextureTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int zA, int zB, int zC, int shadeA, int shadeB, int shadeC, UV uv, int texture);

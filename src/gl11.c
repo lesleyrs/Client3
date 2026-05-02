@@ -11,6 +11,7 @@
 extern Pix3D _Pix3D;
 extern Pix2D _Pix2D;
 extern Custom _Custom;
+extern SceneData _World3D;
 
 #ifdef GL11
 
@@ -54,7 +55,7 @@ void gl_start_drawscene(void) {
 #endif
 }
 
-void gl_end_drawscene(void) {
+void gl_end_drawscene(Client *c) {
 #ifdef GL11
 
     // TODO move draw calls here
@@ -63,6 +64,28 @@ void gl_end_drawscene(void) {
     // scene is rendered with gl, the rest must be in software so pixmaps don't draw over interface models
     _Custom.use_opengl11 = false;
 
+    int offsetX = 0;
+    int offsetY = 0;
+
+    int left = ((offsetX - _Pix3D.center_x) << 9) / DEFAULT_ZOOM;
+    int right = ((offsetX + c->area_viewport->width - _Pix3D.center_x) << 9) / DEFAULT_ZOOM;
+    int top = ((offsetY - _Pix3D.center_y) << 9) / DEFAULT_ZOOM;
+    int bottom = ((offsetY + c->area_viewport->height - _Pix3D.center_y) << 9) / DEFAULT_ZOOM;
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glFrustum(left * FRUSTUM_SCALE, right * FRUSTUM_SCALE, -bottom * FRUSTUM_SCALE, -top * FRUSTUM_SCALE, Z_NEAR, Z_FAR);
+    glRotatef(PI_DEGREES, 1, 0, 0);
+
+    if (c->cameraPitch != 0) {
+        glRotatef(c->cameraPitch * RS_TO_DEGREES, 1, 0, 0);
+    }
+    if (c->cameraYaw != 0) {
+        glRotatef(c->cameraYaw * RS_TO_DEGREES, 0, 1, 0);
+    }
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glTranslatef(-_World3D.eyeX, -_World3D.eyeY, -_World3D.eyeZ);
 #endif
 }
 

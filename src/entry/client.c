@@ -8996,7 +8996,7 @@ void client_draw_scene(Client *c) {
     sprintf(buf, "World3D: %lu ms", rs2_now() - last);
     drawStringRight(c->font_plain11, 507, 200, buf, YELLOW, true);
 
-    gl_end_drawscene();
+    gl_end_drawscene(c);
 
     world3d_clear_temporarylocs(c->scene);
     draw2DEntityElements(c);
@@ -9009,30 +9009,6 @@ void client_draw_scene(Client *c) {
     c->cameraZ = cameraZ;
     c->cameraPitch = cameraPitch;
     c->cameraYaw = cameraYaw;
-#ifdef GL11
-    int offsetX = 0;
-    int offsetY = 0;
-
-    int left = ((offsetX - _Pix3D.center_x) << 9) / DEFAULT_ZOOM;
-    int right = ((offsetX + c->area_viewport->width - _Pix3D.center_x) << 9) / DEFAULT_ZOOM;
-    int top = ((offsetY - _Pix3D.center_y) << 9) / DEFAULT_ZOOM;
-    int bottom = ((offsetY + c->area_viewport->height - _Pix3D.center_y) << 9) / DEFAULT_ZOOM;
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glFrustum(left * FRUSTUM_SCALE, right * FRUSTUM_SCALE, -bottom * FRUSTUM_SCALE, -top * FRUSTUM_SCALE, Z_NEAR, Z_FAR);
-    glRotatef(PI_DEGREES, 1, 0, 0);
-
-    if (c->cameraPitch != 0) {
-        glRotatef(c->cameraPitch * RS_TO_DEGREES, 1, 0, 0);
-    }
-    if (c->cameraYaw != 0) {
-        glRotatef(c->cameraYaw * RS_TO_DEGREES, 0, 1, 0);
-    }
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    glTranslatef(-_World3D.eyeX, -_World3D.eyeY, -_World3D.eyeZ);
-#endif
 }
 
 int getTopLevel(Client *c) {
