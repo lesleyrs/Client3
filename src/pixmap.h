@@ -9,6 +9,8 @@ struct PixMap {
 #ifndef GL11
     Surface *image;
 #else
+    float u;
+    float v;
     int *gl_pixels;
     uint32_t gl_texture;
     bool dirty;

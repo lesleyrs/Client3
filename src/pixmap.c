@@ -4,6 +4,14 @@
 #include "pixmap.h"
 #include "gl11.h"
 
+#ifdef GL11
+static inline int next_po2(int v) {
+    int p = 1;
+    while (p < v) p <<= 1;
+    return p;
+}
+#endif
+
 PixMap *pixmap_new(int width, int height) {
     PixMap *pixmap = calloc(1, sizeof(PixMap));
     pixmap->width = width;
@@ -17,8 +25,13 @@ PixMap *pixmap_new(int width, int height) {
     glBindTexture(GL_TEXTURE_2D, pixmap->gl_texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    pixmap->gl_pixels = calloc(pixmap->width * pixmap->height, sizeof(int));
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pixmap->width, pixmap->height, 0, GL_BGRA_EXT, GL_UNSIGNED_BYTE, pixmap->gl_pixels);
+
+    int pot_width = next_po2(width);
+    int pot_height = next_po2(height);
+    pixmap->u = (float)pixmap->width / pot_width;
+    pixmap->v = (float)pixmap->height / pot_height;
+    pixmap->gl_pixels = calloc(pot_width * pot_height, sizeof(int));
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pot_width, pot_height, 0, GL_BGRA_EXT, GL_UNSIGNED_BYTE, pixmap->gl_pixels);
 #endif
     return pixmap;
 }
@@ -67,9 +80,9 @@ void pixmap_draw(PixMap *pixmap, int x, int y) {
     glColor4ub(0xff, 0xff, 0xff, 0xff);
     glBegin(GL_QUADS);
     glTexCoord2f(0, 0); glVertex2i(x, y);
-    glTexCoord2f(0, 1); glVertex2i(x, y + pixmap->height);
-    glTexCoord2f(1, 1); glVertex2i(x + pixmap->width, y + pixmap->height);
-    glTexCoord2f(1, 0); glVertex2i(x + pixmap->width, y);
+    glTexCoord2f(0, pixmap->v); glVertex2i(x, y + pixmap->height);
+    glTexCoord2f(pixmap->u, pixmap->v); glVertex2i(x + pixmap->width, y + pixmap->height);
+    glTexCoord2f(pixmap->u, 0); glVertex2i(x + pixmap->width, y);
     glEnd();
 #else
     platform_blit_surface(pixmap->image, x, y);

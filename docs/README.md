@@ -9,7 +9,7 @@
 ![postmarketos](postmarketos.png)
 
 ## references
-* https://github.com/2004Scape/Client2/compare/main...dennisdev:Client2:feature/webgl2 - GL 1.1 renderer with one extension (GL_BGRA_EXT)
+* https://github.com/2004Scape/Client2/compare/main...dennisdev:Client2:feature/webgl2 - GL renderer
 * https://github.com/2003scape/rscsundae - rsa encryption code (C RSC server)
 * https://github.com/2003scape/rsc-c - libraries, networking, platform code (C RSC client)
 * https://github.com/2004Scape/Client - renamed java deob that this port is based on

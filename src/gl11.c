@@ -288,11 +288,17 @@ void gl_load(void) {
 
     const char *extensions = (const char*)glGetString(GL_EXTENSIONS);
     if (!extensions) {
-        return;
+        rs2_error("No extensions found\n");
+        exit(1);
     }
 
     if (!gl_load_extension("GL_EXT_bgra")) {
-        rs2_log("GL_EXT_bgra extension not found\n");
+        rs2_error("GL_EXT_bgra extension not found\n");
+        exit(1);
+    }
+
+    if (!gl_load_extension("GL_ARB_texture_non_power_of_two") && !gl_load_extension("GL_OES_texture_npot")) {
+        rs2_error("NPOT textures are not supported\n");
         exit(1);
     }
 
