@@ -1806,9 +1806,6 @@ void world3d_draw_tileunderlay(World3D *world3d, TileUnderlay *underlay, int lev
         int y11 = world3d->levelHeightmaps[level][tileX + 1][tileZ + 1];
         int y01 = world3d->levelHeightmaps[level][tileX][tileZ + 1];
 
-        // int vertexDataBuffer = Renderer.vertexDataBuffer;
-        // int indexDataBuffer = Renderer.indexDataBuffer;
-
         int textureId = underlay->textureId;
         int texCoordU00 = 0;
         int texCoordV00 = 0;
@@ -1819,13 +1816,11 @@ void world3d_draw_tileunderlay(World3D *world3d, TileUnderlay *underlay, int lev
         int texCoordU01 = 0;
         int texCoordV01 = 1;
 
-        // const elementOffset: number = indexDataBuffer.pos;
-
         // Software renderer has wrong texture coordinates
         if (underlay->northeastColor != 12345678) {
-            indices[indicescount++] = vertcount;
-            indices[indicescount++] = vertcount + 1;
-            indices[indicescount++] = vertcount + 2;
+            indices[elementcount++] = vertcount;
+            indices[elementcount++] = vertcount + 1;
+            indices[elementcount++] = vertcount + 2;
             if (underlay->flat) {
                 if (textureId != -1) {
                     glTextureTriangle(x1, x0, x1, y11, y01, y10, z1, z1, z0, underlay->northeastColor, underlay->northwestColor, underlay->southeastColor, (UV){texCoordU11, texCoordU01, texCoordU10, texCoordV11, texCoordV01, texCoordV10}, textureId);
@@ -1840,9 +1835,9 @@ void world3d_draw_tileunderlay(World3D *world3d, TileUnderlay *underlay, int lev
                 }
             }
             if (underlay->southwestColor != 12345678) {
-                indices[indicescount++] = vertcount;
-                indices[indicescount++] = vertcount + 1;
-                indices[indicescount++] = vertcount + 2;
+                indices[elementcount++] = vertcount;
+                indices[elementcount++] = vertcount + 1;
+                indices[elementcount++] = vertcount + 2;
                 if (textureId != -1) {
                     glTextureTriangle(x0, x1, x0, y00, y10, y01, z0, z0, z1, underlay->southwestColor, underlay->southeastColor, underlay->northwestColor, (UV){texCoordU00, texCoordU10, texCoordU01, texCoordV00, texCoordV10, texCoordV01}, textureId);
                 } else {
@@ -1850,16 +1845,6 @@ void world3d_draw_tileunderlay(World3D *world3d, TileUnderlay *underlay, int lev
                 }
             }
         }
-
-        // Renderer.drawCommands.addCommand(0, 0, 0, 0, elementOffset, indexDataBuffer.pos - elementOffset);
-        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &verts[0].r);
-        glVertexPointer(3, GL_FLOAT, sizeof(Vertex), &verts[0].x);
-        glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &verts[0].u);
-
-        glDrawElements(GL_TRIANGLES, indicescount, GL_UNSIGNED_SHORT, indices);
-
-        vertcount = 0;
-        indicescount = 0;
     }
 #endif
     int x3;
@@ -2061,9 +2046,9 @@ void world3d_draw_tileoverlay(int tileX, int tileZ, TileOverlay *overlay, int si
                 continue;
             }
 
-            indices[indicescount++] = vertcount;
-            indices[indicescount++] = vertcount + 1;
-            indices[indicescount++] = vertcount + 2;
+            indices[elementcount++] = vertcount;
+            indices[elementcount++] = vertcount + 1;
+            indices[elementcount++] = vertcount + 2;
             if (overlay->flat) {
                 if (textureId != -1) {
                     glTextureTriangle(xa, xb, xc, ya, yb, yc, za, zb, zc, colorA, colorB, colorC, (UV){_TileOverlay.tmpU[a], _TileOverlay.tmpU[b], _TileOverlay.tmpU[c], _TileOverlay.tmpV[a], _TileOverlay.tmpV[b], _TileOverlay.tmpV[c]}, textureId);
@@ -2078,14 +2063,6 @@ void world3d_draw_tileoverlay(int tileX, int tileZ, TileOverlay *overlay, int si
                 }
             }
         }
-        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &verts[0].r);
-        glVertexPointer(3, GL_FLOAT, sizeof(Vertex), &verts[0].x);
-        glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &verts[0].u);
-
-        glDrawElements(GL_TRIANGLES, indicescount, GL_UNSIGNED_SHORT, indices);
-
-        vertcount = 0;
-        indicescount = 0;
     }
 #endif
     _Pix3D.alpha = 0;

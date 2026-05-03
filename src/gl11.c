@@ -1,4 +1,5 @@
 #include <math.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -17,8 +18,8 @@ extern SceneData _World3D;
 
 Vertex verts[300000];
 int vertcount;
-uint16_t indices[100000];
-int indicescount;
+uint32_t indices[100000];
+int elementcount;
 
 uint32_t texture_atlas;
 
@@ -44,48 +45,74 @@ void gl_end_frame(void) {
 
 void gl_start_drawscene(void) {
 #ifdef GL11
-    // leave a black line on right side of viewport (see pix2d.c)
-    int viewport_xoff = 8;
-#ifdef __vita__
-    viewport_xoff += SCREEN_CENTER_XOFF;
-#endif
-    glViewport(viewport_xoff, SCREEN_FB_HEIGHT - 11 - _Pix2D.height, _Pix2D.width - 1, _Pix2D.height);
-
-    glBindTexture(GL_TEXTURE_2D, texture_atlas);
 #endif
 }
 
 void gl_end_drawscene(Client *c) {
 #ifdef GL11
+    if (elementcount > 0) {
+        glMatrixMode(GL_PROJECTION);
+        glPushMatrix();
+        glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
 
-    // TODO move draw calls here
+        int offsetX = 0;
+        int offsetY = 0;
 
-    glViewport(0, 0, SCREEN_FB_WIDTH, SCREEN_FB_HEIGHT);
+        int left = ((offsetX - _Pix3D.center_x) << 9) / DEFAULT_ZOOM;
+        int right = ((offsetX + c->area_viewport->width - _Pix3D.center_x) << 9) / DEFAULT_ZOOM;
+        int top = ((offsetY - _Pix3D.center_y) << 9) / DEFAULT_ZOOM;
+        int bottom = ((offsetY + c->area_viewport->height - _Pix3D.center_y) << 9) / DEFAULT_ZOOM;
+
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glFrustum(left * FRUSTUM_SCALE, right * FRUSTUM_SCALE, -bottom * FRUSTUM_SCALE, -top * FRUSTUM_SCALE, Z_NEAR, Z_FAR);
+        glRotatef(PI_DEGREES, 1, 0, 0);
+
+        if (c->cameraPitch != 0) {
+            glRotatef(c->cameraPitch * RS_TO_DEGREES, 1, 0, 0);
+        }
+        if (c->cameraYaw != 0) {
+            glRotatef(c->cameraYaw * RS_TO_DEGREES, 0, 1, 0);
+        }
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        glTranslatef(-_World3D.eyeX, -_World3D.eyeY, -_World3D.eyeZ);
+
+        // leave a black line on right side of viewport (see pix2d.c)
+        int viewport_xoff = 8;
+    #ifdef __vita__
+        viewport_xoff += SCREEN_CENTER_XOFF;
+    #endif
+        glViewport(viewport_xoff, SCREEN_FB_HEIGHT - 11 - _Pix2D.height, _Pix2D.width - 1, _Pix2D.height);
+        glBindTexture(GL_TEXTURE_2D, texture_atlas);
+
+        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &verts[0].r);
+        glVertexPointer(3, GL_FLOAT, sizeof(Vertex), &verts[0].x);
+        glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &verts[0].u);
+
+        char buf[MAX_STR];
+        uint64_t last = rs2_now();
+        glDrawElements(GL_TRIANGLES, elementcount, GL_UNSIGNED_INT, indices);
+        sprintf(buf, "glDrawElements: %lu ms", rs2_now() - last);
+        drawStringRight(c->font_plain11, 507, 226, buf, YELLOW, true);
+
+        sprintf(buf, "verts/indices: %d %d", vertcount, elementcount);
+        drawStringRight(c->font_plain11, 507, 239, buf, YELLOW, true);
+
+        vertcount = 0;
+        elementcount = 0;
+
+        glViewport(0, 0, SCREEN_FB_WIDTH, SCREEN_FB_HEIGHT);
+
+        glPopMatrix();
+        glMatrixMode(GL_PROJECTION);
+        glPopMatrix();
+        glMatrixMode(GL_MODELVIEW);
+    }
+
     // scene is rendered with gl, the rest must be in software so pixmaps don't draw over interface models
     _Custom.use_opengl11 = false;
-
-    int offsetX = 0;
-    int offsetY = 0;
-
-    int left = ((offsetX - _Pix3D.center_x) << 9) / DEFAULT_ZOOM;
-    int right = ((offsetX + c->area_viewport->width - _Pix3D.center_x) << 9) / DEFAULT_ZOOM;
-    int top = ((offsetY - _Pix3D.center_y) << 9) / DEFAULT_ZOOM;
-    int bottom = ((offsetY + c->area_viewport->height - _Pix3D.center_y) << 9) / DEFAULT_ZOOM;
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glFrustum(left * FRUSTUM_SCALE, right * FRUSTUM_SCALE, -bottom * FRUSTUM_SCALE, -top * FRUSTUM_SCALE, Z_NEAR, Z_FAR);
-    glRotatef(PI_DEGREES, 1, 0, 0);
-
-    if (c->cameraPitch != 0) {
-        glRotatef(c->cameraPitch * RS_TO_DEGREES, 1, 0, 0);
-    }
-    if (c->cameraYaw != 0) {
-        glRotatef(c->cameraYaw * RS_TO_DEGREES, 0, 1, 0);
-    }
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    glTranslatef(-_World3D.eyeX, -_World3D.eyeY, -_World3D.eyeZ);
 #endif
 }
 
@@ -287,6 +314,12 @@ void gl_load(void) {
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0, SCREEN_FB_WIDTH, SCREEN_FB_HEIGHT, 0, -1, 1);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 #endif
 }
 
@@ -367,6 +400,9 @@ void glTextureTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int zA, i
 void gl_start_model(Model *model, int sceneX, int sceneY, int sceneZ, int yaw) {
     (void)model, (void)sceneX, (void)sceneY, (void)sceneZ, (void)yaw;
 #ifdef GL11
+    if (!_Custom.use_opengl11) {
+        return;
+    }
     int *triangleColorsA = model->face_color_a;
     int *triangleColorsB = model->face_color_b;
     int *triangleColorsC = model->face_color_c;
@@ -394,12 +430,11 @@ void gl_start_model(Model *model, int sceneX, int sceneY, int sceneZ, int yaw) {
     int *textureMappingN = model->textured_n_coordinate;
 
     int triangleCount = model->face_count;
-    glPushMatrix();
 
-    extern SceneData _World3D;
-    glTranslatef(sceneX + _World3D.eyeX, sceneY + _World3D.eyeY, sceneZ + _World3D.eyeZ);
-
-    glRotatef(yaw * RS_TO_DEGREES, 0, 1, 0);
+    // glPushMatrix();
+    // extern SceneData _World3D;
+    // glTranslatef(sceneX + _World3D.eyeX, sceneY + _World3D.eyeY, sceneZ + _World3D.eyeZ);
+    // glRotatef(yaw * RS_TO_DEGREES, 0, 1, 0);
 
     for (int t = 0; t < triangleCount; t++) {
         int a = triangleA[t];
@@ -441,23 +476,33 @@ void gl_start_model(Model *model, int sceneX, int sceneY, int sceneZ, int yaw) {
 
         int textureId = -1;
 
-        // float u0 = 0.0;
-        // float v0 = 0.0;
-        // float u1 = 0.0;
-        // float v1 = 0.0;
-        // float u2 = 0.0;
-        // float v2 = 0.0;
+        // TODO test perf
+        // rotateY
+        int sin = _Pix3D.sin_table[(2048 - yaw) & 0x7ff];
+        int cos = _Pix3D.cos_table[(2048 - yaw) & 0x7ff];
 
-        // TODO test
-        // xa += sceneX + _World3D.eyeX;
-        // xb += sceneX + _World3D.eyeX;
-        // xc += sceneX + _World3D.eyeX;
-        // ya += sceneY + _World3D.eyeY;
-        // yb += sceneY + _World3D.eyeY;
-        // yc += sceneY + _World3D.eyeY;
-        // za += sceneZ + _World3D.eyeZ;
-        // zb += sceneZ + _World3D.eyeZ;
-        // zc += sceneZ + _World3D.eyeZ;
+        int tmp = xa;
+        xa = (tmp * cos - za * sin) >> 16;
+        za = (tmp * sin + za * cos) >> 16;
+
+        tmp = xb;
+        xb = (tmp * cos - zb * sin) >> 16;
+        zb = (tmp * sin + zb * cos) >> 16;
+
+        tmp = xc;
+        xc = (tmp * cos - zc * sin) >> 16;
+        zc = (tmp * sin + zc * cos) >> 16;
+
+        // translate
+        xa += sceneX + _World3D.eyeX;
+        xb += sceneX + _World3D.eyeX;
+        xc += sceneX + _World3D.eyeX;
+        ya += sceneY + _World3D.eyeY;
+        yb += sceneY + _World3D.eyeY;
+        yc += sceneY + _World3D.eyeY;
+        za += sceneZ + _World3D.eyeZ;
+        zb += sceneZ + _World3D.eyeZ;
+        zc += sceneZ + _World3D.eyeZ;
 
         // Textured
         if ((type == 2 || type == 3) && triangleColors) {
@@ -476,16 +521,6 @@ void gl_start_model(Model *model, int sceneX, int sceneY, int sceneZ, int yaw) {
         }
     }
 
-    if (indicescount > 0) {
-        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &verts[0].r);
-        glVertexPointer(3, GL_FLOAT, sizeof(Vertex), &verts[0].x);
-        glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &verts[0].u);
-        glDrawElements(GL_TRIANGLES, indicescount, GL_UNSIGNED_SHORT, indices);
-    }
-
-    vertcount = 0;
-    indicescount = 0;
-
-    glPopMatrix();
+    // glPopMatrix();
 #endif
 }

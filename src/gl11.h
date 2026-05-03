@@ -28,6 +28,11 @@ void gl_start_model(Model *model, int sceneX, int sceneY, int sceneZ, int yaw);
 
 #define PI_DEGREES 180.0f
 #define RS_TO_DEGREES (360.0f / 2048.0f)
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+#define TAU (M_PI * 2)
+#define RS_TO_RADIANS (TAU / 2048.0f)
 #define FRUSTUM_SCALE (25.0f / 256.0f)
 #define DEFAULT_ZOOM 512.0f
 
@@ -51,8 +56,8 @@ typedef struct {
 
 extern Vertex verts[300000];
 extern int vertcount;
-extern uint16_t indices[100000];
-extern int indicescount;
+extern uint32_t indices[100000];
+extern int elementcount;
 
 #ifdef _WIN32
 #include <windows.h>

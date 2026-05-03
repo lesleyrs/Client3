@@ -1250,10 +1250,10 @@ void model_draw2(Model *m, bool projected, bool hasInput, int bitset) {
 void model_draw_face(Model *m, int index) {
 #ifdef GL11
     if (_Custom.use_opengl11) {
-        int start = index * 3;
-        indices[indicescount++] = start;
-        indices[indicescount++] = start + 1;
-        indices[indicescount++] = start + 2;
+        int start = vertcount + index * 3;
+        indices[elementcount++] = start;
+        indices[elementcount++] = start + 1;
+        indices[elementcount++] = start + 2;
         return;
     }
 #endif

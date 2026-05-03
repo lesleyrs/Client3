@@ -43,15 +43,6 @@ void pixmap_bind(PixMap *pixmap) {
 
 void pixmap_draw(PixMap *pixmap, int x, int y) {
 #ifdef GL11
-#include "defines.h"
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadIdentity();
-    glOrtho(0, SCREEN_FB_WIDTH, SCREEN_FB_HEIGHT, 0, -1, 1);
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
-
 #ifdef __vita__
     x += SCREEN_CENTER_XOFF;
 #endif
@@ -80,11 +71,6 @@ void pixmap_draw(PixMap *pixmap, int x, int y) {
     glTexCoord2f(1, 1); glVertex2i(x + pixmap->width, y + pixmap->height);
     glTexCoord2f(1, 0); glVertex2i(x + pixmap->width, y);
     glEnd();
-
-    glPopMatrix();
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW);
 #else
     platform_blit_surface(pixmap->image, x, y);
 #endif

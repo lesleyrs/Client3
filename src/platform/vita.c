@@ -371,6 +371,7 @@ void platform_new(GameShell *shell) {
     systemtime_start = sceKernelGetSystemTimeWide();
 
 #ifdef GL11
+    vglSetCircularPoolSize(64 * 1024 * 1024);
     vglInit(0x800000);
     vglWaitVblankStart(GL_TRUE);
 #else
