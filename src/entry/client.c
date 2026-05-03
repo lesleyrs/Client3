@@ -8991,11 +8991,12 @@ void client_draw_scene(Client *c) {
 
     // NOTE rm these
     char buf[MAX_STR];
-
     uint64_t last = rs2_now();
     world3d_draw(c->scene, c->cameraX, c->cameraY, c->cameraZ, level, c->cameraYaw, c->cameraPitch, _Client.loop_cycle);
-    sprintf(buf, "World3D: %lu ms", rs2_now() - last);
-    drawStringRight(c->font_plain11, 507, 200, buf, YELLOW, true);
+    if (_Custom.show_performance) {
+        sprintf(buf, "World3D: %lu ms", rs2_now() - last);
+        drawStringRight(c->font_plain11, 507, 200, buf, YELLOW, true);
+    }
 
     gl_end_drawscene(c);
 
@@ -9007,8 +9008,10 @@ void client_draw_scene(Client *c) {
 
     static uint64_t pixmap_now;
     static uint64_t pixmap_last;
-    sprintf(buf, "Viewport pixmap: %lu ms", pixmap_now - pixmap_last);
-    drawStringRight(c->font_plain11, 507, 213, buf, YELLOW, true);
+    if (_Custom.show_performance) {
+        sprintf(buf, "Viewport pixmap: %lu ms", pixmap_now - pixmap_last);
+        drawStringRight(c->font_plain11, 507, 213, buf, YELLOW, true);
+    }
     pixmap_last = rs2_now();
     pixmap_draw(c->area_viewport, 8, 11);
     pixmap_now = rs2_now();

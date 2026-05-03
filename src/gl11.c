@@ -94,11 +94,13 @@ void gl_end_drawscene(Client *c) {
         char buf[MAX_STR];
         uint64_t last = rs2_now();
         glDrawElements(GL_TRIANGLES, elementcount, GL_UNSIGNED_INT, indices);
-        sprintf(buf, "glDrawElements: %lu ms", rs2_now() - last);
-        drawStringRight(c->font_plain11, 507, 226, buf, YELLOW, true);
+        if (_Custom.show_performance) {
+            sprintf(buf, "glDrawElements: %lu ms", rs2_now() - last);
+            drawStringRight(c->font_plain11, 507, 226, buf, YELLOW, true);
 
-        sprintf(buf, "verts/indices: %d %d", vertcount, elementcount);
-        drawStringRight(c->font_plain11, 507, 239, buf, YELLOW, true);
+            sprintf(buf, "verts/indices: %d %d", vertcount, elementcount);
+            drawStringRight(c->font_plain11, 507, 239, buf, YELLOW, true);
+        }
 
         vertcount = 0;
         elementcount = 0;
