@@ -8,18 +8,7 @@ Features:
 - webassembly build to avoid javascript code being optimized out by the browser.
 - WIP ports for most game consoles from 1998 until 2013! See [docs](/docs) for images.
 - optional [config.ini](example.ini) file to change client behaviour. Create an empty config.ini to avoid passing cli args.
-- OpenGL 1.1 renderer, build with GL=1 in make or -gl in batchfile and enable with ::gl or config.ini. Needs optimizing. Do not build with GL support if you only want to use the software rasterizer to avoid continuous ram>vram copies!
-
-## quickstart for windows
-All you need to build for 32 bit windows is included:
-* tinycc (C compiler, built with `TCC_C=..\tcc.c` env var and removed bcheck lib)
-* all 32 bit SDL dlls, only SDL1 works prior to windows XP and is always 32 bit unlike the others
-
-To build simply run `build.bat` in cmd to get the client.exe, optionally set SDL ver `-v 1|2|3` and C compiler `-c tcc|gcc|emcc`.
-
-SDL1 is default for tcc and old mingw-gcc to target windows 9x, but only SDL2/3 have sfx right now. This (unofficial) release doesn't require msys install: https://github.com/fsb4000/gcc-for-Windows98/releases. mingw-gcc 11 optimizations seem to only be slightly faster than tcc though.
-
-If the client fails to start you either aren't passing cli args and don't have a config.ini OR you are using a SDL dll for the wrong architecture. Delete it and it'll be copied during next build
+- OpenGL 1.1 renderer, build with GL=1 in make or -gl in batchfile and enable with ::gl or config.ini. Do not build with GL support if you only want to use the software rasterizer to avoid continuous ram>vram copies!
 
 ## Platforms and Compilers
 To move the executable you have to take the correct `SDL.dll`, `config.ini`, and the `rom/` directory along with it. The consoles will load it from sdcard if they don't embed the files already.
@@ -37,13 +26,21 @@ If tcc from your package manager isn't working you should build latest [tcc](#to
 [v86](#tools) is a x86 PC emulator running in the browser, including older windows.
 
 ### Windows 95 to Windows 11
-build.bat(32 bit): tcc (included), mingw-gcc, emcc
-
-run.ps1: cl, clang, tcc, mingw-gcc, emcc
-
-You might want the updated [PowerShell](#tools) for run.ps1
+To build simply run `build.bat` to get the client.exe, tinycc compiler and SDL dlls are provided (only SDL1 works prior to winXP and is only 32 bit)
 
 On windows 95/98 you should set your display to 32 bit true-color for the game to look correct
+
+If the client fails to start you either aren't passing cli args and don't have a config.ini OR you are using a SDL dll for the wrong architecture. Delete it and it'll be copied during next build
+
+SDL1 is default for tcc and old mingw-gcc to target windows 9x, This (unofficial) release doesn't require msys install: https://github.com/fsb4000/gcc-for-Windows98/releases. mingw-gcc 11 optimizations seem to only be slightly faster than tcc though.
+
+To reproduce the tcc binary you have to build tcc with `-t 32`, using gcc from EG [w64devkit](#tools), then once more with tcc to fix system lib linking. Optionally use `TCC_C=..\tcc.c` env var to not depend on libtcc. Example:
+```
+build-tcc.bat -t 32 -i your/bindir
+build-tcc.bat -t 32 -c tcc -i your/bindir
+```
+
+You might want the updated [PowerShell](#tools) for run.ps1 (let's you run the game from shell process without terminate batch job message)
 
 ```
 TODO: add wav sfx to complete SDL1 platform for win9x
@@ -284,3 +281,4 @@ Using prebuilt SDL but removed tests, SDL1 mingw dotfiles + SDL1 tcc fixes in VC
 * [powershell](https://github.com/PowerShell/PowerShell)
 * [v86](https://github.com/copy/v86.git) | https://copy.sh/v86/
 * [wasmlite](https://github.com/lesleyrs/wasmlite)
+* [w64devkit](https://github.com/skeeto/w64devkit)
