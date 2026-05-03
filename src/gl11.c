@@ -297,11 +297,6 @@ void gl_load(void) {
         exit(1);
     }
 
-    if (!gl_load_extension("GL_ARB_texture_non_power_of_two") && !gl_load_extension("GL_OES_texture_npot")) {
-        rs2_error("NPOT textures are not supported\n");
-        exit(1);
-    }
-
     if (gl_load_extension("GL_SGIS_generate_mipmap") && gl_load_extension("GL_EXT_texture_filter_anisotropic")) {
         // NOTE: makes transparent textures like fishing spots/fountain water darker and hard to see
         // use_anisotropic = true;

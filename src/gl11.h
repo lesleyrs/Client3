@@ -39,7 +39,7 @@ void gl_start_model(Model *model, int sceneX, int sceneY, int sceneZ, int yaw);
 #define Z_NEAR 50
 #define Z_FAR 3500
 
-#define ATLAS_TEXTURE_COUNT 51 // 1 white texture + _Pix3D.textureCount
+#define ATLAS_TEXTURE_COUNT 64 // 1 white texture + 50 _Pix3D.textureCount + next power of 2 rounding
 
 extern uint32_t texture_atlas;
 
