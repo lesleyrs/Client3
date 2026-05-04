@@ -35,6 +35,24 @@ static tsf *g_TinySoundFont;
 static double g_Msec;              // current playback time
 static tml_message *g_MidiMessage; // next message to be played
 
+static bool g_WaveActive = false;
+static uint8_t *g_WaveSamples = NULL;
+static int g_WaveSampleCount = 0;
+static int g_WaveSamplePos = 0;
+static int g_WaveVolume = 128;
+
+#define MIDI_FREQ 22050
+
+static int16_t clamp_s16(int sample) {
+    if (sample < -32768) {
+        return -32768;
+    }
+    if (sample > 32767) {
+        return 32767;
+    }
+    return sample;
+}
+
 static void midi_callback(void *data, Uint8 *stream, int len) {
     (void)data;
     memset(stream, 0, len); // SDL1 requires clearing the buffer manually
@@ -42,14 +60,16 @@ static void midi_callback(void *data, Uint8 *stream, int len) {
     // Number of samples to process (SDL1 only supports 16-bit audio)
     int SampleBlock, SampleCount = len / (2 * sizeof(int16_t)); // 2 output channels
 
+    int16_t *mix = (int16_t*)stream;
+    int total_samples = SampleCount;
+
     for (SampleBlock = TSF_RENDER_EFFECTSAMPLEBLOCK; SampleCount;
          SampleCount -= SampleBlock, stream += (SampleBlock * 2 * sizeof(int16_t))) {
-
         if (SampleBlock > SampleCount)
             SampleBlock = SampleCount;
 
         // Process MIDI messages
-        for (g_Msec += SampleBlock * (1000.0 / 44100.0);
+        for (g_Msec += SampleBlock * (1000.0 / MIDI_FREQ);
              g_MidiMessage && g_Msec >= g_MidiMessage->time;
              g_MidiMessage = g_MidiMessage->next) {
             switch (g_MidiMessage->type) {
@@ -73,6 +93,37 @@ static void midi_callback(void *data, Uint8 *stream, int len) {
 
         // Render in 16-bit PCM format (SDL1 does not support float)
         tsf_render_short(g_TinySoundFont, (int16_t *)stream, SampleBlock, 0);
+    }
+
+    if (g_WaveSamples && g_WaveSamplePos < g_WaveSampleCount) {
+        int wavevol = g_WaveVolume;
+        if (wavevol < 0) {
+            wavevol = 0;
+        } else if (wavevol > 128) {
+            wavevol = 128;
+        }
+
+        int remaining = g_WaveSampleCount - g_WaveSamplePos;
+        int count = remaining > total_samples ? total_samples : remaining;
+
+        for (int i = 0; i < count; i++) {
+            int samples16 = (g_WaveSamples[g_WaveSamplePos + i] - 128) << 8;
+            int wave = samples16 * wavevol / 128;
+
+            int left = mix[i * 2] + wave;
+            int right = mix[i * 2 + 1] + wave;
+            mix[i * 2] = clamp_s16(left);
+            mix[i * 2 + 1] = clamp_s16(right);
+        }
+
+        g_WaveSamplePos += count;
+        if (g_WaveSamplePos >= g_WaveSampleCount) {
+            SDL_FreeWAV(g_WaveSamples);
+            g_WaveSamples = NULL;
+            g_WaveSampleCount = 0;
+            g_WaveSamplePos = 0;
+            g_WaveActive = false;
+        }
     }
 }
 
@@ -112,8 +163,16 @@ void platform_new(GameShell *shell) {
         return;
     }
 
+    // SDL1 only has 1 audio device, so wavs are mixed in the callback
+    // SDL_AudioSpec wavSpec;
+    // wavSpec.freq = 22050;
+    // wavSpec.format = AUDIO_U8;
+    // wavSpec.channels = 1;
+    // wavSpec.samples = 128;
+    // wavSpec.callback = NULL;
+
     SDL_AudioSpec midiSpec;
-    midiSpec.freq = 44100;
+    midiSpec.freq = MIDI_FREQ;
     midiSpec.format = AUDIO_S16SYS;
     midiSpec.channels = 2;
     midiSpec.samples = 4096;
@@ -131,14 +190,6 @@ void platform_new(GameShell *shell) {
         }
         SDL_PauseAudio(0);
     }
-
-    // TODO wavs (sdl1 only has 1 device)
-    // SDL_AudioSpec wavSpec;
-    // wavSpec.freq = 22050;
-    // wavSpec.format = AUDIO_U8;
-    // wavSpec.channels = 1;
-    // wavSpec.samples = 128;
-    // wavSpec.callback = NULL;
 }
 
 void platform_free(void) {
@@ -148,9 +199,34 @@ void platform_free(void) {
 }
 
 void platform_play_wave(int8_t *src, int length) {
+    if (!src || length > 2000000) {
+        return;
+    }
+
+    SDL_AudioSpec wavSpec;
+    uint8_t *wavBuffer;
+    uint32_t wavLength;
+
+    SDL_RWops *rw = SDL_RWFromMem(src, length);
+
+    SDL_LoadWAV_RW(rw, 1, &wavSpec, &wavBuffer, &wavLength);
+
+    // TODO precompute volume table just for 128 96 64 32?
+    if (g_WaveVolume != 128) {
+        for (uint32_t i = 0; i < wavLength; i++) {
+            wavBuffer[i] = (wavBuffer[i] - 128) * g_WaveVolume / 128 + 128;
+        }
+    }
+
+    if (!g_WaveActive) {
+        g_WaveSamples = wavBuffer;
+        g_WaveSampleCount = wavLength;
+        g_WaveActive = true;
+    }
 }
 
 void platform_set_wave_volume(int wavevol) {
+    g_WaveVolume = wavevol;
 }
 
 void platform_set_midi_volume(float midivol) {

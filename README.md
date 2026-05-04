@@ -43,7 +43,6 @@ build-tcc.bat -t 32 -c tcc -i your/bindir
 You might want the updated [PowerShell](#tools) for run.ps1 (let's you run the game from shell process without terminate batch job message)
 
 ```
-TODO: add wav sfx to complete SDL1 platform for win9x
 TODO: make win9x compatible batch file (no delayed expansion?), also tcc for win9x requires replacing _strtoui64
 TODO: clean up ps1 script so it doesn't need to be modified
 
