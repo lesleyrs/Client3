@@ -1,3 +1,5 @@
+#ifdef GL11
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,7 +16,23 @@ extern Pix2D _Pix2D;
 extern Custom _Custom;
 extern SceneData _World3D;
 
-#ifdef GL11
+#define PI_DEGREES 180.0f
+#define RS_TO_DEGREES (360.0f / 2048.0f)
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+#define TAU (M_PI * 2)
+#define RS_TO_RADIANS (TAU / 2048.0f)
+#define FRUSTUM_SCALE (25.0f / 256.0f)
+#define DEFAULT_ZOOM 512.0f
+
+#define Z_NEAR 50
+// #define Z_FAR 3500
+// NOTE: Z_FAR has to be 4500 to match software?
+#define Z_FAR 4500
+
+#define ATLAS_TEXTURE_COUNT 64 // 1 white texture + 50 _Pix3D.textureCount + next power of 2 rounding
+#define CLEAR_COLOR 0.0f, 0.0f, 0.0f, 1.0f
 
 Vertex verts[300000];
 int vertcount;
@@ -32,7 +50,7 @@ static bool use_anisotropic;
 void gl_start_frame(void) {
 #ifdef GL11
     use_opengl11 = _Custom.use_opengl11;
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(CLEAR_COLOR);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 #endif
 }
@@ -67,6 +85,8 @@ void gl_end_drawscene(Client *c) {
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         glFrustum(left * FRUSTUM_SCALE, right * FRUSTUM_SCALE, -bottom * FRUSTUM_SCALE, -top * FRUSTUM_SCALE, Z_NEAR, Z_FAR);
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
         glRotatef(PI_DEGREES, 1, 0, 0);
 
         if (c->cameraPitch != 0) {
@@ -75,8 +95,6 @@ void gl_end_drawscene(Client *c) {
         if (c->cameraYaw != 0) {
             glRotatef(c->cameraYaw * RS_TO_DEGREES, 0, 1, 0);
         }
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
         glTranslatef(-_World3D.eyeX, -_World3D.eyeY, -_World3D.eyeZ);
 
         // leave a black line on right side of viewport (see pix2d.c)
@@ -220,42 +238,42 @@ static bool gl_load_extension(const char *ext) {
 // https://rune-server.org/threads/better-texture-mapping-conversions.706373/
 
 UV pmn_to_uv(int xA, int yA, int zA, int xB, int yB, int zB, int xC, int yC, int zC, int xP, int yP, int zP, int xM, int yM, int zM, int xN, int yN, int zN) {
-    int mX = xM - xP;
-    int mY = yM - yP;
-    int mZ = zM - zP;
+    float mX = xM - xP;
+    float mY = yM - yP;
+    float mZ = zM - zP;
 
-    int nX = xN - xP;
-    int nY = yN - yP;
-    int nZ = zN - zP;
+    float nX = xN - xP;
+    float nY = yN - yP;
+    float nZ = zN - zP;
 
-    int aX = xA - xP;
-    int aY = yA - yP;
-    int aZ = zA - zP;
+    float aX = xA - xP;
+    float aY = yA - yP;
+    float aZ = zA - zP;
 
-    int bX = xB - xP;
-    int bY = yB - yP;
-    int bZ = zB - zP;
+    float bX = xB - xP;
+    float bY = yB - yP;
+    float bZ = zB - zP;
 
-    int cX = xC - xP;
-    int cY = yC - yP;
-    int cZ = zC - zP;
+    float cX = xC - xP;
+    float cY = yC - yP;
+    float cZ = zC - zP;
 
-    int MxNx = mY * nZ - mZ * nY;
-    int MxNy = mZ * nX - mX * nZ;
-    int MxNz = mX * nY - mY * nX;
+    float MxNx = mY * nZ - mZ * nY;
+    float MxNy = mZ * nX - mX * nZ;
+    float MxNz = mX * nY - mY * nX;
 
-    int uX = nY * MxNz - nZ * MxNy;
-    int uY = nZ * MxNx - nX * MxNz;
-    int uZ = nX * MxNy - nY * MxNx;
+    float uX = nY * MxNz - nZ * MxNy;
+    float uY = nZ * MxNx - nX * MxNz;
+    float uZ = nX * MxNy - nY * MxNx;
 
     float mU = 1.0f / (uX * mX + uY * mY + uZ * mZ);
     float uA = (uX * aX + uY * aY + uZ * aZ) * mU;
     float uB = (uX * bX + uY * bY + uZ * bZ) * mU;
     float uC = (uX * cX + uY * cY + uZ * cZ) * mU;
 
-    int vX = mY * MxNz - mZ * MxNy;
-    int vY = mZ * MxNx - mX * MxNz;
-    int vZ = mX * MxNy - mY * MxNx;
+    float vX = mY * MxNz - mZ * MxNy;
+    float vY = mZ * MxNx - mX * MxNz;
+    float vZ = mX * MxNy - mY * MxNx;
 
     float mV = 1.0f / (vX * nX + vY * nY + vZ * nZ);
     float vA = (vX * aX + vY * aY + vZ * aZ) * mV;
@@ -263,6 +281,16 @@ UV pmn_to_uv(int xA, int yA, int zA, int xB, int yB, int zB, int xC, int yC, int
     float vC = (vX * cX + vY * cY + vZ * cZ) * mV;
 
     return (UV){uA, uB, uC, vA, vB, vC};
+}
+
+static inline float clamp01(float x) {
+    if (!use_anisotropic) {
+        return x < 0 ? 0 : (x > 1 ? 1 : x);
+    } else {
+        float min = 0.01f;
+        float max = 0.99f;
+        return x <= min ? min : (x >= max ? max : x);
+    }
 }
 #endif
 
@@ -299,6 +327,7 @@ void gl_load(void) {
 
     if (gl_load_extension("GL_SGIS_generate_mipmap") && gl_load_extension("GL_EXT_texture_filter_anisotropic")) {
         // NOTE: makes transparent textures like fishing spots/fountain water darker and hard to see
+        // NOTE: also creates some visible gaps, it would work better with modern gl texture arrays/shaders
         // use_anisotropic = true;
     }
 

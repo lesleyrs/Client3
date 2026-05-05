@@ -1,7 +1,5 @@
 #pragma once
 
-#include <stdint.h>
-
 #include "client.h"
 #include "model.h"
 
@@ -25,28 +23,6 @@ void gl_start_model(Model *model, int sceneX, int sceneY, int sceneZ, int yaw);
 #if !defined(__vita__) && SDL != 1
 #error GL 1.1 renderer only runs on PS Vita or SDL 1 for now: (make SDL=1, batch -v 1)
 #endif
-
-#define PI_DEGREES 180.0f
-#define RS_TO_DEGREES (360.0f / 2048.0f)
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-#define TAU (M_PI * 2)
-#define RS_TO_RADIANS (TAU / 2048.0f)
-#define FRUSTUM_SCALE (25.0f / 256.0f)
-#define DEFAULT_ZOOM 512.0f
-
-#define Z_NEAR 50
-#define Z_FAR 3500
-
-#define ATLAS_TEXTURE_COUNT 64 // 1 white texture + 50 _Pix3D.textureCount + next power of 2 rounding
-
-extern uint32_t texture_atlas;
-
-static inline float clamp01(float x) {
-    // return x < 0 ? 0 : (x > 1 ? 1 : x);
-    return x <= 0 ? 0.01 : (x >= 1 ? 0.99 : x);
-}
 
 typedef struct {
     unsigned char r, g, b, a;
