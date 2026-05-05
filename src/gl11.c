@@ -146,9 +146,14 @@ void gl_set_brightness(void) {
     int atlas_width = ATLAS_TEXTURE_COUNT * texture_size;
 
     uint32_t *pixels = malloc(atlas_width * texture_size * sizeof(uint32_t));
-    for (int y = 0; y < texture_size; y++) {
-        for (int x = 0; x < texture_size; x++) {
-            pixels[y * atlas_width + x] = 0xffffffff; // white texture at idx 0
+    if (use_anisotropic) {
+        // fixes gouraud triangles without changing uvs
+        memset(pixels, 0xff, atlas_width * texture_size * sizeof(uint32_t));
+    } else {
+        for (int y = 0; y < texture_size; y++) {
+            for (int x = 0; x < texture_size; x++) {
+                pixels[y * atlas_width + x] = 0xffffffff; // white texture at idx 0
+            }
         }
     }
 
