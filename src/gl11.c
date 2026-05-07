@@ -1,3 +1,5 @@
+#include "gl11.h"
+
 #ifdef GL11
 
 #include <math.h>
@@ -5,7 +7,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "gl11.h"
 #include "custom.h"
 #include "defines.h"
 #include "pix2d.h"
@@ -67,6 +68,7 @@ void gl_start_drawscene(void) {
 }
 
 void gl_end_drawscene(Client *c) {
+    (void)c;
 #ifdef GL11
     if (elementcount > 0) {
         glMatrixMode(GL_PROJECTION);
