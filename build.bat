@@ -81,6 +81,9 @@ if "%CC%" == "cl" (
 	) else (
 		set COMPILE=-g !COMPILE!
 	)
+	if "%GL11%" == "1" (
+		set COMPILE=-DGL11 !COMPILE! -lopengl32
+	)
 ) else (
 	set COMPILE=-v -std=c99 -Wall -Wwrite-strings -DWITH_RSA_LIBTOM -D%ENTRY% %SDL% -lws2_32 -lwsock32 %OPT% -o %ENTRY%.exe SDL%VER%.dll
 
