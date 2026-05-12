@@ -26,7 +26,7 @@ If tcc from your package manager isn't working you should build latest [tcc](#to
 [v86](#tools) is a x86 PC emulator running in the browser, including older windows.
 
 ### Windows 95 to Windows 11
-To build simply run `build.bat` to get the client.exe, tinycc compiler and SDL dlls are provided (only SDL1 works prior to winXP and is only 32 bit)
+To build simply run `build.bat` to get the client.exe, tinyc compiler and SDL dlls are provided (only SDL1 works prior to winXP and is only 32 bit)
 
 On windows 95/98 you should set your display to 32 bit true-color for the game to look correct
 

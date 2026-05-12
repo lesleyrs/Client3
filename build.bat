@@ -78,6 +78,8 @@ if "%CC%" == "cl" (
 	set COMPILE=-Wall -Wextra -Wvla -Wshadow -Wno-parentheses -fwrapv -std=c99 -DSDL_main=main -DWITH_RSA_LIBTOM -D%ENTRY% %SDL% -lws2_32 -lwsock32 %OPT% -o %ENTRY%.exe SDL%VER%.dll
 	if "%OPT%" == "%RELEASE%" (
 		set COMPILE=-s -O3 -ffast-math !COMPILE!
+	) else (
+		set COMPILE=-g !COMPILE!
 	)
 ) else (
 	set COMPILE=-v -std=c99 -Wall -Wwrite-strings -DWITH_RSA_LIBTOM -D%ENTRY% %SDL% -lws2_32 -lwsock32 %OPT% -o %ENTRY%.exe SDL%VER%.dll
