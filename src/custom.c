@@ -110,7 +110,6 @@ void load_ini_config(Client *c) {
 #endif
     INI_INT_LOG(&(&_Custom), item_outlines, );
     INI_INT_LOG(&(&_Custom), show_performance, );
-    INI_INT_LOG(&(&_Custom), use_opengl11, );
 
     rs2_log("\n");
     ini_free(config);
