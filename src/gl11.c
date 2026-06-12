@@ -240,56 +240,6 @@ static bool gl_load_extension(const char *ext) {
     return false;
 }
 
-// source:
-// https://rune-server.org/threads/texture-mapping-conversions-pmn-uv-pmn.701381/
-// https://rune-server.org/threads/better-texture-mapping-conversions.706373/
-
-UV pmn_to_uv(int xA, int yA, int zA, int xB, int yB, int zB, int xC, int yC, int zC, int xP, int yP, int zP, int xM, int yM, int zM, int xN, int yN, int zN) {
-    float mX = xM - xP;
-    float mY = yM - yP;
-    float mZ = zM - zP;
-
-    float nX = xN - xP;
-    float nY = yN - yP;
-    float nZ = zN - zP;
-
-    float aX = xA - xP;
-    float aY = yA - yP;
-    float aZ = zA - zP;
-
-    float bX = xB - xP;
-    float bY = yB - yP;
-    float bZ = zB - zP;
-
-    float cX = xC - xP;
-    float cY = yC - yP;
-    float cZ = zC - zP;
-
-    float MxNx = mY * nZ - mZ * nY;
-    float MxNy = mZ * nX - mX * nZ;
-    float MxNz = mX * nY - mY * nX;
-
-    float uX = nY * MxNz - nZ * MxNy;
-    float uY = nZ * MxNx - nX * MxNz;
-    float uZ = nX * MxNy - nY * MxNx;
-
-    float mU = 1.0f / (uX * mX + uY * mY + uZ * mZ);
-    float uA = (uX * aX + uY * aY + uZ * aZ) * mU;
-    float uB = (uX * bX + uY * bY + uZ * bZ) * mU;
-    float uC = (uX * cX + uY * cY + uZ * cZ) * mU;
-
-    float vX = mY * MxNz - mZ * MxNy;
-    float vY = mZ * MxNx - mX * MxNz;
-    float vZ = mX * MxNy - mY * MxNx;
-
-    float mV = 1.0f / (vX * nX + vY * nY + vZ * nZ);
-    float vA = (vX * aX + vY * aY + vZ * aZ) * mV;
-    float vB = (vX * bX + vY * bY + vZ * bZ) * mV;
-    float vC = (vX * cX + vY * cY + vZ * cZ) * mV;
-
-    return (UV){uA, uB, uC, vA, vB, vC};
-}
-
 static inline float clamp01(float x) {
     if (!use_anisotropic) {
         return x < 0 ? 0 : (x > 1 ? 1 : x);
@@ -362,7 +312,7 @@ void gl_load(void) {
 #endif
 }
 
-void glGouraudTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int zA, int zB, int zC, int colorA, int colorB, int colorC, int alpha) {
+void gl_gouraud_triangle(int xA, int xB, int xC, int yA, int yB, int yC, int zA, int zB, int zC, int colorA, int colorB, int colorC, int alpha) {
     (void)xA, (void)xB, (void)xC, (void)yA, (void)yB, (void)yC, (void)zA, (void)zB, (void)zC, (void)colorA, (void)colorB, (void)colorC, (void)alpha;
 #ifdef GL11
     Vertex v0 = {(_Pix3D.palette[colorA] >> 16) & 0xff, (_Pix3D.palette[colorA] >> 8) & 0xff, _Pix3D.palette[colorA] & 0xff, alpha, xA, yA, zA, 0, 0};
@@ -383,7 +333,7 @@ void glGouraudTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int zA, i
 #endif
 }
 
-void glTextureTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int zA, int zB, int zC, int shadeA, int shadeB, int shadeC, UV uv, int texture) {
+void gl_texture_triangle(int xA, int xB, int xC, int yA, int yB, int yC, int zA, int zB, int zC, int shadeA, int shadeB, int shadeC, UV uv, int texture) {
     (void)xA, (void)xB, (void)xC, (void)yA, (void)yB, (void)yC, (void)zA, (void)zB, (void)zC, (void)shadeA, (void)shadeB, (void)shadeC, (void)uv, (void)texture;
 #ifdef GL11
     extern ClientData _Client;
@@ -554,9 +504,9 @@ void gl_start_model(Model *model, int sceneX, int sceneY, int sceneZ, int yaw) {
 
             UV uv = pmn_to_uv(verticesX[a], verticesY[a], verticesZ[a], verticesX[b], verticesY[b], verticesZ[b], verticesX[c], verticesY[c], verticesZ[c], verticesX[p], verticesY[p], verticesZ[p], verticesX[m], verticesY[m], verticesZ[m], verticesX[n], verticesY[n], verticesZ[n]);
 
-            glTextureTriangle(xa, xb, xc, ya, yb, yc, za, zb, zc, colorA, colorB, colorC, uv, textureId);
+            gl_texture_triangle(xa, xb, xc, ya, yb, yc, za, zb, zc, colorA, colorB, colorC, uv, textureId);
         } else {
-            glGouraudTriangle(xa, xb, xc, ya, yb, yc, za, zb, zc, colorA, colorB, colorC, alpha);
+            gl_gouraud_triangle(xa, xb, xc, ya, yb, yc, za, zb, zc, colorA, colorB, colorC, alpha);
         }
     }
 

@@ -1823,15 +1823,15 @@ void world3d_draw_tileunderlay(World3D *world3d, TileUnderlay *underlay, int lev
             indices[elementcount++] = vertcount + 2;
             if (underlay->flat) {
                 if (textureId != -1) {
-                    glTextureTriangle(x1, x0, x1, y11, y01, y10, z1, z1, z0, underlay->northeastColor, underlay->northwestColor, underlay->southeastColor, (UV){texCoordU11, texCoordU01, texCoordU10, texCoordV11, texCoordV01, texCoordV10}, textureId);
+                    gl_texture_triangle(x1, x0, x1, y11, y01, y10, z1, z1, z0, underlay->northeastColor, underlay->northwestColor, underlay->southeastColor, (UV){texCoordU11, texCoordU01, texCoordU10, texCoordV11, texCoordV01, texCoordV10}, textureId);
                 } else {
-                    glGouraudTriangle(x1, x0, x1, y11, y01, y10, z1, z1, z0, underlay->northeastColor, underlay->northwestColor, underlay->southeastColor, 0xff);
+                    gl_gouraud_triangle(x1, x0, x1, y11, y01, y10, z1, z1, z0, underlay->northeastColor, underlay->northwestColor, underlay->southeastColor, 0xff);
                 }
             } else {
                 if (textureId != -1) {
-                    glTextureTriangle(x1, x0, x1, y11, y01, y10, z1, z1, z0, underlay->northeastColor, underlay->northwestColor, underlay->southeastColor, (UV){texCoordU00, texCoordU10, texCoordU01, texCoordV00, texCoordV10, texCoordV01}, textureId);
+                    gl_texture_triangle(x1, x0, x1, y11, y01, y10, z1, z1, z0, underlay->northeastColor, underlay->northwestColor, underlay->southeastColor, (UV){texCoordU00, texCoordU10, texCoordU01, texCoordV00, texCoordV10, texCoordV01}, textureId);
                 } else {
-                    glGouraudTriangle(x1, x0, x1, y11, y01, y10, z1, z1, z0, underlay->northeastColor, underlay->northwestColor, underlay->southeastColor, 0xff);
+                    gl_gouraud_triangle(x1, x0, x1, y11, y01, y10, z1, z1, z0, underlay->northeastColor, underlay->northwestColor, underlay->southeastColor, 0xff);
                 }
             }
             if (underlay->southwestColor != 12345678) {
@@ -1839,9 +1839,9 @@ void world3d_draw_tileunderlay(World3D *world3d, TileUnderlay *underlay, int lev
                 indices[elementcount++] = vertcount + 1;
                 indices[elementcount++] = vertcount + 2;
                 if (textureId != -1) {
-                    glTextureTriangle(x0, x1, x0, y00, y10, y01, z0, z0, z1, underlay->southwestColor, underlay->southeastColor, underlay->northwestColor, (UV){texCoordU00, texCoordU10, texCoordU01, texCoordV00, texCoordV10, texCoordV01}, textureId);
+                    gl_texture_triangle(x0, x1, x0, y00, y10, y01, z0, z0, z1, underlay->southwestColor, underlay->southeastColor, underlay->northwestColor, (UV){texCoordU00, texCoordU10, texCoordU01, texCoordV00, texCoordV10, texCoordV01}, textureId);
                 } else {
-                    glGouraudTriangle(x0, x1, x0, y00, y10, y01, z0, z0, z1, underlay->southwestColor, underlay->southeastColor, underlay->northwestColor, 0xff);
+                    gl_gouraud_triangle(x0, x1, x0, y00, y10, y01, z0, z0, z1, underlay->southwestColor, underlay->southeastColor, underlay->northwestColor, 0xff);
                 }
             }
         }
@@ -2051,15 +2051,15 @@ void world3d_draw_tileoverlay(int tileX, int tileZ, TileOverlay *overlay, int si
             indices[elementcount++] = vertcount + 2;
             if (overlay->flat) {
                 if (textureId != -1) {
-                    glTextureTriangle(xa, xb, xc, ya, yb, yc, za, zb, zc, colorA, colorB, colorC, (UV){_TileOverlay.tmpU[a], _TileOverlay.tmpU[b], _TileOverlay.tmpU[c], _TileOverlay.tmpV[a], _TileOverlay.tmpV[b], _TileOverlay.tmpV[c]}, textureId);
+                    gl_texture_triangle(xa, xb, xc, ya, yb, yc, za, zb, zc, colorA, colorB, colorC, (UV){_TileOverlay.tmpU[a], _TileOverlay.tmpU[b], _TileOverlay.tmpU[c], _TileOverlay.tmpV[a], _TileOverlay.tmpV[b], _TileOverlay.tmpV[c]}, textureId);
                 } else {
-                    glGouraudTriangle(xa, xb, xc, ya, yb, yc, za, zb, zc, colorA, colorB, colorC, 0xff);
+                    gl_gouraud_triangle(xa, xb, xc, ya, yb, yc, za, zb, zc, colorA, colorB, colorC, 0xff);
                 }
             } else {
                 if (textureId != -1) {
-                    glTextureTriangle(xa, xb, xc, ya, yb, yc, za, zb, zc, colorA, colorB, colorC, (UV){_TileOverlay.tmpU[0], _TileOverlay.tmpU[1], _TileOverlay.tmpU[3], _TileOverlay.tmpV[0], _TileOverlay.tmpV[1], _TileOverlay.tmpV[3]}, textureId);
+                    gl_texture_triangle(xa, xb, xc, ya, yb, yc, za, zb, zc, colorA, colorB, colorC, (UV){_TileOverlay.tmpU[0], _TileOverlay.tmpU[1], _TileOverlay.tmpU[3], _TileOverlay.tmpV[0], _TileOverlay.tmpV[1], _TileOverlay.tmpV[3]}, textureId);
                 } else {
-                    glGouraudTriangle(xa, xb, xc, ya, yb, yc, za, zb, zc, colorA, colorB, colorC, 0xff);
+                    gl_gouraud_triangle(xa, xb, xc, ya, yb, yc, za, zb, zc, colorA, colorB, colorC, 0xff);
                 }
             }
         }
