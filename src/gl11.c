@@ -465,22 +465,23 @@ void gl_start_model(Model *model, int sceneX, int sceneY, int sceneZ, int yaw) {
 
         int textureId = -1;
 
-        // TODO test perf
         // rotateY
-        int sin = _Pix3D.sin_table[(2048 - yaw) & 0x7ff];
-        int cos = _Pix3D.cos_table[(2048 - yaw) & 0x7ff];
+        if (yaw != 0) {
+            int sin = _Pix3D.sin_table[(2048 - yaw) & 0x7ff];
+            int cos = _Pix3D.cos_table[(2048 - yaw) & 0x7ff];
 
-        int tmp = xa;
-        xa = (tmp * cos - za * sin) >> 16;
-        za = (tmp * sin + za * cos) >> 16;
+            int tmp = xa;
+            xa = (tmp * cos - za * sin) >> 16;
+            za = (tmp * sin + za * cos) >> 16;
 
-        tmp = xb;
-        xb = (tmp * cos - zb * sin) >> 16;
-        zb = (tmp * sin + zb * cos) >> 16;
+            tmp = xb;
+            xb = (tmp * cos - zb * sin) >> 16;
+            zb = (tmp * sin + zb * cos) >> 16;
 
-        tmp = xc;
-        xc = (tmp * cos - zc * sin) >> 16;
-        zc = (tmp * sin + zc * cos) >> 16;
+            tmp = xc;
+            xc = (tmp * cos - zc * sin) >> 16;
+            zc = (tmp * sin + zc * cos) >> 16;
+        }
 
         // translate
         xa += sceneX + _World3D.eyeX;
