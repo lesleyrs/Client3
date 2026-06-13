@@ -9,8 +9,8 @@
 #include "pathingentity.h"
 #include "seqtype.h"
 #include "spotanimtype.h"
+#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 extern IdkTypeData _IdkType;
 extern SeqTypeData _SeqType;
@@ -110,7 +110,7 @@ void playerentity_read(PlayerEntity *entity, Packet *buf) {
     }
 
     char* name = jstring_format_name(jstring_from_base37(g8(buf)));
-    strcpy(entity->name, name);
+    snprintf(entity->name, sizeof(entity->name), "%s", name);
     free(name);
     entity->combatLevel = g1(buf);
 
