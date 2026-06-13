@@ -484,15 +484,18 @@ void gl_start_model(Model *model, int sceneX, int sceneY, int sceneZ, int yaw) {
         }
 
         // translate
-        xa += sceneX + _World3D.eyeX;
-        xb += sceneX + _World3D.eyeX;
-        xc += sceneX + _World3D.eyeX;
-        ya += sceneY + _World3D.eyeY;
-        yb += sceneY + _World3D.eyeY;
-        yc += sceneY + _World3D.eyeY;
-        za += sceneZ + _World3D.eyeZ;
-        zb += sceneZ + _World3D.eyeZ;
-        zc += sceneZ + _World3D.eyeZ;
+        int tx = sceneX + _World3D.eyeX;
+        int ty = sceneY + _World3D.eyeY;
+        int tz = sceneZ + _World3D.eyeZ;
+        xa += tx;
+        xb += tx;
+        xc += tx;
+        ya += ty;
+        yb += ty;
+        yc += ty;
+        za += tz;
+        zb += tz;
+        zc += tz;
 
         // Textured
         if ((type == 2 || type == 3) && triangleColors) {
