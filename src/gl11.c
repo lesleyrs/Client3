@@ -17,7 +17,6 @@ extern Pix2D _Pix2D;
 extern Custom _Custom;
 extern SceneData _World3D;
 
-#define PI_DEGREES 180.0f
 #define RS_TO_DEGREES (360.0f / 2048.0f)
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -86,10 +85,10 @@ void gl_end_drawscene(Client *c) {
 
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        glFrustum(left * FRUSTUM_SCALE, right * FRUSTUM_SCALE, -bottom * FRUSTUM_SCALE, -top * FRUSTUM_SCALE, Z_NEAR, Z_FAR);
+        glFrustum(left * FRUSTUM_SCALE, right * FRUSTUM_SCALE, bottom * FRUSTUM_SCALE, top * FRUSTUM_SCALE, Z_NEAR, Z_FAR);
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
-        glRotatef(PI_DEGREES, 1, 0, 0);
+        glScalef(1, 1, -1);
 
         if (c->cameraPitch != 0) {
             glRotatef(c->cameraPitch * RS_TO_DEGREES, 1, 0, 0);
