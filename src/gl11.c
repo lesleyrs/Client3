@@ -74,9 +74,9 @@ void gl_end_drawscene(Client *c) {
         glPushMatrix();
 
         int left = -_Pix3D.center_x;
-        int right = c->area_viewport->width - _Pix3D.center_x;
+        int right = _Pix3D.center_x;
         int top = -_Pix3D.center_y;
-        int bottom = c->area_viewport->height - _Pix3D.center_y;
+        int bottom = _Pix3D.center_y;
 
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
