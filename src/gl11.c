@@ -22,9 +22,7 @@ extern SceneData _World3D;
 #define M_PI 3.14159265358979323846
 #endif
 #define TAU (M_PI * 2)
-#define RS_TO_RADIANS (TAU / 2048.0f)
 #define FRUSTUM_SCALE (25.0f / 256.0f)
-#define DEFAULT_ZOOM 512.0f
 
 #define Z_NEAR 50
 // #define Z_FAR 3500
@@ -75,13 +73,10 @@ void gl_end_drawscene(Client *c) {
         glMatrixMode(GL_MODELVIEW);
         glPushMatrix();
 
-        int offsetX = 0;
-        int offsetY = 0;
-
-        int left = ((offsetX - _Pix3D.center_x) << 9) / DEFAULT_ZOOM;
-        int right = ((offsetX + c->area_viewport->width - _Pix3D.center_x) << 9) / DEFAULT_ZOOM;
-        int top = ((offsetY - _Pix3D.center_y) << 9) / DEFAULT_ZOOM;
-        int bottom = ((offsetY + c->area_viewport->height - _Pix3D.center_y) << 9) / DEFAULT_ZOOM;
+        int left = -_Pix3D.center_x;
+        int right = c->area_viewport->width - _Pix3D.center_x;
+        int top = -_Pix3D.center_y;
+        int bottom = c->area_viewport->height - _Pix3D.center_y;
 
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
