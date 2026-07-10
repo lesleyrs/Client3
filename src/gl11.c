@@ -81,9 +81,10 @@ void gl_end_drawscene(Client *c) {
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         glFrustum(left * FRUSTUM_SCALE, right * FRUSTUM_SCALE, bottom * FRUSTUM_SCALE, top * FRUSTUM_SCALE, Z_NEAR, Z_FAR);
+        glScalef(1, -1, -1);
+
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
-        glScalef(1, -1, -1);
 
         if (c->cameraPitch != 0) {
             glRotatef(c->cameraPitch * RS_TO_DEGREES, 1, 0, 0);
