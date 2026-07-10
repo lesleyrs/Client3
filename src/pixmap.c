@@ -4,14 +4,6 @@
 #include "pixmap.h"
 #include "gl11.h"
 
-#ifdef GL11
-static inline int next_po2(int v) {
-    int p = 1;
-    while (p < v) p <<= 1;
-    return p;
-}
-#endif
-
 PixMap *pixmap_new(int width, int height) {
     PixMap *pixmap = calloc(1, sizeof(PixMap));
     pixmap->width = width;

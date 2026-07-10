@@ -18,6 +18,12 @@ void gl_gouraud_triangle(int xA, int xB, int xC, int yA, int yB, int yC, int zA,
 void gl_texture_triangle(int xA, int xB, int xC, int yA, int yB, int yC, int zA, int zB, int zC, int shadeA, int shadeB, int shadeC, UV uv, int texture);
 void gl_start_model(Model *model, int sceneX, int sceneY, int sceneZ, int yaw);
 
+static inline int next_po2(int v) {
+    int p = 1;
+    while (p < v) p <<= 1;
+    return p;
+}
+
 // source:
 // https://rune-server.org/threads/texture-mapping-conversions-pmn-uv-pmn.701381/
 // https://rune-server.org/threads/better-texture-mapping-conversions.706373/
