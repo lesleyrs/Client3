@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "projectileentity.h"
+#include "defines.h"
 #include "spotanimtype.h"
 
 extern SpotAnimTypeData _SpotAnimType;
@@ -53,8 +54,8 @@ void projectileentity_update(ProjectileEntity *entity, int delta) {
     entity->z += entity->velocityZ * (double)delta;
     entity->y += entity->velocityY * (double)delta + entity->accelerationY * 0.5 * (double)delta * (double)delta;
     entity->velocityY += entity->accelerationY * (double)delta;
-    entity->yaw = (int)(atan2(entity->velocityX, entity->velocityZ) * 325.949) + 1024 & 0x7ff;
-    entity->pitch = (int)(atan2(entity->velocityY, entity->velocity) * 325.949) & 0x7ff;
+    entity->yaw = (int)(atan2(entity->velocityX, entity->velocityZ) * RADIANS_TO_RS) + 1024 & 0x7ff;
+    entity->pitch = (int)(atan2(entity->velocityY, entity->velocity) * RADIANS_TO_RS) & 0x7ff;
 
     if (entity->spotanim->seq) {
         entity->seqCycle += delta;

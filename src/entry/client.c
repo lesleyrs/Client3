@@ -2246,7 +2246,7 @@ static void updateFacingDirection(Client *c, PathingEntity *e) {
             int dstZ = e->z - npc->pathing_entity.z;
 
             if (dstX != 0 || dstZ != 0) {
-                e->dstYaw = (int)(atan2(dstX, dstZ) * 325.949) & 0x7ff;
+                e->dstYaw = (int)(atan2(dstX, dstZ) * RADIANS_TO_RS) & 0x7ff;
             }
         }
     }
@@ -2263,7 +2263,7 @@ static void updateFacingDirection(Client *c, PathingEntity *e) {
             int dstZ = e->z - player->pathing_entity.z;
 
             if (dstX != 0 || dstZ != 0) {
-                e->dstYaw = (int)(atan2(dstX, dstZ) * 325.949) & 0x7ff;
+                e->dstYaw = (int)(atan2(dstX, dstZ) * RADIANS_TO_RS) & 0x7ff;
             }
         }
     }
@@ -2273,7 +2273,7 @@ static void updateFacingDirection(Client *c, PathingEntity *e) {
         int dstZ = e->z - (e->targetTileZ - c->sceneBaseTileZ - c->sceneBaseTileZ) * 64;
 
         if (dstX != 0 || dstZ != 0) {
-            e->dstYaw = (int)(atan2(dstX, dstZ) * 325.949) & 0x7ff;
+            e->dstYaw = (int)(atan2(dstX, dstZ) * RADIANS_TO_RS) & 0x7ff;
         }
 
         e->targetTileX = 0;
@@ -3669,8 +3669,8 @@ static void applyCutscene(Client *c) {
     int deltaZ = z - c->cameraZ;
 
     int distance = (int)sqrt(deltaX * deltaX + deltaZ * deltaZ);
-    int pitch = (int)(atan2(deltaY, distance) * 325.949) & 0x7ff;
-    int yaw = (int)(atan2(deltaX, deltaZ) * -325.949) & 0x7ff;
+    int pitch = (int)(atan2(deltaY, distance) * RADIANS_TO_RS) & 0x7ff;
+    int yaw = (int)(atan2(deltaX, deltaZ) * -RADIANS_TO_RS) & 0x7ff;
 
     if (pitch < 128) {
         pitch = 128;
@@ -5599,8 +5599,8 @@ bool client_read(Client *c) {
             int deltaY = sceneY - c->cameraY;
             int deltaZ = sceneZ - c->cameraZ;
             int distance = (int)sqrt(deltaX * deltaX + deltaZ * deltaZ);
-            c->cameraPitch = (int)(atan2(deltaY, distance) * 325.949) & 0x7ff;
-            c->cameraYaw = (int)(atan2(deltaX, deltaZ) * -325.949) & 0x7ff;
+            c->cameraPitch = (int)(atan2(deltaY, distance) * RADIANS_TO_RS) & 0x7ff;
+            c->cameraYaw = (int)(atan2(deltaX, deltaZ) * -RADIANS_TO_RS) & 0x7ff;
             if (c->cameraPitch < 128) {
                 c->cameraPitch = 128;
             }

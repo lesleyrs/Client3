@@ -213,8 +213,8 @@ void load_ini_config(Client *c) {
     int deltaZ = sceneZ - c->cameraZ;
     int distance = (int)sqrt(deltaX * deltaX + deltaZ * deltaZ);
 
-    c->cameraPitch = (int)(atan2(deltaY, distance) * 325.949) & 0x7ff;
-    c->cameraYaw = (int)(atan2(deltaX, deltaZ) * -325.949) & 0x7ff;
+    c->cameraPitch = (int)(atan2(deltaY, distance) * RADIANS_TO_RS) & 0x7ff;
+    c->cameraYaw = (int)(atan2(deltaX, deltaZ) * -RADIANS_TO_RS) & 0x7ff;
     if (c->cameraPitch < 128) {
         c->cameraPitch = 128;
     }

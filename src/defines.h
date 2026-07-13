@@ -34,6 +34,9 @@
 #define SCREEN_CENTER_XOFF ((SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2)
 #endif
 
+// (2048 / (2 * M_PI))
+#define RADIANS_TO_RS 325.949
+
 // arbitrary to fix -Wall possible overflow warnings
 // NOTE maybe change the ones using half_str to use strncpy or double sizes but yolo
 #define HALF_STR (CHAT_LENGTH / 2)
