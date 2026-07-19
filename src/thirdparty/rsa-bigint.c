@@ -3,7 +3,9 @@
 #ifdef WITH_RSA_BIGINT
 
 #include "js/wasm.h"
-WASM_IMPORT(int, rsaCrypt, (const char* exp, const char* mod, void *temp, int length, void *enc));
+#include <stdbool.h>
+
+WASM_IMPORT(int, rsaCrypt, (const char* exp, const char* mod, void *temp, int length, void *enc, bool prefix0x));
 
 int rsa_init(struct rsa *rsa, const char *exponent, const char *modulus) {
     rsa->exponent = exponent;
@@ -13,6 +15,6 @@ int rsa_init(struct rsa *rsa, const char *exponent, const char *modulus) {
 
 int rsa_crypt(struct rsa *rsa, void *buffer, size_t len, void *out, size_t outlen) {
     (void)outlen;
-    return rsaCrypt(rsa->exponent, rsa->modulus, buffer, len, out);
+    return rsaCrypt(rsa->exponent, rsa->modulus, buffer, len, out, false);
 }
 #endif
