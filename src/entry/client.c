@@ -9010,6 +9010,13 @@ void client_draw_scene(Client *c) {
     static uint64_t pixmap_last;
     if (_Custom.show_performance) {
         sprintf(buf, "Viewport pixmap: %lu ms", pixmap_now - pixmap_last);
+#ifdef GL11
+        extern bool use_opengl11; // use global use_opengl11 as gl_end_drawscene force disables it
+        if (use_opengl11) {
+            extern int pixcount;
+            sprintf(buf, "%s, pixcount %d", buf, pixcount);
+        }
+#endif
         drawStringRight(c->font_plain11, 507, 213, buf, YELLOW, true);
     }
     pixmap_last = rs2_now();

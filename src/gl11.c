@@ -39,7 +39,7 @@ int elementcount;
 
 uint32_t texture_atlas;
 
-static bool use_opengl11;
+bool use_opengl11;
 static bool use_anisotropic;
 #endif
 

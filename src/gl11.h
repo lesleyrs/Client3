@@ -80,7 +80,7 @@ static inline UV pmn_to_uv(int xA, int yA, int zA, int xB, int yB, int zB, int x
 #endif
 
 typedef struct {
-    unsigned char r, g, b, a;
+    uint8_t r, g, b, a;
     float x, y, z;
     float u, v;
 } Vertex;
