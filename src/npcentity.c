@@ -49,7 +49,7 @@ Model *npcentity_draw(NpcEntity *npc, int loopCycle) {
     model_free_share_colored(model1, true, !spotanim->animHasAlpha, false);
 
     if (npc->type->size == 1) {
-        tmp->pickable = true;
+        tmp->pick_aabb = true;
     }
 
     return tmp;

@@ -577,7 +577,7 @@ Model *objtype_get_interfacemodel(ObjType *obj, int count, bool use_allocator) {
     }
 
     model_calculate_normals(model, 64, 768, -50, -10, -50, true, use_allocator);
-    model->pickable = true;
+    model->pick_aabb = true;
     lrucache_put(_ObjType.modelCache, obj->index, &model->link);
     return model;
 }

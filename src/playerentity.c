@@ -148,7 +148,7 @@ Model *playerentity_draw(PlayerEntity *entity, int loopCycle) {
 
     Model *model = playerentity_get_sequencedmodel(entity);
     entity->pathing_entity.height = model->max_y;
-    model->pickable = true;
+    model->pick_aabb = true;
 
     if (entity->lowmem) {
         return model;
@@ -218,7 +218,7 @@ Model *playerentity_draw(PlayerEntity *entity, int loopCycle) {
         }
     }
 
-    model->pickable = true;
+    model->pick_aabb = true;
     return model;
 }
 

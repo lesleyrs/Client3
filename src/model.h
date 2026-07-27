@@ -70,7 +70,7 @@ typedef struct Model {
     VertexNormal **vertex_normal;
     VertexNormal **vertex_normal_original;
     int obj_raise;
-    bool pickable;
+    bool pick_aabb;
 
     int label_vertices_count;
     int label_faces_count;

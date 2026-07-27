@@ -1028,7 +1028,7 @@ void model_draw(Model *m, int yaw, int sinCameraPitch, int cosCameraPitch, int s
         cy = _Model.mouse_x - _Pix3D.center_x;
         yawsin = _Model.mouse_y - _Pix3D.center_y;
         if (cy > minScreenX && cy < maxScreenX && yawsin > minScreenY && yawsin < maxScreenY) {
-            if (m->pickable) {
+            if (m->pick_aabb) {
                 _Model.picked_bitsets[_Model.picked_count++] = key;
             } else {
                 hasInput = true;

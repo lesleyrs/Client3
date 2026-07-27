@@ -211,7 +211,7 @@ Model *npctype_get_sequencedmodel(NpcType *npc, int primaryTransformId, int seco
     tmp->label_vertices = NULL;
 
     if (npc->size == 1) {
-        tmp->pickable = true;
+        tmp->pick_aabb = true;
     }
 
     return tmp;
