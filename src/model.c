@@ -1068,14 +1068,18 @@ void model_draw(Model *m, int yaw, int sinCameraPitch, int cosCameraPitch, int s
             _Model.vertex_screen_x[v] = -5000;
             project = true;
         }
+#ifdef GL11
         if (!_Custom.use_opengl11) { // gl uses pmn_to_uv instead
+#endif
             if (project || m->textured_face_count > 0) {
                 _Model.vertex_view_space_x[v] = x;
                 _Model.vertex_view_space_y[v] = temp;
                 _Model.vertex_view_space_z[v] = z;
             }
         }
+#ifdef GL11
     }
+#endif
     // try {
     model_draw2(m, project, hasInput, key);
     // } catch ( Exception ignored) {
