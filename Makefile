@@ -53,7 +53,12 @@ endif
 
 ifeq ($(GL),1)
 CFLAGS += -DGL11
+ifeq ($(shell uname -s),Darwin)
+CFLAGS += -DGL_SILENCE_DEPRECATION
+LDFLAGS += -framework OpenGL
+else
 LDFLAGS += -lGL
+endif
 endif
 
 ifeq ($(NATIVE),1)

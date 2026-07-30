@@ -61,7 +61,9 @@ TODO SDL3 fails to init?
 Install sdl1/sdl2 or sdl3+pkgconf and run `gmake SDL=1/2/3`
 
 ### MacOS
-TODO
+for GL:
+`brew install libsdl12-compat`
+`make GL=1 SDL=1`
 
 ### Web (clang)
 Install clang and get [wasmlite](#tools) (you need the libc and generated index.html)

@@ -97,6 +97,8 @@ extern int elementcount;
 #ifdef __vita__
 #include <vitaGL.h>
 #define GL_BGRA_EXT GL_BGRA
+#elif defined(__APPLE__)
+#include <OpenGL/gl.h>
 #elif !(defined(__TINYC__) && defined(_WIN32))
 #include <GL/gl.h>
 #else // c&p windows gl.h for tcc
