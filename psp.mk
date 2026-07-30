@@ -10,9 +10,9 @@ DEBUG ?= 0
 ifeq ($(DEBUG),1)
 BUILD_PRX = 1
 # NOTE: libs out of order warning with flto?
-CFLAGS += -g -O2 -ffast-math
+CFLAGS += -g -O3 -ffast-math
 else
-CFLAGS += -s -O2 -ffast-math -flto=$(shell nproc)
+CFLAGS += -s -O3 -ffast-math -flto=$(shell nproc)
 endif
 ifeq ($(PROF),1)
 BUILD_PRX = 0

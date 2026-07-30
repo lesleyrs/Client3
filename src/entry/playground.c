@@ -297,13 +297,13 @@ Jagfile *load_archive_simple(const char *name, int crc, const char *display_name
 
     FILE *file = fopen(filename, "rb");
     if (!file) {
-        rs2_error("Failed to open file\n", strerror(errno));
+        rs2_error("Failed to open file %s. %s\n", filename, strerror(errno));
         free(header);
         return NULL;
     }
 
     if (fread(header, 1, 6, file) != 6) {
-        rs2_error("Failed to read header\n", strerror(errno));
+        rs2_error("Failed to read header %s\n", strerror(errno));
     }
     Packet *packet = packet_new(header, 6);
     packet->pos = 3;
@@ -314,7 +314,7 @@ Jagfile *load_archive_simple(const char *name, int crc, const char *display_name
 
     size_t remaining = file_size - total_read;
     if (fread(data + total_read, 1, remaining, file) != remaining) {
-        rs2_error("Failed to read file\n", strerror(errno));
+        rs2_error("Failed to read file %s. %s\n", filename, strerror(errno));
     }
     fclose(file);
     packet_free(packet);

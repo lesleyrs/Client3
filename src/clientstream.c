@@ -266,7 +266,7 @@ ClientStream *clientstream_opensocket(int port) {
 #if defined(_WIN32) && defined(__i386__)
         rs2_error("getaddrinfo(): %d\n", status);
 #else
-        rs2_error("getaddrinfo(): %s\n", gai_strerror(status));
+        rs2_error("getaddrinfo(): %d. %s\n", status, gai_strerror(status));
 #endif
         stream->closed = 1;
         free(stream);

@@ -6,7 +6,7 @@ DEBUG = 0
 ifeq ($(DEBUG),1)
 DEBUG = y
 else
-CFLAGS += -O2
+CFLAGS += -O3
 endif
 
 XBE_TITLE = client

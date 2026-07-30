@@ -30,7 +30,7 @@ CFLAGS	= -Wno-parentheses -Wall $(MACHDEP) $(INCLUDE) -D__WII__ -Dclient -DWITH_
 ifeq ($(DEBUG),1)
 CFLAGS += -g
 else
-CFLAGS += -s -O2 -ffast-math -flto=$(shell nproc)
+CFLAGS += -s -O3 -ffast-math -flto=$(shell nproc)
 endif
 CXXFLAGS	=	$(CFLAGS)
 

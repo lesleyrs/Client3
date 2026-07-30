@@ -48,7 +48,7 @@ CFLAGS   := -Wno-parentheses -Wall -ffunction-sections -fdata-sections\
 ifeq ($(DEBUG),1)
 CFLAGS += -g
 else
-CFLAGS += -s -O2 -ffast-math -flto=$(shell nproc)
+CFLAGS += -s -O3 -ffast-math -flto=$(shell nproc)
 endif
 CXXFLAGS := $(CFLAGS) -fno-rtti -fno-exceptions
 ASFLAGS  := -g $(ARCH)

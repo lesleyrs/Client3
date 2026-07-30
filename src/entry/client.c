@@ -10905,7 +10905,7 @@ Jagfile *load_archive(Client *c, const char *name, int crc, const char *display_
     FILE *file = fopen(filename, "rb");
 #endif
     if (!file) {
-        rs2_error("Failed to open file\n", strerror(errno));
+        rs2_error("Failed to open file %s. %s\n", filename, strerror(errno));
         free(header);
         return NULL;
     }
@@ -10929,7 +10929,7 @@ Jagfile *load_archive(Client *c, const char *name, int crc, const char *display_
 #else
     if (fread(data + total_read, 1, remaining, file) != remaining) {
 #endif
-        rs2_error("Failed to read file\n", strerror(errno));
+        rs2_error("Failed to read file %s. %s\n", filename, strerror(errno));
     }
 #ifdef ANDROID
     SDL_RWclose(file);

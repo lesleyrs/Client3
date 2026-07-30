@@ -20,7 +20,7 @@ NPROC := $(shell nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || get
 ifeq ($(DEBUG),1)
 CFLAGS += -g
 else
-CFLAGS += -O2 -ffast-math -flto=$(NPROC)
+CFLAGS += -O3 -ffast-math -flto=$(NPROC)
 endif
 
 ifeq ($(GL),1)

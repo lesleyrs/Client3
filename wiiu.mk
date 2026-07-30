@@ -53,7 +53,7 @@ CFLAGS	+=	$(INCLUDE) -D__WIIU__ -D__WUT__ -Dclient -DSDL=2 -DMODERN_POSIX `sdl2-
 ifeq ($(DEBUG),1)
 CFLAGS += -g
 else
-CFLAGS += -s -O2 -ffast-math -flto=$(shell nproc)
+CFLAGS += -s -O3 -ffast-math -flto=$(shell nproc)
 endif
 
 CXXFLAGS	:= $(CFLAGS)

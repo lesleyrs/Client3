@@ -57,7 +57,7 @@ CFLAGS	+=	$(INCLUDE) -D__SWITCH__ -Dclient -DSDL=2 -DWITH_RSA_LIBTOM `sdl2-confi
 ifeq ($(DEBUG),1)
 CFLAGS += -g
 else
-CFLAGS += -s -O2 -ffast-math -flto=$(shell nproc)
+CFLAGS += -s -O3 -ffast-math -flto=$(shell nproc)
 endif
 
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions

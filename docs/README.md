@@ -39,7 +39,7 @@
 - midi fading, old js code for IE: https://github.com/2004Scape/Server/blob/61bf21fb3755c14b5cf6d47c9d974dee5783beda/view/javaclient.ejs new ts code: https://github.com/2004Scape/Client2/commit/92e74f1f134ea82e48dd608dcca3422777a7a986 https://github.com/LostCityRS/Client-TS/pulls?q=is%3Apr+is%3Aclosed+midi
 - finish mobile support like client-ts (sdl2 and sdl3 for postmarketos/android, emscripten and webassembly for browser)
 - x11 and win32 targets without sdl dependency
-- changing bzip_decompress + stbi_load_from_memory for other libs would allow for O3 optimization on consoles, maybe port jagex bzip2 too
+- maybe port jagex bzip2 too
 - tinysoundfont seems to break on powerpc cpus (wii, wiiu) and libtom specfically on wiiu only?
 - mapview from java client and optional QOL changes from the java client teavm branch
 - icon/metadata/title etc for the different platforms: title+taskbar+desktop (see rsc-c for examples)

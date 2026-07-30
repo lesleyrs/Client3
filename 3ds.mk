@@ -55,7 +55,7 @@ CFLAGS	+=	$(INCLUDE) -D__3DS__ -Dclient -DMODERN_POSIX -DWITH_RSA_LIBTOM
 ifeq ($(DEBUG),1)
 CFLAGS += -g
 else
-CFLAGS += -s -O2 -ffast-math -flto=$(shell nproc)
+CFLAGS += -s -O3 -ffast-math -flto=$(shell nproc)
 endif
 
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11

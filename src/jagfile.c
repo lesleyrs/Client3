@@ -71,7 +71,7 @@ static Jagfile *jagfile_parse(int8_t *src, int length) {
 }
 
 static int jagfile_read(Jagfile *jagfile, const char *name) {
-    int hash = 0;
+    uint32_t hash = 0;
     size_t len = strlen(name);
     for (size_t i = 0; i < len; i++) {
         hash = hash * 61 + toupper(name[i]) - 32;

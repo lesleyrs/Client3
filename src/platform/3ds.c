@@ -41,6 +41,8 @@ static int screen_offset_y = -SCREEN_FB_HEIGHT;
 #define VIEWPORT_X_OFF 8
 #define VIEWPORT_Y_OFF 11
 
+static bool enable_console = true; // TODO not sure if this can be changed at runtime with some changes
+
 static void set_ingame_screen_pan(Client *c) {
     screen_offset_x_top = (-VIEWPORT_X_LEN + SCREEN_FB_WIDTH_TOP) / 2 - VIEWPORT_X_OFF;
     screen_offset_y_top = (-VIEWPORT_Y_LEN + SCREEN_FB_HEIGHT) / 2 - VIEWPORT_Y_OFF;
@@ -78,8 +80,18 @@ bool platform_init(void) {
 
     // gfxInitDefault();
     gfxInit(GSP_RGBA8_OES, GSP_RGBA8_OES, 0);
-    /* NOTE: uncomment consoleInit and comment out fb_top to see stdout */
-    // consoleInit(GFX_TOP, NULL);
+
+    gfxSetDoubleBuffering(GFX_TOP, 0);
+    gfxSetDoubleBuffering(GFX_BOTTOM, 0);
+
+    if (enable_console) {
+        consoleInit(GFX_TOP, NULL);
+    } else {
+        fb_top = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
+
+    }
+    fb_bottom = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
+
     return true;
 }
 
@@ -94,12 +106,6 @@ void platform_new(GameShell *shell) {
         rs2_error("romfsInit: %08lX\n", romfs_res);
         exit(1);
     } */
-
-    gfxSetDoubleBuffering(GFX_BOTTOM, 0);
-    gfxSetDoubleBuffering(GFX_TOP, 0);
-
-    fb_top = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
-    fb_bottom = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
 
     /* allocate buffer for SOC service (networking) */
     SOC_buffer = (u32 *)memalign(SOC_ALIGN, SOC_BUFFER_SIZE);
