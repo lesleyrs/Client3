@@ -99,7 +99,13 @@ void gl_end_drawscene(Client *c) {
     #ifdef __vita__
         viewport_xoff += SCREEN_CENTER_XOFF;
     #endif
-        glViewport(viewport_xoff, SCREEN_FB_HEIGHT - 11 - _Pix2D.height, _Pix2D.width - 1, _Pix2D.height);
+        int viewport_yoff = SCREEN_FB_HEIGHT - 11 - _Pix2D.height;
+        int viewport_width = _Pix2D.width - 1;
+        int viewport_height = _Pix2D.height;
+
+        glViewport(viewport_xoff, viewport_yoff, viewport_width, viewport_height);
+        glEnable(GL_SCISSOR_TEST);
+        glScissor(viewport_xoff, viewport_yoff, viewport_width, viewport_height);
         glBindTexture(GL_TEXTURE_2D, texture_atlas);
 
         glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &verts[0].r);
@@ -121,6 +127,7 @@ void gl_end_drawscene(Client *c) {
         elementcount = 0;
 
         glViewport(0, 0, SCREEN_FB_WIDTH, SCREEN_FB_HEIGHT);
+        glDisable(GL_SCISSOR_TEST);
 
         glPopMatrix();
         glMatrixMode(GL_PROJECTION);
