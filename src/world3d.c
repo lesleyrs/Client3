@@ -1998,15 +1998,12 @@ void world3d_draw_tileoverlay(int tileX, int tileZ, TileOverlay *overlay, int si
         }
         _TileOverlay.tmpScreenX[i] = _Pix3D.center_x + (x << 9) / z;
         _TileOverlay.tmpScreenY[i] = _Pix3D.center_y + (y << 9) / z;
-    }
 
 #ifdef GL11
-    if (_Custom.use_opengl11) {
-        int sceneX = tileX * 128;
-        int sceneZ = tileZ * 128;
+        if (_Custom.use_opengl11) {
+            int sceneX = tileX * 128;
+            int sceneZ = tileZ * 128;
 
-        // NOTE this loop doesn't need to be separate from above
-        for (int i = 0; i < vertexCount; i++) {
             if (overlay->triangleTextureIds) {
                 int tmpX = overlay->vertexX[i] - sceneX;
                 int tmpZ = overlay->vertexZ[i] - sceneZ;
@@ -2015,8 +2012,11 @@ void world3d_draw_tileoverlay(int tileX, int tileZ, TileOverlay *overlay, int si
                 _TileOverlay.tmpV[i] = tmpZ / 128.0;
             }
         }
+#endif
+    }
 
-        vertexCount = overlay->triangleCount;
+#ifdef GL11
+    if (_Custom.use_opengl11) {
         for (int i = 0; i < vertexCount; i++) {
             int a = overlay->triangleVertexA[i];
             int b = overlay->triangleVertexB[i];
@@ -2067,7 +2067,6 @@ void world3d_draw_tileoverlay(int tileX, int tileZ, TileOverlay *overlay, int si
 #endif
     _Pix3D.alpha = 0;
 
-    vertexCount = overlay->triangleCount;
     for (int v = 0; v < vertexCount; v++) {
         int a = overlay->triangleVertexA[v];
         int b = overlay->triangleVertexB[v];
