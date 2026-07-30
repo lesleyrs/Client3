@@ -43,12 +43,14 @@ CFLAGS += -DWITH_RSA_LIBTOM
 endif
 
 CFLAGS += -D$(PROJECT)
-CFLAGS += -Wl,-q -std=c99
+CFLAGS += -Wl,-q -std=c99 -marm
+DEPFLAGS := -MMD -MP
 
 SOURCES := $(call rwildcard, src/, *.c)
 
 OBJ_DIRS := $(sort $(addprefix out/, $(dir $(SOURCES:src/%.c=%.o))))
 OBJS := $(addprefix out/, $(SOURCES:src/%.c=%.o))
+DEPS := $(OBJS:.o=.d)
 
 all: package
 
@@ -82,8 +84,10 @@ $(OBJ_DIRS):
 	@mkdir -p $@
 
 out/%.o : src/%.c | $(OBJ_DIRS)
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS) $(DEPFLAGS) -o $@ $<
+
+-include $(DEPS)
 
 clean:
 	rm -f $(PROJECT).velf $(PROJECT).elf $(PROJECT).vpk param.sfo eboot.bin $(OBJS)
-	rm -r $(abspath $(OBJ_DIRS))
+	rm -rf $(abspath $(OBJ_DIRS))

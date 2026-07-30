@@ -55,6 +55,18 @@ typedef struct {
 #define MAX_IDX_NUMBER 0xC000 // for vitaGL compat
 Point pixels[MAX_IDX_NUMBER]; // area_viewport pixels
 int pixcount = 0;
+
+// tcc has no builtins, and a prefetch is only ever a hint
+#if defined(__GNUC__) && !defined(__TINYC__)
+#define PIXMAP_PREFETCH(addr) __builtin_prefetch(addr)
+#else
+#define PIXMAP_PREFETCH(addr) ((void)0)
+#endif
+
+static inline void push_point(uint32_t rgb, int sx, int sy) {
+    Point p = {(rgb >> 16) & 0xff, (rgb >> 8) & 0xff, rgb & 0xff, sx, sy};
+    pixels[pixcount++] = p;
+}
 #endif
 
 void pixmap_draw(PixMap *pixmap, int x, int y) {
@@ -66,19 +78,51 @@ void pixmap_draw(PixMap *pixmap, int x, int y) {
     extern bool use_opengl11; // use global bool instead of _Custom.use_opengl11 (force disabled after scene render)
     // this path is for few pixels, if use_opengl11 was disabled area_viewport contains the entire scene as well
     if (use_opengl11 && pixmap->width == 512) { // area_viewport pixmap is usually dirty while often drawing NOTHING
+        const uint32_t *src = (const uint32_t *)pixmap->pixels;
+        const int width = pixmap->width;
+        const int height = pixmap->height;
+
         pixcount = 0; // reset pixcount b4 loop as it's drawn on screen later
-        for (int py = 0; py < pixmap->height; py++) {
-            if (pixcount >= MAX_IDX_NUMBER - pixmap->width) { // might not reach MAX_IDX_NUMBER but prefer outer loop check
+        for (int py = 0; py < height; py++) {
+            if (pixcount >= MAX_IDX_NUMBER - width) { // might not reach MAX_IDX_NUMBER but prefer outer loop check
                 goto draw_texture;
             }
 
-            for (int px = 0; px < pixmap->width; px++) {
-                uint32_t rgb = pixmap->pixels[py * pixmap->width + px];
+#if 1
+            const uint32_t *row = src + py * width;
+            int px = 0;
+
+            // process 4 pixels at a time
+            for (; px + 3 < width; px += 4) {
+                PIXMAP_PREFETCH(row + px + 64); // this hint measurably improves access on vita
+
+                if ((row[px] & row[px + 1] & row[px + 2] & row[px + 3]) == 0xffffffff) {
+                    continue;
+                }
+
+                // optimization will unroll this
+                for (int i = 0; i < 4; i++) {
+                    if (row[px + i] != 0xffffffff) {
+                        push_point(row[px + i], x + px + i, y + py);
+                    }
+                }
+            }
+
+            // process remainder (if width is not / 4)
+            for (; px < width; px++) {
+                if (row[px] != 0xffffffff) {
+                    push_point(row[px], x + px, y + py);
+                }
+            }
+#else
+            for (int px = 0; px < >width; px++) {
+                uint32_t rgb = src[py * width + px];
                 if (rgb != 0xffffffff) {
                     Point p = {(rgb >> 16) & 0xff, (rgb >> 8) & 0xff, rgb & 0xff, x + px, y + py};
                     pixels[pixcount++] = p;
                 }
             }
+#endif
         }
 
         if (pixcount > 0) {
@@ -101,6 +145,18 @@ void pixmap_draw(PixMap *pixmap, int x, int y) {
         // rs2_log("dirty pixmap id %d width %d height %d\n", pixmap->gl_texture, pixmap->width, pixmap->height);
         pixmap->dirty = false;
 
+#if 1
+        const uint32_t *restrict src = (const uint32_t *)pixmap->pixels;
+        uint32_t *restrict dst = (uint32_t *)pixmap->gl_pixels;
+        const int count = pixmap->width * pixmap->height;
+
+        // with -O3 this becomes SIMD (vector instructions)
+        for (int i = 0; i < count; i++) {
+            uint32_t rgb = src[i];
+            uint32_t drawn = (uint32_t)0 - (uint32_t)(rgb != 0xffffffff);
+            dst[i] = (rgb | 0xff000000) & drawn;
+        }
+#else
         for (int i = 0; i < pixmap->width * pixmap->height; i++) {
             uint32_t rgb = pixmap->pixels[i];
             if (rgb == 0xffffffff) {
@@ -110,6 +166,7 @@ void pixmap_draw(PixMap *pixmap, int x, int y) {
             }
             pixmap->gl_pixels[i] = rgb;
         }
+#endif
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, pixmap->width, pixmap->height, GL_BGRA_EXT, GL_UNSIGNED_BYTE, pixmap->gl_pixels);
     }
 
