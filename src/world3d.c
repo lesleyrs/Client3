@@ -2017,6 +2017,7 @@ void world3d_draw_tileoverlay(int tileX, int tileZ, TileOverlay *overlay, int si
 
 #ifdef GL11
     if (_Custom.use_opengl11) {
+        vertexCount = overlay->triangleCount;
         for (int i = 0; i < vertexCount; i++) {
             int a = overlay->triangleVertexA[i];
             int b = overlay->triangleVertexB[i];
@@ -2067,6 +2068,7 @@ void world3d_draw_tileoverlay(int tileX, int tileZ, TileOverlay *overlay, int si
 #endif
     _Pix3D.alpha = 0;
 
+    vertexCount = overlay->triangleCount;
     for (int v = 0; v < vertexCount; v++) {
         int a = overlay->triangleVertexA[v];
         int b = overlay->triangleVertexB[v];
