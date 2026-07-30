@@ -18,9 +18,7 @@ ModelData _Model = {0};
 extern Pix3D _Pix3D;
 extern Pix2D _Pix2D;
 extern AnimFrameData _AnimFrame;
-#ifdef GL11
 extern Custom _Custom;
-#endif
 
 void model_init_global(void) {
     _Model.face_clipped_x = calloc(4096, sizeof(bool));
@@ -1070,10 +1068,12 @@ void model_draw(Model *m, int yaw, int sinCameraPitch, int cosCameraPitch, int s
             _Model.vertex_screen_x[v] = -5000;
             project = true;
         }
-        if (project || m->textured_face_count > 0) {
-            _Model.vertex_view_space_x[v] = x;
-            _Model.vertex_view_space_y[v] = temp;
-            _Model.vertex_view_space_z[v] = z;
+        if (!_Custom.use_opengl11) { // gl uses pmn_to_uv instead
+            if (project || m->textured_face_count > 0) {
+                _Model.vertex_view_space_x[v] = x;
+                _Model.vertex_view_space_y[v] = temp;
+                _Model.vertex_view_space_z[v] = z;
+            }
         }
     }
     // try {
