@@ -77,7 +77,7 @@ static int jagfile_read(Jagfile *jagfile, const char *name) {
         hash = hash * 61 + toupper(name[i]) - 32;
     }
     for (int id = 0; id < jagfile->file_count; id++) {
-        if (jagfile->file_hash[id] == hash) {
+        if ((uint32_t)jagfile->file_hash[id] == hash) {
             return id;
         }
     }
