@@ -39,8 +39,15 @@ static int mutex;
 
 static uint64_t systemtime_start = 0;
 
-static SceTouchData touch[SCE_TOUCH_PORT_MAX_NUM], touch_old[SCE_TOUCH_PORT_MAX_NUM];
+#define CPU_AFFINITY_CORE0 0x10000
+#define CPU_AFFINITY_CORE1 0x20000
+#define CPU_AFFINITY_CORE2 0x40000
+
+static SceTouchData touch[SCE_TOUCH_PORT_MAX_NUM];
 static SceCtrlData ctrl, ctrl_old;
+
+static int touch_max_x = 1920;
+static int touch_max_y = 1088;
 
 #define AUDIO_PORT_SAMPLES 1024
 static int g_AudioPort = -1;
@@ -269,7 +276,7 @@ static void midi_audio_init(void) {
     }
 
     g_MidiActive = true;
-    g_AudioThread = sceKernelCreateThread("audio", audio_thread_main, 0x10000100, AUDIO_THREAD_STACK, 0, SCE_KERNEL_THREAD_CPU_AFFINITY_MASK_DEFAULT, NULL);
+    g_AudioThread = sceKernelCreateThread("audio", audio_thread_main, 0x10000100, AUDIO_THREAD_STACK, 0, CPU_AFFINITY_CORE2, NULL);
     int thread_start_result = g_AudioThread >= 0 ? sceKernelStartThread(g_AudioThread, 0, NULL) : -1;
     if (g_AudioThread < 0 || thread_start_result < 0) {
         g_MidiActive = false;
@@ -363,6 +370,10 @@ bool platform_init(void) {
 void platform_new(GameShell *shell) {
     (void)shell;
 
+    // core 0 - game
+    // core 1 - vitaGL gc
+    // core 2 - audio
+
     scePowerSetArmClockFrequency(444);
     scePowerSetBusClockFrequency(222);
     scePowerSetGpuClockFrequency(222);
@@ -371,9 +382,10 @@ void platform_new(GameShell *shell) {
     systemtime_start = sceKernelGetSystemTimeWide();
 
 #ifdef GL11
+    vglSetupGarbageCollector(0x10000100, CPU_AFFINITY_CORE1);
     vglSetCircularPoolSize(64 * 1024 * 1024);
-    vglInit(0x800000);
-    vglWaitVblankStart(GL_TRUE);
+    vglInitExtended(0x800000, SCREEN_FB_WIDTH, SCREEN_FB_HEIGHT, 0x1000000, SCE_GXM_MULTISAMPLE_NONE);
+    vglWaitVblankStart(GL_FALSE);
 #else
     mutex = sceKernelCreateMutex("fb_mutex", 0, 0, NULL);
     displayblock = sceKernelAllocMemBlock("display", SCE_KERNEL_MEMBLOCK_TYPE_USER_CDRAM_RW, SCREEN_FB_SIZE, NULL);
@@ -384,8 +396,16 @@ void platform_new(GameShell *shell) {
     sceDisplaySetFrameBuf(&frame, SCE_DISPLAY_SETBUF_NEXTFRAME);
 #endif
 
+    sceKernelChangeThreadCpuAffinityMask(sceKernelGetThreadId(), CPU_AFFINITY_CORE0);
+
     sceTouchSetSamplingState(SCE_TOUCH_PORT_FRONT, SCE_TOUCH_SAMPLING_STATE_START);
     // sceTouchSetSamplingState(SCE_TOUCH_PORT_BACK, SCE_TOUCH_SAMPLING_STATE_START);
+
+    SceTouchPanelInfo info;
+    if (sceTouchGetPanelInfo(SCE_TOUCH_PORT_FRONT, &info) >= 0 && info.maxAaX > 0 && info.maxAaY > 0) {
+        touch_max_x = info.maxAaX;
+        touch_max_y = info.maxAaY;
+    }
 
     // sceCtrlSetSamplingMode(SCE_CTRL_MODE_ANALOG);
     sceCtrlSetSamplingMode(SCE_CTRL_MODE_DIGITAL);
@@ -524,18 +544,13 @@ void platform_stop_midi(void) {
 void platform_poll_events(Client *c) {
     static bool right_click = false;
 
-    static SceTouchPanelInfo info;
-    sceTouchGetPanelInfo(SCE_TOUCH_PORT_FRONT, &info);
-
-    memcpy(touch_old, touch, sizeof(touch_old));
-
     for (int port = 0; port < 1 /* SCE_TOUCH_PORT_MAX_NUM */; port++) {
         sceTouchPeek(port, &touch[port], 1);
         for (int i = 0; i < 1 /* SCE_TOUCH_MAX_REPORT */; i++) {
             static bool touch_down = false;
             if (touch[port].reportNum > 0) {
-                int x = touch[port].report[i].x * SCREEN_FB_WIDTH / info.maxAaX - SCREEN_CENTER_XOFF;
-                int y = touch[port].report[i].y * SCREEN_FB_HEIGHT / info.maxAaY;
+                int x = touch[port].report[i].x * SCREEN_FB_WIDTH / touch_max_x - SCREEN_CENTER_XOFF;
+                int y = touch[port].report[i].y * SCREEN_FB_HEIGHT / touch_max_y;
 
                 c->shell->idle_cycles = 0;
                 c->shell->mouse_x = x;
