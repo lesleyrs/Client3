@@ -64,6 +64,7 @@ void pixmap_draw(PixMap *pixmap, int x, int y) {
 #endif
 
     extern bool use_opengl11; // use global bool instead of _Custom.use_opengl11 (force disabled after scene render)
+    // this path is for few pixels, if use_opengl11 was disabled area_viewport contains the entire scene as well
     if (use_opengl11 && pixmap->width == 512) { // area_viewport pixmap is usually dirty while often drawing NOTHING
         pixcount = 0; // reset pixcount b4 loop as it's drawn on screen later
         for (int py = 0; py < pixmap->height; py++) {
