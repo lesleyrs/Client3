@@ -200,8 +200,6 @@ For OpenGL to work you need to build with GL=1 and install `libshacccg.suprx`: h
 
 can test with Vita3K, instead of decompressing the vpk you can copy just the eboot.bin after changes (pass `-r VSDK20225` to run directly)
 
-NOTE: recent Vita3K nightly builds appear to have broken vitaGL, an older build from early 2025 works.
-
 Controls: touch as mouse, X for right click, /\ for control, Dpad as arrow keys
 
 icon0.png is favicon.ico scaled 2x, extents are based off template:

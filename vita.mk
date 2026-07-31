@@ -4,7 +4,7 @@ rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst 
 CC := arm-vita-eabi-gcc
 STRIP := arm-vita-eabi-strip
 
-PROJECT_TITLE := Jagex
+PROJECT_TITLE := RuneScape 2
 PROJECT_TITLEID := VSDK20225
 
 PROJECT := client
@@ -58,7 +58,6 @@ $(PROJECT).vpk: eboot.bin param.sfo
 	vita-pack-vpk -s param.sfo -b eboot.bin \
 		--add sce_sys/icon0.png=sce_sys/icon0.png \
 		--add sce_sys/livearea/contents/bg.png=sce_sys/livearea/contents/bg.png \
-		--add sce_sys/livearea/contents/startup.png=sce_sys/livearea/contents/startup.png \
 		--add sce_sys/livearea/contents/template.xml=sce_sys/livearea/contents/template.xml \
 		--add rom/cache=rom/cache \
 		--add rom/Roboto=Roboto \
