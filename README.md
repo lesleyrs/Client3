@@ -204,10 +204,9 @@ NOTE: recent Vita3K nightly builds appear to have broken vitaGL, an older build 
 
 Controls: touch as mouse, X for right click, /\ for control, Dpad as arrow keys
 
-sce_sys assets generated with (integer scale, extents are based off template):
+icon0.png is favicon.ico scaled 2x, extents are based off template:
 `magick favicon.ico -resize 200% -background none -gravity center -extent 128x128 sce_sys/icon0.png`
-`magick favicon.ico -resize 300% -background none -gravity center -extent 280x158 sce_sys/livearea/contents/startup.png`
-bg is title.jpg from Server/content/binary or client_load_title_background(), with top cut off to fit
+bg.png is title.jpg from Server/content/binary or client_load_title_background(), with top cut off to fit
 `magick title.jpg \( title.jpg -flop \) +append -background none -gravity south -extent 840x500 sce_sys/livearea/contents/bg.png`
 
 ```
