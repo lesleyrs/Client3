@@ -103,7 +103,7 @@ void gl_end_drawscene(Client *c) {
         glBindTexture(GL_TEXTURE_2D, texture_atlas);
 
         glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &verts[0].r);
-        glVertexPointer(3, GL_FLOAT, sizeof(Vertex), &verts[0].x);
+        glVertexPointer(3, GL_SHORT, sizeof(Vertex), &verts[0].x);
         glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &verts[0].u);
 
         char buf[MAX_STR];
