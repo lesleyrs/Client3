@@ -37,12 +37,6 @@
 // (2048 / (2 * M_PI))
 #define RADIANS_TO_RS 325.949
 
-#ifdef GL11
-#define CLEAR_BYTE 0xff
-#else
-#define CLEAR_BYTE 0
-#endif
-
 // arbitrary to fix -Wall possible overflow warnings
 // NOTE maybe change the ones using half_str to use strncpy or double sizes but yolo
 #define HALF_STR (CHAT_LENGTH / 2)

@@ -50,7 +50,12 @@ void pix2d_set_clipping(int bottom, int right, int top, int left) {
 
 void pix2d_clear(void) {
     int length = _Pix2D.width * _Pix2D.height;
-    memset(_Pix2D.pixels, CLEAR_BYTE, length * sizeof(int));
+    int clear_byte = 0;
+    extern Custom _Custom;
+    if (_Custom.use_opengl11) {
+        clear_byte = 0xff;
+    }
+    memset(_Pix2D.pixels, clear_byte, length * sizeof(int));
 }
 
 void pix2d_fill_rect(int x, int y, int rgb, int w, int h) {
