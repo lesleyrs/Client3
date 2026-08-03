@@ -76,6 +76,7 @@ if "%CC%" == "cl" (
 	set COMPILE=-fwrapv --use-port=sdl3 --shell-file shell.html -DNDEBUG -s -Oz -ffast-math -flto --closure 1 -std=c99 -DWITH_RSA_LIBTOM -D%ENTRY% -sALLOW_MEMORY_GROWTH -sINITIAL_HEAP=50MB -sSTACK_SIZE=1048576 -o client.html -sJSPI -sDEFAULT_TO_CXX=0 -sENVIRONMENT=web -sSINGLE_FILE -sSINGLE_FILE_BINARY_ENCODE=0
 ) else if "%CC%" == "gcc" (
 	set COMPILE=-Wall -Wextra -Wvla -Wshadow -Wno-parentheses -fwrapv -std=c99 -DSDL_main=main -DWITH_RSA_LIBTOM -D%ENTRY% %SDL% -lws2_32 -lwsock32 %OPT% -o %ENTRY%.exe SDL%VER%.dll
+	set SRC=!SRC! client.rc
 	if "%OPT%" == "%RELEASE%" (
 		set COMPILE=-s -O3 -ffast-math !COMPILE!
 	) else (
@@ -85,13 +86,21 @@ if "%CC%" == "cl" (
 		set COMPILE=-DGL11 !COMPILE! -lopengl32
 	)
 ) else (
-	set COMPILE=-v -std=c99 -Wall -Wwrite-strings -DWITH_RSA_LIBTOM -D%ENTRY% %SDL% -lws2_32 -lwsock32 %OPT% -o %ENTRY%.exe SDL%VER%.dll
+	set COMPILE=-v -std=c99 -Wall -Wwrite-strings -DWITH_RSA_LIBTOM -D%ENTRY% %SDL% -lws2_32 -lwsock32 -luser32 %OPT% -o %ENTRY%.exe SDL%VER%.dll
 
 	if "%OPT%" == "%DEBUG%" (
 		set COMPILE=-bt !COMPILE!
 	)
 	if "%GL11%" == "1" (
 		set COMPILE=-DGL11 !COMPILE! -lopengl32
+	)
+
+	where windres >nul 2>&1
+	if !errorlevel!==0 (
+		windres -O coff client.rc -o resource.o
+		set COMPILE=resource.o !COMPILE!
+	) else (
+		echo windres not found, icon will not be set
 	)
 )
 

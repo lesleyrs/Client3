@@ -154,6 +154,7 @@ void platform_new(GameShell *shell) {
         return;
     }
 
+    // TODO set titlebar icon in here (see sdl1/sdl2)
     if (!_Custom.resizable) {
         window_surface = SDL_GetWindowSurface(window);
         if (!window_surface) {

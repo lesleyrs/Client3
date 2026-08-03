@@ -1,5 +1,6 @@
 #if SDL == 2
 #include "SDL.h"
+#include <SDL_syswm.h>
 
 #include <errno.h>
 #include <stdio.h>
@@ -167,6 +168,18 @@ void platform_new(GameShell *shell) {
         SDL_Quit();
         return;
     }
+
+#ifdef _WIN32
+    SDL_SysWMinfo info;
+    SDL_VERSION(&info.version);
+
+    SDL_GetWindowWMInfo(window, &info);
+    HWND hwnd = info.info.win.window;
+
+    HICON icon = LoadIcon(GetModuleHandle(NULL), "client");
+    SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)icon);
+    SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)icon);
+#endif
 
 #ifdef ANDROID
     SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);

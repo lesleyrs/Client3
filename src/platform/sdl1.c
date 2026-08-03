@@ -1,5 +1,6 @@
 #if SDL == 1
 #include "SDL.h"
+#include "SDL_syswm.h"
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
@@ -144,6 +145,19 @@ void platform_new(GameShell *shell) {
     SDL_EnableUNICODE(1);
     SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
     SDL_WM_SetCaption("Jagex", NULL);
+
+#ifdef _WIN32
+    SDL_SysWMinfo info;
+    SDL_VERSION(&info.version);
+    if (SDL_GetWMInfo(&info)) {
+        HWND hwnd = info.window;
+
+        HICON icon = LoadIcon(GetModuleHandle(NULL), "client");
+        SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)icon);
+        SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)icon);
+    }
+#endif
+
 
 #ifdef GL11
     // explicitly setting these fixes mesa d3d12/llvmpipe on windows for sdl1
