@@ -200,6 +200,8 @@ For OpenGL to work you need to build with GL=1 and install `libshacccg.suprx`: h
 
 can test with Vita3K, instead of decompressing the vpk you can copy just the eboot.bin after changes (pass `-r VSDK20225` to run directly)
 
+NOTE: https://github.com/Vita3K/Vita3K/issues/4064 vita3k emu doesn't support glScissor so scene appears as white unless removed
+
 Controls: touch as mouse, X for right click, /\ for control, Dpad as arrow keys
 
 icon0.png is favicon.ico scaled 2x, extents are based off template:
