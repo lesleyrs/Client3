@@ -30,7 +30,10 @@ extern SceneData _World3D;
 #define Z_FAR 4500
 
 #define ATLAS_TEXTURE_COUNT 64 // 1 white texture + 50 _Pix3D.textureCount + next power of 2 rounding
-#define CLEAR_COLOR 0.0f, 0.0f, 0.0f, 1.0f
+
+struct {
+    float r, g, b;
+} clearColor = {0.0f, 0.0f, 0.0f};
 
 Vertex verts[300000];
 int vertcount;
@@ -48,7 +51,7 @@ static bool use_anisotropic;
 void gl_start_frame(void) {
 #ifdef GL11
     use_opengl11 = _Custom.use_opengl11;
-    glClearColor(CLEAR_COLOR);
+    glClearColor(clearColor.r, clearColor.g, clearColor.b, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 #endif
 }
@@ -94,12 +97,13 @@ void gl_end_drawscene(Client *c) {
         }
         glTranslatef(-_World3D.eyeX, -_World3D.eyeY, -_World3D.eyeZ);
 
-        // leave a black line on right side of viewport (see pix2d.c)
         int viewport_xoff = 8;
     #ifdef __vita__
         viewport_xoff += SCREEN_CENTER_XOFF;
     #endif
+
         int viewport_yoff = SCREEN_FB_HEIGHT - 11 - _Pix2D.height;
+        // leave a black line on right side of viewport (see pix2d.c)
         int viewport_width = _Pix2D.width - 1;
         int viewport_height = _Pix2D.height;
 
@@ -133,6 +137,17 @@ void gl_end_drawscene(Client *c) {
         glMatrixMode(GL_PROJECTION);
         glPopMatrix();
         glMatrixMode(GL_MODELVIEW);
+
+        if (clearColor.r || clearColor.g || clearColor.b) {
+            // use this for non-black clear color values, alternatively remove - 1 from viewport_width to reduce state changes
+            glDisable(GL_TEXTURE_2D);
+            glBegin(GL_LINES);
+            glColor4ub(0, 0, 0, 0xff);
+            glVertex2i(viewport_xoff + _Pix2D.width, 11);
+            glVertex2i(viewport_xoff + _Pix2D.width, 11 + 334);
+            glEnd();
+            glEnable(GL_TEXTURE_2D);
+        }
     }
 
     // scene is rendered with gl, the rest must be in software so pixmaps don't draw over interface models
