@@ -205,8 +205,11 @@ NOTE: https://github.com/Vita3K/Vita3K/issues/4064 vita3k emu doesn't support gl
 Controls: touch as mouse, X for right click, /\ for control, Dpad as arrow keys
 
 icon0.png is favicon.ico scaled 2x, extents are based off template:
+
 `magick favicon.ico -resize 200% -background none -gravity center -extent 128x128 sce_sys/icon0.png`
+
 bg.png is title.jpg from Server/content/binary or client_load_title_background(), with top cut off to fit
+
 `magick title.jpg \( title.jpg -flop \) +append -background none -gravity south -extent 840x500 sce_sys/livearea/contents/bg.png`
 
 ```
