@@ -1,12 +1,13 @@
-![freebsd](freebsd.png)
 ![win2k](win2k.png)
-![xbox](xbox.png)
-![dreamcast](dreamcast.png)
 ![vita](vita.png)
 ![psp](psp.jpg)
+![dreamcast](dreamcast.png)
+![xbox](xbox.png)
 ![3ds](3ds.png)
 ![wii](wii.png)
 ![postmarketos](postmarketos.png)
+![freebsd](freebsd.png)
+![sgi_indigo2](sgi_indigo2.webp)
 
 ## references
 * https://github.com/2004Scape/Client2/compare/main...dennisdev:Client2:feature/webgl2 - GL renderer
