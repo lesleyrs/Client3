@@ -23,7 +23,7 @@ rm-elf:
 
 $(TARGET): $(OBJS)
 	kos-cc -o $(TARGET) $(OBJS) -lSDL -lppp
-	$(MKDCDISC) -e client.elf -o client.cdi -D rom --no-padding
+	$(MKDCDISC) -e client.elf -o client.cdi -d rom --no-padding
 
 run: $(TARGET)
 	$(KOS_LOADER) $(TARGET)

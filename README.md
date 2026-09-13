@@ -6,7 +6,7 @@ Compatible with [LostCity](https://github.com/LostCityRS/Server) (previously [20
 Features:
 - should work on any 32 bit system with 64 MB of RAM on lowmem, networking and a (read-only) filesystem.
 - webassembly build to avoid javascript code being optimized out by the browser.
-- WIP ports for most game consoles from 1998 until 2013! See [docs](/docs) for images.
+- WIP ports for most game consoles from 6th generation onwards! See [docs](/docs) for images.
 - optional [config.ini](example.ini) file to change client behaviour. Create an empty config.ini to avoid passing cli args.
 - OpenGL renderer, build with GL=1 in make or -gl in batchfile. ::gl ingame lets you toggle it visually. Do not build with GL support if you only want to use the software rasterizer to avoid continuous ram>vram copies!
 
@@ -15,7 +15,9 @@ To move the executable you have to take the correct `SDL.dll`, `config.ini`, and
 
 type `::perf` command ingame to see fps and lrucache size
 
-all home consoles (wii, dreamcast, xbox) should be able to run the game at higher res or even full res on PAL TVs so you don't have to pan, but this isn't set up and emulators don't support many video modes.
+all home consoles (wii, ps2, dreamcast, xbox) should be able to run the game at higher res or even full res on PAL TVs so you don't have to pan, but this isn't set up and emulators don't support many video modes.
+
+all consoles before the 6th generation generally have no standard way of connecting to the internet, much less ram, processing power, lower resolutions (240p or 480i). The engine fits quite well though (software rasterizer with gouraud/flat/textured triangles, fixed point, efficient 3d depth without qsort or zbuffer) but would have to be scoped down a lot.
 
 When adding a new platform also add system ttf font closest to helvetica in gameshell_draw_string when available to avoid Roboto dependency.
 
@@ -141,12 +143,14 @@ Controls: wiimote IR pointer works as mouse, A for left click, B for right click
 TODO: support usb keyboard (dolphin doesn't emulate it yet)
 TODO: add game offset expected for real hardware?
 TODO: shutdown on dolphin X (same as retail games)
+
+NOTE: edges of pixmaps flicker and have incorrect color due to wii framebuffer setting 2 pixels at a time which can overlap.
 ```
 
 #### NDS (not yet functional)
 The NDS target only works on a 2DS/3DS using `TWiLight Menu++` as it exposes the additional 16 MB of RAM.
 
-melonDS doesn't yet emulate 3ds/debugger ram.
+melonDS doesn't yet emulate 3ds/debugger ram. https://github.com/melonDS-emu/melonDS/pull/2379 only adds initial support.
 
 TODO: make nds playable by manually writing to 0x0D000000-0x0E000000 on client_load https://blocksds.skylyrac.net/docs/technical/memory_map/#4-main-ram
 
@@ -217,6 +221,12 @@ TODO: backside touch input, osk input
 TODO: add sdl3 to makefile or remove sdl altogether, it annoyingly saves sdl logs
 ```
 
+### Playstation 2
+not yet working, should be doable
+```
+TODO: see what softmods work on real hw, has 32 mb ram, builtin ethernet unlike gamecube, but old gcc toolchain
+```
+
 ### Sega Dreamcast
 Install [kallistios and mkdcdisc](#tools) and run `make -f dreamcast.mk -j$(nproc) -B`. Necessary files are built into the cdi.
 
@@ -234,7 +244,6 @@ TODO: support mouse/keyboard for dreamcast. For mouse and keyboard in flycast yo
 
 NOTE: if the cdi doesn't load you might have to remove --no-padding in Makefile? untested on hardware
 NOTE: local servers don't work on emulator? only remote servers work
-NOTE: fopen path was changed due to the mkdcdisc tool adding dots to files without extension https://gitlab.com/simulant/mkdcdisc/-/issues/14
 ```
 
 ### Microsoft Xbox

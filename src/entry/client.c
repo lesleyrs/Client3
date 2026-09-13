@@ -4831,9 +4831,7 @@ bool client_read(Client *c) {
                 // data = signlink.cacheload("m" + mapsquareX + "_" + mapsquareZ);
                 // custom NOTE move these
                 char filename[PATH_MAX];
-#ifdef _arch_dreamcast
-                snprintf(filename, sizeof(filename), "cache/client/maps/m%d_%d.", mapsquareX, mapsquareZ);
-#elif defined(NXDK)
+#if defined(NXDK)
                 snprintf(filename, sizeof(filename), "D:\\cache\\client\\maps\\m%d_%d", mapsquareX, mapsquareZ);
 #elif defined(__EMSCRIPTEN__)
                 snprintf(filename, sizeof(filename), "m%d_%d", mapsquareX, mapsquareZ);
@@ -4895,9 +4893,7 @@ bool client_read(Client *c) {
                 // data = signlink.cacheload("l" + mapsquareX + "_" + mapsquareZ);
                 // custom NOTE move this
                 char filename[PATH_MAX];
-#ifdef _arch_dreamcast
-                snprintf(filename, sizeof(filename), "cache/client/maps/l%d_%d.", mapsquareX, mapsquareZ);
-#elif defined(NXDK)
+#if defined(NXDK)
                 snprintf(filename, sizeof(filename), "D:\\cache\\client\\maps\\l%d_%d", mapsquareX, mapsquareZ);
 #elif defined(__EMSCRIPTEN__)
             snprintf(filename, sizeof(filename), "l%d_%d", mapsquareX, mapsquareZ);
@@ -10888,9 +10884,7 @@ Jagfile *load_archive(Client *c, const char *name, int crc, const char *display_
     int8_t *data;
     int8_t *header = malloc(6);
     char filename[PATH_MAX];
-#ifdef _arch_dreamcast
-    snprintf(filename, sizeof(filename), "cache/client/%s.", name);
-#elif defined(NXDK)
+#if defined(NXDK)
     snprintf(filename, sizeof(filename), "D:\\cache\\client\\%s", name);
 #else
     snprintf(filename, sizeof(filename), "rom/cache/client/%s", name);
