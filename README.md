@@ -221,10 +221,10 @@ TODO: backside touch input, osk input
 TODO: add sdl3 to makefile or remove sdl altogether, it annoyingly saves sdl logs
 ```
 
-### Playstation 2
+### Sony PS2
 not yet working, should be doable
 ```
-TODO: see what softmods work on real hw, has 32 mb ram, builtin ethernet unlike gamecube, but old gcc toolchain
+TODO: see what softmods work on real hw, has 32 mb ram, builtin ethernet only for slim models, but old gcc toolchain
 ```
 
 ### Sega Dreamcast
