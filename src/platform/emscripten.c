@@ -5,6 +5,7 @@
 #include <emscripten/key_codes.h>
 
 #include <malloc.h>
+#include <sys/stat.h>
 
 #include "../client.h"
 #include "../custom.h"
@@ -279,6 +280,12 @@ void platform_new(GameShell *shell) {
     if (!wave_stream) {
         rs2_error("SDL3: OpenAudioDeviceStream(Wave) failed: %s\n", SDL_GetError());
     }
+
+    // for map/loc saving
+    mkdir("rom", 0777);
+    mkdir("rom/cache", 0777);
+    mkdir("rom/cache/client", 0777);
+    mkdir("rom/cache/client/maps", 0777);
 }
 
 void platform_free(void) {

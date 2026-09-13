@@ -4771,8 +4771,11 @@ bool client_read(Client *c) {
 #ifdef __EMSCRIPTEN__
             // TODO use indexeddb instead of emscripten memfs
             char filename[PATH_MAX];
-            sprintf(filename, "m%d_%d", x, z);
+            sprintf(filename, "rom/cache/client/maps/m%d_%d", x, z);
             FILE *file = fopen(filename, "wb");
+            if (!file) {
+                rs2_log("%s: %s\n", filename, strerror(errno));
+            }
             fwrite(c->sceneMapLandData[index], 1, c->sceneMapLandDataIndexLength[index], file);
             fclose(file);
 #endif
@@ -4833,8 +4836,6 @@ bool client_read(Client *c) {
                 char filename[PATH_MAX];
 #if defined(NXDK)
                 snprintf(filename, sizeof(filename), "D:\\cache\\client\\maps\\m%d_%d", mapsquareX, mapsquareZ);
-#elif defined(__EMSCRIPTEN__)
-                snprintf(filename, sizeof(filename), "m%d_%d", mapsquareX, mapsquareZ);
 #else
                 snprintf(filename, sizeof(filename), "rom/cache/client/maps/m%d_%d", mapsquareX, mapsquareZ);
 #endif
@@ -4895,10 +4896,8 @@ bool client_read(Client *c) {
                 char filename[PATH_MAX];
 #if defined(NXDK)
                 snprintf(filename, sizeof(filename), "D:\\cache\\client\\maps\\l%d_%d", mapsquareX, mapsquareZ);
-#elif defined(__EMSCRIPTEN__)
-            snprintf(filename, sizeof(filename), "l%d_%d", mapsquareX, mapsquareZ);
 #else
-            snprintf(filename, sizeof(filename), "rom/cache/client/maps/l%d_%d", mapsquareX, mapsquareZ);
+                snprintf(filename, sizeof(filename), "rom/cache/client/maps/l%d_%d", mapsquareX, mapsquareZ);
 #endif
 
 #if ANDROID
@@ -5109,11 +5108,14 @@ bool client_read(Client *c) {
             }
         }
         if (index != -1) {
-#if defined(__EMSCRIPTEN__)
+#ifdef __EMSCRIPTEN__
             // TODO use indexeddb instead of emscripten memfs
             char filename[PATH_MAX];
-            sprintf(filename, "l%d_%d", x, z);
+            sprintf(filename, "rom/cache/client/maps/l%d_%d", x, z);
             FILE *file = fopen(filename, "wb");
+            if (!file) {
+                rs2_log("%s: %s\n", filename, strerror(errno));
+            }
             fwrite(c->sceneMapLocData[index], 1, c->sceneMapLocDataIndexLength[index], file);
             fclose(file);
 #endif
