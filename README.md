@@ -6,7 +6,7 @@ Compatible with [LostCity](https://github.com/LostCityRS/Server) (previously [20
 Features:
 - should work on any 32 bit system with 64 MB of RAM on lowmem, networking and a (read-only) filesystem.
 - webassembly build to avoid javascript code being optimized out by the browser.
-- WIP ports for most game consoles from 6th generation onwards! See [docs](/docs) for images.
+- WIP ports for most game consoles from the 6th generation onwards! See [docs](/docs) for images.
 - optional [config.ini](example.ini) file to change client behaviour. Create an empty config.ini to avoid passing cli args.
 - OpenGL renderer, build with GL=1 in make or -gl in batchfile. ::gl ingame lets you toggle it visually. Do not build with GL support if you only want to use the software rasterizer to avoid continuous ram>vram copies!
 
