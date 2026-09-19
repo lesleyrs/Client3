@@ -48,7 +48,7 @@
 #define MAX_CHATS 50
 
 // avoid doubles on consoles with only single precision floats or no fpu at all!
-// TODO: this doesn't change all occurences of doubles into floats yet
+// TODO: this doesn't change all occurences of doubles into floats yet (or math calls)
 #if defined(__PSP__) || defined(__NDS__)
 #define USE_FLOATS
 #endif
