@@ -54,7 +54,7 @@
 #endif
 
 #if defined(_arch_dreamcast) || defined(__NDS__)
-// NOTE: more extreme lowmem mode, making the game fully explorable on 32 MB
+// NOTE: more extreme lowmem mode, making the game mostly explorable on 32 MB
 // -2 MB RAM, may cause some models to be invisible
 #define MODEL_MAX_DEPTH 600
 // -1 MB RAM, may cause buffer overflows

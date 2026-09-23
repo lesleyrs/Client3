@@ -14,9 +14,18 @@
 #include "../pixmap.h"
 #include "../platform.h"
 #include "../defines.h"
+#include "../inputtracking.h"
 
-static int screen_offset_x = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2;
-static int screen_offset_y = -100;
+extern InputTracking _InputTracking;
+
+// static int screen_offset_x = (SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2;
+// static int screen_offset_y = -200;
+// static int screen_offset_x = -8;
+// static int screen_offset_y = -11;
+static int screen_offset_x = 0;
+static int screen_offset_y = 0;
+
+static touchPosition touch;
 
 static uint16_t *fb = (uint16_t *)VRAM_A;
 
@@ -328,9 +337,54 @@ void platform_set_midi(const char *name, int crc, int len) {
 void platform_stop_midi(void) {
 }
 void platform_poll_events(Client *c) {
-    scanKeys();
+    touchPosition last = touch;
+    touchRead(&touch);
 
+    scanKeys();
     int pressed = keysDown();
+    int released = keysUp();
+
+    // TODO right press/release
+    if (pressed & KEY_TOUCH) {
+        int x = touch.px - screen_offset_x;
+        int y = touch.py - screen_offset_y;
+
+        // moved
+        if (touch.px != last.px || touch.py != last.py) {
+            c->shell->idle_cycles = 0;
+            c->shell->mouse_x = x;
+            c->shell->mouse_y = y;
+
+            if (_InputTracking.enabled) {
+                inputtracking_mouse_moved(&_InputTracking, x, y);
+            }
+        }
+
+        c->shell->mouse_click_x = x;
+        c->shell->mouse_click_y = y;
+
+        // if (e.button.button == SDL_BUTTON_RIGHT) {
+        //     c->shell->mouse_click_button = 2;
+        //     c->shell->mouse_button = 2;
+        // } else {
+            c->shell->mouse_click_button = 1;
+            c->shell->mouse_button = 1;
+        // }
+
+        if (_InputTracking.enabled) {
+            // inputtracking_mouse_pressed(&_InputTracking, x, y, e.button.button == SDL_BUTTON_RIGHT ? 1 : 0);
+        }
+    }
+
+    if (released & KEY_TOUCH) {
+        c->shell->idle_cycles = 0;
+        c->shell->mouse_button = 0;
+
+        if (_InputTracking.enabled) {
+            // inputtracking_mouse_released(&_InputTracking, (e.button.button & SDL_BUTTON_RMASK) != 0 ? 1 : 0);
+        }
+    }
+
     if (pressed & KEY_UP) {
         key_pressed(c->shell, K_UP, -1);
     }
@@ -344,7 +398,6 @@ void platform_poll_events(Client *c) {
         key_pressed(c->shell, K_RIGHT, -1);
     }
 
-    int released = keysUp();
     if (released & KEY_UP) {
         key_released(c->shell, K_UP, -1);
     }

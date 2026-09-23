@@ -459,7 +459,7 @@ void client_load(Client *c) {
 // NOTE: we can't grow it so it needs to fit the max usage, left value is shifted to MiB (arbitrary value)
 #if defined(_arch_dreamcast) || defined(__NDS__)
     malloc_stats();
-    if (!bump_allocator_init(8 << 20)) {
+    if (!bump_allocator_init(1 << 20)) {
 #else
     if (!(_Client.lowmem ? bump_allocator_init(16 << 20) : bump_allocator_init(32 << 20))) {
 #endif
@@ -471,7 +471,8 @@ void client_load(Client *c) {
         c->error_loading = true;
     }
 
-// TODO temp: wait for wiiu and switch touch input fixes, melonds 32mb emulation
+// TODO temp: wait for wiiu and switch touch input fixes
+// TODO make screen fit in nds res for logins
 #if defined(__WIIU__) || defined(__SWITCH__) || defined(__NDS__)
     client_login(c, c->username, c->password, false);
 #endif
@@ -10942,7 +10943,7 @@ Jagfile *load_archive(Client *c, const char *name, int crc, const char *display_
 
     int crc_value = rs_crc32(data, file_size);
     if (crc_value != crc) {
-        rs2_log("%s archive CRC check failed (update archive_checksums if login says RuneScape has been updated) TODO downloading\n", display_name);
+        rs2_error("%s archive CRC check failed, update archive_checksum to match server cache\n", display_name);
         // free(data);
         // data = NULL;
     }
@@ -11014,6 +11015,9 @@ void client_load_title(Client *c) {
 }
 
 void client_draw_progress(Client *c, const char *message, int progress) {
+#ifdef __NDS__
+    rs2_log("%s %d%%\n", message, progress);
+#endif
     client_load_title(c);
     if (!c->archive_title) {
         gameshell_draw_progress(c->shell, message, progress);
