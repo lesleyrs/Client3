@@ -153,6 +153,8 @@ DSI might work (16 mb ram, wpa2 wifi)
 the gpu only has vram for 2k triangles and 6k verts, but render to framebuffer + half fps allows for double:
 https://blocksds.skylyrac.net/tutorial/advanced/video_capture/#6-two-pass-3d
 
+to boot in melonDS you need to set emulation to DSI, add firmware paths and enable sd card
+
 ```
 NOTE: nitrofs takes the rom dir as the root so paths had to be changed (didn't full path work before?!)
 ```
