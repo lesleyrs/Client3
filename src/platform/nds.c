@@ -9,6 +9,7 @@
 #include <nds.h>
 #include <wfc.h>
 
+#include "../client.h"
 #include "../gameshell.h"
 #include "../pixmap.h"
 #include "../platform.h"
@@ -159,11 +160,14 @@ _rescan:
 }
 
 bool platform_init(void) {
+    cpuStartTiming(0xdeadbeef); // NOTE unused value, but not in blocksds?
     consoleDemoInit();
+    consoleDebugInit(DebugDevice_NOCASH);
+
     videoSetMode(MODE_FB0);
     vramSetBankA(VRAM_A_LCD);
     if (!isDSiMode()) {
-        rs2_error("Unsupported: NDS detected!\n\nThis requires 3DS DSI emulation\n\n");
+        rs2_error("Unsupported: NDS detected!\n\nThis requires a DSI\n\n");
         return false;
     }
     if (!nitroFSInit(NULL)) {
@@ -324,13 +328,35 @@ void platform_set_midi(const char *name, int crc, int len) {
 void platform_stop_midi(void) {
 }
 void platform_poll_events(Client *c) {
-    // while (pmMainLoop()) {
-    //     swiWaitForVBlank();
-    //     scanKeys();
-    //     int pressed = keysDown();
-    //     if (pressed & KEY_START)
-    //         break;
-    // }
+    scanKeys();
+
+    int pressed = keysDown();
+    if (pressed & KEY_UP) {
+        key_pressed(c->shell, K_UP, -1);
+    }
+    if (pressed & KEY_DOWN) {
+        key_pressed(c->shell, K_DOWN, -1);
+    }
+    if (pressed & KEY_LEFT) {
+        key_pressed(c->shell, K_LEFT, -1);
+    }
+    if (pressed & KEY_RIGHT) {
+        key_pressed(c->shell, K_RIGHT, -1);
+    }
+
+    int released = keysUp();
+    if (released & KEY_UP) {
+        key_released(c->shell, K_UP, -1);
+    }
+    if (released & KEY_DOWN) {
+        key_released(c->shell, K_DOWN, -1);
+    }
+    if (released & KEY_LEFT) {
+        key_released(c->shell, K_LEFT, -1);
+    }
+    if (released & KEY_RIGHT) {
+        key_released(c->shell, K_RIGHT, -1);
+    }
 }
 void platform_blit_surface(Surface *surface, int x, int y) {
     for (int row = 0; row < surface->h; row++) {
@@ -357,19 +383,12 @@ void platform_blit_surface(Surface *surface, int x, int y) {
 }
 void platform_update_surface(void) {
 }
-// TODO: timers are untested
-#define timers2ms(tlow, thigh) (tlow | (thigh << 16)) >> 5
 uint64_t rs2_now(void) {
-    return timers2ms(TIMER0_DATA, TIMER1_DATA);
+    return timerTicks2msec(cpuGetTiming());
 }
 void rs2_sleep(int ms) {
-    uint32_t now;
-    now = timers2ms(TIMER0_DATA, TIMER1_DATA);
-    while ((uint32_t)timers2ms(TIMER0_DATA, TIMER1_DATA) < now + ms)
-        ;
-    /* uint64_t end = rs2_now() + ms;
-
+    uint64_t end = rs2_now() + ms;
     while (rs2_now() != end)
-        ; */
+        ;
 }
 #endif

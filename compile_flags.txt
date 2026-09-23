@@ -35,18 +35,18 @@
 # -I/opt/devkitpro/libnx/include/
 # -D__PSP__
 # -I/usr/local/pspdev/psp/sdk/include/
--D__vita__
--I/usr/local/vitasdk/arm-vita-eabi/include/
+# -D__vita__
+# -I/usr/local/vitasdk/arm-vita-eabi/include/
 
 # -D_arch_dreamcast
 # -I/opt/toolchains/dc/kos/include
 # -I/opt/toolchains/dc/kos/kernel/arch/dreamcast/include
 
-# -D__NDS__
-# -DARM9
-# -DARM7
-# -I/opt/devkitpro/libnds/include/
-# -I/opt/devkitpro/calico/include/
+-D__NDS__
+-DARM9
+-DARM7
+-I/opt/devkitpro/libnds/include/
+-I/opt/devkitpro/calico/include/
 
 # -DNXDK
 # -I../nxdk/lib

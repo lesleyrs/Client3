@@ -4836,6 +4836,8 @@ bool client_read(Client *c) {
                 char filename[PATH_MAX];
 #if defined(NXDK)
                 snprintf(filename, sizeof(filename), "D:\\cache\\client\\maps\\m%d_%d", mapsquareX, mapsquareZ);
+#elif defined(__NDS__)
+                snprintf(filename, sizeof(filename), "cache/client/maps/m%d_%d", mapsquareX, mapsquareZ);
 #else
                 snprintf(filename, sizeof(filename), "rom/cache/client/maps/m%d_%d", mapsquareX, mapsquareZ);
 #endif
@@ -4896,6 +4898,8 @@ bool client_read(Client *c) {
                 char filename[PATH_MAX];
 #if defined(NXDK)
                 snprintf(filename, sizeof(filename), "D:\\cache\\client\\maps\\l%d_%d", mapsquareX, mapsquareZ);
+#elif defined(__NDS__)
+                snprintf(filename, sizeof(filename), "cache/client/maps/m%d_%d", mapsquareX, mapsquareZ);
 #else
                 snprintf(filename, sizeof(filename), "rom/cache/client/maps/l%d_%d", mapsquareX, mapsquareZ);
 #endif
@@ -10888,6 +10892,8 @@ Jagfile *load_archive(Client *c, const char *name, int crc, const char *display_
     char filename[PATH_MAX];
 #if defined(NXDK)
     snprintf(filename, sizeof(filename), "D:\\cache\\client\\%s", name);
+#elif defined(__NDS__)
+    snprintf(filename, sizeof(filename), "cache/client/%s", name);
 #else
     snprintf(filename, sizeof(filename), "rom/cache/client/%s", name);
 #endif
@@ -10901,7 +10907,7 @@ Jagfile *load_archive(Client *c, const char *name, int crc, const char *display_
     FILE *file = fopen(filename, "rb");
 #endif
     if (!file) {
-        rs2_error("Failed to open file %s. %s\n", filename, strerror(errno));
+        rs2_error("Failed to open file %s (%s)\n", filename, strerror(errno));
         free(header);
         return NULL;
     }

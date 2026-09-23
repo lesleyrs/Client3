@@ -10,6 +10,9 @@
 #ifdef __3DS__
 #include <3ds.h>
 #endif
+#ifdef __NDS__
+#include <nds.h>
+#endif
 
 extern InputTracking _InputTracking;
 
@@ -80,6 +83,12 @@ void gameshell_run(Client *c) {
             return;
         }
 #endif
+#ifdef __NDS__
+        if (!pmMainLoop()) {
+            return;
+        }
+#endif
+
         if (c->shell->state > 0) {
             c->shell->state--;
             if (c->shell->state == 0) {

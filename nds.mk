@@ -44,7 +44,7 @@ NITRO    := rom
 ARCH := -march=armv5te -mtune=arm946e-s
 
 CFLAGS   := -Wno-parentheses -Wall -ffunction-sections -fdata-sections\
-            $(ARCH) $(INCLUDE) -DARM9 -DWITH_RSA_LIBTOM -Dclient
+            $(ARCH) $(INCLUDE) -DARM9 -DWITH_RSA_LIBTOM -Dplayground
 ifeq ($(DEBUG),1)
 CFLAGS += -g
 else
