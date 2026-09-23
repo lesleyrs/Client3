@@ -45,9 +45,10 @@
 #define MAX_CHATS 50
 
 // avoid doubles on consoles with only single precision floats or no fpu at all!
-// TODO: double literals haven't been converted to floats add D() macro?
+// TODO: double literals haven't been converted to floats use D()
 // TODO: add ps2 here
 #if defined(__PSP__) || defined(__NDS__)
+#define D(x) x##f
 #define DOUBLE float
 #define POW powf
 #define COS cosf
@@ -55,11 +56,8 @@
 #define SQRT sqrtf
 #define TAN tanf
 #define ATAN2 atan2f
-
-// (2048 / (2 * M_PI))
-#define RADIANS_TO_RS 325.949f
-#define RADIANS_TO_RS_IMPRECISE 326.11f
 #else
+#define D(x) x
 #define DOUBLE double
 #define COS cos
 #define SIN sin
@@ -67,12 +65,11 @@
 #define SQRT sqrt
 #define TAN tan
 #define ATAN2 atan2
+#endif
 
 // (2048 / (2 * M_PI))
-#define RADIANS_TO_RS 325.949
-#define RADIANS_TO_RS_IMPRECISE 326.11
-
-#endif
+#define RADIANS_TO_RS D(325.949)
+#define RADIANS_TO_RS_IMPRECISE D(326.11)
 
 #if defined(_arch_dreamcast) || defined(__NDS__)
 // NOTE: more extreme lowmem mode, making the game mostly explorable on 32 MB
