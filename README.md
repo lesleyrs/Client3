@@ -147,12 +147,11 @@ TODO: shutdown on dolphin X (same as retail games)
 NOTE: edges of pixmaps flicker and have incorrect color due to wii framebuffer setting 2 pixels at a time which can overlap.
 ```
 
-#### NDS (not yet functional)
-The NDS target only works on a 2DS/3DS using `TWiLight Menu++` as it exposes the additional 16 MB of RAM.
+#### NDS (not working)
+DSI might work (16 mb ram, wpa2 wifi)
 
-melonDS doesn't yet emulate 3ds/debugger ram. https://github.com/melonDS-emu/melonDS/pull/2379 only adds initial support.
-
-TODO: make nds playable by manually writing to 0x0D000000-0x0E000000 on client_load https://blocksds.skylyrac.net/docs/technical/memory_map/#4-main-ram
+the gpu only has vram for 2k triangles and 6k verts, but render to framebuffer + half fps allows for double:
+https://blocksds.skylyrac.net/tutorial/advanced/video_capture/#6-two-pass-3d
 
 #### 3DS
 in citra emulator click `file>open citra folder` for sdmc dir https://citra-emulator.com/wiki/user-directory/
