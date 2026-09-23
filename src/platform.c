@@ -293,15 +293,9 @@ void rs2_error(const char *format, ...) {
 }
 
 // Java Math.random, rand requires + 1 to never reach 1 else it'll overflow on update_flame_buffer
-#ifdef USE_FLOATS
-double jrand(void) {
-    return (float)rand() / ((float)RAND_MAX + 1.0);
+DOUBLE jrand(void) {
+    return (DOUBLE)rand() / ((DOUBLE)RAND_MAX + 1.0);
 }
-#else
-double jrand(void) {
-    return (double)rand() / ((double)RAND_MAX + 1.0);
-}
-#endif
 
 // Java indexOf
 int indexof_chr(const char *str, int chr) {

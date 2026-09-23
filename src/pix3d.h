@@ -4,6 +4,7 @@
 
 #include "pix2d.h"
 #include "pix8.h"
+#include "defines.h"
 
 typedef struct {
     DoublyLinkable link;
@@ -45,8 +46,8 @@ void pix3d_init_pool(int size);
 void pix3d_unpack_textures(Jagfile *jag);
 int pix3d_get_average_texture_rgb(int id);
 void pix3d_push_texture(int id);
-void pix3d_set_brightness(double brightness);
-int pix3d_set_gamma(int rgb, double gamma);
+void pix3d_set_brightness(DOUBLE brightness);
+int pix3d_set_gamma(int rgb, DOUBLE gamma);
 
 void gouraudTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int colorA, int colorB, int colorC);
 void flatTriangle(int xA, int xB, int xC, int yA, int yB, int yC, int color);

@@ -197,7 +197,7 @@ void drawCenteredWave(PixFont *pixfont, int x, int y, const char *str, int rgb, 
         int c = CHARCODESET[(unsigned char)str[i]];
 
         if (c != 94) {
-            drawChar(pixfont->charMask[c], x + pixfont->charOffsetX[c], offY + pixfont->charOffsetY[c] + (int)(sin((double)i / 2.0 + (double)phase / 5.0) * 5.0), pixfont->charMaskWidth[c], pixfont->charMaskHeight[c], rgb);
+            drawChar(pixfont->charMask[c], x + pixfont->charOffsetX[c], offY + pixfont->charOffsetY[c] + (int)(SIN((DOUBLE)i / 2.0 + (DOUBLE)phase / 5.0) * 5.0), pixfont->charMaskWidth[c], pixfont->charMaskHeight[c], rgb);
         }
 
         x += pixfont->charAdvance[c];

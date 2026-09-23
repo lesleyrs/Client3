@@ -4,6 +4,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "defines.h"
+
 #if defined(SDL) && SDL > 0
 typedef struct SDL_Surface Surface;
 #else
@@ -55,7 +57,7 @@ char *valueof(int value);
 int indexof_chr(const char *str, int chr);
 int indexof(const char *str, const char *str2);
 char *substring(const char *src, size_t start, size_t length);
-double jrand(void);
+DOUBLE jrand(void);
 
 bool platform_init(void);
 void platform_new(GameShell *shell);

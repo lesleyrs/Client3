@@ -81,7 +81,7 @@ void world_free(World *world) {
 
 int perlinNoise(int x, int z) {
     int value = interpolatedNoise(x + 45365, z + 91923, 4) + ((interpolatedNoise(x + 10294, z + 37821, 2) - 128) >> 1) + ((interpolatedNoise(x, z, 1) - 128) >> 2) - 128;
-    value = (int)((double)value * 0.3) + 35;
+    value = (int)((DOUBLE)value * 0.3) + 35;
     if (value < 10) {
         value = 10;
     } else if (value > 60) {
@@ -765,14 +765,14 @@ void world_build(World *world, World3D *scene, CollisionMap **collision) {
         int8_t lightX = -50;
         int8_t lightY = -10;
         int8_t lightZ = -50;
-        int lightMag = (int)sqrt(lightX * lightX + lightY * lightY + lightZ * lightZ);
+        int lightMag = (int)SQRT(lightX * lightX + lightY * lightY + lightZ * lightZ);
         int lightMagnitude = lightAttenuation * lightMag >> 8;
 
         for (int z = 1; z < world->maxTileZ - 1; z++) {
             for (int x = 1; x < world->maxTileX - 1; x++) {
                 int dx = world->levelHeightmap[level][x + 1][z] - world->levelHeightmap[level][x - 1][z];
                 int dz = world->levelHeightmap[level][x][z + 1] - world->levelHeightmap[level][x][z - 1];
-                int len = (int)sqrt(dx * dx + dz * dz + 65536);
+                int len = (int)SQRT(dx * dx + dz * dz + 65536);
                 int normalX = (dx << 8) / len;
                 int normalY = 65536 / len;
                 int normalZ = (dz << 8) / len;

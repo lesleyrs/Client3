@@ -27,8 +27,8 @@ void pix3d_init_global(void) {
         _Pix3D.reciprical16[i] = 65536 / i;
     }
     for (int i = 0; i < 2048; i++) {
-        _Pix3D.sin_table[i] = (int)(sin((double)i * 0.0030679615) * 65536.0);
-        _Pix3D.cos_table[i] = (int)(cos((double)i * 0.0030679615) * 65536.0);
+        _Pix3D.sin_table[i] = (int)(SIN((DOUBLE)i * 0.0030679615) * 65536.0);
+        _Pix3D.cos_table[i] = (int)(COS((DOUBLE)i * 0.0030679615) * 65536.0);
     }
     _Pix3D.textures = calloc(50, sizeof(Pix8 *));
     _Pix3D.textureHasTransparency = calloc(50, sizeof(bool));
@@ -230,30 +230,30 @@ int *pix3d_get_texels(int id) {
     return texels;
 }
 
-void pix3d_set_brightness(double brightness) {
-    double random_brightness = brightness + jrand() * 0.03 - 0.015;
+void pix3d_set_brightness(DOUBLE brightness) {
+    DOUBLE random_brightness = brightness + jrand() * 0.03 - 0.015;
     int offset = 0;
     for (int y = 0; y < 512; y++) {
-        double hue = (double)(y / 8) / 64.0 + 0.0078125;
-        double saturation = (double)(y & 0x7) / 8.0 + 0.0625;
+        DOUBLE hue = (DOUBLE)(y / 8) / 64.0 + 0.0078125;
+        DOUBLE saturation = (DOUBLE)(y & 0x7) / 8.0 + 0.0625;
         for (int x = 0; x < 128; x++) {
-            double lightness = (double)x / 128.0;
-            double r = lightness;
-            double g = lightness;
-            double b = lightness;
+            DOUBLE lightness = (DOUBLE)x / 128.0;
+            DOUBLE r = lightness;
+            DOUBLE g = lightness;
+            DOUBLE b = lightness;
             if (saturation != 0.0) {
-                double q;
+                DOUBLE q;
                 if (lightness < 0.5) {
                     q = lightness * (saturation + 1.0);
                 } else {
                     q = lightness + saturation - lightness * saturation;
                 }
-                double p = lightness * 2.0 - q;
-                double t = hue + 0.3333333333333333;
+                DOUBLE p = lightness * 2.0 - q;
+                DOUBLE t = hue + 0.3333333333333333;
                 if (t > 1.0) {
                     t--;
                 }
-                double d11 = hue - 0.3333333333333333;
+                DOUBLE d11 = hue - 0.3333333333333333;
                 if (d11 < 0.0) {
                     d11++;
                 }
@@ -311,33 +311,18 @@ void pix3d_set_brightness(double brightness) {
     gl_set_brightness();
 }
 
-#ifdef USE_FLOATS
-int pix3d_set_gamma(int rgb, double gamma) {
-    float r = (float)(rgb >> 16) / 256.0f;
-    float g = (float)(rgb >> 8 & 0xff) / 256.0f;
-    float b = (float)(rgb & 0xff) / 256.0f;
-    float powR = powf(r, gamma);
-    float powG = powf(g, gamma);
-    float powB = powf(b, gamma);
-    int intR = (int)(powR * 256.0f);
-    int intG = (int)(powG * 256.0f);
-    int intB = (int)(powB * 256.0f);
-    return (intR << 16) + (intG << 8) + intB;
-}
-#else
-int pix3d_set_gamma(int rgb, double gamma) {
-    double r = (double)(rgb >> 16) / 256.0;
-    double g = (double)(rgb >> 8 & 0xff) / 256.0;
-    double b = (double)(rgb & 0xff) / 256.0;
-    double powR = pow(r, gamma);
-    double powG = pow(g, gamma);
-    double powB = pow(b, gamma);
+int pix3d_set_gamma(int rgb, DOUBLE gamma) {
+    DOUBLE r = (DOUBLE)(rgb >> 16) / 256.0;
+    DOUBLE g = (DOUBLE)(rgb >> 8 & 0xff) / 256.0;
+    DOUBLE b = (DOUBLE)(rgb & 0xff) / 256.0;
+    DOUBLE powR = POW(r, gamma);
+    DOUBLE powG = POW(g, gamma);
+    DOUBLE powB = POW(b, gamma);
     int intR = (int)(powR * 256.0);
     int intG = (int)(powG * 256.0);
     int intB = (int)(powB * 256.0);
     return (intR << 16) + (intG << 8) + intB;
 }
-#endif
 
 static void gouraudRaster(int x0, int x1, int color0, int color1, int *dst, int offset, int length) {
     int rgb;

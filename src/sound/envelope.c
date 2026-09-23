@@ -1,6 +1,7 @@
 #include <stdlib.h>
 
 #include "../packet.h"
+#include "../defines.h"
 #include "envelope.h"
 
 void envelope_free(Envelope *env) {
@@ -39,7 +40,7 @@ int envelope_evaluate(Envelope *env, int delta) {
             env->position = env->length - 1;
         }
 
-        env->threshold = (int)((double)env->shapeDelta[env->position] / 65536.0 * (double)delta);
+        env->threshold = (int)((DOUBLE)env->shapeDelta[env->position] / 65536.0 * (DOUBLE)delta);
         if (env->threshold > env->ticks) {
             env->delta = ((env->shapePeak[env->position] << 15) - env->amplitude) / (env->threshold - env->ticks);
         }

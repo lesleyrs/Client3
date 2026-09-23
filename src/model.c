@@ -1482,7 +1482,7 @@ bool model_point_within_triangle(int x, int y, int ya, int yb, int yc, int xa, i
 }
 
 void model_calculate_normals(Model *m, int light_ambient, int light_attenuation, int lightsrc_x, int lightsrc_y, int lightsrc_z, bool apply_lighting, bool use_allocator) {
-    const int lightMagnitude = (int)sqrt(lightsrc_x * lightsrc_x + lightsrc_y * lightsrc_y + lightsrc_z * lightsrc_z);
+    const int lightMagnitude = (int)SQRT(lightsrc_x * lightsrc_x + lightsrc_y * lightsrc_y + lightsrc_z * lightsrc_z);
     const int attenuation = light_attenuation * lightMagnitude >> 8;
 
     if (!m->face_color_a) {
@@ -1517,7 +1517,7 @@ void model_calculate_normals(Model *m, int light_ambient, int light_attenuation,
             ny >>= 0x1;
             nz >>= 0x1;
         }
-        int length = (int)sqrt((double)(nx * nx + ny * ny + nz * nz));
+        int length = (int)SQRT((DOUBLE)(nx * nx + ny * ny + nz * nz));
         if (length <= 0) {
             length = 1;
         }
@@ -1582,9 +1582,9 @@ void model_calculate_bounds_cylinder(Model *m) {
             m->radius = radius_sqr;
         }
     }
-    m->radius = (int)(sqrt((double)m->radius) + 0.99);
-    m->min_depth = (int)(sqrt((double)(m->radius * m->radius + m->max_y * m->max_y)) + 0.99);
-    m->max_depth = m->min_depth + (int)(sqrt((double)(m->radius * m->radius + m->min_y * m->min_y)) + 0.99);
+    m->radius = (int)(SQRT((DOUBLE)m->radius) + 0.99);
+    m->min_depth = (int)(SQRT((DOUBLE)(m->radius * m->radius + m->max_y * m->max_y)) + 0.99);
+    m->max_depth = m->min_depth + (int)(SQRT((DOUBLE)(m->radius * m->radius + m->min_y * m->min_y)) + 0.99);
 }
 
 void model_create_label_references(Model *m, bool use_allocator) {
@@ -1925,8 +1925,8 @@ void model_calculate_bounds_y(Model *m) {
         }
     }
 
-    m->min_depth = (int)(sqrt(m->radius * m->radius + m->max_y * m->max_y) + 0.99);
-    m->max_depth = m->min_depth + (int)(sqrt(m->radius * m->radius + m->min_y * m->min_y) + 0.99);
+    m->min_depth = (int)(SQRT(m->radius * m->radius + m->max_y * m->max_y) + 0.99);
+    m->max_depth = m->min_depth + (int)(SQRT(m->radius * m->radius + m->min_y * m->min_y) + 0.99);
 }
 
 void model_calculate_bounds_aabb(Model *m) {
@@ -1964,9 +1964,9 @@ void model_calculate_bounds_aabb(Model *m) {
             m->radius = radius_sqr;
         }
     }
-    m->radius = (int)sqrt((double)m->radius);
-    m->min_depth = (int)sqrt((double)(m->radius * m->radius + m->max_y * m->max_y));
-    m->max_depth = m->min_depth + (int)sqrt((double)(m->radius * m->radius + m->min_y * m->min_y));
+    m->radius = (int)SQRT((DOUBLE)m->radius);
+    m->min_depth = (int)SQRT((DOUBLE)(m->radius * m->radius + m->max_y * m->max_y));
+    m->max_depth = m->min_depth + (int)SQRT((DOUBLE)(m->radius * m->radius + m->min_y * m->min_y));
 }
 
 int model_mul_color_lightness(int hsl, int scalar, int face_infos) {

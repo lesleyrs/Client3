@@ -108,7 +108,7 @@ void pix2d_fill_circle(int x_center, int y_center, int y_radius, int rgb, int al
 
 	for (int y = y_start; y <= y_end; y++) {
 		int midpoint = y - y_center;
-		int x_radius = (int) sqrt((y_radius * y_radius) - (midpoint * midpoint));
+		int x_radius = (int) SQRT((y_radius * y_radius) - (midpoint * midpoint));
 		int x_start = x_center - x_radius;
 		if (x_start < 0) {
 			x_start = 0;

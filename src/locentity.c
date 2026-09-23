@@ -14,8 +14,8 @@ LocEntity *locentity_new(int index, int level, int type, int x, int z, SeqType *
     entity->seq = seq;
 
     if (randomFrame && seq->replayoff != -1) {
-        entity->seqFrame = (int)(jrand() * (double)entity->seq->frameCount);
-        entity->seqCycle = (int)(jrand() * (double)entity->seq->delay[entity->seqFrame]);
+        entity->seqFrame = (int)(jrand() * (DOUBLE)entity->seq->frameCount);
+        entity->seqCycle = (int)(jrand() * (DOUBLE)entity->seq->delay[entity->seqFrame]);
     } else {
         entity->seqFrame = -1;
         entity->seqCycle = 0;

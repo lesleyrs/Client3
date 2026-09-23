@@ -27,35 +27,35 @@ ProjectileEntity *projectileentity_new(int spotanim, int level, int srcX, int sr
 
 void projectileentity_update_velocity(ProjectileEntity *entity, int dstX, int dstY, int dstZ, int cycle) {
     if (!entity->mobile) {
-        double dx = dstX - entity->srcX;
-        double dz = dstZ - entity->srcZ;
-        double d = sqrt(dx * dx + dz * dz);
+        DOUBLE dx = dstX - entity->srcX;
+        DOUBLE dz = dstZ - entity->srcZ;
+        DOUBLE d = SQRT(dx * dx + dz * dz);
 
-        entity->x = (double)entity->srcX + dx * (double)entity->arc / d;
-        entity->z = (double)entity->srcZ + dz * (double)entity->arc / d;
+        entity->x = (DOUBLE)entity->srcX + dx * (DOUBLE)entity->arc / d;
+        entity->z = (DOUBLE)entity->srcZ + dz * (DOUBLE)entity->arc / d;
         entity->y = entity->srcY;
     }
 
-    double dt = entity->lastCycle + 1 - cycle;
-    entity->velocityX = ((double)dstX - entity->x) / dt;
-    entity->velocityZ = ((double)dstZ - entity->z) / dt;
-    entity->velocity = sqrt(entity->velocityX * entity->velocityX + entity->velocityZ * entity->velocityZ);
+    DOUBLE dt = entity->lastCycle + 1 - cycle;
+    entity->velocityX = ((DOUBLE)dstX - entity->x) / dt;
+    entity->velocityZ = ((DOUBLE)dstZ - entity->z) / dt;
+    entity->velocity = SQRT(entity->velocityX * entity->velocityX + entity->velocityZ * entity->velocityZ);
 
     if (!entity->mobile) {
-        entity->velocityY = -entity->velocity * tan((double)entity->peakPitch * 0.02454369);
+        entity->velocityY = -entity->velocity * TAN((DOUBLE)entity->peakPitch * 0.02454369);
     }
 
-    entity->accelerationY = ((double)dstY - entity->y - entity->velocityY * dt) * 2.0 / (dt * dt);
+    entity->accelerationY = ((DOUBLE)dstY - entity->y - entity->velocityY * dt) * 2.0 / (dt * dt);
 }
 
 void projectileentity_update(ProjectileEntity *entity, int delta) {
     entity->mobile = true;
-    entity->x += entity->velocityX * (double)delta;
-    entity->z += entity->velocityZ * (double)delta;
-    entity->y += entity->velocityY * (double)delta + entity->accelerationY * 0.5 * (double)delta * (double)delta;
-    entity->velocityY += entity->accelerationY * (double)delta;
-    entity->yaw = (int)(atan2(entity->velocityX, entity->velocityZ) * RADIANS_TO_RS) + 1024 & 0x7ff;
-    entity->pitch = (int)(atan2(entity->velocityY, entity->velocity) * RADIANS_TO_RS) & 0x7ff;
+    entity->x += entity->velocityX * (DOUBLE)delta;
+    entity->z += entity->velocityZ * (DOUBLE)delta;
+    entity->y += entity->velocityY * (DOUBLE)delta + entity->accelerationY * 0.5 * (DOUBLE)delta * (DOUBLE)delta;
+    entity->velocityY += entity->accelerationY * (DOUBLE)delta;
+    entity->yaw = (int)(ATAN2(entity->velocityX, entity->velocityZ) * RADIANS_TO_RS) + 1024 & 0x7ff;
+    entity->pitch = (int)(ATAN2(entity->velocityY, entity->velocity) * RADIANS_TO_RS) & 0x7ff;
 
     if (entity->spotanim->seq) {
         entity->seqCycle += delta;

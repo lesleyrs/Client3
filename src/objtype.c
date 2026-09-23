@@ -165,11 +165,11 @@ Pix24 *objtype_get_icon_outline(int id, int count, int outline_color) {
     int zoom2d = obj->zoom2d;
 
     if (outline_color == -1) {
-        zoom2d = (int)((double)zoom2d * 1.5);
+        zoom2d = (int)((DOUBLE)zoom2d * 1.5);
     }
 
     if (outline_color > 0) {
-        zoom2d = (int)((double)zoom2d * 1.04);
+        zoom2d = (int)((DOUBLE)zoom2d * 1.04);
     }
 
     int sinPitch = _Pix3D.sin_table[obj->xan2d] * zoom2d >> 16;

@@ -480,8 +480,8 @@ void pix24_draw_rotated_masked(Pix24 *pix24, int x, int y, int w, int h, int *li
     int centerX = -w / 2;
     int centerY = -h / 2;
 
-    int sini = (int)(sin((double)theta / 326.11) * 65536.0);
-    int cosi = (int)(cos((double)theta / 326.11) * 65536.0);
+    int sini = (int)(SIN((DOUBLE)theta / RADIANS_TO_RS_IMPRECISE) * 65536.0);
+    int cosi = (int)(COS((DOUBLE)theta / RADIANS_TO_RS_IMPRECISE) * 65536.0);
     int sinZoom = sini * zoom >> 8;
     int cosZoom = cosi * zoom >> 8;
 

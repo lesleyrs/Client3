@@ -34,9 +34,6 @@
 #define SCREEN_CENTER_XOFF ((SCREEN_FB_WIDTH - SCREEN_WIDTH) / 2)
 #endif
 
-// (2048 / (2 * M_PI))
-#define RADIANS_TO_RS 325.949
-
 // arbitrary to fix -Wall possible overflow warnings
 // NOTE maybe change the ones using half_str to use strncpy or double sizes but yolo
 #define HALF_STR (CHAT_LENGTH / 2)
@@ -48,9 +45,33 @@
 #define MAX_CHATS 50
 
 // avoid doubles on consoles with only single precision floats or no fpu at all!
-// TODO: this doesn't change all occurences of doubles into floats yet (or math calls)
+// TODO: double literals haven't been converted to floats add D() macro?
+// TODO: add ps2 here
 #if defined(__PSP__) || defined(__NDS__)
-#define USE_FLOATS
+#define DOUBLE float
+#define POW powf
+#define COS cosf
+#define SIN sinf
+#define SQRT sqrtf
+#define TAN tanf
+#define ATAN2 atan2f
+
+// (2048 / (2 * M_PI))
+#define RADIANS_TO_RS 325.949f
+#define RADIANS_TO_RS_IMPRECISE 326.11f
+#else
+#define DOUBLE double
+#define COS cos
+#define SIN sin
+#define POW pow
+#define SQRT sqrt
+#define TAN tan
+#define ATAN2 atan2
+
+// (2048 / (2 * M_PI))
+#define RADIANS_TO_RS 325.949
+#define RADIANS_TO_RS_IMPRECISE 326.11
+
 #endif
 
 #if defined(_arch_dreamcast) || defined(__NDS__)

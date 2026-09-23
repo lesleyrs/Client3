@@ -107,7 +107,7 @@ void client_init_global(void) {
     int acc = 0;
     for (int i = 0; i < 99; i++) {
         int level = i + 1;
-        int delta = (int)((double)level + pow(2.0, (double)level / 7.0) * 300.0);
+        int delta = (int)((DOUBLE)level + POW(2.0, (DOUBLE)level / 7.0) * 300.0);
         acc += delta;
         _Client.levelExperience[i] = acc / 4;
     }
@@ -196,6 +196,9 @@ void client_load(Client *c) {
         }
     }
 
+#ifdef __NDS__
+    malloc_stats();
+#endif
     c->archive_title = load_archive(c, "title", c->archive_checksum[1], "title screen", 10);
     if (!c->archive_title) {
         c->error_loading = true;
@@ -230,6 +233,9 @@ void client_load(Client *c) {
         c->levelCollisionMap[level] = collisionmap_new(104, 104);
     }
     c->image_minimap = pix24_new(512, 512, false);
+#ifdef __NDS__
+    malloc_stats();
+#endif
     client_draw_progress(c, "Unpacking media", 75);
     c->image_invback = pix8_from_archive(media, "invback", 0);
     c->image_chatback = pix8_from_archive(media, "chatback", 0);
@@ -352,6 +358,9 @@ void client_load(Client *c) {
     pix3d_set_brightness(0.8);
     pix3d_init_pool(PIX3D_POOL_COUNT);
 
+#ifdef __NDS__
+    malloc_stats();
+#endif
     client_draw_progress(c, "Unpacking models", 83);
     model_unpack(models);
     animbase_unpack(models);
@@ -569,7 +578,7 @@ void client_update_flame_buffer(Client *c, Pix8 *image) {
     memset(c->flame_buffer0, 0, FLAME_BUFFER_SIZE * sizeof(int));
 
     for (int i = 0; i < 5000; i++) {
-        int index = (int)(jrand() * 128.0 * (double)flame_height);
+        int index = (int)(jrand() * 128.0 * (DOUBLE)flame_height);
         c->flame_buffer0[index] = (int)(jrand() * 256.0);
     }
 
@@ -717,7 +726,7 @@ static void client_update_flames(Client *c) {
         c->flame_line_offset[y] = c->flame_line_offset[y + 1];
     }
 
-    c->flame_line_offset[height - 1] = (int)(sin((double)_Client.loop_cycle / 14.0) * 16.0 + sin((double)_Client.loop_cycle / 15.0) * 14.0 + sin((double)_Client.loop_cycle / 16.0) * 12.0);
+    c->flame_line_offset[height - 1] = (int)(SIN((DOUBLE)_Client.loop_cycle / 14.0) * 16.0 + SIN((DOUBLE)_Client.loop_cycle / 15.0) * 14.0 + SIN((DOUBLE)_Client.loop_cycle / 16.0) * 12.0);
 
     if (c->flameGradientCycle0 > 0) {
         c->flameGradientCycle0 -= 4;
@@ -2247,7 +2256,7 @@ static void updateFacingDirection(Client *c, PathingEntity *e) {
             int dstZ = e->z - npc->pathing_entity.z;
 
             if (dstX != 0 || dstZ != 0) {
-                e->dstYaw = (int)(atan2(dstX, dstZ) * RADIANS_TO_RS) & 0x7ff;
+                e->dstYaw = (int)(ATAN2(dstX, dstZ) * RADIANS_TO_RS) & 0x7ff;
             }
         }
     }
@@ -2264,7 +2273,7 @@ static void updateFacingDirection(Client *c, PathingEntity *e) {
             int dstZ = e->z - player->pathing_entity.z;
 
             if (dstX != 0 || dstZ != 0) {
-                e->dstYaw = (int)(atan2(dstX, dstZ) * RADIANS_TO_RS) & 0x7ff;
+                e->dstYaw = (int)(ATAN2(dstX, dstZ) * RADIANS_TO_RS) & 0x7ff;
             }
         }
     }
@@ -2274,7 +2283,7 @@ static void updateFacingDirection(Client *c, PathingEntity *e) {
         int dstZ = e->z - (e->targetTileZ - c->sceneBaseTileZ - c->sceneBaseTileZ) * 64;
 
         if (dstX != 0 || dstZ != 0) {
-            e->dstYaw = (int)(atan2(dstX, dstZ) * RADIANS_TO_RS) & 0x7ff;
+            e->dstYaw = (int)(ATAN2(dstX, dstZ) * RADIANS_TO_RS) & 0x7ff;
         }
 
         e->targetTileX = 0;
@@ -3669,9 +3678,9 @@ static void applyCutscene(Client *c) {
     int deltaY = y - c->cameraY;
     int deltaZ = z - c->cameraZ;
 
-    int distance = (int)sqrt(deltaX * deltaX + deltaZ * deltaZ);
-    int pitch = (int)(atan2(deltaY, distance) * RADIANS_TO_RS) & 0x7ff;
-    int yaw = (int)(atan2(deltaX, deltaZ) * -RADIANS_TO_RS) & 0x7ff;
+    int distance = (int)SQRT(deltaX * deltaX + deltaZ * deltaZ);
+    int pitch = (int)(ATAN2(deltaY, distance) * RADIANS_TO_RS) & 0x7ff;
+    int yaw = (int)(ATAN2(deltaX, deltaZ) * -RADIANS_TO_RS) & 0x7ff;
 
     if (pitch < 128) {
         pitch = 128;
@@ -5601,9 +5610,9 @@ bool client_read(Client *c) {
             int deltaX = sceneX - c->cameraX;
             int deltaY = sceneY - c->cameraY;
             int deltaZ = sceneZ - c->cameraZ;
-            int distance = (int)sqrt(deltaX * deltaX + deltaZ * deltaZ);
-            c->cameraPitch = (int)(atan2(deltaY, distance) * RADIANS_TO_RS) & 0x7ff;
-            c->cameraYaw = (int)(atan2(deltaX, deltaZ) * -RADIANS_TO_RS) & 0x7ff;
+            int distance = (int)SQRT(deltaX * deltaX + deltaZ * deltaZ);
+            c->cameraPitch = (int)(ATAN2(deltaY, distance) * RADIANS_TO_RS) & 0x7ff;
+            c->cameraYaw = (int)(ATAN2(deltaX, deltaZ) * -RADIANS_TO_RS) & 0x7ff;
             if (c->cameraPitch < 128) {
                 c->cameraPitch = 128;
             }
@@ -8959,7 +8968,7 @@ void client_draw_scene(Client *c) {
     int jitter;
     for (int type = 0; type < 5; type++) {
         if (c->cameraModifierEnabled[type]) {
-            jitter = (int)(jrand() * (double)(c->cameraModifierJitter[type] * 2 + 1) - (double)c->cameraModifierJitter[type] + sin((double)c->cameraModifierCycle[type] * ((double)c->cameraModifierWobbleSpeed[type] / 100.0)) * (double)c->cameraModifierWobbleScale[type]);
+            jitter = (int)(jrand() * (DOUBLE)(c->cameraModifierJitter[type] * 2 + 1) - (DOUBLE)c->cameraModifierJitter[type] + SIN((DOUBLE)c->cameraModifierCycle[type] * ((DOUBLE)c->cameraModifierWobbleSpeed[type] / 100.0)) * (DOUBLE)c->cameraModifierWobbleScale[type]);
             if (type == 0) {
                 c->cameraX += jitter;
             }
@@ -9729,7 +9738,7 @@ void client_update_interface_content(Client *c, Component *component) {
         }
     } else if (clientCode == 327) {
         component->xan = 150;
-        component->yan = (int)(sin((double)_Client.loop_cycle / 40.0) * 256.0) & 0x7ff;
+        component->yan = (int)(SIN((DOUBLE)_Client.loop_cycle / 40.0) * 256.0) & 0x7ff;
         if (c->update_design_model) {
             c->update_design_model = false;
 

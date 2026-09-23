@@ -1,5 +1,6 @@
 #pragma once
 
+#include "defines.h"
 #include "entity.h"
 #include "spotanimtype.h"
 
@@ -17,14 +18,14 @@ typedef struct ProjectileEntity {
     int arc;
     int target;
     bool mobile; // = false;
-    double x;
-    double z;
-    double y;
-    double velocityX;
-    double velocityZ;
-    double velocity;
-    double velocityY;
-    double accelerationY;
+    DOUBLE x;
+    DOUBLE z;
+    DOUBLE y;
+    DOUBLE velocityX;
+    DOUBLE velocityZ;
+    DOUBLE velocity;
+    DOUBLE velocityY;
+    DOUBLE accelerationY;
     int yaw;
     int pitch;
     int seqFrame;

@@ -798,7 +798,7 @@ int world3d_get_info(World3D *world3d, int level, int x, int z, int bitset) {
 }
 
 void world3d_build_models(World3D *world3d, int lightAmbient, int lightAttenuation, int lightSrcX, int lightSrcY, int lightSrcZ) {
-    int lightMagnitude = (int)sqrt(lightSrcX * lightSrcX + lightSrcY * lightSrcY + lightSrcZ * lightSrcZ);
+    int lightMagnitude = (int)SQRT(lightSrcX * lightSrcX + lightSrcY * lightSrcY + lightSrcZ * lightSrcZ);
     int attenuation = lightAttenuation * lightMagnitude >> 8;
 
     for (int level = 0; level < world3d->maxLevel; level++) {

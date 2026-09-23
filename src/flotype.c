@@ -68,11 +68,11 @@ static void flotype_decode(FloType *flo, Packet *dat) {
 }
 
 void flotype_set_color(FloType *flo, int rgb) {
-    double red = (double)(rgb >> 16 & 0xff) / 256.0;
-    double green = (double)(rgb >> 8 & 0xff) / 256.0;
-    double blue = (double)(rgb & 0xff) / 256.0;
+    DOUBLE red = (DOUBLE)(rgb >> 16 & 0xff) / 256.0;
+    DOUBLE green = (DOUBLE)(rgb >> 8 & 0xff) / 256.0;
+    DOUBLE blue = (DOUBLE)(rgb & 0xff) / 256.0;
 
-    double min = red;
+    DOUBLE min = red;
     if (green < red) {
         min = green;
     }
@@ -80,7 +80,7 @@ void flotype_set_color(FloType *flo, int rgb) {
         min = blue;
     }
 
-    double max = red;
+    DOUBLE max = red;
     if (green > red) {
         max = green;
     }
@@ -88,9 +88,9 @@ void flotype_set_color(FloType *flo, int rgb) {
         max = blue;
     }
 
-    double h = 0.0;
-    double s = 0.0;
-    double l = (min + max) / 2.0;
+    DOUBLE h = 0.0;
+    DOUBLE s = 0.0;
+    DOUBLE l = (min + max) / 2.0;
 
     if (min != max) {
         if (l < 0.5) {
@@ -137,7 +137,7 @@ void flotype_set_color(FloType *flo, int rgb) {
         flo->luminance = 1;
     }
 
-    flo->chroma = (int)(h * (double)flo->luminance);
+    flo->chroma = (int)(h * (DOUBLE)flo->luminance);
 
     int hue = flo->hue + (int)(jrand() * 16.0) - 8;
     if (hue < 0) {
