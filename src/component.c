@@ -11,6 +11,13 @@
 
 ComponentData _Component = {0};
 
+// save memory by not needlessly allocating maximum string size for all components
+void realloc_and_copy(char** to, char* from) {
+    size_t text_len = strlen(from) + 1;
+    *to = realloc(*to, text_len);
+    strcpy(*to, from);
+}
+
 void component_free_global(void) {
     for (int i = 0; i < _Component.count; i++) {
         if (_Component.instances[i]) {
@@ -32,6 +39,12 @@ void component_free_global(void) {
             if (_Component.instances[i]->actionVerb) {
                 free(_Component.instances[i]->actionVerb);
                 free(_Component.instances[i]->action);
+            }
+            if (_Component.instances[i]->text) {
+                free(_Component.instances[i]->text);
+            }
+            if (_Component.instances[i]->option) {
+                free(_Component.instances[i]->option);
             }
             if (_Component.instances[i]->activeText) {
                 free(_Component.instances[i]->activeText);
@@ -205,9 +218,7 @@ void component_unpack(Jagfile *jag, Jagfile *media, PixFont **fonts) {
         }
 
         if (com->type == TYPE_TEXT) {
-            char *text = gjstr(dat);
-            strcpy(com->text, text);
-            free(text);
+            com->text = gjstr(dat);
             com->activeText = gjstr(dat);
         }
 
@@ -309,21 +320,19 @@ void component_unpack(Jagfile *jag, Jagfile *media, PixFont **fonts) {
         }
 
         if (com->buttonType == BUTTON_OK || com->buttonType == BUTTON_TOGGLE || com->buttonType == BUTTON_SELECT || com->buttonType == BUTTON_CONTINUE) {
-            char *option = gjstr(dat);
-            strcpy(com->option, option);
+            com->option = gjstr(dat);
 
             if (strlen(com->option) == 0) {
                 if (com->buttonType == BUTTON_OK) {
-                    strcpy(com->option, "Ok");
+                    realloc_and_copy(&com->option, "Ok");
                 } else if (com->buttonType == BUTTON_TOGGLE) {
-                    strcpy(com->option, "Select");
+                    realloc_and_copy(&com->option, "Select");
                 } else if (com->buttonType == BUTTON_SELECT) {
-                    strcpy(com->option, "Select");
+                    realloc_and_copy(&com->option, "Select");
                 } else if (com->buttonType == BUTTON_CONTINUE) {
-                    strcpy(com->option, "Continue");
+                    realloc_and_copy(&com->option, "Continue");
                 }
             }
-            free(option);
         }
     }
 

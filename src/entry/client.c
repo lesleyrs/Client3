@@ -5771,7 +5771,7 @@ bool client_read(Client *c) {
         // IF_SETTEXT
         int com = g2(c->in);
         char *text = gjstr(c->in);
-        strcpy(_Component.instances[com]->text, text);
+        realloc_and_copy(&_Component.instances[com]->text, text);
         free(text);
         if (_Component.instances[com]->layer == c->tab_interface_id[c->selected_tab]) {
             c->redraw_sidebar = true;
@@ -9688,24 +9688,28 @@ void client_update_interface_content(Client *c, Component *component) {
     if (clientCode >= 1 && clientCode <= 100) {
         clientCode--;
         if (clientCode >= c->friend_count) {
-            strcpy(component->text, "");
+            realloc_and_copy(&component->text, "");
             component->buttonType = 0;
         } else {
-            strcpy(component->text, c->friendName[clientCode]);
+            realloc_and_copy(&component->text, c->friendName[clientCode]);
             component->buttonType = 1;
         }
     } else if (clientCode >= 101 && clientCode <= 200) {
         clientCode -= 101;
         if (clientCode >= c->friend_count) {
-            strcpy(component->text, "");
+            realloc_and_copy(&component->text, "");
             component->buttonType = 0;
         } else {
             if (c->friendWorld[clientCode] == 0) {
-                strcpy(component->text, "@red@Offline");
+                realloc_and_copy(&component->text, "@red@Offline");
             } else if (c->friendWorld[clientCode] == _Client.nodeid) {
-                sprintf(component->text, "@gre@World-%d", c->friendWorld[clientCode] - 9);
+                char buf[MAX_STR];
+                sprintf(buf, "@gre@World-%d", c->friendWorld[clientCode] - 9);
+                realloc_and_copy(&component->text, buf);
             } else {
-                sprintf(component->text, "@yel@World-%d", c->friendWorld[clientCode] - 9);
+                char buf[MAX_STR];
+                sprintf(buf, "@yel@World-%d", c->friendWorld[clientCode] - 9);
+                realloc_and_copy(&component->text, buf);
             }
             component->buttonType = 1;
         }
@@ -9717,10 +9721,10 @@ void client_update_interface_content(Client *c, Component *component) {
     } else if (clientCode >= 401 && clientCode <= 500) {
         clientCode -= 401;
         if (clientCode >= c->ignoreCount) {
-            strcpy(component->text, "");
+            realloc_and_copy(&component->text, "");
             component->buttonType = 0;
         } else {
-            strcpy(component->text, jstring_format_name(jstring_from_base37(c->ignoreName37[clientCode])));
+            realloc_and_copy(&component->text, jstring_format_name(jstring_from_base37(c->ignoreName37[clientCode])));
             component->buttonType = 1;
         }
     } else if (clientCode == 503) {
@@ -9779,25 +9783,22 @@ void client_update_interface_content(Client *c, Component *component) {
             component->graphic = c->genderButtonImage1;
         }
     } else if (clientCode == 600) {
-        strcpy(component->text, c->reportAbuseInput);
-        if (_Client.loop_cycle % 20 < 10) {
-            strcat(component->text, "|");
-        } else {
-            strcat(component->text, " ");
-        }
+        char buf[MAX_STR];
+        sprintf(buf, "%s%s", c->reportAbuseInput, _Client.loop_cycle % 20 < 10 ? "|" : " ");
+        realloc_and_copy(&component->text, buf);
     } else if (clientCode == 613) {
         if (!c->rights) {
-            strcpy(component->text, "");
+            realloc_and_copy(&component->text, "");
         } else if (c->reportAbuseMuteOption) {
             component->colour = RED;
-            strcpy(component->text, "Moderator option: Mute player for 48 hours: <ON>");
+            realloc_and_copy(&component->text, "Moderator option: Mute player for 48 hours: <ON>");
         } else {
             component->colour = WHITE;
-            strcpy(component->text, "Moderator option: Mute player for 48 hours: <OFF>");
+            realloc_and_copy(&component->text, "Moderator option: Mute player for 48 hours: <OFF>");
         }
     } else if (clientCode == 650 || clientCode == 655) {
         if (c->lastAddress == 0) {
-            strcpy(component->text, "");
+            realloc_and_copy(&component->text, "");
         } else {
             char text[HALF_STR];
             if (c->daysSinceLastLogin == 0) {
@@ -9807,26 +9808,30 @@ void client_update_interface_content(Client *c, Component *component) {
             } else {
                 sprintf(text, "%d days ago", c->daysSinceLastLogin);
             }
-            sprintf(component->text, "You last logged in %s from: %s", text, _Client.dns);
+            char full_text[MAX_STR];
+            sprintf(full_text, "You last logged in %s from: %s", text, _Client.dns);
+            realloc_and_copy(&component->text, full_text);
         }
     } else if (clientCode == 651) {
         if (c->unreadMessages == 0) {
-            strcpy(component->text, "0 unread messages");
+            realloc_and_copy(&component->text, "0 unread messages");
             component->colour = YELLOW;
         }
         if (c->unreadMessages == 1) {
-            strcpy(component->text, "1 unread message");
+            realloc_and_copy(&component->text, "1 unread message");
             component->colour = GREEN;
         }
         if (c->unreadMessages > 1) {
-            sprintf(component->text, "%d unread messages", c->unreadMessages);
+            char buf[MAX_STR];
+            sprintf(buf, "%d unread messages", c->unreadMessages);
+            realloc_and_copy(&component->text, buf);
             component->colour = GREEN;
         }
     } else if (clientCode == 652) {
         if (c->daysSinceRecoveriesChanged == 201) {
-            strcpy(component->text, "");
+            realloc_and_copy(&component->text, "");
         } else if (c->daysSinceRecoveriesChanged == 200) {
-            strcpy(component->text, "You have not yet set any password recovery questions.");
+            realloc_and_copy(&component->text, "You have not yet set any password recovery questions.");
         } else {
             char text[HALF_STR];
             if (c->daysSinceRecoveriesChanged == 0) {
@@ -9836,23 +9841,25 @@ void client_update_interface_content(Client *c, Component *component) {
             } else {
                 sprintf(text, "%d days ago", c->daysSinceRecoveriesChanged);
             }
-            sprintf(component->text, "%s you changed your recovery questions", text);
+            char full_text[MAX_STR];
+            sprintf(full_text, "%s you changed your recovery questions", text);
+            realloc_and_copy(&component->text, full_text);
         }
     } else if (clientCode == 653) {
         if (c->daysSinceRecoveriesChanged == 201) {
-            strcpy(component->text, "");
+            realloc_and_copy(&component->text, "");
         } else if (c->daysSinceRecoveriesChanged == 200) {
-            strcpy(component->text, "We strongly recommend you do so now to secure your account.");
+            realloc_and_copy(&component->text, "We strongly recommend you do so now to secure your account.");
         } else {
-            strcpy(component->text, "If you do not remember making this change then cancel it immediately");
+            realloc_and_copy(&component->text, "If you do not remember making this change then cancel it immediately");
         }
     } else if (clientCode == 654) {
         if (c->daysSinceRecoveriesChanged == 201) {
-            strcpy(component->text, "");
+            realloc_and_copy(&component->text, "");
         } else if (c->daysSinceRecoveriesChanged == 200) {
-            strcpy(component->text, "Do this from the 'account management' area on our front webpage");
+            realloc_and_copy(&component->text, "Do this from the 'account management' area on our front webpage");
         } else {
-            strcpy(component->text, "Do this from the 'account management' area on our front webpage");
+            realloc_and_copy(&component->text, "Do this from the 'account management' area on our front webpage");
         }
     }
 }

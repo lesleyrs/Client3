@@ -130,7 +130,7 @@ typedef struct {
     bool center;
     bool shadowed;
     PixFont *font;
-    char text[MAX_TEXT_LENGTH];
+    char *text;
     char *activeText;
     int colour;
     int activeColour;
@@ -147,7 +147,7 @@ typedef struct {
     char *actionVerb;
     char *action;
     int actionTarget;
-    char option[MAX_OPTION_LENGTH];
+    char *option;
 
     int childCount;
     int comparatorCount;
@@ -166,3 +166,4 @@ void component_unpack(Jagfile *jag, Jagfile *media, PixFont **fonts);
 Pix24 *component_get_image(Jagfile *media, char *sprite, int spriteId);
 Model *component_get_model(int id);
 Model *component_get_model2(Component *com, int primaryFrame, int secondaryFrame, bool active, bool *_free);
+void realloc_and_copy(char** to, char* from);
