@@ -23,7 +23,11 @@
 #define BUTTON_SELECT 5
 #define BUTTON_CONTINUE 6
 
-// NOTE text and option fields are wasting some memory as there's many Component instances but it's easiest to allocate inside the struct
+// NOTE this wastes some memory as there's many Component instances but it's easiest to allocate inside the struct
+// null terminated
+#define MAX_TEXT_LENGTH 149
+#define MAX_OPTION_LENGTH 30
+
 typedef struct {
     int *invSlotObjId;
     int *invSlotObjCount;
@@ -126,7 +130,7 @@ typedef struct {
     bool center;
     bool shadowed;
     PixFont *font;
-    char text[DOUBLE_STR]; // arbitrary length, had to double it to stop overflow
+    char text[MAX_TEXT_LENGTH];
     char *activeText;
     int colour;
     int activeColour;
@@ -143,7 +147,7 @@ typedef struct {
     char *actionVerb;
     char *action;
     int actionTarget;
-    char option[HALF_STR]; // arbitrary length, longest option is 30 in this rev
+    char option[MAX_OPTION_LENGTH];
 
     int childCount;
     int comparatorCount;
