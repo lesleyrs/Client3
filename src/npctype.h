@@ -22,9 +22,9 @@ typedef struct {
     int *recol_s;
     int *recol_d;
     char **op;
-    int resizex;  // = -1;
-    int resizey;  // = -1;
-    int resizez;  // = -1;
+    // int resizex;  // = -1;
+    // int resizey;  // = -1;
+    // int resizez;  // = -1;
     bool minimap; // = true;
     int vislevel; // = -1;
     int resizeh;  // = 128;

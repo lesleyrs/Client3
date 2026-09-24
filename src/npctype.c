@@ -23,9 +23,9 @@ static NpcType *npctype_new(void) {
     npc->walkanim_r = -1;
     npc->walkanim_l = -1;
     npc->animHasAlpha = false;
-    npc->resizex = -1;
-    npc->resizey = -1;
-    npc->resizez = -1;
+    // npc->resizex = -1;
+    // npc->resizey = -1;
+    // npc->resizez = -1;
     npc->minimap = true;
     npc->vislevel = -1;
     npc->resizeh = 128;
@@ -142,13 +142,16 @@ static void npctype_decode(NpcType *npc, Packet *dat) {
             }
         } else if (code == 90) {
             // unused
-            npc->resizex = g2(dat);
+            // npc->resizex = g2(dat);
+            g2(dat);
         } else if (code == 91) {
             // unused
-            npc->resizey = g2(dat);
+            // npc->resizey = g2(dat);
+            g2(dat);
         } else if (code == 92) {
             // unused
-            npc->resizez = g2(dat);
+            // npc->resizez = g2(dat);
+            g2(dat);
         } else if (code == 93) {
             npc->minimap = false;
         } else if (code == 95) {

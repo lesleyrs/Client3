@@ -196,9 +196,6 @@ void client_load(Client *c) {
         }
     }
 
-#ifdef __NDS__
-    malloc_stats();
-#endif
     c->archive_title = load_archive(c, "title", c->archive_checksum[1], "title screen", 10);
     if (!c->archive_title) {
         c->error_loading = true;
@@ -233,9 +230,6 @@ void client_load(Client *c) {
         c->levelCollisionMap[level] = collisionmap_new(104, 104);
     }
     c->image_minimap = pix24_new(512, 512, false);
-#ifdef __NDS__
-    malloc_stats();
-#endif
     client_draw_progress(c, "Unpacking media", 75);
     c->image_invback = pix8_from_archive(media, "invback", 0);
     c->image_chatback = pix8_from_archive(media, "chatback", 0);
@@ -308,6 +302,7 @@ void client_load(Client *c) {
     c->image_redstone2hv = pix8_from_archive(media, "redstone2", 0);
     pix8_flip_horizontally(c->image_redstone2hv);
     pix8_flip_vertically(c->image_redstone2hv);
+
     Pix24 *backleft1 = pix24_from_archive(media, "backleft1", 0);
     c->area_backleft1 = pixmap_new(backleft1->width, backleft1->height);
     pix24_blit_opaque(backleft1, 0, 0);
@@ -358,9 +353,6 @@ void client_load(Client *c) {
     pix3d_set_brightness(0.8);
     pix3d_init_pool(PIX3D_POOL_COUNT);
 
-#ifdef __NDS__
-    malloc_stats();
-#endif
     client_draw_progress(c, "Unpacking models", 83);
     model_unpack(models);
     animbase_unpack(models);
@@ -9880,7 +9872,7 @@ void client_set_highmem(void) {
 }
 
 static const char *formatObjCountTagged(int amount) {
-    static char s[SIXTY_STR];
+    static char s[MAX_STR];
 
     char tmp[14];
     sprintf(tmp, "%d", amount);

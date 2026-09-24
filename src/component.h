@@ -23,6 +23,7 @@
 #define BUTTON_SELECT 5
 #define BUTTON_CONTINUE 6
 
+// NOTE text and option fields are wasting some memory as there's many Component instances but it's easiest to allocate inside the struct
 typedef struct {
     int *invSlotObjId;
     int *invSlotObjCount;
@@ -110,8 +111,8 @@ typedef struct {
     int *childId;
     int *childX;
     int *childY;
-    int unusedShort1;
-    bool unusedBoolean1;
+    // int unusedShort1;
+    // bool unusedBoolean1;
     bool draggable;
     bool interactable;
     bool usable;

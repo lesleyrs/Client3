@@ -35,14 +35,9 @@
 #endif
 
 // arbitrary to fix -Wall possible overflow warnings
-// NOTE maybe change the ones using half_str to use strncpy or double sizes but yolo
 #define HALF_STR (CHAT_LENGTH / 2)
-#define SIXTY_STR 60
 #define DOUBLE_STR (CHAT_LENGTH * 2)
-// arbitrary + null terminator
 #define MAX_STR (CHAT_LENGTH + 1)
-
-#define MAX_CHATS 50
 
 // avoid doubles on consoles with only single precision floats or no fpu at all!
 // TODO: double literals haven't been converted to floats use D()
@@ -86,6 +81,7 @@
 #define MODEL_DEPTH_FACE_COUNT 512
 #define PIX3D_POOL_COUNT 20
 #endif
+
 #define LOCBUFFER_COUNT 100
 #define MAX_NPC_COUNT 8192
 #define MAX_PLAYER_COUNT 2048
@@ -97,6 +93,7 @@
 #define CHATBACK_LENGTH 10
 #define REPORT_ABUSE_LENGTH 12
 #define CHAT_LENGTH 80
+#define MAX_CHATS 50
 #define USERNAME_LENGTH 12
 #define PASSWORD_LENGTH 20
 

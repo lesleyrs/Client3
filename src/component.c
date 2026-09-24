@@ -141,8 +141,10 @@ void component_unpack(Jagfile *jag, Jagfile *media, PixFont **fonts) {
         }
 
         if (com->type == TYPE_UNUSED) {
-            com->unusedShort1 = g2(dat);
-            com->unusedBoolean1 = g1(dat) == 1;
+            g2(dat);
+            g1(dat);
+            // com->unusedShort1 = g2(dat);
+            // com->unusedBoolean1 = g1(dat) == 1;
         }
 
         if (com->type == TYPE_INV) {
