@@ -228,6 +228,8 @@ can test with Vita3K, instead of decompressing the vpk you can copy just the ebo
 
 NOTE: https://github.com/Vita3K/Vita3K/issues/4064 vita3k emu doesn't support glScissor so scene appears as white unless removed
 
+run `make vita_assets` to regenerate live area.
+
 ### Sony PS2
 not yet working, should be doable
 ```

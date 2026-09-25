@@ -123,15 +123,14 @@ void platform_set_font(const char *name, bool bold, int size) {
 #elif ANDROID
         file = SDL_RWFromFile("Roboto/Roboto-Bold.ttf", "rb");
 #else
-        file = fopen("Roboto/Roboto-Bold.ttf", "rb");
+        file = fopen("rom/Roboto/Roboto-Bold.ttf", "rb");
 #endif
         if (!file) {
 #ifdef _WIN32
             file = fopen("c:/reactos/fonts/arialbd.ttf", "rb");
 #endif
             if (!file) {
-                // last try for desktop without system fonts found, where /rom isn't root in romfs
-                file = fopen("rom/Roboto/Roboto-Bold.ttf", "rb");
+                file = fopen("Roboto/Roboto-Bold.ttf", "rb");
                 if (!file) {
                     // TODO: won't show errors on screen if no font, try use native text drawing for all platforms if no system font or Roboto
                     rs2_error("Failed to open font file\n");

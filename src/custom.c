@@ -70,10 +70,11 @@ bool load_ini_args(void) {
     // world nodeid 1 = 10 (default)
     INI_INT_LOG(&(&_Client), nodeid, _Client.nodeid = 10 + _Client.nodeid - 1);
     INI_INT_LOG(&(&_Client), portoff, );
-    INI_INT_LOG(&(&_Client), lowmem, );
 #if defined(__PSP__) || defined(_arch_dreamcast) || defined(__NDS__) || defined(NXDK)
-    // implicitly ignore highmem, avoids confusion as there's no way it'll load, except if xbox has mem expansion
     _Client.lowmem = true;
+    rs2_log("  lowmem: %d (option overwritten due to limited memory)", _Client.lowmem);
+#else
+    INI_INT_LOG(&(&_Client), lowmem, );
 #endif
     INI_INT_LOG(&(&_Client), members, _Client.members = !_Client.members);
 
