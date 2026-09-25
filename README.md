@@ -199,6 +199,12 @@ move the rom/ directory into sdmc
 
 set `lowmem = 0` in config for audio
 
+controls: dpad for arrow keys, A for right click on touch, B for control (run toggle)
+
+```
+TODO: add more controls
+```
+
 ### Sony PSP
 Install [pspdev](#tools) and run `make -f psp.mk -j$(nproc) -B`.
 

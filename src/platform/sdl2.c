@@ -684,7 +684,77 @@ void platform_poll_events(Client *c) {
             key_released(c->shell, code, ch);
             break;
         }
-#if defined(__vita__) || defined(__SWITCH__)
+#if defined(__SWITCH__)
+#define JOY_A     0
+#define JOY_B     1
+#define JOY_X     2
+#define JOY_Y     3
+#define JOY_PLUS  10
+#define JOY_MINUS 11
+#define JOY_LEFT  12
+#define JOY_UP    13
+#define JOY_RIGHT 14
+#define JOY_DOWN  15
+
+        case SDL_JOYAXISMOTION: {
+            // rs2_log("axis %d value %d\n", e.jaxis.axis, e.jaxis.value);
+        } break;
+        case SDL_JOYBUTTONDOWN: {
+            switch (e.jbutton.button) {
+            case JOY_A:
+                right_touch = true;
+                break;
+            case JOY_B:
+                key_pressed(c->shell, K_CONTROL, -1);
+                break;
+            case JOY_X:
+                break;
+            case JOY_Y:
+                break;
+            case JOY_DOWN:
+                key_pressed(c->shell, K_DOWN, -1);
+                break;
+            case JOY_LEFT:
+                key_pressed(c->shell, K_LEFT, -1);
+                break;
+            case JOY_UP:
+                key_pressed(c->shell, K_UP, -1);
+                break;
+            case JOY_RIGHT:
+                key_pressed(c->shell, K_RIGHT, -1);
+                break;
+            }
+            break;
+        } break;
+        case SDL_JOYBUTTONUP: {
+            switch (e.jbutton.button) {
+            case JOY_A:
+                right_touch = false;
+                break;
+            case JOY_B:
+                key_released(c->shell, K_CONTROL, -1);
+                break;
+            case JOY_X:
+                break;
+            case JOY_Y:
+                break;
+            case JOY_DOWN:
+                key_released(c->shell, K_DOWN, -1);
+                break;
+            case JOY_LEFT:
+                key_released(c->shell, K_LEFT, -1);
+                break;
+            case JOY_UP:
+                key_released(c->shell, K_UP, -1);
+                break;
+            case JOY_RIGHT:
+                key_released(c->shell, K_RIGHT, -1);
+                break;
+            }
+            break;
+        } break;
+#endif
+#if defined(__vita__)
         case SDL_JOYAXISMOTION: {
             // rs2_log("axis %d value %d\n", e.jaxis.axis, e.jaxis.value);
         } break;
