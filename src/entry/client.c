@@ -473,8 +473,7 @@ void client_load(Client *c) {
     }
 
 // TODO make screen fit in nds res for logins
-// TODO check if wiiu touch works
-#if defined(__WIIU__) || defined(__NDS__)
+#if defined(__NDS__)
     client_login(c, c->username, c->password, false);
 #endif
 

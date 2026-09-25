@@ -24,7 +24,7 @@ extern ClientData _Client;
 extern InputTracking _InputTracking;
 extern Custom _Custom;
 
-#if defined(__vita__) || defined(__SWITCH__)
+#if defined(__vita__) || defined(__SWITCH__) || defined(__WIIU__)
 static SDL_Joystick *joystick;
 #endif
 static bool right_touch = false;
@@ -142,7 +142,7 @@ bool platform_init(void) {
     if (!_Client.lowmem) {
         init |= SDL_INIT_AUDIO;
     }
-#if defined(__vita__) || defined(__SWITCH__)
+#if defined(__vita__) || defined(__SWITCH__) || defined(__WIIU__)
     init |= SDL_INIT_JOYSTICK;
 #endif
     if (SDL_Init(init) < 0) {
@@ -153,7 +153,7 @@ bool platform_init(void) {
 }
 
 void platform_new(GameShell *shell) {
-#if defined(__vita__) || defined(__SWITCH__)
+#if defined(__vita__) || defined(__SWITCH__) || defined(__WIIU__)
     SDL_JoystickEventState(SDL_ENABLE);
     joystick = SDL_JoystickOpen(0);
 #endif
@@ -287,7 +287,7 @@ void platform_new(GameShell *shell) {
 }
 
 void platform_free(void) {
-#if defined(__vita__) || defined(__SWITCH__)
+#if defined(__vita__) || defined(__SWITCH__) || defined(__WIIU__)
     SDL_JoystickClose(0);
 #endif
     if (_Custom.resizable) {

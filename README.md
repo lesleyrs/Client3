@@ -130,9 +130,11 @@ TODO: long press right click? click on touch release? hold in viewport to rotate
 TODO: osk by adding using custom.c funcs (move them to gameshell?)
 ```
 ### Nintendo consoles (devkitPro)
-Install [devkitpro](#tools) with (nds/wii/3ds/wiiu/switch)-dev package and run `make -f (nds/wii/3ds/wiiu/switch).mk -j$(nproc) -B`.
+Install [devkitpro](#tools) and run `dkp-pacman -S console-dev` replace console with (nds/wii/3ds/wiiu/switch).
 
 Wii U and Switch also need the (wiiu/switch)-sdl2 package.
+
+build: `make -f (nds/wii/3ds/wiiu/switch).mk -j$(nproc) -B`.
 
 #### Wii
 in dolphin emulator you can find the sdcard path in `options>configuration>wii>sd card` settings and after moving the files there you have to click `Convert Folder to File Now` to format it.
@@ -178,24 +180,16 @@ TODO: see new 2ds/3ds performance with higher cpu clock, old 2ds runs at ~10-20
 ```
 
 #### Wii U
-in cemu emulator click `file>open mlc folder`, go 1 directory up to see sdcard dir
+in cemu emulator click `file>open Cemu folder`, enter sdcard directory and paste rom/ dir into it
+
+in cemu go to Debug>Open logging window to see output streams.
 
 ```
-TODO: Touch input not working yet, might be fixed by last wiiu-sdl2 commit.
-NOTE: libtom encryption fails when it works on old wii? (tiny-bignum is ok)
-NOTE: highmem doesn't start due to tinysoundfont not working on powerpc
+NOTE: tinysoundfont lib doesn't work on powerpc?
 ```
 
 #### Switch
-install:
-`dkp-pacman -S switch-dev switch-sdl2`
-
-build:
-`make -f switch.mk -j$(nproc) -B`
-
-in eden emulator (yuzu fork) click `file->open eden folders` for sdmc dir
-
-move the rom/ directory into sdmc
+in eden emulator (yuzu fork) click `file->open eden folders` enter sdmc dir and paste rom/ dir into it
 
 set `lowmem = 0` in config for audio
 
