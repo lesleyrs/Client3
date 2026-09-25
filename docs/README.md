@@ -22,7 +22,6 @@
 * https://github.com/Pazaz/RS2-225 - renamed java deob with builtin server
 * https://github.com/2003scape/rsc-client - bundled webworker/webrtc server idea in Client2 (old TS port)
 * https://github.com/2004Scape/Client2 - https://lesleyrs.github.io/Client2/?world=999&detail=high&method=0
-* https://github.com/galsjel/RuneScape-317 - partial 317 TS port https://github.com/lesleyrs/webclient317
 
 ## game history info
 * https://github.com/2004Scape/Server/wiki/FAQ
@@ -42,10 +41,9 @@
 - finish mobile support like client-ts (sdl2 and sdl3 for postmarketos/android, emscripten and webassembly for browser)
 - x11 and win32 targets without sdl dependency
 - maybe port jagex bzip2 too
-- tinysoundfont seems to break on powerpc cpus (wii, wiiu) and libtom specfically on wiiu only?
+- tinysoundfont seems to break on powerpc cpus (wii, wiiu)
 - mapview from java client and optional QOL changes from the java client teavm branch
 - icon/metadata/title etc for the different platforms: title+taskbar+desktop (see rsc-c for examples)
-- add CI: run make check/scan + artifacts
 - clean up keycodes (from rsc-c, EG non-emscripten single/double quotes + fkey keycodes are defined for emscripten only)
 - func args might partially differ in order to the Client repo due to being based off rs2-225: animbase, animframe, pix2d, pix3d, gameshell, jagfile, model, packet, pix8, pixfont, pixmap, redo them? inconsistent naming: used both world3d and scene for world3d, rename world3d to scene or at least for args? pix24 vs pix32
 - global search TODO, NOTE, and all platform defines, change many funcs+prototypes to static, look for missing/dupe client struct members and client funcs with different casing, finish debug command or remove it.

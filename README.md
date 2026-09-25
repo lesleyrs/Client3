@@ -1,7 +1,7 @@
 # RuneScape 2 revision #225 (18 May 2004) C99 port
 Portable single-threaded C client for early RS2, the last update before a new cache format and ondemand protocol.
 
-Compatible with [LostCity](https://github.com/LostCityRS/Server) (previously [2004Scape](https://github.com/2004Scape/Server)), the most accurate runescape remake!
+Compatible with [LostCity](https://github.com/LostCityRS/Server), the most accurate runescape remake!
 
 Features:
 - should work on any 32 bit system with 64 MB of RAM on lowmem, networking and a (read-only) filesystem.
@@ -10,22 +10,16 @@ Features:
 - optional [config.ini](example.ini) file to change client behaviour. Create an empty config.ini to avoid passing cli args.
 - OpenGL renderer, build with GL=1 in make or -gl in batchfile. ::gl ingame lets you toggle it visually. Do not build with GL support if you only want to use the software rasterizer to avoid continuous ram>vram copies!
 
-## Platforms and Compilers
-To move the executable you have to take the correct `SDL.dll`, `config.ini`, and the `rom/` directory along with it. The consoles will load it from sdcard if they don't embed the files already.
-
 type `::perf` command ingame to see fps and lrucache size
 
-all home consoles (wii, ps2, dreamcast, xbox) should be able to run the game at higher res or even full res on PAL TVs so you don't have to pan, but this isn't set up and emulators don't support many video modes.
+## Platforms
+To move the executable you have to take the correct `SDL.dll`, `config.ini`, and the `rom/` directory along with it. The consoles will load the rom/ directory from hard drive, sd card, cd, or romfs.
+
+When adding a new platform also add a system ttf font closest to helvetica in gameshell_draw_string when available to avoid Roboto dependency.
+
+Most consoles require panning to see the entire screen, there are forks for some targets that support 480p resolution.
 
 all consoles before the 6th generation generally have no standard way of connecting to the internet, much less ram, processing power, lower resolutions (240p or 480i). The engine fits quite well though (software rasterizer with gouraud/flat/textured triangles, fixed point, efficient 3d depth without qsort or zbuffer) but would have to be scoped down a lot.
-
-When adding a new platform also add system ttf font closest to helvetica in gameshell_draw_string when available to avoid Roboto dependency.
-
-To be able to run some emulators on WSL2 you may need to prefix `MESA_GL_VERSION_OVERRIDE=4.6 MESA_GLSL_VERSION_OVERRIDE=460`.
-
-If tcc from your package manager isn't working you should build latest [tcc](#tools) from source
-
-[v86](#tools) is a x86 PC emulator running in the browser, including older windows.
 
 ### Windows 95 to Windows 11
 To build simply run `build.bat` to get the client.exe, tinyc compiler and SDL dlls are provided (only SDL1 works prior to winXP and is only 32 bit)
@@ -42,6 +36,10 @@ build-tcc.bat -t 32 -i your/bindir
 build-tcc.bat -t 32 -c tcc -i your/bindir
 ```
 
+To be able to run some emulators on WSL2 you may need to prefix `MESA_GL_VERSION_OVERRIDE=4.6 MESA_GLSL_VERSION_OVERRIDE=460`.
+
+[v86](#tools) is a x86 PC emulator running in the browser, including older windows.
+
 You might want the updated [PowerShell](#tools) for run.ps1 (let's you run the game from shell process without terminate batch job message)
 
 ```
@@ -53,6 +51,8 @@ NOTE: on v86 PC emulator the cursor flickers on win95
 
 ### Linux GNU or musl
 Makefile: gcc, clang, tcc, mingw-gcc, emcc
+
+If tcc from your package manager isn't working you should build latest [tcc](#tools) from source
 
 arm+musl platforms like postmarketOS can use tcc but it requires some small tweaks:
 - comment out wchar_t in include/stddef.h
@@ -149,17 +149,15 @@ TODO: shutdown on dolphin X (same as retail games)
 NOTE: edges of pixmaps flicker and have incorrect color due to wii framebuffer setting 2 pixels at a time which can overlap.
 ```
 
-#### NDS (not working)
-DSI might work (16 mb ram, wpa2 wifi)
+#### NDS
+not working, DSI might work (16 mb ram, wpa2 wifi) with heavy changes. ENTRY=playground does work
 
 the gpu only has vram for 2k triangles and 6k verts, but render to framebuffer + half fps allows for double:
 https://blocksds.skylyrac.net/tutorial/advanced/video_capture/#6-two-pass-3d
 
 to boot in melonDS you need to set emulation to DSI, add firmware paths and enable sd card
 
-```
-NOTE: nitrofs takes the rom dir as the root so paths had to be changed (didn't full path work before?!)
-```
+rom/config.ini has to be modified before compiling as it's stored in nitrofs
 
 #### 3DS
 in citra emulator click `file>open citra folder` for sdmc dir https://citra-emulator.com/wiki/user-directory/
@@ -174,7 +172,7 @@ Controls:
 
 ```
 TODO: fix crashing sometimes on home button exit
-TODO: enable audio in lowmem, swkbd to type, backlight toggle? pica gpu hw accel
+TODO: backlight toggle? pica gpu hw accel
 TODO: possible to toggle top screen console? right now requires 2 loc changes
 TODO: see new 2ds/3ds performance with higher cpu clock, old 2ds runs at ~10-20
 ```
@@ -211,9 +209,7 @@ ppsspp emulator loads relative dir as memstick, so the filesystem works automati
 
 Controls: move cursor with analog stick, O for left click, X for right click, /\ for control, Dpad as arrow keys, Rtrigger + analog stick to pan, Ltrigger to reset screen position
 
-Works on real hardware but requires at least model 2000 due to only 24MB (28MB with kernel mode not sure if safe to use?) being accessible on model 1000, only lowmem fits in memory so we force lowmem in custom.c
-
-TODO: Could add sfx and/or midi in lowmem, since it's the most important highmem feature
+Works on real hardware but requires at least model 2000 due to only 24MB (28MB with kernel mode not sure if safe to use?) being accessible on model 1000
 
 ### Sony PS Vita
 Install [vitasdk](#tools) and run `make -f vita.mk -j$(nproc) -B`.
@@ -231,7 +227,7 @@ NOTE: https://github.com/Vita3K/Vita3K/issues/4064 vita3k emu doesn't support gl
 run `make vita_assets` to regenerate live area.
 
 ### Sony PS2
-not yet working, should be doable
+not started, should be doable
 ```
 TODO: see what softmods work on real hw, has 32 mb ram, builtin ethernet only for slim models
 ```
