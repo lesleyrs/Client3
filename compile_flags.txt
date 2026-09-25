@@ -21,8 +21,8 @@
 
 # -DSDL=1
 # -Ibin/SDL-devel-1.2.15-VC/SDL-1.2.15/include
-# -DSDL=2
-# -Ibin/SDL2-devel-2.30.9-VC/SDL2-2.30.9/include
+-DSDL=2
+-Ibin/SDL2-devel-2.30.9-VC/SDL2-2.30.9/include
 # -DSDL=3
 # -I/usr/local/include/
 # -D__WII__
@@ -31,8 +31,8 @@
 # -I/opt/devkitpro/libctru/include/
 # -D__WIIU__
 # -I/opt/devkitpro/wut/include/
-# -D__SWITCH__
-# -I/opt/devkitpro/libnx/include/
+-D__SWITCH__
+-I/opt/devkitpro/libnx/include/
 # -D__PSP__
 # -I/usr/local/pspdev/psp/sdk/include/
 # -D__vita__
@@ -42,11 +42,11 @@
 # -I/opt/toolchains/dc/kos/include
 # -I/opt/toolchains/dc/kos/kernel/arch/dreamcast/include
 
--D__NDS__
--DARM9
--DARM7
--I/opt/devkitpro/libnds/include/
--I/opt/devkitpro/calico/include/
+# -D__NDS__
+# -DARM9
+# -DARM7
+# -I/opt/devkitpro/libnds/include/
+# -I/opt/devkitpro/calico/include/
 
 # -DNXDK
 # -I../nxdk/lib

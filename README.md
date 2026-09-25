@@ -187,7 +187,15 @@ NOTE: highmem doesn't start due to tinysoundfont not working on powerpc
 ```
 
 #### Switch
-in suyu emulator (yuzu fork) click `file->open suyu folder` for sdmc dir
+install:
+`dkp-pacman -S switch-dev switch-sdl2`
+
+build:
+`make -f switch.mk -j$(nproc) -B`
+
+in eden emulator (yuzu fork) click `file->open eden folders` for sdmc dir
+
+move the rom/ directory into sdmc
 
 ### Sony PSP
 Install [pspdev](#tools) and run `make -f psp.mk -j$(nproc) -B`.

@@ -24,7 +24,7 @@ extern ClientData _Client;
 extern InputTracking _InputTracking;
 extern Custom _Custom;
 
-#ifdef __vita__
+#if defined(__vita__) || defined(__SWITCH__)
 static SDL_Joystick *joystick;
 #endif
 static bool right_touch = false;
@@ -142,7 +142,7 @@ bool platform_init(void) {
     if (!_Client.lowmem) {
         init |= SDL_INIT_AUDIO;
     }
-#ifdef __vita__
+#if defined(__vita__) || defined(__SWITCH__)
     init |= SDL_INIT_JOYSTICK;
 #endif
     if (SDL_Init(init) < 0) {
@@ -153,7 +153,7 @@ bool platform_init(void) {
 }
 
 void platform_new(GameShell *shell) {
-#ifdef __vita__
+#if defined(__vita__) || defined(__SWITCH__)
     SDL_JoystickEventState(SDL_ENABLE);
     joystick = SDL_JoystickOpen(0);
 #endif
@@ -287,7 +287,7 @@ void platform_new(GameShell *shell) {
 }
 
 void platform_free(void) {
-#ifdef __vita__
+#if defined(__vita__) || defined(__SWITCH__)
     SDL_JoystickClose(0);
 #endif
     if (_Custom.resizable) {
@@ -684,7 +684,7 @@ void platform_poll_events(Client *c) {
             key_released(c->shell, code, ch);
             break;
         }
-#ifdef __vita__
+#if defined(__vita__) || defined(__SWITCH__)
         case SDL_JOYAXISMOTION: {
             // rs2_log("axis %d value %d\n", e.jaxis.axis, e.jaxis.value);
         } break;

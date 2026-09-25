@@ -472,9 +472,9 @@ void client_load(Client *c) {
         c->error_loading = true;
     }
 
-// TODO temp: wait for wiiu and switch touch input fixes
 // TODO make screen fit in nds res for logins
-#if defined(__WIIU__) || defined(__SWITCH__) || defined(__NDS__)
+// TODO check if wiiu touch works
+#if defined(__WIIU__) || defined(__NDS__)
     client_login(c, c->username, c->password, false);
 #endif
 

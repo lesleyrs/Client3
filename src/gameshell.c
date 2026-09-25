@@ -13,6 +13,9 @@
 #ifdef __NDS__
 #include <nds.h>
 #endif
+#ifdef __SWITCH__
+#include <switch.h>
+#endif
 
 extern InputTracking _InputTracking;
 
@@ -85,6 +88,11 @@ void gameshell_run(Client *c) {
 #endif
 #ifdef __NDS__
         if (!pmMainLoop()) {
+            return;
+        }
+#endif
+#ifdef __SWITCH__
+        if (!appletMainLoop()) {
             return;
         }
 #endif

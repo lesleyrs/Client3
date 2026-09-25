@@ -300,7 +300,7 @@ Jagfile *load_archive_simple(const char *name, int crc, const char *display_name
     int8_t *data = NULL;
     int8_t *header = malloc(6);
     char filename[PATH_MAX];
-#ifdef __NDS__
+#if defined(__NDS__)
     snprintf(filename, sizeof(filename), "cache/client/%s", name);
 #else
     snprintf(filename, sizeof(filename), "rom/cache/client/%s", name);

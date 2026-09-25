@@ -55,6 +55,8 @@ Custom _Custom = {.chat_era = 2, .http_port = 80};
 bool load_ini_args(void) {
 #ifdef NXDK
     ini_t *config = ini_load("D:\\config.ini");
+#elif defined(__SWITCH__)
+    ini_t *config = ini_load("rom/config.ini");
 #else
     ini_t *config = ini_load("config.ini");
 #endif
@@ -83,6 +85,8 @@ bool load_ini_args(void) {
 void load_ini_config(Client *c) {
 #ifdef NXDK
     ini_t *config = ini_load("D:\\config.ini");
+#elif defined(__SWITCH__)
+    ini_t *config = ini_load("rom/config.ini");
 #else
     ini_t *config = ini_load("config.ini");
 #endif

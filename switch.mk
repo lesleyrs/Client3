@@ -42,7 +42,7 @@ BUILD		:=	build
 SOURCES		:=	src src/entry src/platform src/thirdparty src/wordenc src/datastruct src/sound
 DATA		:=	data
 INCLUDES	:=	include
-#ROMFS	:=	romfs
+# ROMFS	:=	rom
 DEBUG       :=  0
 
 #---------------------------------------------------------------------------------
