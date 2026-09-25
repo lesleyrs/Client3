@@ -259,5 +259,11 @@ sdl64:
 cpclients:
 	cp client.html index.html client.wasm client.wasm.map ../js/Server/engine/public/client/
 
+# icon0.png is favicon.ico scaled 2x, extents are based off template:
+# bg.png is title.jpg from Server/content/binary or client_load_title_background(), with top cut off to fit
+vita_assets:
+	magick favicon.ico -resize 200% -background none -gravity center -extent 128x128 sce_sys/icon0.png
+	magick bin/title.jpg \( bin/title.jpg -flop \) +append -background none -gravity south -extent 840x500 sce_sys/livearea/contents/bg.png
+
 playground: run
 midi: run

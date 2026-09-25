@@ -200,7 +200,6 @@ controls: dpad for arrow keys, A for right click on touch, B for control (run to
 
 ```
 TODO: left joystick cam, right joystick mouse pointer, left trigger right click, right trigger left click?
-TODO: make a switch release (along with rom dir dependency)
 NOTE: GL11 is probably not needed, maybe separate switch platform if issues occur
 NOTE: nxlink can be useful https://switch.homebrew.guide/homebrew_dev/app_dev.html#debugging
 ```
@@ -214,33 +213,20 @@ Controls: move cursor with analog stick, O for left click, X for right click, /\
 
 Works on real hardware but requires at least model 2000 due to only 24MB (28MB with kernel mode not sure if safe to use?) being accessible on model 1000, only lowmem fits in memory so we force lowmem in custom.c
 
-```
-NOTE: Could add sfx and/or midi in lowmem, since it's the most important highmem feature
-```
+TODO: Could add sfx and/or midi in lowmem, since it's the most important highmem feature
 
 ### Sony PS Vita
 Install [vitasdk](#tools) and run `make -f vita.mk -j$(nproc) -B`.
 
+Controls: touch as mouse, X for right click, /\ for control, Dpad as arrow keys
+
 For OpenGL to work you need to build with GL=1 and install `libshacccg.suprx`: https://github.com/Rinnegatamante/vitaGL/tree/master#prerequisites
+
+To see OpenGL error messages build vitaGL with LOG_ERRORS=1
 
 can test with Vita3K, instead of decompressing the vpk you can copy just the eboot.bin after changes (pass `-r VSDK20225` to run directly)
 
 NOTE: https://github.com/Vita3K/Vita3K/issues/4064 vita3k emu doesn't support glScissor so scene appears as white unless removed
-
-Controls: touch as mouse, X for right click, /\ for control, Dpad as arrow keys
-
-icon0.png is favicon.ico scaled 2x, extents are based off template:
-
-`magick favicon.ico -resize 200% -background none -gravity center -extent 128x128 sce_sys/icon0.png`
-
-bg.png is title.jpg from Server/content/binary or client_load_title_background(), with top cut off to fit
-
-`magick title.jpg \( title.jpg -flop \) +append -background none -gravity south -extent 840x500 sce_sys/livearea/contents/bg.png`
-
-```
-TODO: backside touch input, osk input
-TODO: add sdl3 to makefile or remove sdl altogether, it annoyingly saves sdl logs
-```
 
 ### Sony PS2
 not yet working, should be doable

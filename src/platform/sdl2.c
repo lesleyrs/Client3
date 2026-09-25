@@ -877,6 +877,7 @@ void platform_poll_events(Client *c) {
             last_touch_y = y;
 
             if (insideMobileInputArea(c)) {
+                // TODO: this doesn't allow removing pre-existing text on wiiu/switch, nothing happens on vita?
                 SDL_StartTextInput();
             }
 
