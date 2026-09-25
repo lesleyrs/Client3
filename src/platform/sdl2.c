@@ -684,7 +684,10 @@ void platform_poll_events(Client *c) {
             key_released(c->shell, code, ch);
             break;
         }
-#if defined(__SWITCH__)
+#if defined(__SWITCH__) || defined(__WIIU__)
+// https://github.com/devkitPro/SDL/blob/wiiu-sdl2-2.32/src/joystick/wiiu/SDL_wiiujoystick.h#L34C1-L44C3
+// https://github.com/devkitPro/SDL/blob/switch-sdl-2.28/src/joystick/switch/SDL_sysjoystick.c#L49
+
 #define JOY_A     0
 #define JOY_B     1
 #define JOY_X     2

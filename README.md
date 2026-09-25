@@ -184,6 +184,8 @@ in cemu emulator click `file>open Cemu folder`, enter sdcard directory and paste
 
 in cemu go to Debug>Open logging window to see output streams.
 
+controls: dpad for arrow keys, A for right click on touch, B for control (run toggle)
+
 ```
 NOTE: tinysoundfont lib doesn't work on powerpc?
 ```
