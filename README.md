@@ -197,6 +197,8 @@ in eden emulator (yuzu fork) click `file->open eden folders` for sdmc dir
 
 move the rom/ directory into sdmc
 
+set `lowmem = 0` in config for audio
+
 ### Sony PSP
 Install [pspdev](#tools) and run `make -f psp.mk -j$(nproc) -B`.
 
