@@ -1,4 +1,5 @@
 ![win2k](win2k.png)
+![switch](switch.webp)
 ![vita](vita.png)
 ![psp](psp.jpg)
 ![dreamcast](dreamcast.png)
