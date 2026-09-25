@@ -199,7 +199,7 @@ set `lowmem = 0` in config for audio
 controls: dpad for arrow keys, A for right click on touch, B for control (run toggle)
 
 ```
-TODO: add more controls
+TODO: improve controls and then make a switch release (along with rom dir dependency, or use romfs)
 TODO: use romfs to avoid copying files step? requires changing some paths and didn't work last time
 NOTE: GL11 is probably not needed, maybe separate switch platform if issues occur
 NOTE: nxlink can be useful https://switch.homebrew.guide/homebrew_dev/app_dev.html#debugging
