@@ -187,7 +187,8 @@ in cemu go to Debug>Open logging window to see output streams.
 controls: dpad for arrow keys, A for right click on touch, B for control (run toggle)
 
 ```
-NOTE: tinysoundfont lib doesn't work on powerpc?
+NOTE: sdl2 wav audio sounds a bit slow on cemu
+NOTE: tinysoundfont lib doesn't work on powerpc
 ```
 
 #### Switch
