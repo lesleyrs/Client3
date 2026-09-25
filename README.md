@@ -205,6 +205,7 @@ controls: dpad for arrow keys, A for right click on touch, B for control (run to
 TODO: add more controls
 TODO: use romfs to avoid copying files step? requires changing some paths and didn't work last time
 NOTE: GL11 is probably not needed, maybe separate switch platform if issues occur
+NOTE: nxlink can be useful https://switch.homebrew.guide/homebrew_dev/app_dev.html#debugging
 ```
 
 ### Sony PSP
