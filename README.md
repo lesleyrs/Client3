@@ -182,7 +182,7 @@ in cemu emulator click `file>open Cemu folder`, enter sdcard directory and paste
 
 in cemu go to Debug>Open logging window to see output streams.
 
-controls: dpad for arrow keys, A for right click on touch, B for control (run toggle)
+Controls: dpad for arrow keys, A unused, B for right click on touch, X for control (run toggle), Y for ::perf toggle
 
 ```
 NOTE: sdl2 wav audio sounds a bit slow on cemu
@@ -194,7 +194,7 @@ in eden emulator (yuzu fork) click `file->open eden folders` enter sdmc dir and 
 
 set `lowmem = 0` in config for audio
 
-controls: dpad for arrow keys, A for right click on touch, B for control (run toggle)
+Controls: dpad for arrow keys, A unused, B for right click on touch, X for control (run toggle), Y for ::perf toggle
 
 ```
 TODO: left joystick cam, right joystick mouse pointer, left trigger right click, right trigger left click?
@@ -214,7 +214,7 @@ Works on real hardware but requires at least model 2000 due to only 24MB (28MB w
 ### Sony PS Vita
 Install [vitasdk](#tools) and run `make -f vita.mk -j$(nproc) -B`.
 
-Controls: touch as mouse, X for right click, /\ for control, Dpad as arrow keys
+Controls: dpad for arrow keys, circle unused, cross for right click on touch, triangle for control (run toggle), square for ::perf toggle
 
 For OpenGL to work you need to build with GL=1 and install `libshacccg.suprx`: https://github.com/Rinnegatamante/vitaGL/tree/master#prerequisites
 

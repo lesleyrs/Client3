@@ -705,14 +705,15 @@ void platform_poll_events(Client *c) {
         case SDL_JOYBUTTONDOWN: {
             switch (e.jbutton.button) {
             case JOY_A:
-                right_touch = true;
                 break;
             case JOY_B:
-                key_pressed(c->shell, K_CONTROL, -1);
+                right_touch = true;
                 break;
             case JOY_X:
+                key_pressed(c->shell, K_CONTROL, -1);
                 break;
             case JOY_Y:
+                _Custom.show_performance = !_Custom.show_performance;
                 break;
             case JOY_DOWN:
                 key_pressed(c->shell, K_DOWN, -1);
@@ -732,12 +733,12 @@ void platform_poll_events(Client *c) {
         case SDL_JOYBUTTONUP: {
             switch (e.jbutton.button) {
             case JOY_A:
-                right_touch = false;
                 break;
             case JOY_B:
-                key_released(c->shell, K_CONTROL, -1);
+                right_touch = false;
                 break;
             case JOY_X:
+                key_released(c->shell, K_CONTROL, -1);
                 break;
             case JOY_Y:
                 break;
@@ -772,6 +773,7 @@ void platform_poll_events(Client *c) {
                 right_touch = true;
                 break;
             case 3: // Square
+                _Custom.show_performance = !_Custom.show_performance;
                 break;
             case 4: // L1
                 break;
