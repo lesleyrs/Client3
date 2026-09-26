@@ -22,6 +22,7 @@
 * https://github.com/Pazaz/RS2-225 - renamed java deob with builtin server
 * https://github.com/2003scape/rsc-client - bundled webworker/webrtc server idea in Client2 (old TS port)
 * https://github.com/2004Scape/Client2 - https://lesleyrs.github.io/Client2/?world=999&detail=high&method=0
+* https://github.com/thedaneeffect/RuneScape-317
 
 ## game history info
 * https://github.com/2004Scape/Server/wiki/FAQ
