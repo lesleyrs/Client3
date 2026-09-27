@@ -185,9 +185,6 @@ bool platform_init(void) {
     }
     chdir("nitro:/");
 
-    TIMER0_CR = TIMER_ENABLE | TIMER_DIV_1024;
-    // TIMER1_CR = TIMER_ENABLE | TIMER_CASCADE;
-
     Keyboard *kb = keyboardDemoInit();
     kb->OnKeyPressed = keyPressed;
 
