@@ -150,12 +150,12 @@ NOTE: edges of pixmaps flicker and have incorrect color due to wii framebuffer s
 ```
 
 #### NDS
-not working, DSI might work (16 mb ram, wpa2 wifi) with heavy changes. ENTRY=playground does work
+not working, DSi might work (16 mb ram, wpa2 wifi) with heavy changes. ENTRY=playground does work
 
 the gpu only has vram for 2k triangles and 6k verts, but render to framebuffer + half fps allows for double:
 https://blocksds.skylyrac.net/tutorial/advanced/video_capture/#6-two-pass-3d
 
-to boot in melonDS you need to set emulation to DSI, add firmware paths and enable sd card
+to boot in melonDS you need to set emulation to DSi, firmware paths + enable sd card, and use override settings from external firmware
 
 rom/config.ini has to be modified before compiling as it's stored in nitrofs
 
