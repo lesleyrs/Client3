@@ -33,9 +33,10 @@ bool platform_init(void) {
     cpuStartTiming(0xdeadbeef); // NOTE unused value, but not in blocksds?
     lcdMainOnBottom();
     consoleDemoInit();
-    // consoleDebugInit(DebugDevice_NOCASH); // melonDS spams too many networking logs
+    // consoleDebugInit(DebugDevice_NOCASH); // has to be disabled on hw for logging errors, need to detect if running in emu?
     videoSetMode(MODE_FB0);
     vramSetBankA(VRAM_A_LCD);
+    memset(fb, 0, SCREEN_FB_WIDTH * SCREEN_FB_HEIGHT * sizeof(uint16_t)); // clear garbage on fb
 
     if (!isDSiMode()) {
         rs2_error("NDS detected! only DSi is supported.\n");
