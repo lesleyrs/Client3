@@ -1972,9 +1972,7 @@ void world3d_draw_tileunderlay(World3D *world3d, TileUnderlay *underlay, int lev
 }
 
 void world3d_draw_tileoverlay(int tileX, int tileZ, TileOverlay *overlay, int sinEyePitch, int cosEyePitch, int sinEyeYaw, int cosEyeYaw) {
-    int vertexCount = overlay->vertexCount;
-
-    for (int i = 0; i < vertexCount; i++) {
+    for (int i = 0; i < overlay->vertexCount; i++) {
         int x = overlay->vertexX[i] - _World3D.eyeX;
         int y = overlay->vertexY[i] - _World3D.eyeY;
         int z = overlay->vertexZ[i] - _World3D.eyeZ;
@@ -2017,8 +2015,7 @@ void world3d_draw_tileoverlay(int tileX, int tileZ, TileOverlay *overlay, int si
 
 #ifdef GL11
     if (_Custom.use_opengl11) {
-        vertexCount = overlay->triangleCount;
-        for (int i = 0; i < vertexCount; i++) {
+        for (int i = 0; i < overlay->triangleCount; i++) {
             int a = overlay->triangleVertexA[i];
             int b = overlay->triangleVertexB[i];
             int c = overlay->triangleVertexC[i];
@@ -2068,8 +2065,7 @@ void world3d_draw_tileoverlay(int tileX, int tileZ, TileOverlay *overlay, int si
 #endif
     _Pix3D.alpha = 0;
 
-    vertexCount = overlay->triangleCount;
-    for (int v = 0; v < vertexCount; v++) {
+    for (int v = 0; v < overlay->triangleCount; v++) {
         int a = overlay->triangleVertexA[v];
         int b = overlay->triangleVertexB[v];
         int c = overlay->triangleVertexC[v];
