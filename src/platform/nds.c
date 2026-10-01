@@ -174,10 +174,29 @@ void platform_blit_surface(Surface *surface, int x, int y) {
 }
 void platform_update_surface(void) {
 }
+
+static inline u32 timerTicks2msec64(u64 ticks) {
+	return ticks*1000/BUS_CLOCK;
+}
+
 uint64_t rs2_now(void) {
-    return timerTicks2msec(cpuGetTiming());
+#if 1
+    static uint32_t last_ticks;
+    static uint64_t accum_ticks;
+
+    uint32_t now = cpuGetTiming();
+    uint32_t delta = now - last_ticks;
+    last_ticks = now;
+
+    accum_ticks += delta;
+
+    return timerTicks2msec64(accum_ticks);
+#else
+    return timerTicks2msec(cpuGetTiming()); // NOTE this only lasts 128 seconds until overflow (u32 max / ticks per sec)
+#endif
 }
 void rs2_sleep(int ms) {
+    // TODO: swiIntrWait with timers would be preferred to not busy wait
     uint64_t end = rs2_now() + ms;
     while (rs2_now() != end)
         ;
