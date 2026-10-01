@@ -46,18 +46,18 @@
 #define D(x) x##f
 #define DOUBLE float
 #define POW powf
+#define SQRT sqrtf
 #define COS cosf
 #define SIN sinf
-#define SQRT sqrtf
 #define TAN tanf
 #define ATAN2 atan2f
 #else
 #define D(x) x
 #define DOUBLE double
-#define COS cos
-#define SIN sin
 #define POW pow
 #define SQRT sqrt
+#define COS cos
+#define SIN sin
 #define TAN tan
 #define ATAN2 atan2
 #endif
