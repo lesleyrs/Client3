@@ -150,7 +150,7 @@ NOTE: edges of pixmaps flicker and have incorrect color due to wii framebuffer s
 ```
 
 #### NDS
-not working, DSi might work (16 mb ram, wpa2 wifi) with heavy changes. ENTRY=playground does work
+not working, DSi might work (16 mb ram, wpa2 wifi) with heavy changes but the resolution is too low for the viewport. ENTRY=playground does work
 
 the gpu only has vram for 2k triangles and 6k verts, but render to framebuffer + half fps allows for double:
 https://blocksds.skylyrac.net/tutorial/advanced/video_capture/#6-two-pass-3d
@@ -162,6 +162,8 @@ on 3ds you can use godmode9i or twilightmenu++ as ds loader
 rom/config.ini has to be modified before compiling as it's stored in nitrofs
 
 #### 3DS
+barely playable, the resolution is too low for the viewport and requires panning
+
 in citra emulator click `file>open citra folder` for sdmc dir https://citra-emulator.com/wiki/user-directory/
 
 on real hardware move the contents of the rom/ dir next to the 3dsx file.
@@ -205,6 +207,8 @@ NOTE: nxlink can be useful https://switch.homebrew.guide/homebrew_dev/app_dev.ht
 ```
 
 ### Sony PSP
+barely playable, the resolution is too low for the viewport and requires panning
+
 Install [pspdev](#tools) and run `make -f psp.mk -j$(nproc) -B`.
 
 ppsspp emulator loads relative dir as memstick, so the filesystem works automatically. Also you should probably enable printf logging with `settings>tools>developer tools>logging channels>printf` to EG verbose
