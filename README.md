@@ -157,6 +157,8 @@ https://blocksds.skylyrac.net/tutorial/advanced/video_capture/#6-two-pass-3d
 
 to boot in melonDS you need to set emulation to DSi, set bios/firmware/nand paths + enable sd card, and go to firmware settings > override settings from external firmware
 
+on 3ds you can use godmode9i or twilightmenu++ as ds loader
+
 rom/config.ini has to be modified before compiling as it's stored in nitrofs
 
 #### 3DS
