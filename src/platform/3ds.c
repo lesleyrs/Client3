@@ -5,6 +5,7 @@
 
 #include <3ds.h>
 #include <malloc.h>
+#include <unistd.h>
 
 #include "../client.h"
 #include "../gameshell.h"
@@ -78,6 +79,14 @@ static void soc_shutdown(void) {
 bool platform_init(void) {
     osSetSpeedupEnable(true);
 
+    // NOTE could use romfs, but we want access to config
+    // Result rc = romfsInit();
+    // if (rc) {
+    //     rs2_error("romfsInit: %08lX\n", rc);
+    //     return false;
+    // }
+    // chdir("romfs:/");
+
     // gfxInitDefault();
     gfxInit(GSP_RGBA8_OES, GSP_RGBA8_OES, 0);
 
@@ -98,14 +107,6 @@ bool platform_init(void) {
 void platform_new(GameShell *shell) {
     (void)shell;
     atexit(soc_shutdown);
-
-    // NOTE could use romfs, but we want access to config
-    /* Result romfs_res = romfsInit();
-
-    if (romfs_res) {
-        rs2_error("romfsInit: %08lX\n", romfs_res);
-        exit(1);
-    } */
 
     /* allocate buffer for SOC service (networking) */
     SOC_buffer = (u32 *)memalign(SOC_ALIGN, SOC_BUFFER_SIZE);

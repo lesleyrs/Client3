@@ -179,6 +179,7 @@ TODO: fix crashing sometimes on home button exit
 TODO: backlight toggle? pica gpu hw accel
 TODO: possible to toggle top screen between console and fb? right now requires 2 loc changes
 TODO: see new 2ds/3ds performance with higher cpu clock, old 2ds runs at ~10-20
+TODO: why romfs (when used) breaks map loc data, applies to wii u and switch too, can avoid by setting data to NULL to download
 ```
 
 #### Wii U
