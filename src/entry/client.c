@@ -3873,9 +3873,8 @@ static void handleInputKey(Client *c) {
                             } else if (strcmp(c->chat_typed, "::perf") == 0) {
                                 _Custom.show_performance = !_Custom.show_performance;
                             } else if (strcmp(c->chat_typed, "::gl") == 0) {
-                                _Custom.use_opengl11 = !_Custom.use_opengl11;
-
 #ifdef GL11
+                                _Custom.use_opengl11 = !_Custom.use_opengl11;
                                 char buf[MAX_STR];
                                 sprintf(buf, "OpenGL renderer is now %s.", _Custom.use_opengl11 ? "enabled" : "disabled");
                                 client_add_message(c, 0, buf, "");

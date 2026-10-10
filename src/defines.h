@@ -44,7 +44,7 @@
 // TODO: add ps2 here
 #if defined(__PSP__) || defined(__NDS__)
 #define D(x) x##f
-#define DOUBLE float
+typedef float DOUBLE;
 #define POW powf
 #define SQRT sqrtf
 #define COS cosf
@@ -53,7 +53,7 @@
 #define ATAN2 atan2f
 #else
 #define D(x) x
-#define DOUBLE double
+typedef double DOUBLE;
 #define POW pow
 #define SQRT sqrt
 #define COS cos
