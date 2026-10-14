@@ -115,7 +115,7 @@ void pixmap_draw(PixMap *pixmap, int x, int y) {
                 }
             }
 #else
-            for (int px = 0; px < >width; px++) {
+            for (int px = 0; px < width; px++) {
                 uint32_t rgb = src[py * width + px];
                 if (rgb != 0xffffffff) {
                     Point p = {(rgb >> 16) & 0xff, (rgb >> 8) & 0xff, rgb & 0xff, x + px, y + py};
