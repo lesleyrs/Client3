@@ -1076,10 +1076,10 @@ void model_draw(Model *m, int yaw, int sinCameraPitch, int cosCameraPitch, int s
                 _Model.vertex_view_space_y[v] = temp;
                 _Model.vertex_view_space_z[v] = z;
             }
-        }
 #ifdef GL11
-    }
+        }
 #endif
+    }
     // try {
     model_draw2(m, project, hasInput, key);
     // } catch ( Exception ignored) {
