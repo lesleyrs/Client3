@@ -126,6 +126,10 @@ static void midi_callback(void *data, uint8_t *stream, int len) {
 }
 
 bool platform_init(void) {
+    return true;
+}
+
+void platform_new(GameShell *shell) {
     SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
     if (_Custom.resizable) {
         SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"); // Linear scaling
@@ -147,12 +151,8 @@ bool platform_init(void) {
 #endif
     if (SDL_Init(init) < 0) {
         rs2_error("SDL_Init failed: %s\n", SDL_GetError());
-        return false;
+        exit(1);
     }
-    return true;
-}
-
-void platform_new(GameShell *shell) {
 #if defined(__vita__) || defined(__SWITCH__) || defined(__WIIU__)
     SDL_JoystickEventState(SDL_ENABLE);
     joystick = SDL_JoystickOpen(0);

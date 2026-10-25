@@ -131,18 +131,18 @@ static void midi_callback(void *data, SDL_AudioStream *stream, int additional_am
 }
 
 bool platform_init(void) {
+    return true;
+}
+
+void platform_new(GameShell *shell) {
     int init = SDL_INIT_VIDEO;
     if (!_Client.lowmem) {
         init |= SDL_INIT_AUDIO;
     }
     if (!SDL_Init(init)) {
         rs2_error("SDL3: SDL_Init failed: %s\n", SDL_GetError());
-        return false;
+        exit(1);
     }
-    return true;
-}
-
-void platform_new(GameShell *shell) {
     int win_flags = 0;
     if (_Custom.resizable) {
         win_flags |= SDL_WINDOW_RESIZABLE;

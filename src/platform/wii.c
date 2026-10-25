@@ -158,17 +158,15 @@ bool platform_init(void) {
 
     KEYBOARD_Init(NULL);
     MOUSE_Init();
+    return true;
+}
 
+void platform_new(GameShell *shell) {
     // if (!_Client.lowmem) {
     //     AUDIO_Init(NULL);
     //     ASND_Init();
     //     ASND_Pause(0); // TODO move
     // }
-
-    return true;
-}
-
-void platform_new(GameShell *shell) {
     (void)shell;
 }
 void platform_free(void) {

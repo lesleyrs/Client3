@@ -129,19 +129,19 @@ static void midi_callback(void *data, Uint8 *stream, int len) {
 }
 
 bool platform_init(void) {
+    return true;
+}
+
+void platform_new(GameShell *shell) {
     int init = SDL_INIT_VIDEO;
     if (!_Client.lowmem) {
         init |= SDL_INIT_AUDIO;
     }
     if (SDL_Init(init) < 0) {
         rs2_error("SDL_Init failed: %s\n", SDL_GetError());
-        return false;
+        exit(1);
     }
 
-    return true;
-}
-
-void platform_new(GameShell *shell) {
     SDL_EnableUNICODE(1);
     SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
     SDL_WM_SetCaption("Jagex", NULL);

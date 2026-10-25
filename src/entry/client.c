@@ -10487,6 +10487,7 @@ static bool secured = false;
 
 int main(int argc, char **argv) {
     // init screen before logging is required for some platforms
+    // NOTE: this means you can't depend on config settings being loaded
     if (!platform_init()) {
         rs2_error("Failed to init platform!\n");
         rs2_sleep(5000);
