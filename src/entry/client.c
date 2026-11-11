@@ -8340,7 +8340,7 @@ void project(Client *c, int x, int y, int z) {
     }
 }
 
-static void draw2DEntityElements(Client *c) {
+static void draw3DEntityElements(Client *c) {
     c->chatCount = 0;
 
     for (int index = -1; index < c->player_count + c->npc_count; index++) {
@@ -8832,7 +8832,7 @@ static void drawTooltip(Client *c) {
     drawStringTooltip(c->font_bold12, 4, 15, tooltip, WHITE, true, _Client.loop_cycle / 1000);
 }
 
-static void draw3DEntityElements(Client *c) {
+static void draw2DEntityElements(Client *c) {
     drawPrivateMessages(c);
     if (c->cross_mode == 1) {
         pix24_draw(c->image_crosses[c->cross_cycle / 100], c->crossX - 8 - 8, c->crossY - 8 - 11);
@@ -9003,10 +9003,10 @@ void client_draw_scene(Client *c) {
     gl_end_drawscene(c);
 
     world3d_clear_temporarylocs(c->scene);
-    draw2DEntityElements(c);
+    draw3DEntityElements(c);
     drawTileHint(c);
     updateTextures(c, jitter);
-    draw3DEntityElements(c);
+    draw2DEntityElements(c);
 
     static uint64_t pixmap_now;
     static uint64_t pixmap_last;
